@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.LoginController">
+
+    <VBox alignment="CENTER" maxWidth="550.0" prefHeight="300.0" spacing="25.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 8); -fx-padding: 40;">
+
+        <Label style="-fx-text-fill: #008000; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-style: italic; -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 1, 1);" text="ĐẤU GIÁ 88" />
+
+        <GridPane alignment="CENTER" hgap="15.0" vgap="20.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" minWidth="120.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="300.0" />
+            </columnConstraints>
+
+            <rowConstraints>
+                <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Tên đăng nhập:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="txtLoginUser" promptText="Nhập tên đăng nhập" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+            <HBox alignment="CENTER_LEFT" spacing="0.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+
+                <StackPane HBox.hgrow="ALWAYS">
+                    <PasswordField fx:id="hiddenPasswordField" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" />
+                    <TextField fx:id="visiblePasswordField" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" visible="false" />
+                </StackPane>
+
+                <StackPane fx:id="passwordToggleIconArea" alignment="CENTER" onMouseClicked="#togglePasswordVisible" style="-fx-padding: 0 10 0 10; -fx-cursor: hand;">
+                    <Label fx:id="eyeIconShow" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Hiện" />
+                    <Label fx:id="eyeIconHide" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Ẩn" visible="false" />
+                </StackPane>
+
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <Button onAction="#handleLogin" style="-fx-background-color: #f1f3f4; -fx-text-fill: #2e7d32; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 20; -fx-background-radius: 6; -fx-border-color: #c8e6c9; -fx-border-radius: 6; -fx-cursor: hand;" text="Đăng nhập" />
+                <Label minWidth="-Infinity" style="-fx-font-size: 14px; -fx-text-fill: #444;" text="Chưa có tài khoản?" />
+                <Hyperlink minWidth="-Infinity" onAction="#goToRegister" style="-fx-text-fill: #d32f2f; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 0; -fx-border-color: transparent;" text="Đăng ký" />
+            </HBox>
+        </GridPane>
+
+    </VBox>
+</StackPane>
