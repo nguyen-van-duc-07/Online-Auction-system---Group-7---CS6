@@ -11,6 +11,12 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: write
+
     strategy:
       matrix:
         java-version: [21]
@@ -32,11 +38,6 @@ jobs:
       - name: Run all tests
         run: mvn test
 
-      - name: Test Auction_server module
-        run: mvn test -pl Auction_server
-
-      - name: Test Auction_client module
-        run: mvn test -pl Auction_client
 
       - name: Upload build artifacts
         if: success()
