@@ -44,8 +44,8 @@
                 </StackPane>
 
                 <StackPane fx:id="passwordToggleIconArea" alignment="CENTER" style="-fx-padding: 0 10 0 10; -fx-cursor: hand;" onMouseClicked="#togglePasswordVisibility">
-                    <Label fx:id="eyeIconShow" text="Show" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
-                    <Label fx:id="eyeIconHide" text="Hide" visible="false" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                    <Label fx:id="eyeIconShow" text="Hiện" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                    <Label fx:id="eyeIconHide" text="Ẩn" visible="false" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
                 </StackPane>
 
             </HBox>
