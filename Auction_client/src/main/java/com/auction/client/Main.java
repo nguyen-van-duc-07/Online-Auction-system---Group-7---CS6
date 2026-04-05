@@ -1,5 +1,6 @@
 package com.auction.client;
 
+import com.auction.shared.model.Bidder;
 import com.auction.shared.model.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,7 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.setTitle("Đăng nhập");
         stage.show();
+        userDatabase.put("123", new Bidder("123", "123"));
     }
 
     public static void main(String[] args) {

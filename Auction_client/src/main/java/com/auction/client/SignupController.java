@@ -82,12 +82,20 @@ public class SignupController {
             show("Mật khẩu xác nhận không khớp!");
             return;
         }
+        if (Main.userDatabase.containsKey(username)) {
+            show("Tài khoản đã tồn tại!");
+            txtUser.setText("");
+            if (isPasswordVisible) {pwdVisible.clear();}
+            else {pwdHidden.clear();}
+            if (isConfirmVisible) {confirmPwdVisible.clear();}
+            else {confirmPwdHidden.clear();}
+            return;
+        }
 
         // Tạo tài khoản mới, mặc định là Bidder
         User user = new Bidder(username, password);
 
         Main.userDatabase.put(username, user);
-        Main.userRoles.put(username, "Bidder");
         show("Đăng ký thành công tài khoản: " + username);
 
         gotoLogin(event);

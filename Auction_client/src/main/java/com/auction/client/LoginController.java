@@ -73,17 +73,11 @@ public class LoginController {
 
         // 4. Vượt qua hết các lỗi trên -> Đăng nhập thành công!
         try {
-            // Lấy vai trò của user này từ bộ nhớ tạm
-            String role = Main.userRoles.get(username);
-
-            // Nếu là Bidder thì mở bidder.fxml, nếu là Seller thì mở seller.fxml
-            String NEXT_SCREEN_FXML = role.equals("Bidder") ? "bidder.fxml" : "seller.fxml";
-
-            Parent root = FXMLLoader.load(getClass().getResource(NEXT_SCREEN_FXML));
+            Parent root = FXMLLoader.load(getClass().getResource("Home.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
-            stage.setTitle("Trang chủ - " + role);
+            stage.setTitle("Trang chủ");
             stage.show();
 
         } catch (Exception e) {
