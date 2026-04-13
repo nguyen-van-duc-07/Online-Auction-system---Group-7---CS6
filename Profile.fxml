@@ -25,10 +25,6 @@
                 <Insets left="20.0" right="20.0" />
             </padding>
 
-            <left>
-                <Button mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Switch to Seller Mode" textFill="#2980b9" BorderPane.alignment="CENTER" />
-            </left>
-
             <center>
                 <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                     <font>
@@ -137,7 +133,7 @@
                             <Insets top="20.0" />
                         </padding>
                         <children>
-                            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Lưu thay đổi">
+                            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Lưu">
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font>
