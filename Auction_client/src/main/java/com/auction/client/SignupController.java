@@ -4,20 +4,11 @@ import com.auction.shared.model.Bidder;
 import com.auction.shared.model.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
-import java.io.IOException;
-
-public class SignupController {
-
+public class SignupController
+{
     @FXML private TextField txtUser;
     @FXML private PasswordField pwdHidden;
     @FXML private TextField pwdVisible;
@@ -32,16 +23,19 @@ public class SignupController {
     private boolean isConfirmVisible = false;
 
     @FXML
-    private void togglePasswordVisible(MouseEvent event) {
+    private void togglePasswordVisible(MouseEvent event)
+    {
         isPasswordVisible = !isPasswordVisible;
-        if (isPasswordVisible) {
+        if (isPasswordVisible)
+        {
             pwdVisible.setText(pwdHidden.getText());
             pwdVisible.setVisible(true);
             pwdHidden.setVisible(false);
             eyeHide.setVisible(true);
             eyeShow.setVisible(false);
         }
-        else {
+        else
+        {
             pwdHidden.setText(pwdVisible.getText());
             pwdHidden.setVisible(true);
             pwdVisible.setVisible(false);
@@ -50,15 +44,19 @@ public class SignupController {
         }
     }
     @FXML
-    private void toggleConfirmPasswordVisible(MouseEvent event) {
+    private void toggleConfirmPasswordVisible(MouseEvent event)
+    {
         isConfirmVisible = !isConfirmVisible;
-        if (isConfirmVisible) {
+        if (isConfirmVisible)
+        {
             confirmPwdVisible.setText(confirmPwdHidden.getText());
             confirmPwdVisible.setVisible(true);
             confirmPwdHidden.setVisible(false);
             confirmEyeShow.setVisible(false);
             confirmEyeHide.setVisible(true);
-        } else {
+        }
+        else
+        {
             confirmPwdHidden.setText(confirmPwdVisible.getText());
             confirmPwdHidden.setVisible(true);
             confirmPwdVisible.setVisible(false);
@@ -68,22 +66,26 @@ public class SignupController {
     }
 
     @FXML
-    private void handleRegister(ActionEvent event) {
+    private void handleRegister(ActionEvent event)
+    {
         String username = txtUser.getText();
         String password = isPasswordVisible ? pwdVisible.getText() : pwdHidden.getText();
         String confirm = isConfirmVisible ? confirmPwdVisible.getText() : confirmPwdHidden.getText();
 
-        if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-            show("Vui lòng nhập đầy đủ thông tin!");
+        if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) // Ô nhập thông tin rỗng
+        {
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ thông tin!", event);
             return;
         }
 
-        if (!password.equals(confirm)) {
-            show("Mật khẩu xác nhận không khớp!");
+        if (!password.equals(confirm)) // Nếu sai mật khẩu xác nhận
+        {
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Mật khẩu xác nhận không khớp!", event);
             return;
         }
-        if (Main.userDatabase.containsKey(username)) {
-            show("Tài khoản đã tồn tại!");
+        if (Main.userDatabase.containsKey(username)) // Nếu tài khoản đã tồn tại
+        {
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Tài khoản đã tồn tại!", event);
             txtUser.setText("");
             if (isPasswordVisible) {pwdVisible.clear();}
             else {pwdHidden.clear();}
@@ -96,29 +98,14 @@ public class SignupController {
         User user = new Bidder(username, password);
 
         Main.userDatabase.put(username, user);
-        show("Đăng ký thành công tài khoản: " + username);
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Đăng ký thành công tài khoản: " + username, event);
 
         gotoLogin(event);
     }
 
-    private void gotoLogin(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Đăng nhập");
-            stage.show();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void show(String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+    @FXML
+    private void gotoLogin(ActionEvent event)
+    {
+        ScreenController.switchScreen(event, "Login.fxml", "Đăng nhập");
     }
 }

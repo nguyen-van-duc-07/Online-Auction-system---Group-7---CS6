@@ -2,20 +2,14 @@ package com.auction.client;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
-import java.io.IOException;
-import com.auction.shared.model.User;
 
-public class LoginController {
+public class LoginController
+{
 
     @FXML private TextField txtLoginUser;
     @FXML private PasswordField hiddenPasswordField;
@@ -26,7 +20,8 @@ public class LoginController {
     private boolean isPasswordVisible = false;
 
     @FXML
-    private void togglePasswordVisible(MouseEvent event) {
+    private void togglePasswordVisible(MouseEvent event)
+    {
         // Chuyển sang trạng thái ngược lại
         isPasswordVisible = !isPasswordVisible;
         if (isPasswordVisible) {
@@ -37,7 +32,8 @@ public class LoginController {
             eyeIconHide.setVisible(true);
             eyeIconShow.setVisible(false);
         }
-        else {
+        else
+        {
             hiddenPasswordField.setText(visiblePasswordField.getText());
             hiddenPasswordField.setVisible(true);
             visiblePasswordField.setVisible(false);
@@ -47,64 +43,41 @@ public class LoginController {
     }
     // Logic đăng nhập
     @FXML
-    private void handleLogin(ActionEvent event) {
+    private void handleLogin(ActionEvent event)
+    {
         String username = txtLoginUser.getText();
         String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
         // 1. Kiểm tra xem người dùng đã nhập đủ thông tin chưa
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert("Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
+        if (username.isEmpty() || password.isEmpty())
+        {
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!", event);
             return;
         }
 
         // 2. Kiểm tra xem tài khoản có tồn tại trong bộ nhớ tạm chưa
-        if (!Main.userDatabase.containsKey(username)) {
+        if (!Main.userDatabase.containsKey(username))
+        {
             // NẾU CHƯA CÓ TÀI KHOẢN
-            showAlert("Chưa có tài khoản!");
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Chưa có tài khoản!", event);
             return;
         }
 
         // 3. Nếu tài khoản có tồn tại, kiểm tra xem mật khẩu có khớp không
-        if (!Main.userDatabase.get(username).getPassword().equals(password)) {
+        if (!Main.userDatabase.get(username).getPassword().equals(password))
+        {
             // NẾU SAI MẬT KHẨU
-            showAlert("Mật khẩu không chính xác!");
+            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Mật khẩu không chính xác!", event);
             return;
         }
 
         // 4. Vượt qua hết các lỗi trên -> Đăng nhập thành công!
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("Home.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Trang chủ");
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Lỗi: Không tải được giao diện trang chủ!");
-        }
+        ScreenController.switchScreen(event, "Home.fxml", "Trang chủ");
     }
 
     @FXML
-    private void goToRegister(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("Signup.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Đăng ký");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void showAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+    private void goToRegister(ActionEvent event)
+    {
+        ScreenController.switchScreen(event, "Signup.fxml", "Đăng ký");
     }
 }
