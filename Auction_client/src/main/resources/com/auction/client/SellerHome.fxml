@@ -38,7 +38,7 @@
                         <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
                         <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
                             <items>
-                                <MenuItem mnemonicParsing="false" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
                                 <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
                                 <MenuItem mnemonicParsing="false" text="Ví người dùng" />
                             </items>
