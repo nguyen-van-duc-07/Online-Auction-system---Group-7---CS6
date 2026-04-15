@@ -24,10 +24,7 @@ public class Main extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        Scene scene = new Scene(FXMLLoader.load(getClass().getResource("Login.fxml")));
-        stage.setScene(scene);
-        stage.setTitle("Đăng nhập");
-        stage.show();
+        ScreenController.switchScreen(null, "Login.fxml", "Đăng nhập");
         userDatabase.put("123", new Bidder("123", "123"));
     }
 

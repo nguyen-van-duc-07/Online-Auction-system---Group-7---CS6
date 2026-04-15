@@ -44,4 +44,10 @@ public class ProfileController
         String phoneNumber = phoneNumberField.getText();
         LocalDate birthDate = dateOfBirthField.getValue();
     }
+
+    @FXML
+    public void gotoWallet(ActionEvent event)
+    {
+        ScreenController.switchScreen(event, "Wallet.fxml", "Ví người dùng");
+    }
 }

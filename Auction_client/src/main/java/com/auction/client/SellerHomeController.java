@@ -30,4 +30,10 @@ public class SellerHomeController
     {
         ScreenController.switchScreen(event, "Profile.fxml", "Thông tin tài khoản");
     }
+
+    @FXML
+    public void gotoWallet(ActionEvent event)
+    {
+        ScreenController.switchScreen(event, "Wallet.fxml", "Ví người dùng");
+    }
 }

@@ -18,14 +18,22 @@ public class HomeController
             }
         });
     }
+
     @FXML
     public void gotoSellerHome(ActionEvent event)
     {
         ScreenController.switchScreen(event, "SellerHome.fxml", "Quản lý sản phẩm (Seller)");
     }
+
     @FXML
     public void gotoProfile(ActionEvent event)
     {
         ScreenController.switchScreen(event, "Profile.fxml", "Thông tin tài khoản");
+    }
+
+    @FXML
+    public void gotoWallet(ActionEvent event)
+    {
+        ScreenController.switchScreen(event, "Wallet.fxml", "Ví người dùng");
     }
 }
