@@ -41,7 +41,7 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
                                 <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
-                        <MenuItem mnemonicParsing="false" text="Ví người dùng" />
+                        <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
                             </items>
                         </MenuButton>
                     </children>
