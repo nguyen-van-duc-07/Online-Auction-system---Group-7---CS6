@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER" spacing="10.0"
+      xmlns="http://javafx.com/fxml/1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.auctionclient.LoginController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <Label text="LOGIN" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameTextfield" promptText="Username"/>
+    <PasswordField fx:id="passwordTextfield" promptText="Password"/>
+
+    <Button text="Login" onAction="#loginButtonOnAction" prefWidth="100"/>
+
+    <Label fx:id="incorrect" textFill="RED"/>
+</VBox>
