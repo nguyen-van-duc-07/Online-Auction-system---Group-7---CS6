@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/KeDuc_AuctionSystem.iml" filepath="$PROJECT_DIR$/KeDuc_AuctionSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Online-Auction-system---Group-7---CS6.iml" filepath="$PROJECT_DIR$/.idea/Online-Auction-system---Group-7---CS6.iml" />
     </modules>
   </component>
 </project>

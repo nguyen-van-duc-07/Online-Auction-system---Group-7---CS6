@@ -1,37 +1,37 @@
 package com.auction.shared.model.item;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+// Nhớ import ArtDTO nếu nó nằm ở package khác nhé
+// import com.auction.shared.dto.ArtDTO;
 
-public class Art extends Item{
-    private String artistName, material;
+public class Art extends Item {
+
+    private String artistName;
+    private String material;
     private int yearCreated;
     private boolean hasCertificate;
-    //Constructor dùng cho tạo mới sản phẩm từ giao diện người bán.
-    public Art(String name, String category, String description,
-                       String sellerId, String imageUrl, BigDecimal basePrice,
-                       String artistName, String material, int yearCreated, boolean hasCertificate){
-        super(name, "Art", description, sellerId, imageUrl, basePrice);
-        this.artistName = artistName;
-        this.material = material;
-        this.yearCreated = yearCreated;
-        this.hasCertificate = hasCertificate;
+
+    // Gộp 2 constructor rườm rà thành 1 constructor duy nhất dùng DTO
+    public Art(ArtDTO dto) {
+        // Đẩy phần thông tin chung (id, name, price,...) lên cho class Item xử lý
+        super(dto);
+
+        // Xử lý các thông tin riêng biệt của Art
+        this.artistName = dto.getArtistName();
+        this.material = dto.getMaterial();
+        this.yearCreated = dto.getYearCreated();
+
+        // Lưu ý: Thường getter của kiểu boolean sẽ có tiền tố là 'is' thay vì 'get'
+        this.hasCertificate = dto.isHasCertificate();
     }
-    //Constructor dùng cho ItemDAO khi đọc dữ liệu từ MySQL.
-    public Art(String id, LocalDateTime createdAt, String name, String category, String description,
-               String sellerId, String imageUrl, BigDecimal basePrice,
-               String artistName, String material, int yearCreated, boolean hasCertificate){
-        super(id, createdAt, name, "Art", description, sellerId, imageUrl, basePrice);
-        this.artistName = artistName;
-        this.material = material;
-        this.yearCreated = yearCreated;
-        this.hasCertificate = hasCertificate;
-    }
+
     @Override
     public String getSpecificDetails() {
         return String.format("Tác giả: %s | Chất liệu: %s | Năm ra mắt: %d | Chứng nhận: %s",
                 artistName, material, yearCreated, hasCertificate ? "Có" : "Không");
     }
+
+    // --- Các Getter và Setter ---
+
     public String getArtistName() { return artistName; }
     public void setArtistName(String artistName) { this.artistName = artistName; }
 
@@ -41,6 +41,7 @@ public class Art extends Item{
     public int getYearCreated() { return yearCreated; }
     public void setYearCreated(int yearCreated) { this.yearCreated = yearCreated; }
 
-    public boolean HasCertificate() { return hasCertificate; }
+    // Sửa lại tên hàm này thành isHasCertificate cho đúng chuẩn Naming Convention của Java nhé
+    public boolean isHasCertificate() { return hasCertificate; }
     public void setHasCertificate(boolean hasCertificate) { this.hasCertificate = hasCertificate; }
 }

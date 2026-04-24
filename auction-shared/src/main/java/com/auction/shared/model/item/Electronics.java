@@ -7,23 +7,14 @@ public class Electronics extends Item{
     private String brand;
     private int warrantyMonths;
     private String condition;
-    //Constructor dùng cho tạo mới sản phẩm từ giao diện người bán.
-    public Electronics(String name, String category, String description,
-                       String sellerId, String imageUrl, BigDecimal basePrice,
-                       String brand, int warrantyMonths, String condition){
-        super(name, "Electronics", description, sellerId, imageUrl, basePrice);
-        this.brand = brand;
-        this.warrantyMonths = warrantyMonths;
-        this.condition = condition;
-    }
-    //Constructor dùng cho ItemDAO khi đọc dữ liệu từ MySQL.
-    public Electronics(String id, LocalDateTime createdAt, String name, String category,
-                       String description, String sellerId, String imageUrl,
-                       BigDecimal basePrice, String brand, int warrantyMonths, String condition){
-        super(id, createdAt, name, "Electronics", description, sellerId, imageUrl, basePrice);
-        this.brand = brand;
-        this.warrantyMonths = warrantyMonths;
-        this.condition = condition;
+    public Electronics(ElectronicsDTO dto) {
+        // Đẩy toàn bộ thuộc tính cơ bản lên cho Item xử lý
+        super(dto);
+
+        // Tự xử lý các thuộc tính riêng của Electronics
+        this.brand = dto.getBrand();
+        this.warrantyMonths = dto.getWarrantyMonths();
+        this.condition = dto.getCondition();
     }
 
     @Override
