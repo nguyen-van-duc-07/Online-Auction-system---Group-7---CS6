@@ -2,14 +2,14 @@ name: Java Maven CI
 
 on:
   push:
-    branches: [ main, develop, VanDuc ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
   build:
     name: Build and Test
-    runs-on: ubuntu-latest
+    runs-on: $ {{ matrix.os }}
 
     permissions:
       contents: read
@@ -20,26 +20,29 @@ jobs:
     strategy:
       matrix:
         java-version: [21]
+        os: [ubuntu-lastest, windows-lastest, macos-lastest] # Chạy song song trên cả 3 hệ điều hành
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Lấy code về
 
       - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v3 # Cài JDK
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
-          cache: maven
+          cache: maven # Lưu cache trên github
 
+        # Dọn dẹp code cũ và biên dịch toàn bộ code mới ở cả 3 thư mục shared, server, client, đóng gói thành .jar. -DskipTests ép Maven bỏ qua việc chạy test lúc này
       - name: Build all modules with Maven
         run: mvn clean package -DskipTests
 
+        # Chạy toàn bộ các JUnit, nếu lỗi sẽ báo đỏ và dừng ngay lập tức
       - name: Run all tests
         run: mvn test
 
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts # Lưu trữ, giữ lại file .jar
         if: success()
         uses: actions/upload-artifact@v4
         with:
@@ -49,14 +52,14 @@ jobs:
             Auction_client/target/*.jar
           retention-days: 30
 
-      - name: Publish test results
+      - name: Publish test results # Báo cáo
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: '**/target/surefire-reports/*.xml'
           check_name: 'Test Results'
 
-      - name: Comment PR on success
+      - name: Comment PR on success # Viết bình luận vào Pull Request nếu chạy Test thành công
         if: github.event_name == 'pull_request' && success()
         uses: actions/github-script@v6
         with:
@@ -68,7 +71,7 @@ jobs:
               body: '✅ **Build & Tests Passed!**\n\n- ✅ All modules compiled successfully\n- ✅ All unit tests passed\n- ✅ Code quality verified\n\nReady to merge!'
             })
 
-      - name: Comment PR on failure
+      - name: Comment PR on failure # Viết bình luận vào Pull Request nếu chạy Test không thành công
         if: github.event_name == 'pull_request' && failure()
         uses: actions/github-script@v6
         with:
