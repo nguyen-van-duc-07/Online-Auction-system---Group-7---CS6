@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         java-version: [21]
-        os: [ubuntu-lastest, windows-lastest, macos-lastest] # Chạy song song trên cả 3 hệ điều hành
+        os: [ubuntu-latest, windows-latest, macos-latest] # Chạy song song trên cả 3 hệ điều hành
 
     steps:
       - name: Checkout code
