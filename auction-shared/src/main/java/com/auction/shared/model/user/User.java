@@ -2,8 +2,10 @@ package com.auction.shared.model.user;
 
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.core.Entity;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+@NoArgsConstructor
 
 abstract public class User extends Entity {
     protected String userName;
@@ -13,48 +15,16 @@ abstract public class User extends Entity {
     protected String phoneNumber;
     protected UserRole role;
 
-    public User() {
-    }
-
-    public User(String userName, String password, String email, LocalDate dob, String phoneNumber, UserRole role) {
+    public User(UserDTO dto) {
         super();
-        this.userName = userName;
-        this.password = password;
-        this.email = email;
-        this.dob = dob;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
+        this.userName = dto.getUserName();
+        this.password = dto.getPassword();
+        this.email = dto.getEmail();
+        this.dob = dto.getDob();
+        this.phoneNumber = dto.getPhoneNumber();
+        this.role = dto.getRole();
     }
-
-    public String getUserName() {
-        return userName;
+    public boolean isAdmin() {
+        return UserRole.ADMIN.equals(this.role);
     }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public LocalDate getDob() {
-        return dob;
-    }
-    public void setDob(LocalDate dob) {
-        this.dob = dob;
-    }
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    public UserRole getRole() {
-        return role;
-    }
-
 }

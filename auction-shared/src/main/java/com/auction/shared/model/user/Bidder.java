@@ -1,25 +1,23 @@
 package com.auction.shared.model.user;
-
-import com.auction.shared.enums.UserRole;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+
 public class Bidder extends User{
     private Wallet wallet;
-    private List<String> joinedAuctionIds;
     private SellerProfile sellerProfile;
+    private List<String> joinedAuctionIds; // Lưu danh sách ID các phiên đã tham gia
 
-    public Bidder() {
-    }
-
-    public Bidder(String userName, String password, String email, LocalDate dob, String phoneNumber) {
-        super(userName, password, email, dob, phoneNumber, UserRole.BIDDER);
-        this.wallet = new Wallet();
+    public Bidder(UserDTO dto) {
+        super(dto); // Gọi constructor của cha để gán các thuộc tính chung
+        this.wallet = new Wallet(); // Khởi tạo ví mới cho người đấu giá
         this.joinedAuctionIds = new ArrayList<>();
-        this.sellerProfile = null;
     }
 
     public void openSellerProfile() {
@@ -29,30 +27,15 @@ public class Bidder extends User{
         this.sellerProfile = new SellerProfile(this.id);
     }
     public void bid(String auctionId, BigDecimal amount){
+        // 1. Kiểm tra tiền trước khi freeze
+        if (this.wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Số dư không đủ để thực hiện trả giá!");
+        }
+        // 2. Đóng băng tiền
         this.wallet.freeze(amount);
-    }
-
-    public Wallet getWallet() {
-        return wallet;
-    }
-
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
-    }
-
-    public List<String> getJoinedAuctionIds() {
-        return joinedAuctionIds;
-    }
-
-    public void setJoinedAuctionIds(List<String> joinedAuctionIds) {
-        this.joinedAuctionIds = joinedAuctionIds;
-    }
-
-    public SellerProfile getSellerProfile() {
-        return sellerProfile;
-    }
-
-    public void setSellerProfile(SellerProfile sellerProfile) {
-        this.sellerProfile = sellerProfile;
+        // 3. Thêm vào danh sách tham gia nếu chưa có
+        if (!joinedAuctionIds.contains(auctionId)) {
+            joinedAuctionIds.add(auctionId);
+        }
     }
 }

@@ -4,59 +4,67 @@ import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.core.Entity;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.transaction.BidTransaction;
+import jakarta.persistence.*; // Dùng Jakarta cho Spring Boot 3
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 
+@Getter
+@Setter
+@NoArgsConstructor // Cần thiết cho JPA
+@jakarta.persistence.Entity
+@Table(name = "auctions")
 public class Auction extends Entity {
+
+    @OneToOne // Giả định mỗi phiên đấu giá cho 1 món đồ
+    @JoinColumn(name = "item_id")
     private Item item;
 
-    // Đã đổi sang BigDecimal
     private BigDecimal startPrice;
     private BigDecimal currentHighestPrice;
-
     private String highestBidderId;
-    private LocalDateTime startTime, endTime;
-    private AuctionStatus status;
-    private PriorityQueue<AutoBidConfig> autoBidQueue;
-    private List<BidTransaction> bidHistory;
 
-    // Constructor nhận tham số BigDecimal
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    @Enumerated(EnumType.STRING)
+    private AuctionStatus status;
+
+    @Version // Khóa lạc quan (Optimistic Locking) để tránh lỗi khi nhiều người cùng bid
+    private Long version;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "auction_id")
+    private List<BidTransaction> bidHistory = new ArrayList<>();
+
+    // Constructor chính
     public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
-        super();
         this.item = item;
         this.startPrice = startPrice;
-        this.currentHighestPrice = startPrice; // Giá hiện tại = khởi điểm
+        this.currentHighestPrice = startPrice;
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = AuctionStatus.WAITING;
-
-        this.autoBidQueue = new PriorityQueue<>();
-        this.bidHistory = new ArrayList<>();
     }
 
-    // Hàm applyBid nhận tham số BigDecimal
+    // Logic nghiệp vụ đặt tại Entity (Domain Logic)
     public boolean applyBid(String bidderId, BigDecimal bidAmount) {
         if (this.status != AuctionStatus.ACTIVE) {
-            System.out.println("Phiên đấu giá chưa mở hoặc đã kết thúc!");
             return false;
         }
 
-        // So sánh: bidAmount <= currentHighestPrice
-        // compareTo trả về -1 (nếu nhỏ hơn), 0 (nếu bằng), 1 (nếu lớn hơn)
         if (bidAmount.compareTo(this.currentHighestPrice) <= 0) {
-            System.out.println("Giá đặt phải lớn hơn giá hiện tại!");
             return false;
         }
 
-        // Cập nhật giá và người dẫn đầu
         this.currentHighestPrice = bidAmount;
         this.highestBidderId = bidderId;
 
-        // Tạo Transaction rất gọn gàng vì tất cả đều đã là BigDecimal
         BidTransaction newTransaction = new BidTransaction(bidderId, this.getId(), bidAmount);
         this.bidHistory.add(newTransaction);
 
@@ -65,82 +73,8 @@ public class Auction extends Entity {
 
     public void cancel() {
         if (this.status == AuctionStatus.CANCELED) {
-            throw new IllegalStateException("This auction was already cancelled");
+            throw new IllegalStateException("Auction already cancelled");
         }
         this.status = AuctionStatus.CANCELED;
-    }
-
-    // --- GETTERS / SETTERS ---
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-    public BigDecimal getStartPrice() {
-        return startPrice;
-    }
-
-    public void setStartPrice(BigDecimal startPrice) {
-        this.startPrice = startPrice;
-    }
-
-    public BigDecimal getCurrentHighestPrice() {
-        return currentHighestPrice;
-    }
-
-    public void setCurrentHighestPrice(BigDecimal currentHighestPrice) {
-        this.currentHighestPrice = currentHighestPrice;
-    }
-
-    public String getHighestBidderId() {
-        return highestBidderId;
-    }
-
-    public void setHighestBidderId(String highestBidderId) {
-        this.highestBidderId = highestBidderId;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public AuctionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AuctionStatus status) {
-        this.status = status;
-    }
-
-    public PriorityQueue<AutoBidConfig> getAutoBidQueue() {
-        return autoBidQueue;
-    }
-
-    public void setAutoBidQueue(PriorityQueue<AutoBidConfig> autoBidQueue) {
-        this.autoBidQueue = autoBidQueue;
-    }
-
-    public List<BidTransaction> getBidHistory() {
-        return bidHistory;
-    }
-
-    public void setBidHistory(List<BidTransaction> bidHistory) {
-        this.bidHistory = bidHistory;
     }
 }
