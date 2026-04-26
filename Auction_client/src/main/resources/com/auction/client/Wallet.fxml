@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.WalletController">
+
+    <top>
+        <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+
+            <center>
+                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="40.0" />
+                    </font>
+                </Label>
+            </center>
+
+            <right>
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
+                                <MenuItem mnemonicParsing="false" text="Ví người dùng" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <HBox spacing="40" style="-fx-background-color: #f4f6f9;">
+            <padding>
+                <Insets bottom="30" left="40" right="40" top="30" />
+            </padding>
+
+            <VBox alignment="TOP_CENTER" spacing="25" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                <children>
+                    <Label text="VÍ NGƯỜI DÙNG" textFill="#073cae">
+                        <font>
+                            <Font name="System Bold" size="24.0" />
+                        </font>
+                    </Label>
+
+                    <VBox alignment="CENTER" spacing="10" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15;">
+                        <Label text="Số dư hiện tại" textFill="#666666">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="balanceLabel" text="15,000,000 VNĐ" textFill="#2ecc71">
+                            <font>
+                                <Font name="System Bold" size="36.0" />
+                            </font>
+                        </Label>
+                    </VBox>
+
+                    <HBox alignment="CENTER" spacing="20">
+                        <Button onAction="#gotoDeposit" prefHeight="50.0" prefWidth="180.0" style="-fx-background-color: #009900; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand;" text="NẠP TIỀN" />
+
+                        <Button onAction="#gotoWithdraw" prefHeight="50.0" prefWidth="180.0" style="-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-font-size: 14; -fx-cursor: hand;" text="RÚT TIỀN" />
+                    </HBox>
+
+                    <Label text="* Lưu ý: Giao dịch được xử lý trong vòng 24h" textFill="#999999">
+                        <font>
+                            <Font name="System Italic" size="12.0" />
+                        </font>
+                    </Label>
+                </children>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>
