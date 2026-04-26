@@ -1,3 +1,3 @@
-module com.auction.shared {
-    exports com.auction.shared.model;
+module com.auction.shared.user {
+    exports com.auction.shared.model.user;
 }
