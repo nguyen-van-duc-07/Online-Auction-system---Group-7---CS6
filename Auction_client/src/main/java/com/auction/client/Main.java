@@ -1,5 +1,7 @@
 package com.auction.client;
 
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.User;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ public class Main extends Application
     public void start(Stage stage) throws Exception
     {
         ScreenController.switchScreen(null, "Login.fxml", "Đăng nhập");
-        userDatabase.put("123", new Bidder("123", "123"));
+        userDatabase.put("123", new Bidder());
     }
 
     public static void main(String[] args) {

@@ -1,5 +1,7 @@
 package com.auction.client;
 
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -93,7 +95,7 @@ public class SignupController
         }
 
         // Tạo tài khoản mới, mặc định là Bidder
-        User user = new Bidder(username, password);
+        User user = new Bidder();
 
         Main.userDatabase.put(username, user);
         ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Đăng ký thành công tài khoản: " + username, event);
