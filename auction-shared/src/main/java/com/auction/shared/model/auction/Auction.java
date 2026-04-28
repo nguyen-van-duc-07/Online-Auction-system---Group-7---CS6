@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor // Cần thiết cho JPA
 @jakarta.persistence.Entity
 @Table(name = "auctions")
-public class Auction extends Entity {
+public class Auction extends Entity implements Serializable{
 
     @OneToOne // Giả định mỗi phiên đấu giá cho 1 món đồ
     @JoinColumn(name = "item_id")
