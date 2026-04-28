@@ -2,9 +2,9 @@ name: Java Maven CI
 
 on:
   push:
-    branches: [ main, develop, VanDuc ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "**" ]
 
 jobs:
   build:
