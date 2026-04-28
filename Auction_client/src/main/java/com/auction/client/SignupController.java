@@ -95,7 +95,7 @@ public class SignupController
         }
 
         // Tạo tài khoản mới, mặc định là Bidder
-        User user = new Bidder();
+        User user = new Bidder(username, password);
 
         Main.userDatabase.put(username, user);
         ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Đăng ký thành công tài khoản: " + username, event);

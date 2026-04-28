@@ -20,7 +20,7 @@ public class Main extends Application
     public void start(Stage stage) throws Exception
     {
         ScreenController.switchScreen(null, "Login.fxml", "Đăng nhập");
-        userDatabase.put("123", new Bidder());
+        userDatabase.put("123", new Bidder("123", "123"));
     }
 
     public static void main(String[] args) {

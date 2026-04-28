@@ -39,28 +39,29 @@ public class Auction extends Entity {
     }
 
     // Hàm applyBid nhận tham số BigDecimal
-    public boolean applyBid(String bidderId, BigDecimal bidAmount) {
-        if (this.status != AuctionStatus.ACTIVE) {
-            System.out.println("Phiên đấu giá chưa mở hoặc đã kết thúc!");
+    public synchronized boolean applyBid(String bidderId, BigDecimal bidAmount) {
+        if (this.status != AuctionStatus.ACTIVE) return false;
+
+        if (LocalDateTime.now().isAfter(endTime)) {
+            this.status = AuctionStatus.FINISHED;
             return false;
         }
 
-        // So sánh: bidAmount <= currentHighestPrice
-        // compareTo trả về -1 (nếu nhỏ hơn), 0 (nếu bằng), 1 (nếu lớn hơn)
-        if (bidAmount.compareTo(this.currentHighestPrice) <= 0) {
-            System.out.println("Giá đặt phải lớn hơn giá hiện tại!");
-            return false;
-        }
+        if (bidAmount.compareTo(this.currentHighestPrice) <= 0) return false;
 
-        // Cập nhật giá và người dẫn đầu
         this.currentHighestPrice = bidAmount;
         this.highestBidderId = bidderId;
 
-        // Tạo Transaction rất gọn gàng vì tất cả đều đã là BigDecimal
-        BidTransaction newTransaction = new BidTransaction(bidderId, this.getId(), bidAmount);
-        this.bidHistory.add(newTransaction);
-
+        bidHistory.add(new BidTransaction(bidderId, this.getId(), bidAmount));
         return true;
+    }
+
+    public void start() {
+        this.status = AuctionStatus.ACTIVE;
+    }
+
+    public void close() {
+        this.status = AuctionStatus.FINISHED;
     }
 
     public void cancel() {

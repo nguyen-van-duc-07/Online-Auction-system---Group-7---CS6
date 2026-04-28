@@ -4,6 +4,7 @@ import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.core.Entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 abstract public class User extends Entity {
     protected String userName;
@@ -15,6 +16,17 @@ abstract public class User extends Entity {
     protected UserRole role;
 
     public User() {}
+
+    public User(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+    }
+
+    public User(String id, LocalDateTime createdAt, String userName, String password) {
+        super(id, createdAt);
+        this.userName = userName;
+        this.password = password;
+    }
 
     public User(String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role) {
         this.userName = userName;

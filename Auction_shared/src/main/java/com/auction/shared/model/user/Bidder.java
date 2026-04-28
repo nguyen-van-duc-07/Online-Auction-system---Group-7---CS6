@@ -4,6 +4,7 @@ import com.auction.shared.enums.UserRole;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,14 @@ public class Bidder extends User{
     private SellerProfile sellerProfile;
 
     public Bidder() {
+    }
+
+    public Bidder(String userName, String password) {
+        super(userName, password);
+    }
+
+    public Bidder(String id, LocalDateTime createdAt, String userName, String password) {
+        super(id, createdAt, userName, password);
     }
 
     public Bidder(String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role, Wallet wallet, List<String> joinedAuctionIds, SellerProfile sellerProfile) {
