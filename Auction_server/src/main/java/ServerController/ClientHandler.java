@@ -1,4 +1,4 @@
-package com.auction.server;
+package ServerController;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

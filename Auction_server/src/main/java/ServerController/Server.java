@@ -1,4 +1,4 @@
-package com.auction.server;
+package ServerController;
 
 import java.net.ServerSocket;
 import java.net.Socket;
