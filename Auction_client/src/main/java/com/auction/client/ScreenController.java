@@ -40,7 +40,7 @@ public class ScreenController
             stage.setTitle(title);
             stage.show();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile, event);

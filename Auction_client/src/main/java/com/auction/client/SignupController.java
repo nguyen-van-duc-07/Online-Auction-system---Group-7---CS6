@@ -66,31 +66,27 @@ public class SignupController
     }
 
     @FXML
-    private void handleRegister(ActionEvent event)
-    {
+    private void handleRegister(ActionEvent event) {
         String username = txtUser.getText();
         String password = isPasswordVisible ? pwdVisible.getText() : pwdHidden.getText();
         String confirm = isConfirmVisible ? confirmPwdVisible.getText() : confirmPwdHidden.getText();
 
-        if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) // Ô nhập thông tin rỗng
-        {
-            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ thông tin!", event);
+        if (username.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {// Ô nhập thông tin rỗng
+            ScreenController.showAlert(Alert.AlertType.WARNING, null, "Vui lòng nhập đầy đủ thông tin!", event);
             return;
         }
 
-        if (!password.equals(confirm)) // Nếu sai mật khẩu xác nhận
-        {
-            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Mật khẩu xác nhận không khớp!", event);
+        if (!password.equals(confirm)) {// Nếu sai mật khẩu xác nhận
+            ScreenController.showAlert(Alert.AlertType.WARNING, null, "Mật khẩu xác nhận không khớp!", event);
             return;
         }
-        if (Main.userDatabase.containsKey(username)) // Nếu tài khoản đã tồn tại
-        {
-            ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Tài khoản đã tồn tại!", event);
-            txtUser.setText("");
-            if (isPasswordVisible) {pwdVisible.clear();}
-            else {pwdHidden.clear();}
-            if (isConfirmVisible) {confirmPwdVisible.clear();}
-            else {confirmPwdHidden.clear();}
+        if (Main.userDatabase.containsKey(username)) {// Nếu tài khoản đã tồn tại
+            ScreenController.showAlert(Alert.AlertType.WARNING, null, "Tài khoản đã tồn tại!", event);
+            txtUser.clear();
+            pwdVisible.clear();
+            pwdHidden.clear();
+            confirmPwdVisible.clear();
+            confirmPwdHidden.clear();
             return;
         }
 
