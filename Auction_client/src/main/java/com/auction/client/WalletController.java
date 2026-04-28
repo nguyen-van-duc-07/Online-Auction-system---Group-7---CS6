@@ -7,22 +7,15 @@ import javafx.scene.control.ButtonType;
 
 public class WalletController
 {
+    HomeController homeController = new HomeController();
     @FXML
-    public void gotoLogin(ActionEvent event)
-    {
-        ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
-                "Bạn có chắc chắn muốn đăng xuất không", event).ifPresent(response -> {
-                    if (response == ButtonType.OK)
-                    {
-                        ScreenController.switchScreen(event, "Login.fxml", "Đăng nhập");
-                    }
-        });
+    public void gotoLogin(ActionEvent event) {
+        homeController.gotoLogin(event);
     }
 
     @FXML
-    public void gotoProfile(ActionEvent event)
-    {
-        ScreenController.switchScreen(event, "Profile.fxml", "Thông tin tài khoản");
+    public void gotoProfile(ActionEvent event) {
+        homeController.gotoProfile(event);
     }
 
     @FXML
@@ -35,5 +28,10 @@ public class WalletController
     public void gotoDeposit(ActionEvent event)
     {
         ScreenController.creatSubWindow(event, "Deposit.fxml", "Nạp tiền");
+    }
+
+    @FXML
+    public void gotoResult(ActionEvent event) {
+        homeController.gotoResult(event);
     }
 }

@@ -49,7 +49,7 @@ public class LoginController
         String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
         // 1. Kiểm tra xem người dùng đã nhập đủ thông tin chưa
-        if (username.isEmpty() || password.isEmpty())
+        if (username.trim().isEmpty() || password.trim().isEmpty())
         {
             ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!", event);
             return;
