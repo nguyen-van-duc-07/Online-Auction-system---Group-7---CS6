@@ -1,5 +1,7 @@
 package com.auction.client;
 
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.User;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import java.util.HashMap;
