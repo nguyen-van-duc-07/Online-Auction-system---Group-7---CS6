@@ -1,5 +1,5 @@
 package com.auction.shared.enums;
 
 public enum TransactionType {
-    DEPOSIT, TRANSFER, WITHDRAW, FREEZE, UNFREEZE
+  DEPOSIT, TRANSFER, WITHDRAW, FREEZE, UNFREEZE
 }

@@ -8,60 +8,61 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bidder extends User{
-    private Wallet wallet;
-    private List<String> joinedAuctionIds;
-    private SellerProfile sellerProfile;
+public class Bidder extends User {
+  private Wallet wallet;
+  private List<String> joinedAuctionIds;
+  private SellerProfile sellerProfile;
 
-    public Bidder() {
-    }
+  public Bidder() {
+  }
 
-    public Bidder(String userName, String password) {
-        super(userName, password);
-    }
+  public Bidder(String userName, String password) {
+    super(userName, password);
+  }
 
-    public Bidder(String id, LocalDateTime createdAt, String userName, String password) {
-        super(id, createdAt, userName, password);
-    }
+  public Bidder(String id, LocalDateTime createdAt, String userName, String password) {
+    super(id, createdAt, userName, password);
+  }
 
-    public Bidder(String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role, Wallet wallet, List<String> joinedAuctionIds, SellerProfile sellerProfile) {
-        super(userName, password, email, dob, phoneNumber, address, role);
-        this.wallet = wallet;
-        this.joinedAuctionIds = joinedAuctionIds;
-        this.sellerProfile = sellerProfile;
-    }
+  public Bidder(String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role, Wallet wallet, List<String> joinedAuctionIds, SellerProfile sellerProfile) {
+    super(userName, password, email, dob, phoneNumber, address, role);
+    this.wallet = wallet;
+    this.joinedAuctionIds = joinedAuctionIds;
+    this.sellerProfile = sellerProfile;
+  }
 
-    public void openSellerProfile() {
-        if (this.sellerProfile != null) {
-            throw new IllegalStateException("Tài khoản này đã là Người bán rồi!");
-        }
-        this.sellerProfile = new SellerProfile(this.id);
+  public void openSellerProfile() {
+    if (this.sellerProfile != null) {
+      throw new IllegalStateException("Tài khoản này đã là Người bán rồi!");
     }
-    public void bid(String auctionId, BigDecimal amount){
-        this.wallet.freeze(amount);
-    }
+    this.sellerProfile = new SellerProfile(this.id);
+  }
 
-    public Wallet getWallet() {
-        return wallet;
-    }
+  public void bid(String auctionId, BigDecimal amount) {
+    this.wallet.freeze(amount);
+  }
 
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
-    }
+  public Wallet getWallet() {
+    return wallet;
+  }
 
-    public List<String> getJoinedAuctionIds() {
-        return joinedAuctionIds;
-    }
+  public void setWallet(Wallet wallet) {
+    this.wallet = wallet;
+  }
 
-    public void setJoinedAuctionIds(List<String> joinedAuctionIds) {
-        this.joinedAuctionIds = joinedAuctionIds;
-    }
+  public List<String> getJoinedAuctionIds() {
+    return joinedAuctionIds;
+  }
 
-    public SellerProfile getSellerProfile() {
-        return sellerProfile;
-    }
+  public void setJoinedAuctionIds(List<String> joinedAuctionIds) {
+    this.joinedAuctionIds = joinedAuctionIds;
+  }
 
-    public void setSellerProfile(SellerProfile sellerProfile) {
-        this.sellerProfile = sellerProfile;
-    }
+  public SellerProfile getSellerProfile() {
+    return sellerProfile;
+  }
+
+  public void setSellerProfile(SellerProfile sellerProfile) {
+    this.sellerProfile = sellerProfile;
+  }
 }
