@@ -1,15 +1,24 @@
 package repository;
 
-import config.DBConnection;
-
+import config.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+/**
+ * Lớp UserRepository dùng để thao tác với bảng users trong cơ sở dữ liệu.
+ * Cung cấp các phương thức truy vấn và xử lý dữ liệu người dùng.
+ */
 public class UserRepository {
 
+  /**
+   * Lấy mật khẩu của người dùng theo tên tài khoản.
+   *
+   * @param accountName tên tài khoản người dùng
+   * @return mật khẩu tương ứng nếu tìm thấy, ngược lại trả về null
+   */
   public String getPasswordByAccountName(String accountName) {
-    try (Connection conn = DBConnection.getConnection()) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
 
       String sql = "SELECT password FROM users WHERE account_name = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
