@@ -12,136 +12,136 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class Auction extends Entity {
-    private Item item;
+  private Item item;
 
-    // Đã đổi sang BigDecimal
-    private BigDecimal startPrice;
-    private BigDecimal currentHighestPrice;
+  // Đã đổi sang BigDecimal
+  private BigDecimal startPrice;
+  private BigDecimal currentHighestPrice;
 
-    private String highestBidderId;
-    private LocalDateTime startTime, endTime;
-    private AuctionStatus status;
-    private PriorityQueue<AutoBidConfig> autoBidQueue;
-    private List<BidTransaction> bidHistory;
+  private String highestBidderId;
+  private LocalDateTime startTime, endTime;
+  private AuctionStatus status;
+  private PriorityQueue<AutoBidConfig> autoBidQueue;
+  private List<BidTransaction> bidHistory;
 
-    // Constructor nhận tham số BigDecimal
-    public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
-        super();
-        this.item = item;
-        this.startPrice = startPrice;
-        this.currentHighestPrice = startPrice; // Giá hiện tại = khởi điểm
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = AuctionStatus.WAITING;
+  // Constructor nhận tham số BigDecimal
+  public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
+    super();
+    this.item = item;
+    this.startPrice = startPrice;
+    this.currentHighestPrice = startPrice; // Giá hiện tại = khởi điểm
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.status = AuctionStatus.WAITING;
 
-        this.autoBidQueue = new PriorityQueue<>();
-        this.bidHistory = new ArrayList<>();
+    this.autoBidQueue = new PriorityQueue<>();
+    this.bidHistory = new ArrayList<>();
+  }
+
+  // Hàm applyBid nhận tham số BigDecimal
+  public synchronized boolean applyBid(String bidderId, BigDecimal bidAmount) {
+    if (this.status != AuctionStatus.ACTIVE) return false;
+
+    if (LocalDateTime.now().isAfter(endTime)) {
+      this.status = AuctionStatus.FINISHED;
+      return false;
     }
 
-    // Hàm applyBid nhận tham số BigDecimal
-    public synchronized boolean applyBid(String bidderId, BigDecimal bidAmount) {
-        if (this.status != AuctionStatus.ACTIVE) return false;
+    if (bidAmount.compareTo(this.currentHighestPrice) <= 0) return false;
 
-        if (LocalDateTime.now().isAfter(endTime)) {
-            this.status = AuctionStatus.FINISHED;
-            return false;
-        }
+    this.currentHighestPrice = bidAmount;
+    this.highestBidderId = bidderId;
 
-        if (bidAmount.compareTo(this.currentHighestPrice) <= 0) return false;
+    bidHistory.add(new BidTransaction(bidderId, this.getId(), bidAmount));
+    return true;
+  }
 
-        this.currentHighestPrice = bidAmount;
-        this.highestBidderId = bidderId;
+  public void start() {
+    this.status = AuctionStatus.ACTIVE;
+  }
 
-        bidHistory.add(new BidTransaction(bidderId, this.getId(), bidAmount));
-        return true;
+  public void close() {
+    this.status = AuctionStatus.FINISHED;
+  }
+
+  public void cancel() {
+    if (this.status == AuctionStatus.CANCELED) {
+      throw new IllegalStateException("This auction was already cancelled");
     }
+    this.status = AuctionStatus.CANCELED;
+  }
 
-    public void start() {
-        this.status = AuctionStatus.ACTIVE;
-    }
+  // --- GETTERS / SETTERS ---
 
-    public void close() {
-        this.status = AuctionStatus.FINISHED;
-    }
+  public Item getItem() {
+    return item;
+  }
 
-    public void cancel() {
-        if (this.status == AuctionStatus.CANCELED) {
-            throw new IllegalStateException("This auction was already cancelled");
-        }
-        this.status = AuctionStatus.CANCELED;
-    }
+  public void setItem(Item item) {
+    this.item = item;
+  }
 
-    // --- GETTERS / SETTERS ---
+  public BigDecimal getStartPrice() {
+    return startPrice;
+  }
 
-    public Item getItem() {
-        return item;
-    }
+  public void setStartPrice(BigDecimal startPrice) {
+    this.startPrice = startPrice;
+  }
 
-    public void setItem(Item item) {
-        this.item = item;
-    }
+  public BigDecimal getCurrentHighestPrice() {
+    return currentHighestPrice;
+  }
 
-    public BigDecimal getStartPrice() {
-        return startPrice;
-    }
+  public void setCurrentHighestPrice(BigDecimal currentHighestPrice) {
+    this.currentHighestPrice = currentHighestPrice;
+  }
 
-    public void setStartPrice(BigDecimal startPrice) {
-        this.startPrice = startPrice;
-    }
+  public String getHighestBidderId() {
+    return highestBidderId;
+  }
 
-    public BigDecimal getCurrentHighestPrice() {
-        return currentHighestPrice;
-    }
+  public void setHighestBidderId(String highestBidderId) {
+    this.highestBidderId = highestBidderId;
+  }
 
-    public void setCurrentHighestPrice(BigDecimal currentHighestPrice) {
-        this.currentHighestPrice = currentHighestPrice;
-    }
+  public LocalDateTime getStartTime() {
+    return startTime;
+  }
 
-    public String getHighestBidderId() {
-        return highestBidderId;
-    }
+  public void setStartTime(LocalDateTime startTime) {
+    this.startTime = startTime;
+  }
 
-    public void setHighestBidderId(String highestBidderId) {
-        this.highestBidderId = highestBidderId;
-    }
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
 
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
+  }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
+  public AuctionStatus getStatus() {
+    return status;
+  }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
+  public void setStatus(AuctionStatus status) {
+    this.status = status;
+  }
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
+  public PriorityQueue<AutoBidConfig> getAutoBidQueue() {
+    return autoBidQueue;
+  }
 
-    public AuctionStatus getStatus() {
-        return status;
-    }
+  public void setAutoBidQueue(PriorityQueue<AutoBidConfig> autoBidQueue) {
+    this.autoBidQueue = autoBidQueue;
+  }
 
-    public void setStatus(AuctionStatus status) {
-        this.status = status;
-    }
+  public List<BidTransaction> getBidHistory() {
+    return bidHistory;
+  }
 
-    public PriorityQueue<AutoBidConfig> getAutoBidQueue() {
-        return autoBidQueue;
-    }
-
-    public void setAutoBidQueue(PriorityQueue<AutoBidConfig> autoBidQueue) {
-        this.autoBidQueue = autoBidQueue;
-    }
-
-    public List<BidTransaction> getBidHistory() {
-        return bidHistory;
-    }
-
-    public void setBidHistory(List<BidTransaction> bidHistory) {
-        this.bidHistory = bidHistory;
-    }
+  public void setBidHistory(List<BidTransaction> bidHistory) {
+    this.bidHistory = bidHistory;
+  }
 }
