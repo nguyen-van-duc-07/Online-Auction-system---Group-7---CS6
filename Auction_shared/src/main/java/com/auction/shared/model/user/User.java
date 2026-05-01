@@ -2,10 +2,12 @@ package com.auction.shared.model.user;
 
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.core.Entity;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 @NoArgsConstructor
+@Getter
 
 abstract public class User extends Entity {
     protected String userName;

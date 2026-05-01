@@ -1,9 +1,9 @@
-module com.example.auctionclient {
+module com.auction.client {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.net.http;
+    requires com.auction.shared;
+    requires static lombok; // Gọi sang Shared
 
-    opens com.example.auctionclient to javafx.fxml;
-    exports com.example.auctionclient;
-
+    opens com.auction.client to javafx.fxml;
+    exports com.auction.client;
 }
