@@ -1,6 +1,5 @@
 package service;
 
-import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import java.math.BigDecimal;
@@ -14,9 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AuctionService {
 
-  // ========================
-  // Singleton (Holder)
-  // ========================
   private AuctionService() {
   }
 
@@ -66,10 +62,6 @@ public class AuctionService {
       return;
     }
 
-    if (auction.getStatus() != AuctionStatus.WAITING) {
-      return;
-    }
-
     auction.start();
   }
 
@@ -93,6 +85,7 @@ public class AuctionService {
     if (auction == null) {
       return false;
     }
+
     return auction.applyBid(bidderId, amount);
   }
 
@@ -133,14 +126,9 @@ public class AuctionService {
    * <p>Sau khi đóng, hệ thống sẽ in thông báo ra console.</p>
    */
   public void closeExpiredAuctions() {
-    LocalDateTime now = LocalDateTime.now();
-
     for (Auction auction : auctions.values()) {
-      if (auction.getStatus() == AuctionStatus.ACTIVE
-          && now.isAfter(auction.getEndTime())) {
-
+      if (auction.isExpired()) {
         auction.close();
-        System.out.println("Auction closed: " + auction.getId());
       }
     }
   }
