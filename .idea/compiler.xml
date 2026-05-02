@@ -10,7 +10,7 @@
         <module name="Auction_server" />
         <module name="Auction_client" />
       </profile>
-      <profile name="Annotation profile for Auction_shared" enabled="true">
+      <profile name="Annotation profile for Auction_system" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -24,7 +24,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Auction_server" options="-parameters" />
+      <module name="Auction_server" options="" />
     </option>
   </component>
 </project>

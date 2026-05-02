@@ -1,4 +1,4 @@
-package ServerController;
+package com.auction.server.ServerController;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,9 +14,11 @@ public class Server {
   public static int SERVER_PORT = 8080;
   private static final ExecutorService pool = Executors.newFixedThreadPool(10);
 
-  public static void main(String[] args) {
+  public static void main(String[] ardugs) {
     try {
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+      System.out.println(">>> SERVER DA CHAY TREN PORT: " + SERVER_PORT);
+      System.out.println(">>> DANG DOI CLIENT KET NOI VAO ...");
       List<Socket> clientSockets = new ArrayList<>();
       while (true) {
         Socket clientSocket = serverSocket.accept();

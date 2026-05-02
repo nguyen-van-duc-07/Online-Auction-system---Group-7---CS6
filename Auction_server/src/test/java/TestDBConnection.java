@@ -1,4 +1,4 @@
-import config.DBConnection;
+import com.auction.server.config.DBConnection;
 
 import java.sql.Connection;
 
