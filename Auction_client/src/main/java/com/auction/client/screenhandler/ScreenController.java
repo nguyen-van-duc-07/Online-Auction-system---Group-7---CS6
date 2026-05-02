@@ -1,4 +1,4 @@
-package com.auction.client;
+package com.auction.client.screenhandler;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -16,51 +16,32 @@ import javafx.stage.Stage;
  * Class có nhiệm vụ quản lý màn hình.
  */
 public class ScreenController {
+  public static Stage primaryStage;
+
   // Dùng để chuyển sang trang bất kì hiệu quả hơn
-  public static void switchScreen(ActionEvent event, String fxmlFile, String title) {
+  public static void switchScreen(String fxmlFile, String title) {
     try {
-      Parent root = FXMLLoader.load(ScreenController.class.getResource(fxmlFile));
+      Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
       Scene scene = new Scene(root);
-      Stage stage = null;
-      if (event != null) {
-        if (event.getSource() instanceof Node) // Nếu phần vừa ấn là thể hiện của Button là lớp con của Node
-        {
-          stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        } else if (event.getSource() instanceof MenuItem) // Nếu phần vừa ấn là thể hiện của MenuItem
-        {
-          stage = (Stage) ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
-        }
-      }
-      if (stage == null) {
-        stage = new Stage();
-      }
-      stage.setScene(scene);
-      stage.setTitle(title);
-      stage.show();
+
+      primaryStage.setScene(scene);
+      primaryStage.setTitle(title);
+      primaryStage.show();
+
     } catch (Exception e) {
       e.printStackTrace();
-      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile, event);
+      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
     }
   }
 
   // Dùng để tạo ra cảnh báo
-  public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String content, ActionEvent event) {
+  public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String content) {
     Alert alert = new Alert(type);
     alert.setTitle(title);
     alert.setHeaderText(null);
     alert.setContentText(content);
+    alert.initOwner(primaryStage);
 
-    Stage stage = null;
-    if (event != null) {
-      if (event.getSource() instanceof Node) {
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-      } else if (event.getSource() instanceof MenuItem) {
-        stage = (Stage) ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
-      }
-      if (stage != null) {
-        alert.initOwner(stage);
-      }
-    }
     return alert.showAndWait();
   }
 
@@ -76,7 +57,7 @@ public class ScreenController {
 
       // Xác đinh cửa sổ cha
       if (event == null) {
-        showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể mở cửa sổ con", null);
+        showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể mở cửa sổ con");
       }
       Stage ownerStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
@@ -95,7 +76,7 @@ public class ScreenController {
       newStage.show();
     } catch (IOException e) {
       e.printStackTrace();
-      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình" + fxmlFile, event);
+      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình" + fxmlFile);
     }
   }
 }

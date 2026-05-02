@@ -1,5 +1,7 @@
-package com.auction.client;
+package com.auction.client.screenhandler;
 
+import com.auction.client.Main;
+import com.auction.client.network.ServerConnection;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import javafx.event.ActionEvent;
@@ -69,7 +71,7 @@ public class SignupController {
   }
 
   @FXML
-  private void handleRegister(ActionEvent event) {
+  private void handleRegister() {
     String username = txtUser.getText();
     String password = isPasswordVisible ? pwdVisible.getText() : pwdHidden.getText();
     String confirm = isConfirmVisible ? confirmPwdVisible.getText() : confirmPwdHidden.getText();
@@ -77,41 +79,26 @@ public class SignupController {
     // Ô nhập thông tin rỗng
     if (username.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
       ScreenController.showAlert(Alert.AlertType.WARNING, null,
-          "Vui lòng nhập đầy đủ thông tin!", event);
+          "Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
     // Nếu sai mật khẩu xác nhận
     if (!password.equals(confirm)) {
       ScreenController.showAlert(Alert.AlertType.WARNING, null,
-          "Mật khẩu xác nhận không khớp!", event);
+          "Mật khẩu xác nhận không khớp!");
       return;
     }
 
-    // Nếu tài khoản đã tồn tại
-    if (Main.userDatabase.containsKey(username)) {
-      ScreenController.showAlert(Alert.AlertType.WARNING, null,
-          "Tài khoản đã tồn tại!", event);
-      txtUser.clear();
-      pwdVisible.clear();
-      pwdHidden.clear();
-      confirmPwdVisible.clear();
-      confirmPwdHidden.clear();
-      return;
-    }
+    // Nếu tất cả đều ổn thì sẽ gửi cho server
+    User signupUser = new Bidder(username, password);
+    ServerConnection.sendData("SIGN_UP");
+    ServerConnection.sendData(signupUser);
 
-    // Tạo tài khoản mới, mặc định là Bidder
-    User user = new Bidder(username, password);
-
-    Main.userDatabase.put(username, user);
-    ScreenController.showAlert(Alert.AlertType.INFORMATION, null,
-        "Đăng ký thành công tài khoản: " + username, event);
-
-    gotoLogin(event);
-  }
-
-  @FXML
-  private void gotoLogin(ActionEvent event) {
-    ScreenController.switchScreen(event, "Login.fxml", "Đăng nhập");
+    txtUser.clear();
+    pwdHidden.clear();
+    pwdVisible.clear();
+    confirmPwdHidden.clear();
+    confirmPwdVisible.clear();
   }
 }

@@ -5,4 +5,6 @@ module com.auction.client {
 
     opens com.auction.client to javafx.fxml;
     exports com.auction.client;
+    exports com.auction.client.screenhandler;
+    opens com.auction.client.screenhandler to javafx.fxml;
 }
