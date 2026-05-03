@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Auction extends Entity {
+  private final ReentrantLock lock = new ReentrantLock();
   private Item item;
 
   // Đã đổi sang BigDecimal
@@ -39,36 +41,77 @@ public class Auction extends Entity {
   }
 
   // Hàm applyBid nhận tham số BigDecimal
-  public synchronized boolean applyBid(String bidderId, BigDecimal bidAmount) {
-    if (this.status != AuctionStatus.ACTIVE) return false;
+  public boolean applyBid(String bidderId, BigDecimal bidAmount) {
 
-    if (LocalDateTime.now().isAfter(endTime)) {
-      this.status = AuctionStatus.FINISHED;
-      return false;
+    lock.lock();
+    try {
+
+      if (status != AuctionStatus.ACTIVE) return false;
+
+      if (LocalDateTime.now().isAfter(endTime)) {
+        status = AuctionStatus.FINISHED;
+        return false;
+      }
+
+      if (bidAmount.compareTo(currentHighestPrice) <= 0) return false;
+
+      currentHighestPrice = bidAmount;
+      highestBidderId = bidderId;
+
+      bidHistory.add(new BidTransaction(bidderId, getId(), bidAmount));
+
+      return true;
+
+    } finally {
+      lock.unlock();
     }
+  }
+  public boolean canStart() {
+    return status == AuctionStatus.WAITING;
+  }
 
-    if (bidAmount.compareTo(this.currentHighestPrice) <= 0) return false;
+  public boolean canBid() {
+    return status == AuctionStatus.ACTIVE
+        && LocalDateTime.now().isBefore(endTime);
+  }
 
-    this.currentHighestPrice = bidAmount;
-    this.highestBidderId = bidderId;
-
-    bidHistory.add(new BidTransaction(bidderId, this.getId(), bidAmount));
-    return true;
+  public boolean canCancel() {
+    return status == AuctionStatus.WAITING
+        || status == AuctionStatus.ACTIVE;
   }
 
   public void start() {
-    this.status = AuctionStatus.ACTIVE;
+    lock.lock();
+    try {
+      if (status != AuctionStatus.WAITING) return;
+      status = AuctionStatus.ACTIVE;
+    } finally {
+      lock.unlock();
+    }
   }
 
   public void close() {
-    this.status = AuctionStatus.FINISHED;
+    lock.lock();
+    try {
+      if (status != AuctionStatus.ACTIVE) return;
+      status = AuctionStatus.FINISHED;
+    } finally {
+      lock.unlock();
+    }
   }
 
   public void cancel() {
-    if (this.status == AuctionStatus.CANCELED) {
-      throw new IllegalStateException("This auction was already cancelled");
+    lock.lock();
+    try {
+      if (status == AuctionStatus.FINISHED) return;
+      status = AuctionStatus.CANCELED;
+    } finally {
+      lock.unlock();
     }
-    this.status = AuctionStatus.CANCELED;
+  }
+
+  public boolean isExpired() {
+    return LocalDateTime.now().isAfter(endTime);
   }
 
   // --- GETTERS / SETTERS ---

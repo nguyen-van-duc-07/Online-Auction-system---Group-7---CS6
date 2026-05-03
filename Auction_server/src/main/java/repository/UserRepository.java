@@ -1,15 +1,25 @@
 package repository;
 
-import com.auction.shared.model.user.User;
-import config.DBConnection;
-
+import config.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+/**
+ * Lớp UserRepository dùng để thao tác với bảng users trong cơ sở dữ liệu.
+ * Cung cấp các phương thức truy vấn và xử lý dữ liệu người dùng.
+ */
 public class UserRepository {
+
+  /**
+   * Lấy mật khẩu của người dùng theo tên tài khoản.
+   *
+   * @param accountName tên tài khoản người dùng
+   * @return mật khẩu tương ứng nếu tìm thấy, ngược lại trả về null
+   */
   public String getPasswordByAccountName(String accountName) {
-    try (Connection conn = DBConnection.getConnection()) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+
       String sql = "SELECT password FROM users WHERE account_name = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, accountName);
@@ -30,7 +40,7 @@ public class UserRepository {
   public boolean isAccountExist(String accountName) {
     // Dùng SELECT 1 cho tốc độ truy vấn tối đa
     String sql = "SELECT 1 FROM users WHERE account_name = ?";
-    try (Connection conn = DBConnection.getConnection();
+    try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, accountName);
 
@@ -45,7 +55,7 @@ public class UserRepository {
   }
 
   public boolean createUser(String id, String accountName, String hashedPassword) {
-    try (Connection conn = DBConnection.getConnection()) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
       // Lệnh SQL để chèn thêm 1 dòng mới vào bảng users
       String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
       PreparedStatement ps = conn.prepareStatement(sql);
