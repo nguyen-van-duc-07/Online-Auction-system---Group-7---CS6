@@ -1,11 +1,11 @@
-import config.DBConnection;
+import config.DatabaseConnection;
 
 import java.sql.Connection;
 
 public class TestDBConnection {
     public static void main(String[] args) {
         try {
-            Connection conn = DBConnection.getConnection();
+            Connection conn = DatabaseConnection.getConnection();
 
             if (conn != null && !conn.isClosed()) {
                 System.out.println("✅ CONNECT SUCCESS to database!");
