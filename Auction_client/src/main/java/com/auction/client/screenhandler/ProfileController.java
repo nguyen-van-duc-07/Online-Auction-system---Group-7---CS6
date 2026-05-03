@@ -1,4 +1,4 @@
-package com.auction.client;
+package com.auction.client.screenhandler;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,22 +22,22 @@ public class ProfileController {
   private TextField phoneNumberField;
 
   @FXML
-  public void gotoLogin(ActionEvent event) {
-    homeController.gotoLogin(event);
+  public void gotoLogin() {
+    homeController.gotoLogin();
   }
 
   @FXML
-  public void gotoHome(ActionEvent event) {
+  public void gotoHome() {
     if (handleUpdateInformation()) {
       ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
-          "Cập nhật dữ liệu thành công", event).ifPresent(Response -> {
+          "Cập nhật dữ liệu thành công").ifPresent(Response -> {
         if (Response == ButtonType.OK) {
-          ScreenController.switchScreen(event, "Home.fxml", "Trang chủ");
+          ScreenController.switchScreen("Home.fxml", "Trang chủ");
         }
       });
     } else {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
-          "Vui lòng điền đầy đủ thông tin", event);
+          "Vui lòng điền đầy đủ thông tin");
       return;
     }
   }
@@ -62,12 +62,12 @@ public class ProfileController {
   }
 
   @FXML
-  public void gotoWallet(ActionEvent event) {
-    homeController.gotoWallet(event);
+  public void gotoWallet() {
+    homeController.gotoWallet();
   }
 
   @FXML
-  public void gotoResult(ActionEvent event) {
-    homeController.gotoResult(event);
+  public void gotoResult() {
+    homeController.gotoResult();
   }
 }

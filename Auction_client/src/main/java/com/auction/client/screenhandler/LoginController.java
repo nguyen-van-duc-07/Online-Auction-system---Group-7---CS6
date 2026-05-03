@@ -1,5 +1,8 @@
-package com.auction.client;
+package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -48,36 +51,24 @@ public class LoginController {
 
   // Logic đăng nhập
   @FXML
-  private void handleLogin(ActionEvent event) {
+  private void handleLogin() {
     String username = txtLoginUser.getText();
     String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
-    // 1. Kiểm tra xem người dùng đã nhập đủ thông tin chưa
+    // Kiểm tra xem người dùng đã nhập đủ thông tin chưa
     if (username.trim().isEmpty() || password.trim().isEmpty()) {
-      ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!", event);
+      ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
       return;
     }
 
-    // 2. Kiểm tra xem tài khoản có tồn tại trong bộ nhớ tạm chưa
-    if (!Main.userDatabase.containsKey(username)) {
-      // NẾU CHƯA CÓ TÀI KHOẢN
-      ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Chưa có tài khoản!", event);
-      return;
-    }
+    User loginUser = new Bidder(username, password);
+    ServerConnection.sendData("LOGIN");
+    ServerConnection.sendData(loginUser);
 
-    // 3. Nếu tài khoản có tồn tại, kiểm tra xem mật khẩu có khớp không
-    if (!Main.userDatabase.get(username).getPassword().equals(password)) {
-      // NẾU SAI MẬT KHẨU
-      ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Mật khẩu không chính xác!", event);
-      return;
-    }
-
-    // 4. Vượt qua hết các lỗi trên -> Đăng nhập thành công!
-    ScreenController.switchScreen(event, "Home.fxml", "Trang chủ");
   }
 
   @FXML
-  private void goToRegister(ActionEvent event) {
-    ScreenController.switchScreen(event, "Signup.fxml", "Đăng ký");
+  private void goToRegister() {
+    ScreenController.switchScreen("Signup.fxml", "Đăng ký");
   }
 }

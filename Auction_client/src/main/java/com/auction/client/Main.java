@@ -1,24 +1,17 @@
 package com.auction.client;
 
-import com.auction.shared.model.user.Bidder;
-import com.auction.shared.model.user.User;
-import java.util.HashMap;
-import java.util.Map;
+import com.auction.client.network.ServerConnection;
+import com.auction.client.screenhandler.ScreenController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-class Main extends Application {
-
-  // LƯU TÀI KHOẢN VÀ MẬT KHẨU
-  public static Map<String, User> userDatabase = new HashMap<>();
-
-  // LƯU TÀI KHOẢN VÀ VAI TRÒ (Bidder/Seller)
-  public static Map<String, String> userRoles = new HashMap<>();
-
+public class Main extends Application {
   @Override
   public void start(Stage stage) throws Exception {
-    ScreenController.switchScreen(null, "Login.fxml", "Đăng nhập");
-    userDatabase.put("123", new Bidder("123", "123"));
+    // Đặt mặc định cho ScreenController biết rằng đây là stage chính của chương trình
+    ScreenController.primaryStage = stage;
+    ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+    ServerConnection.connect();
   }
 
   public static void main(String[] args) {

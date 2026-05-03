@@ -1,9 +1,7 @@
-package com.auction.client;
+package com.auction.client.screenhandler;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 /**
  * Class có nhiệm vụ quản lý màn hình ví người dùng.
@@ -12,13 +10,13 @@ public class WalletController {
   HomeController homeController = new HomeController();
 
   @FXML
-  public void gotoLogin(ActionEvent event) {
-    homeController.gotoLogin(event);
+  public void gotoLogin() {
+    homeController.gotoLogin();
   }
 
   @FXML
-  public void gotoProfile(ActionEvent event) {
-    homeController.gotoProfile(event);
+  public void gotoProfile() {
+    homeController.gotoProfile();
   }
 
   @FXML
@@ -32,7 +30,7 @@ public class WalletController {
   }
 
   @FXML
-  public void gotoResult(ActionEvent event) {
-    homeController.gotoResult(event);
+  public void gotoResult() {
+    homeController.gotoResult();
   }
 }
