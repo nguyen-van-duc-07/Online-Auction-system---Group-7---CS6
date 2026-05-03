@@ -26,6 +26,10 @@ public class ScreenController {
 
       primaryStage.setScene(scene);
       primaryStage.setTitle(title);
+
+      primaryStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ
+      primaryStage.centerOnScreen(); // Cửa sổ hiện lên sẽ luôn ở vị trí chính giữa màn hình
+
       primaryStage.show();
 
     } catch (Exception e) {
@@ -48,7 +52,7 @@ public class ScreenController {
   // Dùng để tạo ra cửa sổ con mới, thiết lập quan hệ cha con, khi cửa sổ cha đóng thì cửa sổ con cũng đóng theo
   public static void creatSubWindow(ActionEvent event, String fxmlFile, String title) {
     try {
-      Parent root = FXMLLoader.load(ScreenController.class.getResource(fxmlFile));
+      Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
       Scene scene = new Scene(root);
       // Tạo cửa sổ con mới
       Stage newStage = new Stage();
@@ -72,6 +76,8 @@ public class ScreenController {
       double y = ownerStage.getY() + (ownerStage.getHeight() / 2) - (root.prefHeight(-1) / 2);
       newStage.setX(x);
       newStage.setY(y);
+
+      newStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ phụ
 
       newStage.show();
     } catch (IOException e) {
