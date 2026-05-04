@@ -20,6 +20,8 @@ public class DatabaseConnection {
    * @throws Exception nếu xảy ra lỗi truy cập cơ sở dữ liệu
    */
   public static Connection getConnection() throws Exception {
+    // --- THÊM DÒNG NÀY ĐỂ ÉP NẠP DRIVER MYSQL ---
+    Class.forName("com.mysql.cj.jdbc.Driver");
     return DriverManager.getConnection(URL, USER, PASS);
   }
 }

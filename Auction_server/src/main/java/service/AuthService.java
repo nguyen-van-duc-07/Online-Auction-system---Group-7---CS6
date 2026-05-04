@@ -4,7 +4,7 @@ import com.auction.shared.model.user.User;
 import org.mindrot.jbcrypt.BCrypt;
 import repository.UserRepository;
 
-/**
+/**s
  * Lớp AuthService xử lý các chức năng xác thực người dùng.
  * Bao gồm đăng nhập, kiểm tra thông tin tài khoản và xử lý logic liên quan đến authentication.
  */

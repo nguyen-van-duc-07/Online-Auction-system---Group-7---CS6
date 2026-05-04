@@ -4,6 +4,7 @@ import com.auction.client.Main;
 import com.auction.client.network.ServerConnection;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
+import com.auction.shared.model.user.UserDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -91,9 +92,14 @@ public class SignupController {
     }
 
     // Nếu tất cả đều ổn thì sẽ gửi cho server
-    User signupUser = new Bidder(username, password);
+    // Tạo tài khoản mới, mặc định là Bidder
+    UserDTO dto = UserDTO.builder()
+            .userName(username)
+            .password(password)
+            .build();
+    User user = new Bidder(dto);
     ServerConnection.sendData("SIGN_UP");
-    ServerConnection.sendData(signupUser);
+    ServerConnection.sendData(dto);
 
     txtUser.clear();
     pwdHidden.clear();

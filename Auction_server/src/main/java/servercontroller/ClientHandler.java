@@ -1,6 +1,8 @@
 package servercontroller;
 
+import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
+import com.auction.shared.model.user.UserDTO;
 import service.AuthService;
 
 import java.io.ObjectInputStream;
@@ -34,7 +36,10 @@ public class ClientHandler implements Runnable {
 
           // Nếu String nhận được là LOGIN
           if ("LOGIN".equals(action)) {
-            User loginUser = (User) in.readObject();
+            // SỬA: Hứng UserDTO và khởi tạo đối tượng User (Bidder)
+            UserDTO loginDto = (UserDTO) in.readObject();
+            User loginUser = new Bidder(loginDto);
+
             String answer = RequestHandler.login(loginUser);
             // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu login
             out.writeObject("LOGIN_RESPONSE");
@@ -43,8 +48,11 @@ public class ClientHandler implements Runnable {
 
             // Nếu String nhận được là SIGN_UP
           } else if ("SIGN_UP".equals(action)) {
-            User signupUSer = (User) in.readObject();
-            String answer = RequestHandler.signup(signupUSer);
+            // SỬA: Hứng UserDTO và khởi tạo đối tượng User (Bidder)
+            UserDTO signupDto = (UserDTO) in.readObject();
+            User signupUser = new Bidder(signupDto);
+
+            String answer = RequestHandler.signup(signupUser);
             // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu signup
             out.writeObject("SIGN_UP_RESPONSE");
             out.writeObject(answer);
