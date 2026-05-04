@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
@@ -13,7 +14,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.HomeController">
+<?import java.awt.Font?>
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -22,26 +24,26 @@
             </padding>
 
             <left>
-                <Button mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý hàng giao bán" textFill="#2980b9" BorderPane.alignment="CENTER" />
+                <Button mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Switch to Seller Mode" textFill="#2980b9" BorderPane.alignment="CENTER" />
             </left>
 
             <center>
-                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER" style="-fx-border-color: transparent;">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>
-                </Label>
+                </Hyperlink>
             </center>
 
             <right>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
                         <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
-                                <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
-                        <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                                <MenuItem mnemonicParsing="false" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" text="Đăng xuất" />
+                                <MenuItem mnemonicParsing="false" text="Ví người dùng" />
                             </items>
                         </MenuButton>
                     </children>
@@ -70,7 +72,7 @@
                                         <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
-                                <Label text="Giá: " textFill="#e74c3c">
+                                <Label text="Giá: " textAlignment="CENTER" textFill="#e74c3c">
                                     <font>
                                         <Font name="System Bold" size="13.0" />
                                     </font>
@@ -118,63 +120,63 @@
                                 <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
                             </children>
                         </VBox>
-                  <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
-                     <padding>
-                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                     </padding>
-                     <children>
-                        <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
-                        <Label text="Product 4" textFill="#333333">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label text="Giá: " textFill="#e74c3c">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                        <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
-                     <padding>
-                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                     </padding>
-                     <children>
-                        <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
-                        <Label text="Product 5" textFill="#333333">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label text="Giá: " textFill="#e74c3c">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                        <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
-                     <padding>
-                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                     </padding>
-                     <children>
-                        <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
-                        <Label text="Product ...." textFill="#333333">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label text="Giá: " textFill="#e74c3c">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                        <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
-                     </children>
-                  </VBox>
+                        <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                            <children>
+                                <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
+                                <Label text="Product 4" textFill="#333333">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Giá: " textFill="#e74c3c">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                            <children>
+                                <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
+                                <Label text="Product 5" textFill="#333333">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Giá: " textFill="#e74c3c">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="220.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: #e6e6e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                            <children>
+                                <ImageView fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
+                                <Label text="Product ...." textFill="#333333">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Giá: " textFill="#e74c3c">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;" text="Đấu giá" />
+                            </children>
+                        </VBox>
 
                     </children>
                 </FlowPane>
