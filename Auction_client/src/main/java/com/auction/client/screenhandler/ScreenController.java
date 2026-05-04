@@ -28,7 +28,6 @@ public class ScreenController {
       primaryStage.setTitle(title);
 
       primaryStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ
-      primaryStage.centerOnScreen(); // Cửa sổ hiện lên sẽ luôn ở vị trí chính giữa màn hình
 
       primaryStage.show();
 

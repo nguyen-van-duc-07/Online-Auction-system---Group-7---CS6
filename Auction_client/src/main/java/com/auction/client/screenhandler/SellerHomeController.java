@@ -33,4 +33,9 @@ public class SellerHomeController {
   public void gotoResult() {
     homecontroller.gotoResult();
   }
+
+  @FXML
+  public void gotoUploadProduct() {
+    ScreenController.switchScreen("UploadProduct.fxml", "Đăng sản phẩm");
+  }
 }

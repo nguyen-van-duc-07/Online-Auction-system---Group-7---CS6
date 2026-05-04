@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SellerHomeController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SellerHomeController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -60,7 +60,7 @@
 
                         <VBox alignment="CENTER" prefHeight="206.0" prefWidth="180.0" spacing="10.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 3);">
                             <children>
-                        <Button alignment="CENTER" blendMode="COLOR_BURN" cache="true" cacheHint="SPEED" prefHeight="88.0" prefWidth="86.0" text="+" textFill="#02200b">
+                        <Button alignment="CENTER" blendMode="COLOR_BURN" cache="true" cacheHint="SPEED" onAction="#gotoUploadProduct" prefHeight="88.0" prefWidth="86.0" text="+" textFill="#02200b">
                            <font>
                               <Font name="System Bold" size="50.0" />
                            </font>
