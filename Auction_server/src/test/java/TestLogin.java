@@ -1,4 +1,4 @@
-import com.auction.server.service.AuthService;
+import service.AuthService;
 
 public class TestLogin {
     public static void main(String[] args) {

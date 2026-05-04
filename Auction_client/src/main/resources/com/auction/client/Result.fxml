@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ResultController">
+
+    <top>
+        <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+
+            <left>
+                <Button mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý hàng giao bán" textFill="#2980b9" BorderPane.alignment="CENTER" />
+            </left>
+
+            <center>
+                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="40.0" />
+                    </font>
+                </Label>
+            </center>
+
+            <right>
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <HBox spacing="40" style="-fx-background-color: #f4f6f9;">
+            <padding>
+                <Insets bottom="30" left="40" right="40" top="30" />
+            </padding>
+
+            <VBox alignment="TOP_CENTER" spacing="25" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                <children>
+                    <Label text="KẾT QUẢ ĐẤU GIÁ" textFill="#073cae">
+                        <font>
+                            <Font name="System Bold" size="24.0" />
+                        </font>
+                    </Label>
+
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;" VBox.vgrow="ALWAYS">
+                        <content>
+                            <FlowPane alignment="TOP_CENTER" hgap="30.0" vgap="30.0">
+                                <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </padding>
+                                <children>
+
+                                    <VBox alignment="BOTTOM_CENTER" prefHeight="260.0" prefWidth="200.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-border-color: #f0f0f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 5, 0, 0, 2);">
+                                        <children>
+                                            <VBox prefHeight="120.0" prefWidth="170.0" VBox.vgrow="ALWAYS" />
+
+                                            <Label text="Product 1" textFill="#333333">
+                                                <font>
+                                                    <Font name="System Bold" size="18.0" />
+                                                </font>
+                                            </Label>
+                                            <Label text="Giá:" textFill="#e74c3c">
+                                                <font>
+                                                    <Font name="System Bold" size="16.0" />
+                                                </font>
+                                            </Label>
+                                            <Button mnemonicParsing="false" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;" text="Đấu giá" />
+                                        </children>
+                                    </VBox>
+
+                                    <VBox alignment="BOTTOM_CENTER" prefHeight="260.0" prefWidth="200.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-border-color: #f0f0f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 5, 0, 0, 2);">
+                                        <children>
+                                            <VBox prefHeight="120.0" prefWidth="170.0" VBox.vgrow="ALWAYS" />
+                                            <Label text="Product 2" textFill="#333333">
+                                                <font>
+                                                    <Font name="System Bold" size="18.0" />
+                                                </font>
+                                            </Label>
+                                            <Label text="Giá:" textFill="#e74c3c">
+                                                <font>
+                                                    <Font name="System Bold" size="16.0" />
+                                                </font>
+                                            </Label>
+                                            <Button mnemonicParsing="false" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;" text="Đấu giá" />
+                                        </children>
+                                    </VBox>
+
+                                    <VBox alignment="BOTTOM_CENTER" prefHeight="260.0" prefWidth="200.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-border-color: #f0f0f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 5, 0, 0, 2);">
+                                        <children>
+                                            <VBox prefHeight="120.0" prefWidth="170.0" VBox.vgrow="ALWAYS" />
+                                            <Label text="Product 3" textFill="#333333">
+                                                <font>
+                                                    <Font name="System Bold" size="18.0" />
+                                                </font>
+                                            </Label>
+                                            <Label text="Giá:" textFill="#e74c3c">
+                                                <font>
+                                                    <Font name="System Bold" size="16.0" />
+                                                </font>
+                                            </Label>
+                                            <Button mnemonicParsing="false" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;" text="Đấu giá" />
+                                        </children>
+                                    </VBox>
+
+                                </children>
+                            </FlowPane>
+                        </content>
+                    </ScrollPane>
+                </children>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

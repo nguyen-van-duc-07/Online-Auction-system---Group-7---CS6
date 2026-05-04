@@ -4,78 +4,187 @@ import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.core.Entity;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.transaction.BidTransaction;
-import jakarta.persistence.*; // Dùng Jakarta cho Spring Boot 3
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
-@Getter
-@Setter
-@NoArgsConstructor // Cần thiết cho JPA
-@jakarta.persistence.Entity
-@Table(name = "auctions")
-public class Auction extends Entity implements Serializable {
+public class Auction extends Entity {
+  private final ReentrantLock lock = new ReentrantLock();
+  private Item item;
 
-    @OneToOne // Giả định mỗi phiên đấu giá cho 1 món đồ
-    @JoinColumn(name = "item_id")
-    private Item item;
+  // Đã đổi sang BigDecimal
+  private BigDecimal startPrice;
+  private BigDecimal currentHighestPrice;
 
-    private BigDecimal startPrice;
-    private BigDecimal currentHighestPrice;
-    private String highestBidderId;
+  private String highestBidderId;
+  private LocalDateTime startTime, endTime;
+  private AuctionStatus status;
+  private PriorityQueue<AutoBidConfig> autoBidQueue;
+  private List<BidTransaction> bidHistory;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+  // Constructor nhận tham số BigDecimal
+  public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
+    super();
+    this.item = item;
+    this.startPrice = startPrice;
+    this.currentHighestPrice = startPrice; // Giá hiện tại = khởi điểm
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.status = AuctionStatus.WAITING;
 
-    @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
+    this.autoBidQueue = new PriorityQueue<>();
+    this.bidHistory = new ArrayList<>();
+  }
 
-    @Version // Khóa lạc quan (Optimistic Locking) để tránh lỗi khi nhiều người cùng bid
-    private Long version;
+  // Hàm applyBid nhận tham số BigDecimal
+  public boolean applyBid(String bidderId, BigDecimal bidAmount) {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id")
-    private List<BidTransaction> bidHistory = new ArrayList<>();
+    lock.lock();
+    try {
 
-    // Constructor chính
-    public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
-        this.item = item;
-        this.startPrice = startPrice;
-        this.currentHighestPrice = startPrice;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = AuctionStatus.WAITING;
+      if (status != AuctionStatus.ACTIVE) return false;
+
+      if (LocalDateTime.now().isAfter(endTime)) {
+        status = AuctionStatus.FINISHED;
+        return false;
+      }
+
+      if (bidAmount.compareTo(currentHighestPrice) <= 0) return false;
+
+      currentHighestPrice = bidAmount;
+      highestBidderId = bidderId;
+
+      bidHistory.add(new BidTransaction(bidderId, getId(), bidAmount));
+
+      return true;
+
+    } finally {
+      lock.unlock();
     }
+  }
+  public boolean canStart() {
+    return status == AuctionStatus.WAITING;
+  }
 
-    // Logic nghiệp vụ đặt tại Entity (Domain Logic)
-    public boolean applyBid(String bidderId, BigDecimal bidAmount) {
-        if (this.status != AuctionStatus.ACTIVE) {
-            return false;
-        }
+  public boolean canBid() {
+    return status == AuctionStatus.ACTIVE
+        && LocalDateTime.now().isBefore(endTime);
+  }
 
-        if (bidAmount.compareTo(this.currentHighestPrice) <= 0) {
-            return false;
-        }
+  public boolean canCancel() {
+    return status == AuctionStatus.WAITING
+        || status == AuctionStatus.ACTIVE;
+  }
 
-        this.currentHighestPrice = bidAmount;
-        this.highestBidderId = bidderId;
-
-        BidTransaction newTransaction = new BidTransaction(bidderId, this.getId(), bidAmount);
-        this.bidHistory.add(newTransaction);
-
-        return true;
+  public void start() {
+    lock.lock();
+    try {
+      if (status != AuctionStatus.WAITING) return;
+      status = AuctionStatus.ACTIVE;
+    } finally {
+      lock.unlock();
     }
+  }
 
-    public void cancel() {
-        if (this.status == AuctionStatus.CANCELED) {
-            throw new IllegalStateException("Auction already cancelled");
-        }
-        this.status = AuctionStatus.CANCELED;
+  public void close() {
+    lock.lock();
+    try {
+      if (status != AuctionStatus.ACTIVE) return;
+      status = AuctionStatus.FINISHED;
+    } finally {
+      lock.unlock();
     }
+  }
+
+  public void cancel() {
+    lock.lock();
+    try {
+      if (status == AuctionStatus.FINISHED) return;
+      status = AuctionStatus.CANCELED;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  public boolean isExpired() {
+    return LocalDateTime.now().isAfter(endTime);
+  }
+
+  // --- GETTERS / SETTERS ---
+
+  public Item getItem() {
+    return item;
+  }
+
+  public void setItem(Item item) {
+    this.item = item;
+  }
+
+  public BigDecimal getStartPrice() {
+    return startPrice;
+  }
+
+  public void setStartPrice(BigDecimal startPrice) {
+    this.startPrice = startPrice;
+  }
+
+  public BigDecimal getCurrentHighestPrice() {
+    return currentHighestPrice;
+  }
+
+  public void setCurrentHighestPrice(BigDecimal currentHighestPrice) {
+    this.currentHighestPrice = currentHighestPrice;
+  }
+
+  public String getHighestBidderId() {
+    return highestBidderId;
+  }
+
+  public void setHighestBidderId(String highestBidderId) {
+    this.highestBidderId = highestBidderId;
+  }
+
+  public LocalDateTime getStartTime() {
+    return startTime;
+  }
+
+  public void setStartTime(LocalDateTime startTime) {
+    this.startTime = startTime;
+  }
+
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
+  }
+
+  public AuctionStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(AuctionStatus status) {
+    this.status = status;
+  }
+
+  public PriorityQueue<AutoBidConfig> getAutoBidQueue() {
+    return autoBidQueue;
+  }
+
+  public void setAutoBidQueue(PriorityQueue<AutoBidConfig> autoBidQueue) {
+    this.autoBidQueue = autoBidQueue;
+  }
+
+  public List<BidTransaction> getBidHistory() {
+    return bidHistory;
+  }
+
+  public void setBidHistory(List<BidTransaction> bidHistory) {
+    this.bidHistory = bidHistory;
+  }
 }

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.WalletController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.WalletController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -29,7 +29,7 @@
             <right>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
                         <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
