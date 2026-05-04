@@ -3,13 +3,19 @@ package com.auction.client.screenhandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.time.LocalDate;
 
 /**
  * Controller xử lý logic cho màn hình cập nhật thông tin tài khoảnkhoản.
  */
 public class ProfileController {
+  private File selectedImageFile;
+
   HomeController homeController = new HomeController();
 
   @FXML
@@ -20,10 +26,17 @@ public class ProfileController {
   private DatePicker dateOfBirthField;
   @FXML
   private TextField phoneNumberField;
+  @FXML
+  private ImageView imageViewField;
 
   @FXML
   public void gotoLogin() {
-    homeController.gotoLogin();
+    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
+        "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
+      if (Response == ButtonType.OK) {
+        homeController.gotoLogin();
+      }
+    });
   }
 
   @FXML
@@ -63,11 +76,39 @@ public class ProfileController {
 
   @FXML
   public void gotoWallet() {
-    homeController.gotoWallet();
+    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
+        "Bạn có chắc chắn muốn chuyển sang trang Ví người dùng không?").ifPresent(Response -> {
+      if (Response == ButtonType.OK) {
+        homeController.gotoWallet();
+      }
+    });
   }
 
   @FXML
   public void gotoResult() {
-    homeController.gotoResult();
+    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
+        "Bạn có chắc chắn muốn chuyển sang trang Kết quả đấu giá không?").ifPresent(Response -> {
+          if (Response == ButtonType.OK) {
+            homeController.gotoResult();
+          }
+    });
+  }
+
+  @FXML
+  public void handleChooseImage() {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Chọn ảnh đại diện");
+    FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png", "*.jpeg");
+    fileChooser.getExtensionFilters().add(imageFilter);
+
+    File file = fileChooser.showOpenDialog(ScreenController.primaryStage);
+
+    if (file != null) {
+      selectedImageFile = file;
+
+      Image image = new Image(file.toURI().toString());
+
+      imageViewField.setImage(image);
+    }
   }
 }
