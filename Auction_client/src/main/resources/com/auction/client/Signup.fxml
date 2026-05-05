@@ -63,6 +63,11 @@
 
             <Button onAction="#handleRegister" style="-fx-background-color: #e0e0e0; -fx-text-fill: #008000; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 25; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-cursor: hand;" text="Đăng ký" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         </GridPane>
-
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Đã có tài khoản?"
+                   style="-fx-text-fill: #555; -fx-font-size: 13px;" />
+            <Hyperlink text="Đăng nhập ngay"
+                       style="-fx-text-fill: #2e7d32; -fx-font-size: 13px; -fx-font-weight: bold; -fx-border-color: transparent;" />
+        </HBox>
     </VBox>
 </StackPane>
