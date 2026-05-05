@@ -39,6 +39,17 @@ abstract public class User extends Entity {
     this.role = role;
   }
 
+  public User(String id, LocalDateTime createdAt, String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role) {
+    super(id, createdAt);
+    this.userName = userName;
+    this.password = password;
+    this.email = email;
+    this.dob = dob;
+    this.phoneNumber = phoneNumber;
+    this.address = address;
+    this.role = role;
+  }
+
   public String getUserName() {
     return userName;
   }
@@ -79,4 +90,11 @@ abstract public class User extends Entity {
     return role;
   }
 
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
 }

@@ -1,5 +1,7 @@
 package com.auction.shared.model.core;
 
+import com.auction.shared.util.IdGenerator;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,8 +12,6 @@ abstract public class Entity implements Serializable {
   protected LocalDateTime createdAt;
 
   public Entity() {
-    this.id = UUID.randomUUID().toString();
-    this.createdAt = LocalDateTime.now();
   }
 
   public Entity(String id, LocalDateTime createdAt) {
