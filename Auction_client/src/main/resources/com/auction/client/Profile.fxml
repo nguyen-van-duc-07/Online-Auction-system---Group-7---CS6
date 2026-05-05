@@ -16,8 +16,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 <?import javafx.scene.control.Hyperlink?>
+
 <BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ProfileController">
 
     <top>
@@ -59,9 +59,9 @@
 
             <VBox alignment="TOP_CENTER" prefWidth="250" spacing="20" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10;">
                 <children>
-                    <ImageView fx:id="avatarImage" fitHeight="180" fitWidth="180" preserveRatio="true" style="-fx-border-color: #cccccc; -fx-border-radius: 90;" />
+                    <ImageView fx:id="imageViewField" fitHeight="290.0" fitWidth="180" preserveRatio="true" style="-fx-border-color: #cccccc; -fx-border-radius: 90;" />
 
-                    <Button prefHeight="35.0" prefWidth="180.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Đổi ảnh đại diện">
+                    <Button onAction="#handleChooseImage" prefHeight="35.0" prefWidth="180.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Đổi ảnh đại diện">
                         <font>
                             <Font name="System Bold" size="12.0" />
                         </font>

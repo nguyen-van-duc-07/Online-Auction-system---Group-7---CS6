@@ -54,20 +54,33 @@ public class UserRepository {
     return false; // Mặc định nếu có lỗi hoặc không tìm thấy thì coi như chưa tồn tại
   }
 
-  public boolean createUser(String id, String accountName, String hashedPassword) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
-      // Lệnh SQL để chèn thêm 1 dòng mới vào bảng users
-      String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
-      PreparedStatement ps = conn.prepareStatement(sql);
+  /**
+   * Thêm một người dùng mới vào cơ sở dữ liệu.
+   * Phương thức này nhận một đối tượng {@link Connection} từ bên ngoài truyền vào.
+   * Việc này rất hữu ích khi bạn muốn đưa thao tác tạo người dùng này vào một
+   * Transaction (giao dịch) chung với các thao tác khác.
+   *
+   * @param conn        đối tượng kết nối cơ sở dữ liệu đang mở
+   * @param userId      mã định danh duy nhất của người dùng
+   * @param accountName tên tài khoản đăng nhập
+   * @param password    mật khẩu của người dùng
+   * @return {@code true} nếu việc chèn dữ liệu thành công, ngược lại trả về {@code false}
+   */
+  public boolean createUser(Connection conn,
+                            String userId,
+                            String accountName,
+                            String password) {
 
-      // Lắp thông tin vào các dấu ?
-      ps.setString(1, id);
+    String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, userId);
       ps.setString(2, accountName);
-      ps.setString(3, hashedPassword);
+      ps.setString(3, password);
 
-      // Thực thi lệnh. executeUpdate() trả về số dòng bị ảnh hưởng trong DB
-      int rowsAffected = ps.executeUpdate();
-      return rowsAffected > 0; // Trả về true nếu chèn thành công ít nhất 1 dòng
+      return ps.executeUpdate() > 0;
+
     } catch (Exception e) {
       e.printStackTrace();
     }
