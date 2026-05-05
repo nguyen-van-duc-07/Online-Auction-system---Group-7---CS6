@@ -1,13 +1,13 @@
+import com.auction.shared.request.LoginRequestDTO;
 import service.AuthService;
 
 public class TestLogin {
     public static void main(String[] args) {
         AuthService auth = new AuthService();
 
-        String account_name = "admin";
-        String password = "123456"; // ✅ plain text
+        LoginRequestDTO loginUser = new LoginRequestDTO("admin", "123456");
 
-        boolean ok = auth.login(account_name, password);
+        boolean ok = auth.login(loginUser);
 
         if (ok) {
             System.out.println("✅ LOGIN OK");

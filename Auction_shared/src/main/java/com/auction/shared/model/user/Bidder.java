@@ -1,5 +1,6 @@
 package com.auction.shared.model.user;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 
 public class Bidder extends User{
   private Wallet wallet;

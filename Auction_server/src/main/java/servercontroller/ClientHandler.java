@@ -1,9 +1,7 @@
 package servercontroller;
 
-import com.auction.shared.model.user.Bidder;
-import com.auction.shared.model.user.User;
-import com.auction.shared.model.user.UserDTO;
-import service.AuthService;
+import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.SignUpRequestDTO;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,10 +34,7 @@ public class ClientHandler implements Runnable {
 
           // Nếu String nhận được là LOGIN
           if ("LOGIN".equals(action)) {
-            // SỬA: Hứng UserDTO và khởi tạo đối tượng User (Bidder)
-            UserDTO loginDto = (UserDTO) in.readObject();
-            User loginUser = new Bidder(loginDto);
-
+            LoginRequestDTO loginUser = (LoginRequestDTO) in.readObject();
             String answer = RequestHandler.login(loginUser);
             // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu login
             out.writeObject("LOGIN_RESPONSE");
@@ -48,12 +43,13 @@ public class ClientHandler implements Runnable {
 
             // Nếu String nhận được là SIGN_UP
           } else if ("SIGN_UP".equals(action)) {
-            // SỬA: Hứng UserDTO và khởi tạo đối tượng User (Bidder)
-            UserDTO signupDto = (UserDTO) in.readObject();
-            User signupUser = new Bidder(signupDto);
+            // KHÁC BIỆT 1 (Dữ liệu đầu vào):
+            // Thay vì dùng trực tiếp Entity (User) như Login, đăng ký sử dụng một DTO chuyên biệt (SignUpRequest).
+            // Điều này hợp lý vì form đăng ký thường chứa các trường khác với model gốc (VD: nhập lại mật khẩu, mã xác nhận...).
+            SignUpRequestDTO req = (SignUpRequestDTO) in.readObject();
 
-            String answer = RequestHandler.signup(signupUser);
-            // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu signup
+            String answer = RequestHandler.signup(req);
+
             out.writeObject("SIGN_UP_RESPONSE");
             out.writeObject(answer);
             out.flush();

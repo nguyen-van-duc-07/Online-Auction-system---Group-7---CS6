@@ -8,20 +8,32 @@ import java.sql.DriverManager;
  */
 public class DatabaseConnection {
   private static final String URL =
-      "jdbc:mysql://auction-database-tienhoi2007nguyen-b1fd.c.aivencloud.com:28772/"
-          + "defaultdb?sslMode=REQUIRED";
-  private static final String USER = "avnadmin";
-  private static final String PASS = "AVNS_yIEIvG3JqN_2tiF3H6D";
+      "jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/"
+      + "auction_db?useSSL=true";
+  private static final String USER = "2vF9fvUA1e6SkrG.root";
+  private static final String PASS = "KsAN75FtZIeOrn6t";
+
+  private static Connection connection;
 
   /**
-   * Tạo và trả về kết nối với MySQL database.
+   * Khởi tạo hoặc trả về kết nối hiện tại với cơ sở dữ liệu MySQL/TiDB.
+   * Phương thức này sẽ kiểm tra xem đối tượng {@code connection} hiện tại có bị
+   * {@code null} hoặc đã bị đóng (closed) hay chưa. Nếu có, nó sẽ khởi tạo
+   * một kết nối mới thông qua {@link DriverManager}.
+   * Nếu không, nó sẽ trả về kết nối đang có sẵn.
    *
-   * @return một đối tượng {@link java.sql.Connection}
-   * @throws Exception nếu xảy ra lỗi truy cập cơ sở dữ liệu
-   */
-  public static Connection getConnection() throws Exception {
-    // --- THÊM DÒNG NÀY ĐỂ ÉP NẠP DRIVER MYSQL ---
-    Class.forName("com.mysql.cj.jdbc.Driver");
-    return DriverManager.getConnection(URL, USER, PASS);
+   * @return một đối tượng {@link java.sql.Connection} mở tới cơ sở dữ liệu,
+   * @code null nếu quá trình kết nối gặp ngoại lệ (Exception).
+   **/
+  public static Connection getConnection() {
+    try {
+      if (connection == null || connection.isClosed()) {
+        connection = DriverManager.getConnection(URL, USER, PASS);
+      }
+      return connection;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 }

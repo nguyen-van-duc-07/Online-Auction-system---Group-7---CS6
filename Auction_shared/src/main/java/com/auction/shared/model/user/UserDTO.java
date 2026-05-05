@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @SuperBuilder // Tự tạo toàn bộ logic Builder Pattern ở Cách 1 khi compile
 @NoArgsConstructor
 public class UserDTO implements Serializable {
-    protected String userName;
+    protected String accountName;
     protected String password;
     protected String email;
     protected LocalDate dob;
