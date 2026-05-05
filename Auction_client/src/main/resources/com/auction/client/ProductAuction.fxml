@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+
+    <top>
+        <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+
+            <left>
+                <Button mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Switch to Seller Mode" textFill="#2980b9" BorderPane.alignment="CENTER" />
+            </left>
+
+            <center>
+                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="40.0" />
+                    </font>
+                </Label>
+            </center>
+
+            <right>
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" text="Đăng xuất" />
+                                <MenuItem mnemonicParsing="false" text="Ví người dùng" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
+            <content>
+                <HBox alignment="CENTER" spacing="40.0" style="-fx-background-color: #f4f6f9;">
+                    <padding>
+                        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                    </padding>
+                    <children>
+
+                        <VBox alignment="CENTER" prefHeight="350.0" prefWidth="350.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5;">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <children>
+                                <ImageView fx:id="productImageView" fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="CENTER" prefWidth="400.0" spacing="15.0">
+                            <children>
+                                <Label fx:id="productNameLabel" alignment="CENTER" text="Tên Sản Phẩm" wrapText="true">
+                                    <font>
+                                        <Font name="System Bold" size="26.0" />
+                                    </font>
+                                </Label>
+
+                                <Label fx:id="currentPriceLabel" text="Giá hiện tại:" textFill="#d35400">
+                                    <font>
+                                        <Font name="System Bold" size="20.0" />
+                                    </font>
+                                </Label>
+
+                                <Label fx:id="timeRemainingLabel" text="Thời gian còn lại: " textFill="#2980b9">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+
+                                <Label fx:id="highestBidderLabel" text="Người ra giá cao nhất: " textFill="#7f8c8d">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+
+                                <Label text="Mô tả sản phẩm:" textFill="#333333">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="10.0" />
+                                    </VBox.margin>
+                                </Label>
+
+                                <Label fx:id="productDescLabel" alignment="TOP_LEFT" prefHeight="80.0" prefWidth="400.0" text="DatGB" textFill="#555555" wrapText="true">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+
+                                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <VBox.margin>
+                                        <Insets top="20.0" />
+                                    </VBox.margin>
+                                    <children>
+                                        <TextField fx:id="bidAmountField" prefHeight="45.0" prefWidth="200.0" promptText="Nhập mức giá bạn muốn..." style="-fx-font-size: 14px; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5;" />
+                                        <Button fx:id="placeBidButton" mnemonicParsing="false" prefHeight="45.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 8 25 8 25; -fx-background-radius: 5; -fx-cursor: hand;" text="Đấu Giá" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                    </children>
+                </HBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
