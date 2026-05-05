@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.Main;
 import com.auction.client.network.ServerConnection;
+import com.auction.shared.dto.request.SignUpRequest;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import javafx.event.ActionEvent;
@@ -91,9 +92,10 @@ public class SignupController {
     }
 
     // Nếu tất cả đều ổn thì sẽ gửi cho server
-    User signupUser = new Bidder(username, password);
+    SignUpRequest req = new SignUpRequest(username, password);
+
     ServerConnection.sendData("SIGN_UP");
-    ServerConnection.sendData(signupUser);
+    ServerConnection.sendData(req);
 
     txtUser.clear();
     pwdHidden.clear();

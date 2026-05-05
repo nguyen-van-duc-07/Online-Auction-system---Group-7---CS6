@@ -1,14 +1,27 @@
 package com.auction.shared.model.user;
 
-import java.math.BigDecimal;
+import com.auction.shared.model.core.Entity;
 
-public class Wallet {
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class Wallet extends Entity {
   private BigDecimal balance;
   private BigDecimal frozenBalance;
 
   public Wallet() {
     this.balance = BigDecimal.ZERO;
     this.frozenBalance = BigDecimal.ZERO;
+  }
+
+  public Wallet(String id, LocalDateTime createdAt) {
+    super(id, createdAt);
+  }
+
+  public Wallet(String id, LocalDateTime createdAt, BigDecimal balance, BigDecimal frozenBalance) {
+    super(id, createdAt);
+    this.balance = balance;
+    this.frozenBalance = frozenBalance;
   }
 
   public void deposit(BigDecimal amount) {
@@ -51,5 +64,19 @@ public class Wallet {
     this.balance = this.balance.subtract(amount);
   }
 
+  public BigDecimal getBalance() {
+    return balance;
+  }
 
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+  }
+
+  public BigDecimal getFrozenBalance() {
+    return frozenBalance;
+  }
+
+  public void setFrozenBalance(BigDecimal frozenBalance) {
+    this.frozenBalance = frozenBalance;
+  }
 }
