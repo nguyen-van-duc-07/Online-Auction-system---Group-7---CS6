@@ -1,14 +1,22 @@
 package servercontroller;
 
 import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.RequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
- * Class có nhiệm vụ xử lý khi có người dùng mới kết nối.
+ * Lớp đại diện cho một luồng (Thread) độc lập xử lý giao tiếp mạng với một Client cụ thể.
+ * <p>
+ * Lớp này chạy liên tục trong vòng lặp để đọc dữ liệu đầu vào. Khi nhận được một gói tin
+ * {@code RequestDTO} hợp lệ, nó sử dụng <i>Switch - case</i> để phân loại,
+ * sau đó chuyển tiếp dữ liệu cho {@link RequestHandler} xử lý và trực tiếp gửi đối tượng
+ * {@code ResponseDTO} nhận được trả ngược lại qua luồng mạng cho Client.
+ * </p>
+ *
+ * @see com.auction.shared.request.RequestDTO
  */
 public class ClientHandler implements Runnable {
   private Socket clientSocket;
@@ -26,33 +34,25 @@ public class ClientHandler implements Runnable {
       out.flush();
       in = new ObjectInputStream(clientSocket.getInputStream());
 
-      Object request;
-      while ((request = in.readObject()) != null) {
-        // Phân loại yêu cầu dựa trên String
-        if (request instanceof String) {
-          String action = (String) request;
+      Object requestObj;
+      while ((requestObj = in.readObject()) != null) {
 
-          // Nếu String nhận được là LOGIN
-          if ("LOGIN".equals(action)) {
-            LoginRequestDTO loginUser = (LoginRequestDTO) in.readObject();
-            String answer = RequestHandler.login(loginUser);
-            // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu login
-            out.writeObject("LOGIN_RESPONSE");
-            out.writeObject(answer);
-            out.flush();
+        // Đảm bảo dữ liệu được gửi là 1 DTO hợp lệ
+        if (requestObj instanceof RequestDTO) {
 
-            // Nếu String nhận được là SIGN_UP
-          } else if ("SIGN_UP".equals(action)) {
-            // KHÁC BIỆT 1 (Dữ liệu đầu vào):
-            // Thay vì dùng trực tiếp Entity (User) như Login, đăng ký sử dụng một DTO chuyên biệt (SignUpRequest).
-            // Điều này hợp lý vì form đăng ký thường chứa các trường khác với model gốc (VD: nhập lại mật khẩu, mã xác nhận...).
-            SignUpRequestDTO req = (SignUpRequestDTO) in.readObject();
+          // Tự dộng rẽ nhánh và ép kiểu
+          switch (requestObj) {
+            case SignUpRequestDTO signUpReq -> {
+              out.writeObject(RequestHandler.signup(signUpReq));
+            }
 
-            String answer = RequestHandler.signup(req);
+            case LoginRequestDTO loginReq -> {
+              out.writeObject(RequestHandler.login(loginReq));
+            }
 
-            out.writeObject("SIGN_UP_RESPONSE");
-            out.writeObject(answer);
-            out.flush();
+            default -> {
+              System.out.println(">>> Server nhận được Request không xác định!");
+            }
           }
         }
       }
@@ -63,9 +63,15 @@ public class ClientHandler implements Runnable {
 
   public void closeConnection() {
     try {
-      if (in != null) in.close();
-      if (out != null) out.close();
-      if (clientSocket != null) clientSocket.close();
+      if (in != null) {
+        in.close();
+      }
+      if (out != null) {
+        out.close();
+      }
+      if (clientSocket != null) {
+        clientSocket.close();
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }

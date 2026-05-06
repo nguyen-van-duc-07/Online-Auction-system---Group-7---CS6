@@ -21,7 +21,7 @@ public class HomeController {
 
   @FXML
   public void gotoSellerHome() {
-    ScreenController.switchScreen("SellerHome.fxml", "Quản lý sản phẩm (Seller)");
+    ScreenController.switchScreen("SellerHome.fxml", "Quản lý sản phẩm");
   }
 
   @FXML

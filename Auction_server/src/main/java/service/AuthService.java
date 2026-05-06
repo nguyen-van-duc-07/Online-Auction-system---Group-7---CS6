@@ -59,7 +59,7 @@ public class AuthService {
     newUser.setAccountName(signUpUser.getAccountName());
     newUser.setPassword(hashedPassword);
 
-    // 4. Lưu cả đối tượng Entity xuống Repo
+    // Lưu cả đối tượng Entity xuống Repo
     return userRepo.createUser(newUser);
   }
 }
