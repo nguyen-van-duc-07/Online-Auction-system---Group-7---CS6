@@ -1,5 +1,7 @@
 package repository;
 
+import com.auction.shared.model.user.Wallet;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -18,21 +20,18 @@ public class WalletRepository {
    * vẹn của dữ liệu nếu xảy ra lỗi.
    *
    * @param conn     đối tượng kết nối cơ sở dữ liệu đang mở (hỗ trợ Transaction)
-   * @param walletId mã định danh duy nhất của ví tiền (thường được tạo ngẫu nhiên)
-   * @param userId   mã định danh của người dùng sẽ sở hữu chiếc ví này
+   * @param wallet nhận được từ AuthService
    * @return true nếu việc chèn dữ liệu ví vào hệ thống thành công,
    * @code false nếu có lỗi xảy ra
    */
-  public boolean createWallet(Connection conn,
-                              String walletId,
-                              String userId) {
+  public boolean createWallet(Connection conn, Wallet wallet) {
 
     String sql = "INSERT INTO wallets (id, user_id) VALUES (?, ?)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-      ps.setString(1, walletId);
-      ps.setString(2, userId);
+      ps.setString(1, wallet.getId());
+      ps.setString(2, wallet.getBidderId());
 
       return ps.executeUpdate() > 0;
 

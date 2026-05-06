@@ -61,24 +61,26 @@ public class UserRepository {
    * Việc này rất hữu ích khi bạn muốn đưa thao tác tạo người dùng này vào một
    * Transaction (giao dịch) chung với các thao tác khác.
    *
-   * @param user      đối tượng User
+   * @param conn        đối tượng kết nối cơ sở dữ liệu đang mở
+   * @param user object nhận đươ từ AuthService
    * @return {@code true} nếu việc chèn dữ liệu thành công, ngược lại trả về {@code false}
    */
-  public boolean createUser(User user) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
-      String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
-      PreparedStatement ps = conn.prepareStatement(sql);
+  public boolean createUser(Connection conn, User user) {
+
+    String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, user.getId());
       ps.setString(2, user.getAccountName());
       ps.setString(3, user.getPassword());
 
-      int rowsAffected = ps.executeUpdate();
-      return rowsAffected > 0; // Trả về true nếu chèn thành công ít nhất 1 dòng
-    }
-    catch (Exception e) {
+      return ps.executeUpdate() > 0;
+
+    } catch (Exception e) {
       e.printStackTrace();
     }
+
     return false;
   }
 }
