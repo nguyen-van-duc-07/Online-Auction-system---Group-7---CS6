@@ -64,13 +64,12 @@ public class LoginController {
 
     // Tạo tài khoản mới, mặc định là Bidder
     LoginRequestDTO loginReq = new LoginRequestDTO(accountName, password);
-    ServerConnection.sendData("LOGIN");
     ServerConnection.sendData(loginReq);
 
   }
 
   @FXML
   private void goToRegister() {
-    ScreenController.switchScreen("Signup.fxml", "Đăng ký");
+    ScreenController.switchScreen("SignUp.fxml", "Đăng ký");
   }
 }

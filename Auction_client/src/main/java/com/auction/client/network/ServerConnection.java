@@ -1,14 +1,26 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.network.NetworkConfig;
+import com.auction.shared.response.LoginResponseDTO;
+import com.auction.shared.response.ResponseDTO;
+import com.auction.shared.response.SignUpResponseDTO;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
 
+/**
+ * Quản lý kết nối mạng (Socket) từ phía Client tới Server.
+ * <p>
+ * Lớp này chịu trách nhiệm thiết lập kết nối, duy trì luồng lắng nghe dữ liệu
+ * liên tục (chạy trên một Thread riêng), và gửi các đối tượng dữ liệu qua mạng.
+ * Khi nhận được một {@code ResponseDTO} từ Server, nó sử dụng Switch Pattern Matching
+ * để tự động phân loại và điều hướng dữ liệu đến {@link ResponseHandler} xử lý.
+ * </p>
+ *
+ * @see com.auction.shared.response.ResponseDTO
+ * @see ResponseHandler
+ */
 public class ServerConnection {
   private static Socket socket;
   private static ObjectOutputStream out;
@@ -33,15 +45,11 @@ public class ServerConnection {
     try {
       Object response;
       while ((response = in.readObject()) != null) {
-        if (response instanceof String) {
-          // Phân loại phản hồi
-          if ("LOGIN_RESPONSE".equals(response)) {
-            String msg = (String) in.readObject();
-            ResponseHandler.login(msg);
-
-          } else if ("SIGN_UP_RESPONSE".equals(response)) {
-            String msg = (String) in.readObject();
-            ResponseHandler.signup(msg);
+        if (response instanceof ResponseDTO) {
+          switch (response) {
+            case LoginResponseDTO loginRes -> ResponseHandler.login(loginRes);
+            case SignUpResponseDTO signUpRes -> ResponseHandler.signUp(signUpRes);
+            default -> System.out.println("Phản hồi không hợp lệ");
           }
         }
       }
@@ -63,9 +71,15 @@ public class ServerConnection {
 
   public static void closeConnection() {
     try {
-      if (in != null) in.close();
-      if (out != null) out.close();
-      if (socket != null) socket.close();
+      if (in != null) {
+        in.close();
+      }
+      if (out != null) {
+        out.close();
+      }
+      if (socket != null) {
+        socket.close();
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

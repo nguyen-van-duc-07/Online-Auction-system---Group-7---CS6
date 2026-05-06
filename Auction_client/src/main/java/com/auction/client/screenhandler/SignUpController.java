@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 /**
  * Controller xử lý logic cho màn hình đăng ký tài khoản.
  */
-public class SignupController {
+public class SignUpController {
   @FXML
   private TextField txtUser;
   @FXML
@@ -88,10 +88,8 @@ public class SignupController {
     }
 
     // Nếu tất cả đều ổn thì sẽ gửi cho server
-    SignUpRequestDTO req = new SignUpRequestDTO(username, password);
-
-    ServerConnection.sendData("SIGN_UP");
-    ServerConnection.sendData(req);
+    SignUpRequestDTO signupReq = new SignUpRequestDTO(username, password);
+    ServerConnection.sendData(signupReq);
 
     txtUser.clear();
     pwdHidden.clear();

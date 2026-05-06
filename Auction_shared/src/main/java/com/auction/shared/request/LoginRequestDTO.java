@@ -16,7 +16,7 @@ import java.io.Serializable;
  * được gửi từ phía Client lên Server. Lớp triển khai {@link Serializable}
  * để có thể truyền tải dữ liệu qua môi trường mạng (Network stream).
  */
-public class LoginRequestDTO implements Serializable {
+public class LoginRequestDTO implements RequestDTO {
     private String accountName;
     private String password;
 

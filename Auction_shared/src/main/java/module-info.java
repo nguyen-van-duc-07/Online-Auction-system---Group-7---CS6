@@ -11,5 +11,6 @@ module com.auction.shared{
   exports com.auction.shared.model.user;
   exports com.auction.shared.network;
   exports com.auction.shared.request;
+  exports com.auction.shared.response;
   // Export thêm bất kỳ package nào khác mà Client cần dùng
 }
