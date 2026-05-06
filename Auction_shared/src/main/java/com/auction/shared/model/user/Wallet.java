@@ -1,31 +1,24 @@
 package com.auction.shared.model.user;
 
-import com.auction.shared.model.core.Entity;
+import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+@Getter
 
-public class Wallet extends Entity {
+public class Wallet {
   private BigDecimal balance;
   private BigDecimal frozenBalance;
+
+  // Thêm version để dùng Optimistic Locking ở tầng DB
+  private Long version;
 
   public Wallet() {
     this.balance = BigDecimal.ZERO;
     this.frozenBalance = BigDecimal.ZERO;
   }
 
-  public Wallet(String id, LocalDateTime createdAt) {
-    super(id, createdAt);
-  }
-
-  public Wallet(String id, LocalDateTime createdAt, BigDecimal balance, BigDecimal frozenBalance) {
-    super(id, createdAt);
-    this.balance = balance;
-    this.frozenBalance = frozenBalance;
-  }
-
-  public void deposit(BigDecimal amount) {
-    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+  public void deposit(BigDecimal amount){
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Số tiền nạp phải lớn hơn 0");
     }
     this.balance = this.balance.add(amount);
@@ -35,16 +28,16 @@ public class Wallet extends Entity {
     return this.balance.subtract(this.frozenBalance);
   }
 
-  public void withdraw(BigDecimal amount) {
-    if (this.balance.compareTo(amount) < 0) {
-      throw new IllegalStateException("Số dư không đủ để rút!");
+  public void withdraw(BigDecimal amount){
+    if (getAvailableBalance().compareTo(amount) < 0) {
+      throw new IllegalStateException("Số dư khả dụng không đủ để rút!");
     }
     this.balance = this.balance.subtract(amount);
   }
 
   public void freeze(BigDecimal amount) {
     if (getAvailableBalance().compareTo(amount) < 0) {
-      throw new IllegalStateException("Số dư khả dụng không đủ để đặt cược!");
+      throw new IllegalStateException("Số dư khả dụng không đủ để đóng băng!");
     }
     this.frozenBalance = this.frozenBalance.add(amount);
   }
@@ -60,23 +53,9 @@ public class Wallet extends Entity {
     if (this.frozenBalance.compareTo(amount) < 0) {
       throw new IllegalStateException("Lỗi hệ thống: Tiền đóng băng không đủ để thanh toán!");
     }
+    // Khi thanh toán từ tiền đã đóng băng:
+    // Trừ cả ở balance (tổng) và frozenBalance (tạm giữ)
     this.frozenBalance = this.frozenBalance.subtract(amount);
     this.balance = this.balance.subtract(amount);
-  }
-
-  public BigDecimal getBalance() {
-    return balance;
-  }
-
-  public void setBalance(BigDecimal balance) {
-    this.balance = balance;
-  }
-
-  public BigDecimal getFrozenBalance() {
-    return frozenBalance;
-  }
-
-  public void setFrozenBalance(BigDecimal frozenBalance) {
-    this.frozenBalance = frozenBalance;
   }
 }

@@ -3,6 +3,7 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
+import com.auction.shared.request.LoginRequestDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -52,18 +53,19 @@ public class LoginController {
   // Logic đăng nhập
   @FXML
   private void handleLogin() {
-    String username = txtLoginUser.getText();
+    String accountName = txtLoginUser.getText();
     String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
     // Kiểm tra xem người dùng đã nhập đủ thông tin chưa
-    if (username.trim().isEmpty() || password.trim().isEmpty()) {
+    if (accountName.trim().isEmpty() || password.trim().isEmpty()) {
       ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
       return;
     }
 
-    User loginUser = new Bidder(username, password);
+    // Tạo tài khoản mới, mặc định là Bidder
+    LoginRequestDTO loginReq = new LoginRequestDTO(accountName, password);
     ServerConnection.sendData("LOGIN");
-    ServerConnection.sendData(loginUser);
+    ServerConnection.sendData(loginReq);
 
   }
 

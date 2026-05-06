@@ -1,19 +1,26 @@
 package com.auction.shared.model.user;
 
-import com.auction.shared.enums.UserRole;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+@Getter
+@Setter
+@NoArgsConstructor // Cần thiết nếu sau này dùng các thư viện Map dữ liệu
 public class Admin extends User {
-  public Admin() {
+  public Admin(UserDTO dto) {
+    super(dto);
+  }
+  public void cancelAuction(String auctionId, String reason) {
+    // Trong Model, chúng ta chủ yếu xác thực quyền hoặc ghi log nghiệp vụ đơn giản
+    System.out.println("Admin " + this.accountName + " đã yêu cầu hủy phiên: " + auctionId + ". Lý do: " + reason);
+
+    // Sau này khi sang Spring Boot, AdminService sẽ gọi hàm này và thực hiện
+    // rollback tiền cọc của tất cả Bidder đang tham gia phiên này.
   }
 
-  public Admin(String id, LocalDateTime createdAt, String userName, String password) {
-    super(id, createdAt, userName, password);
-  }
-
-  public Admin(String userName, String password, String email, LocalDate dob, String phoneNumber, String address, UserRole role) {
-    super(userName, password, email, dob, phoneNumber, address, role);
+  public void banBidder(String bidderId) {
+    // Logic khóa tài khoản
+    System.out.println("Admin đã khóa người dùng: " + bidderId);
   }
 }

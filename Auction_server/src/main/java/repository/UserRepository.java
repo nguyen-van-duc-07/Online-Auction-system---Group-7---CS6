@@ -1,5 +1,6 @@
 package repository;
 
+import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,31 +61,24 @@ public class UserRepository {
    * Việc này rất hữu ích khi bạn muốn đưa thao tác tạo người dùng này vào một
    * Transaction (giao dịch) chung với các thao tác khác.
    *
-   * @param conn        đối tượng kết nối cơ sở dữ liệu đang mở
-   * @param userId      mã định danh duy nhất của người dùng
-   * @param accountName tên tài khoản đăng nhập
-   * @param password    mật khẩu của người dùng
+   * @param user      đối tượng User
    * @return {@code true} nếu việc chèn dữ liệu thành công, ngược lại trả về {@code false}
    */
-  public boolean createUser(Connection conn,
-                            String userId,
-                            String accountName,
-                            String password) {
+  public boolean createUser(User user) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
+      PreparedStatement ps = conn.prepareStatement(sql);
 
-    String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
+      ps.setString(1, user.getId());
+      ps.setString(2, user.getAccountName());
+      ps.setString(3, user.getPassword());
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, userId);
-      ps.setString(2, accountName);
-      ps.setString(3, password);
-
-      return ps.executeUpdate() > 0;
-
-    } catch (Exception e) {
+      int rowsAffected = ps.executeUpdate();
+      return rowsAffected > 0; // Trả về true nếu chèn thành công ít nhất 1 dòng
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
-
     return false;
   }
 }
