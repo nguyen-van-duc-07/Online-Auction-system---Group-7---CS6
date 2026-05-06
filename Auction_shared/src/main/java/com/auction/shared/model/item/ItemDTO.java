@@ -1,4 +1,5 @@
 package com.auction.shared.model.item;
+import com.auction.shared.enums.ItemType;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -11,9 +12,6 @@ public class ItemDTO {
     private String id;
     private LocalDateTime CreatedAt;
     private String name;
-    private String category;
+    private ItemType type;
     private String description;
-    private String sellerId;
-    private String imageUrl;
-    private BigDecimal basePrice;
 }

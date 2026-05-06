@@ -18,7 +18,6 @@ public class Bidder extends User{
 
   public Bidder(UserDTO dto) {
     super(dto); // Gọi constructor của cha để gán các thuộc tính chung
-    this.wallet = new Wallet(); // Khởi tạo ví mới cho người đấu giá
     this.joinedAuctionIds = new ArrayList<>();
   }
 

@@ -16,7 +16,7 @@ class WalletTest {
 
     @BeforeEach
     void setUp() {
-        wallet = new Wallet();
+        wallet = new Wallet("2323");
     }
 
     // --- TEST PHẦN NẠP TIỀN (DEPOSIT) ---

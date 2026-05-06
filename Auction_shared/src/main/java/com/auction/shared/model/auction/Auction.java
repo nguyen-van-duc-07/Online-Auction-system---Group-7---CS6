@@ -113,4 +113,5 @@ public class Auction extends Entity implements Serializable {
     }
     this.status = AuctionStatus.CANCELED;
   }
+
 }
