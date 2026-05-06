@@ -95,10 +95,13 @@ public class UserRepository {
         User user = new com.auction.shared.model.user.Bidder();
         user.setId(rs.getString("id"));
         user.setAccountName(rs.getString("account_name"));
-        user.setRealName(rs.getString("real_name"));
-        user.setEmail(rs.getString("email"));
-        user.setPhoneNumber(rs.getString("phone_number"));
-        user.setDob(rs.getDate("dob").toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate
+//        user.setRealName(rs.getString("real_name"));
+//        user.setEmail(rs.getString("email"));
+//        user.setPhoneNumber(rs.getString("phone_number"));
+//        java.sql.Date dobDate = rs.getDate("dob");
+//        if (dobDate != null) {
+//          user.setDob(dobDate.toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate
+//        }
 
         return user;
       }
