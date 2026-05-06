@@ -24,5 +24,4 @@ public class SignUpRequestDTO implements RequestDTO {
     this.accountName = accountName;
     this.password = password;
   }
-
 }

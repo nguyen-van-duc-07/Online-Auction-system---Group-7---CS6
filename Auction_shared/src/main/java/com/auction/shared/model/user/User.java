@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Setter
 
 abstract public class User extends Entity {
+  protected String realName;
   protected String accountName;
   protected String password;
   protected String email;
@@ -21,6 +22,7 @@ abstract public class User extends Entity {
 
   public User(UserDTO dto) {
     super();
+    this.realName = dto.getRealName();
     this.accountName = dto.getAccountName();
     this.password = dto.getPassword();
     this.email = dto.getEmail();

@@ -1,0 +1,42 @@
+package com.auction.client.network;
+
+import com.auction.shared.model.user.UserDTO;
+
+/**
+ * Lớp quản lý phiên làm việc (Session) của người dùng hiện tại ở phía Client.
+ *
+ * <p>Lớp sử dụng các biến {@code static} để lưu trữ thông tin người dùng xuyên suốt
+ * vòng đời của ứng dụng JavaFX, giúp các màn hình khác nhau (như Profile, Wallet)
+ * có thể truy xuất dữ liệu một cách tập trung mà không cần truyền tham số qua lại.</p>
+ */
+public class SessionManager {
+  /**
+   * Đối tượng lưu giữ thông tin của người dùng đang đăng nhập vào hệ thống.
+   */
+  public static UserDTO currentUser;
+
+  /**
+   * Cập nhật thông tin người dùng hiện tại vào phiên làm việc.
+   */
+  public static void setCurrentUser(UserDTO currentUser) {
+    SessionManager.currentUser = currentUser;
+  }
+
+  /**
+   * Lấy thông tin người dùng đang hoạt động trong phiên làm việc.
+   *
+   * @return Đối tượng {@link UserDTO}, hoặc {@code null} nếu chưa đăng nhập
+   */
+  public static UserDTO getCurrentUser() {
+    return SessionManager.currentUser;
+  }
+
+  /**
+   * Xoá thông tin phiên làm việc hiện tại.
+   *
+   * <p>Được gọi khi người dùng thực hiện thao tác Đăng xuất.</p>
+   */
+  public static void clearSession() {
+    SessionManager.currentUser = null;
+  }
+}

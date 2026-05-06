@@ -21,23 +21,25 @@ public class AuthService {
   private static final WalletRepository walletRepo = new WalletRepository();
 
   /**
-   * Xử lý đăng nhập người dùng bằng tên tài khoản và mật khẩu.
+   * Xử lý đăng nhập của người dùng bằng tài khoản và mật khẩu.
    *
-   * <p>Hệ thống sẽ lấy mật khẩu đã mã hóa từ database theo accountName,
-   * sau đó so sánh với mật khẩu người dùng nhập bằng BCrypt.</p>
+   * <p>Tìm mật khẩu đã mã hóa (hash) trong database và so sánh bằng thuật toán BCrypt.</p>
    *
-   * @param loginUser đối tượng {@link LoginRequestDTO} chứa thông tin đăng ký
-   * @return true nếu đăng nhập thành công, false nếu thất bại
+   * @param loginUser đối tượng {@link LoginRequestDTO} chứa thông tin đăng nhập
+   * @return Đối tượng {@link User} nếu đăng nhập thành công, {@code null} nếu sai thông tin
    */
-  public static boolean login(LoginRequestDTO loginUser) {
+  public static User login(LoginRequestDTO loginUser) {
     String hashedPassword = userRepo.getPasswordByAccountName(loginUser.getAccountName());
 
     if (hashedPassword == null) {
-      return false;
+      return null;
     }
 
     // Kiểm tra mật khẩu và mật khẩu đã mã hoá bằng thư viện BCrypt xem có giống nhau không
-    return BCrypt.checkpw(loginUser.getPassword(), hashedPassword);
+    if (BCrypt.checkpw(loginUser.getPassword(), hashedPassword)) {
+      return userRepo.getUserByAccountName(loginUser.getAccountName());
+    }
+    return null; // Sai mật khẩu
   }
 
   /**
@@ -96,7 +98,7 @@ public class AuthService {
         return false;
       }
 
-      conn.commit(); // ✅ OK
+      conn.commit(); // OK
       return true;
 
     } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.auction.shared.response;
 
+import com.auction.shared.model.user.UserDTO;
+
 /**
  * Lớp DTO mang theo kết quả của quá trình Đăng nhập từ Server trả về Client.
  *
@@ -25,21 +27,45 @@ public class LoginResponseDTO implements ResponseDTO {
   private String message;
 
   /**
+   * Đối tượng chứa thông tin cơ bản của người dùng vừa đăng nhập thành công.
+   * Sẽ mang giá trị {@code null} nếu đăng nhập thất bại.
+   */
+  private UserDTO user;
+
+  /**
    * Khởi tạo một đối tượng phản hồi đăng nhập.
    *
    * @param success trạng thái đăng nhập
    * @param message thông báo trả về cho người dùng
+   * @param user thông tin người dùng (truyền null nếu đăng nhập lỗi)
    */
-  public LoginResponseDTO(boolean success, String message) {
+  public LoginResponseDTO(boolean success, String message, UserDTO user) {
     this.success = success;
     this.message = message;
+    this.user = user;
   }
 
+  /**
+   * Lấy trạng thái đăng nhập.
+   * @return true nếu thành công
+   */
   public boolean isSuccess() {
     return success;
   }
 
+  /**
+   * Lấy câu thông báo từ Server.
+   * @return chuỗi thông báo
+   */
   public String getMessage() {
     return message;
+  }
+
+  /**
+   * Lấy thông tin người dùng.
+   * @return đối tượng {@link UserDTO}
+   */
+  public UserDTO getUser() {
+    return user;
   }
 }
