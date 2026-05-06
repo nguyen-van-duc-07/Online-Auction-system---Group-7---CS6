@@ -98,7 +98,7 @@ public class UserRepository {
         user.setRealName(rs.getString("real_name"));
         user.setEmail(rs.getString("email"));
         user.setPhoneNumber(rs.getString("phone_number"));
-        user.setDob(rs.getDate("dob").toLocalDate()); // Chuyển từ java.sql.Date sang java.time.LocalDate
+        user.setDob(rs.getDate("dob").toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate
 
         return user;
       }

@@ -22,6 +22,7 @@ public class AuthService {
 
   /**
    * Xử lý đăng nhập của người dùng bằng tài khoản và mật khẩu.
+   *
    * <p>Tìm mật khẩu đã mã hóa (hash) trong database và so sánh bằng thuật toán BCrypt.</p>
    *
    * @param loginUser đối tượng {@link LoginRequestDTO} chứa thông tin đăng nhập
@@ -97,7 +98,7 @@ public class AuthService {
         return false;
       }
 
-      conn.commit(); // ✅ OK
+      conn.commit(); // OK
       return true;
 
     } catch (Exception e) {
