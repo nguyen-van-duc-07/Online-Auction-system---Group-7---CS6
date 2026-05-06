@@ -122,22 +122,32 @@
                                             </children>
                                         </HBox>
 
+                                        <!-- THỜI GIAN BẮT ĐẦU -->
                                         <HBox spacing="15.0">
                                             <children>
 
-                                                <!-- Ngày -->
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <Label text="Ngày kết thúc" />
-                                                    <DatePicker fx:id="finishDateField" prefHeight="35.0" />
+                                                    <Label text="Ngày bắt đầu" />
+                                                    <DatePicker fx:id="startDateField" prefHeight="35.0" />
                                                 </VBox>
 
-                                                <!-- Giờ bắt đầu -->
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ bắt đầu" />
                                                     <ComboBox fx:id="startTimeField" prefHeight="35.0" promptText="Chọn" />
                                                 </VBox>
 
-                                                <!-- Giờ kết thúc -->
+                                            </children>
+                                        </HBox>
+
+                                        <!-- THỜI GIAN KẾT THÚC -->
+                                        <HBox spacing="15.0">
+                                            <children>
+
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <Label text="Ngày kết thúc" />
+                                                    <DatePicker fx:id="finishDateField" prefHeight="35.0" />
+                                                </VBox>
+
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ kết thúc" />
                                                     <ComboBox fx:id="endTimeField" prefHeight="35.0" promptText="Chọn" />
