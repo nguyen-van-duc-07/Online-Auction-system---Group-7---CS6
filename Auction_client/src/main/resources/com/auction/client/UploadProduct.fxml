@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Hyperlink?>
 
 <BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.UploadProductController">
 
@@ -30,11 +31,11 @@
             </left>
 
             <center>
-                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink onAction="#gotoHomeWithHyperLink" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>
-                </Label>
+                </Hyperlink>
             </center>
 
             <right>

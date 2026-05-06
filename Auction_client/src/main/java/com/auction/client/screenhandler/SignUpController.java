@@ -13,7 +13,7 @@ import javafx.scene.control.TextField;
  */
 public class SignUpController {
   @FXML
-  private TextField txtUser;
+  private TextField accountNameField;
   @FXML
   private PasswordField pwdHidden;
   @FXML
@@ -69,12 +69,12 @@ public class SignUpController {
 
   @FXML
   private void handleRegister() {
-    String username = txtUser.getText();
+    String accountName = accountNameField.getText();
     String password = isPasswordVisible ? pwdVisible.getText() : pwdHidden.getText();
     String confirm = isConfirmVisible ? confirmPwdVisible.getText() : confirmPwdHidden.getText();
 
     // Ô nhập thông tin rỗng
-    if (username.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
+    if (accountName.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
       ScreenController.showAlert(Alert.AlertType.WARNING, null,
           "Vui lòng nhập đầy đủ thông tin!");
       return;
@@ -88,10 +88,10 @@ public class SignUpController {
     }
 
     // Nếu tất cả đều ổn thì sẽ gửi cho server
-    SignUpRequestDTO signupReq = new SignUpRequestDTO(username, password);
+    SignUpRequestDTO signupReq = new SignUpRequestDTO(accountName, password);
     ServerConnection.sendData(signupReq);
 
-    txtUser.clear();
+    accountNameField.clear();
     pwdHidden.clear();
     pwdVisible.clear();
     confirmPwdHidden.clear();

@@ -18,7 +18,7 @@ import javafx.scene.input.MouseEvent;
 public class LoginController {
 
   @FXML
-  private TextField txtLoginUser;
+  private TextField accountNameField;
   @FXML
   private PasswordField hiddenPasswordField;
   @FXML
@@ -53,7 +53,7 @@ public class LoginController {
   // Logic đăng nhập
   @FXML
   private void handleLogin() {
-    String accountName = txtLoginUser.getText();
+    String accountName = accountNameField.getText();
     String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
     // Kiểm tra xem người dùng đã nhập đủ thông tin chưa

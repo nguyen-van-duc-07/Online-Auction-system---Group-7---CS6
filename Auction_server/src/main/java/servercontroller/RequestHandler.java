@@ -1,5 +1,7 @@
 package servercontroller;
 
+import com.auction.shared.model.user.User;
+import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.LoginRequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
 import com.auction.shared.response.LoginResponseDTO;
@@ -20,12 +22,22 @@ import service.AuthService;
  */
 public class RequestHandler {
   public static LoginResponseDTO login(LoginRequestDTO loginReq) {
-    boolean isSuccess = AuthService.login(loginReq);
-    String msg = isSuccess ? "Đăng nhập thành công!" :
-        "Tài khoản hoặc mật khẩu không chính xác!";
-    return new LoginResponseDTO(isSuccess, msg);
-  }
+    User loggedInUser = AuthService.login(loginReq);
 
+    if (loggedInUser != null) {
+      UserDTO userDTO = UserDTO.builder()
+              .id(loggedInUser.getId())
+              .accountName(loggedInUser.getAccountName())
+              .email(loggedInUser.getEmail())
+              .phoneNumber(loggedInUser.getPhoneNumber())
+              .dob(loggedInUser.getDob())
+              .build();
+
+      return new LoginResponseDTO(true, "Đăng nhập thành công!", userDTO);
+    } else {
+      return new LoginResponseDTO(false, "Sai tài khoản hoặc mật khẩu", null);
+    }
+  }
 
   public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
     boolean isSuccess = AuthService.signUp(signUpReq);

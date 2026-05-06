@@ -28,7 +28,7 @@ public class UploadProductController {
   HomeController homeController = new HomeController();
 
   @FXML
-  public void gotoHome() {
+  public void gotoHomeWithHyperLink() {
     ScreenController.switchScreen("Hone.fxml", "Trang chủ");
   }
 

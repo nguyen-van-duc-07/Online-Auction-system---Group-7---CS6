@@ -9,20 +9,27 @@ import javafx.scene.control.ButtonType;
 
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
- * <p>
- * Do JavaFX yêu cầu mọi thay đổi UI (như hiện thông báo, đổi màn hình) phải được
+ *
+ * <p>Do JavaFX yêu cầu mọi thay đổi UI (như hiện thông báo, đổi màn hình) phải được
  * thực hiện trên luồng chính (Application Thread), lớp này sử dụng {@code Platform.runLater()}
  * để bọc các thao tác UI một cách an toàn. Nó xử lý kết quả thành công hoặc thất bại
- * dựa trên dữ liệu mang theo trong các {@code ResponseDTO}.
- * </p>
+ * dựa trên dữ liệu mang theo trong các {@code ResponseDTO}.</p>
  *
  * @see com.auction.client.screenhandler.ScreenController
  */
 public class ResponseHandler {
-  // Xử lý phản hồi về yêu cầu đăng nhập của server
+  /**
+   * Xử lý gói tin phản hồi đăng nhập từ Server.
+   *
+   * <p>Lưu thông tin người dùng vào {@link SessionManager} nếu thành công,
+   * sau đó chuyển trang.</p>
+   *
+   * @param loginRes Gói tin nhắn phản hồi đăng nhập
+   */
   public static void login(LoginResponseDTO loginRes) {
     // Nếu xử lý đăng nhập thành công
     if (loginRes.isSuccess()) {
+      SessionManager.setCurrentUser(loginRes.getUser());
       Platform.runLater(() -> {
         ScreenController.switchScreen("Home.fxml", "Trang chủ");
       });

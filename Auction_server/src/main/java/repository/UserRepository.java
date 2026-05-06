@@ -81,4 +81,28 @@ public class UserRepository {
     }
     return false;
   }
+
+  public User getUserByAccountName(String accountName) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "SELECT * FROM users WHERE account_name = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, accountName);
+      ResultSet rs = ps.executeQuery();
+
+      if (rs.next()) {
+        User user = new com.auction.shared.model.user.Bidder();
+        user.setId(rs.getString("id"));
+        user.setAccountName(rs.getString("account_name"));
+        user.setRealName(rs.getString("real_name"));
+        user.setEmail(rs.getString("email"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setDob(rs.getDate("dob").toLocalDate()); // Chuyển từ java.sql.Date sang java.time.LocalDate
+
+        return user;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 }
