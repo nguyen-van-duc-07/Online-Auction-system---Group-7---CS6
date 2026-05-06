@@ -1,8 +1,7 @@
 package servercontroller;
 
-import com.auction.shared.dto.request.SignUpRequest;
-import com.auction.shared.model.user.User;
-import service.AuthService;
+import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.SignUpRequestDTO;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,7 +34,7 @@ public class ClientHandler implements Runnable {
 
           // Nếu String nhận được là LOGIN
           if ("LOGIN".equals(action)) {
-            User loginUser = (User) in.readObject();
+            LoginRequestDTO loginUser = (LoginRequestDTO) in.readObject();
             String answer = RequestHandler.login(loginUser);
             // Gửi 1 String về trước để thông báo rằng đây là phản hồi về yêu cầu login
             out.writeObject("LOGIN_RESPONSE");
@@ -47,7 +46,7 @@ public class ClientHandler implements Runnable {
             // KHÁC BIỆT 1 (Dữ liệu đầu vào):
             // Thay vì dùng trực tiếp Entity (User) như Login, đăng ký sử dụng một DTO chuyên biệt (SignUpRequest).
             // Điều này hợp lý vì form đăng ký thường chứa các trường khác với model gốc (VD: nhập lại mật khẩu, mã xác nhận...).
-            SignUpRequest req = (SignUpRequest) in.readObject();
+            SignUpRequestDTO req = (SignUpRequestDTO) in.readObject();
 
             String answer = RequestHandler.signup(req);
 

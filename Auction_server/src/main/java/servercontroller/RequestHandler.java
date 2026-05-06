@@ -1,7 +1,7 @@
 package servercontroller;
 
-import com.auction.shared.dto.request.SignUpRequest;
-import com.auction.shared.model.user.User;
+import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.SignUpRequestDTO;
 import service.AuthService;
 
 /**
@@ -11,8 +11,8 @@ import service.AuthService;
  * và trả về kết quả phản hồi (response) cho client.
  */
 public class RequestHandler {
-  public static String login(User loginUser) {
-    boolean isSuccess = AuthService.login(loginUser.getUserName(), loginUser.getPassword());
+  public static String login(LoginRequestDTO loginUser) {
+    boolean isSuccess = AuthService.login(loginUser);
     if (isSuccess) {
       return "LOGIN_SUCCESS";
     }
@@ -22,11 +22,11 @@ public class RequestHandler {
   /**
    * Xử lý yêu cầu đăng ký tài khoản mới của người dùng.
    *
-   * @param req đối tượng {@link SignUpRequest} chứa các thông tin cần thiết để đăng ký
+   * @param signUpUser đối tượng {@link SignUpRequestDTO} chứa các thông tin cần thiết để đăng ký
    * @return chuỗi "SIGNUP_SUCCESS" nếu đăng ký thành công, hoặc "SIGNUP_FAILED" nếu thất bại
    */
-  public static String signup(SignUpRequest req) {
-    boolean isSuccess = AuthService.signup(req);
+  public static String signup(SignUpRequestDTO signUpUser) {
+    boolean isSuccess = AuthService.signUp(signUpUser);
 
     if (isSuccess) return "SIGNUP_SUCCESS";
     return "SIGNUP_FAILED";

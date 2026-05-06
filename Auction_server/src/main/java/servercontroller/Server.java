@@ -17,6 +17,8 @@ public class Server {
   public static void main(String[] args) {
     try {
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+      System.out.println(">>> SERVER DA CHAY TREN PORT: " + SERVER_PORT);
+      System.out.println(">>> DANG DOI CLIENT KET NOI VAO ...");
       List<Socket> clientSockets = new ArrayList<>();
       while (true) {
         Socket clientSocket = serverSocket.accept();
