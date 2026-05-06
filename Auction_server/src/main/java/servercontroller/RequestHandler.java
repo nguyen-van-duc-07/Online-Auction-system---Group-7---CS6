@@ -27,6 +27,7 @@ public class RequestHandler {
     if (loggedInUser != null) {
       UserDTO userDTO = UserDTO.builder()
               .id(loggedInUser.getId())
+              .realName(loggedInUser.getRealName())
               .accountName(loggedInUser.getAccountName())
               .email(loggedInUser.getEmail())
               .phoneNumber(loggedInUser.getPhoneNumber())

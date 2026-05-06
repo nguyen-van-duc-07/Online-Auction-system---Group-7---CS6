@@ -58,7 +58,8 @@ public class LoginController {
 
     // Kiểm tra xem người dùng đã nhập đủ thông tin chưa
     if (accountName.trim().isEmpty() || password.trim().isEmpty()) {
-      ScreenController.showAlert(Alert.AlertType.INFORMATION, null, "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
+      ScreenController.showAlert(Alert.AlertType.INFORMATION, null,
+          "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
       return;
     }
 

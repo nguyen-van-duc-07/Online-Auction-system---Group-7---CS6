@@ -44,10 +44,12 @@ public class ClientHandler implements Runnable {
           switch (requestObj) {
             case SignUpRequestDTO signUpReq -> {
               out.writeObject(RequestHandler.signup(signUpReq));
+              out.flush();
             }
 
             case LoginRequestDTO loginReq -> {
               out.writeObject(RequestHandler.login(loginReq));
+              out.flush();
             }
 
             default -> {
