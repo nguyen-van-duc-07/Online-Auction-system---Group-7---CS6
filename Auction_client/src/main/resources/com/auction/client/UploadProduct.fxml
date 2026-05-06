@@ -133,7 +133,7 @@
 
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ bắt đầu" />
-                                                    <ComboBox fx:id="startTimeField" prefHeight="35.0" promptText="Chọn" />
+                                                    <ComboBox fx:id="startTimeField" prefHeight="35.0" prefWidth="122.0" promptText="Chọn" />
                                                 </VBox>
 
                                             </children>
@@ -150,7 +150,7 @@
 
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ kết thúc" />
-                                                    <ComboBox fx:id="endTimeField" prefHeight="35.0" promptText="Chọn" />
+                                                    <ComboBox fx:id="endTimeField" prefHeight="35.0" prefWidth="122.0" promptText="Chọn" />
                                                 </VBox>
 
                                             </children>
