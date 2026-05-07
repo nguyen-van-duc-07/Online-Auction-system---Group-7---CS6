@@ -13,7 +13,6 @@ public class DatabaseConnection {
   private static final String USER = "2vF9fvUA1e6SkrG.root";
   private static final String PASS = "KsAN75FtZIeOrn6t";
 
-  private static Connection connection;
 
   /**
    * Khởi tạo hoặc trả về kết nối hiện tại với cơ sở dữ liệu MySQL/TiDB.
@@ -27,10 +26,7 @@ public class DatabaseConnection {
    **/
   public static Connection getConnection() {
     try {
-      if (connection == null || connection.isClosed()) {
-        connection = DriverManager.getConnection(URL, USER, PASS);
-      }
-      return connection;
+      return DriverManager.getConnection(URL, USER, PASS);
     } catch (Exception e) {
       e.printStackTrace();
       return null;

@@ -20,5 +20,6 @@ public class UserDTO implements Serializable {
     protected String email;
     protected LocalDate dob;
     protected String phoneNumber;
+    protected String address;
     protected UserRole role;
 }
