@@ -2,9 +2,8 @@ package repository;
 
 import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
+import java.sql.*;
 
 /**
  * Lớp UserRepository dùng để thao tác với bảng users trong cơ sở dữ liệu.
@@ -61,7 +60,7 @@ public class UserRepository {
    * Việc này rất hữu ích khi bạn muốn đưa thao tác tạo người dùng này vào một
    * Transaction (giao dịch) chung với các thao tác khác.
    *
-   * @param conn        đối tượng kết nối cơ sở dữ liệu đang mở
+   * @param conn đối tượng kết nối cơ sở dữ liệu đang mở
    * @param user object nhận đươ từ AuthService
    * @return {@code true} nếu việc chèn dữ liệu thành công, ngược lại trả về {@code false}
    */
@@ -109,5 +108,22 @@ public class UserRepository {
       e.printStackTrace();
     }
     return null;
+  }
+  public boolean updateProfile(User user) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "UPDATE users "
+          + "SET real_name = ?, dob = ?, email = ?, phone_number = ?, address = ? "
+          + " WHERE id = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, user.getRealName());
+      ps.setDate(2, Date.valueOf(user.getDob()));
+      ps.setString(3, user.getEmail());
+      ps.setString(4, user.getPhoneNumber());
+      ps.setString(5, user.getAddress());
+      ps.setString(6, user.getId());
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

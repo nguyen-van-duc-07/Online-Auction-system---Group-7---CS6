@@ -12,12 +12,13 @@ import java.time.LocalDate;
 @Setter
 
 abstract public class User extends Entity {
-  protected String realName;
   protected String accountName;
   protected String password;
-  protected String email;
+  protected String realName;
   protected LocalDate dob;
+  protected String email;
   protected String phoneNumber;
+  protected String address;
   protected UserRole role;
 
   public User(UserDTO dto) {
@@ -28,6 +29,7 @@ abstract public class User extends Entity {
     this.email = dto.getEmail();
     this.dob = dto.getDob();
     this.phoneNumber = dto.getPhoneNumber();
+    this.address = dto.getAddress();
     this.role = dto.getRole();
   }
   public boolean isAdmin() {
