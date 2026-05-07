@@ -1,5 +1,6 @@
 package repository;
 
+import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,23 +62,18 @@ public class UserRepository {
    * Transaction (giao dịch) chung với các thao tác khác.
    *
    * @param conn        đối tượng kết nối cơ sở dữ liệu đang mở
-   * @param userId      mã định danh duy nhất của người dùng
-   * @param accountName tên tài khoản đăng nhập
-   * @param password    mật khẩu của người dùng
+   * @param user object nhận đươ từ AuthService
    * @return {@code true} nếu việc chèn dữ liệu thành công, ngược lại trả về {@code false}
    */
-  public boolean createUser(Connection conn,
-                            String userId,
-                            String accountName,
-                            String password) {
+  public boolean createUser(Connection conn, User user) {
 
     String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-      ps.setString(1, userId);
-      ps.setString(2, accountName);
-      ps.setString(3, password);
+      ps.setString(1, user.getId());
+      ps.setString(2, user.getAccountName());
+      ps.setString(3, user.getPassword());
 
       return ps.executeUpdate() > 0;
 
@@ -86,5 +82,32 @@ public class UserRepository {
     }
 
     return false;
+  }
+
+  public User getUserByAccountName(String accountName) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "SELECT * FROM users WHERE account_name = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, accountName);
+      ResultSet rs = ps.executeQuery();
+
+      if (rs.next()) {
+        User user = new com.auction.shared.model.user.Bidder();
+        user.setId(rs.getString("id"));
+        user.setAccountName(rs.getString("account_name"));
+//        user.setRealName(rs.getString("real_name"));
+//        user.setEmail(rs.getString("email"));
+//        user.setPhoneNumber(rs.getString("phone_number"));
+//        java.sql.Date dobDate = rs.getDate("dob");
+//        if (dobDate != null) {
+//          user.setDob(dobDate.toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate
+//        }
+
+        return user;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }

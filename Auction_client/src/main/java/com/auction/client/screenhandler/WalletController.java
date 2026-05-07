@@ -33,4 +33,9 @@ public class WalletController {
   public void gotoResult() {
     homeController.gotoResult();
   }
+
+  @FXML
+  public void gotoHomeWithHyperLink() {
+    ScreenController.switchScreen("Home.fxml", "Trang chủ");
+  }
 }

@@ -1,34 +1,49 @@
 package servercontroller;
 
-import com.auction.shared.dto.request.SignUpRequest;
 import com.auction.shared.model.user.User;
+import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.SignUpRequestDTO;
+import com.auction.shared.response.LoginResponseDTO;
+import com.auction.shared.response.SignUpResponseDTO;
 import service.AuthService;
 
 /**
- * Lớp điều hướng và xử lý các yêu cầu (requests) từ client gửi đến server.
- * Đóng vai trò như một Controller, tiếp nhận dữ liệu request, phân phối đến các
- * Service nghiệp vụ tương ứng (Xác thực, Đấu giá, Quản lý người dùng, v.v.)
- * và trả về kết quả phản hồi (response) cho client.
+ * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
+ * <p>
+ * Lớp này đóng vai trò cầu nối thiết yếu giữa tầng mạng (Network) và tầng dịch vụ (Service).
+ * Nhiệm vụ của nó là nhận các đối tượng Request cụ thể, kích hoạt các phương thức nghiệp vụ
+ * trong tầng Service (như {@code AuthService}), và đóng gói kết quả (trạng thái, thông báo)
+ * vào các đối tượng {@code ResponseDTO} để trả về cho Client.
+ * </p>
+ *
+ * @see service.AuthService
+ * @see com.auction.shared.response.ResponseDTO
  */
 public class RequestHandler {
-  public static String login(User loginUser) {
-    boolean isSuccess = AuthService.login(loginUser.getUserName(), loginUser.getPassword());
-    if (isSuccess) {
-      return "LOGIN_SUCCESS";
+  public static LoginResponseDTO login(LoginRequestDTO loginReq) {
+    User loggedInUser = AuthService.login(loginReq);
+
+    if (loggedInUser != null) {
+      UserDTO userDTO = UserDTO.builder()
+              .id(loggedInUser.getId())
+              .realName(loggedInUser.getRealName())
+              .accountName(loggedInUser.getAccountName())
+              .email(loggedInUser.getEmail())
+              .phoneNumber(loggedInUser.getPhoneNumber())
+              .dob(loggedInUser.getDob())
+              .build();
+
+      return new LoginResponseDTO(true, "Đăng nhập thành công!", userDTO);
+    } else {
+      return new LoginResponseDTO(false, "Sai tài khoản hoặc mật khẩu", null);
     }
-    return "LOGIN_FAILED";
   }
 
-  /**
-   * Xử lý yêu cầu đăng ký tài khoản mới của người dùng.
-   *
-   * @param req đối tượng {@link SignUpRequest} chứa các thông tin cần thiết để đăng ký
-   * @return chuỗi "SIGNUP_SUCCESS" nếu đăng ký thành công, hoặc "SIGNUP_FAILED" nếu thất bại
-   */
-  public static String signup(SignUpRequest req) {
-    boolean isSuccess = AuthService.signup(req);
-
-    if (isSuccess) return "SIGNUP_SUCCESS";
-    return "SIGNUP_FAILED";
+  public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
+    boolean isSuccess = AuthService.signUp(signUpReq);
+    String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
+        "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
+    return new SignUpResponseDTO(isSuccess, msg);
   }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -11,8 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.Hyperlink?>
-<StackPane style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SignupController">
+<StackPane style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SignUpController">
 
     <VBox alignment="CENTER" maxWidth="550.0" prefHeight="350.0" spacing="25.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 8); -fx-padding: 40;">
 
@@ -31,8 +31,8 @@
                 <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
             </rowConstraints>
 
-            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Tên đăng nhập:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField fx:id="txtUser" promptText="Nhập tên đăng nhập" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="accountNameField" promptText="Nhập tên tài khoản" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 
@@ -65,10 +65,8 @@
             <Button onAction="#handleRegister" style="-fx-background-color: #e0e0e0; -fx-text-fill: #008000; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 25; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-cursor: hand;" text="Đăng ký" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         </GridPane>
         <HBox alignment="CENTER" spacing="5">
-            <Label text="Đã có tài khoản?"
-                   style="-fx-text-fill: #555; -fx-font-size: 13px;" />
-            <Hyperlink text="Đăng nhập ngay"
-                       style="-fx-text-fill: #2e7d32; -fx-font-size: 13px; -fx-font-weight: bold; -fx-border-color: transparent;" />
+            <Label style="-fx-text-fill: #555; -fx-font-size: 13px;" text="Đã có tài khoản?" />
+            <Hyperlink style="-fx-text-fill: #2e7d32; -fx-font-size: 13px; -fx-font-weight: bold; -fx-border-color: transparent;" text="Đăng nhập ngay" />
         </HBox>
     </VBox>
 </StackPane>

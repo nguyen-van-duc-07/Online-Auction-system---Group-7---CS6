@@ -1,46 +1,64 @@
 package com.auction.client.network;
 
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.response.LoginResponseDTO;
+import com.auction.shared.response.SignUpResponseDTO;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+/**
+ * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
+ *
+ * <p>Do JavaFX yêu cầu mọi thay đổi UI (như hiện thông báo, đổi màn hình) phải được
+ * thực hiện trên luồng chính (Application Thread), lớp này sử dụng {@code Platform.runLater()}
+ * để bọc các thao tác UI một cách an toàn. Nó xử lý kết quả thành công hoặc thất bại
+ * dựa trên dữ liệu mang theo trong các {@code ResponseDTO}.</p>
+ *
+ * @see com.auction.client.screenhandler.ScreenController
+ */
 public class ResponseHandler {
-  // Xử lý phản hồi về yêu cầu login của server
-  public static void login(String msg) {
-    // Nếu yêu cầu xử lý thành công
-    if ("LOGIN_SUCCESS".equals(msg)) {
+  /**
+   * Xử lý gói tin phản hồi đăng nhập từ Server.
+   *
+   * <p>Lưu thông tin người dùng vào {@link SessionManager} nếu thành công,
+   * sau đó chuyển trang.</p>
+   *
+   * @param loginRes Gói tin nhắn phản hồi đăng nhập
+   */
+  public static void login(LoginResponseDTO loginRes) {
+    // Nếu xử lý đăng nhập thành công
+    if (loginRes.isSuccess()) {
+      SessionManager.setCurrentUser(loginRes.getUser());
       Platform.runLater(() -> {
         ScreenController.switchScreen("Home.fxml", "Trang chủ");
       });
 
-      // Nếu yêu cầu xử lý không thành công
-    } else if ("LOGIN_FAILED".equals(msg)) {
+      // Nếu xử lý đăng nhập thất bại
+    } else {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập",
-            "Tài khoản hoặc mật khẩu không chính xác");
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập",  loginRes.getMessage());
       });
     }
   }
 
-  // Xử lý phản hồi về yêu cầu signup của server
-  public static void signup(String msg) {
+  // Xử lý phản hồi về yêu cầu tạo tài khoản của server
+  public static void signUp(SignUpResponseDTO signUpRes) {
     // Nếu yêu cầu xử lý thành công
-    if ("SIGNUP_SUCCESS".equals(msg)) {
+    if (signUpRes.isSuccess()) {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.INFORMATION, null,
-        "Đăng ký tài khoản thành công!").ifPresent(Response -> {
-          if (Response == ButtonType.OK) {
-            ScreenController.switchScreen("Login.fxml", "Đăng nhập");
-          }
-        });
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
+            signUpRes.getMessage()).ifPresent(Response -> {
+              if (Response == ButtonType.OK) {
+                ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+              }
+            });
       });
 
-      // Nếu yêu cầu xử lý không thành công
-    } else if ("SIGNUP_FAILED".equals(msg)) {
+      // Nếu xử lý thất bại
+    } else {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.WARNING, null,
-          "Tài khoản đã tồn tại!");
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng kí", signUpRes.getMessage());
       });
     }
   }

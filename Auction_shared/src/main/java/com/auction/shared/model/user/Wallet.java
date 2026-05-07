@@ -6,20 +6,20 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Wallet extends Entity {
+  private String bidderId;
   private BigDecimal balance;
   private BigDecimal frozenBalance;
 
-  public Wallet() {
+
+  public Wallet(String bidderId) {
+    this.bidderId = bidderId;
     this.balance = BigDecimal.ZERO;
     this.frozenBalance = BigDecimal.ZERO;
   }
 
-  public Wallet(String id, LocalDateTime createdAt) {
+  public Wallet(String id, LocalDateTime createdAt, String bidderId, BigDecimal balance, BigDecimal frozenBalance) {
     super(id, createdAt);
-  }
-
-  public Wallet(String id, LocalDateTime createdAt, BigDecimal balance, BigDecimal frozenBalance) {
-    super(id, createdAt);
+    this.bidderId = bidderId;
     this.balance = balance;
     this.frozenBalance = frozenBalance;
   }
@@ -36,8 +36,8 @@ public class Wallet extends Entity {
   }
 
   public void withdraw(BigDecimal amount) {
-    if (this.balance.compareTo(amount) < 0) {
-      throw new IllegalStateException("Số dư không đủ để rút!");
+    if (getAvailableBalance().compareTo(amount) < 0) {
+      throw new IllegalStateException("Số dư khả dụng không đủ để rút!");
     }
     this.balance = this.balance.subtract(amount);
   }
@@ -78,5 +78,13 @@ public class Wallet extends Entity {
 
   public void setFrozenBalance(BigDecimal frozenBalance) {
     this.frozenBalance = frozenBalance;
+  }
+
+  public String getBidderId() {
+    return bidderId;
+  }
+
+  public void setBidderId(String bidder_id) {
+    this.bidderId = bidder_id;
   }
 }

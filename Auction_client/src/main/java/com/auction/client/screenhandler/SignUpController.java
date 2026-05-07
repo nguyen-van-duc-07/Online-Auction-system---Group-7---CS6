@@ -1,11 +1,7 @@
 package com.auction.client.screenhandler;
 
-import com.auction.client.Main;
 import com.auction.client.network.ServerConnection;
-import com.auction.shared.dto.request.SignUpRequest;
-import com.auction.shared.model.user.Bidder;
-import com.auction.shared.model.user.User;
-import javafx.event.ActionEvent;
+import com.auction.shared.request.SignUpRequestDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -15,9 +11,9 @@ import javafx.scene.control.TextField;
 /**
  * Controller xử lý logic cho màn hình đăng ký tài khoản.
  */
-public class SignupController {
+public class SignUpController {
   @FXML
-  private TextField txtUser;
+  private TextField accountNameField;
   @FXML
   private PasswordField pwdHidden;
   @FXML
@@ -73,12 +69,12 @@ public class SignupController {
 
   @FXML
   private void handleRegister() {
-    String username = txtUser.getText();
+    String accountName = accountNameField.getText();
     String password = isPasswordVisible ? pwdVisible.getText() : pwdHidden.getText();
     String confirm = isConfirmVisible ? confirmPwdVisible.getText() : confirmPwdHidden.getText();
 
     // Ô nhập thông tin rỗng
-    if (username.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
+    if (accountName.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
       ScreenController.showAlert(Alert.AlertType.WARNING, null,
           "Vui lòng nhập đầy đủ thông tin!");
       return;
@@ -92,12 +88,10 @@ public class SignupController {
     }
 
     // Nếu tất cả đều ổn thì sẽ gửi cho server
-    SignUpRequest req = new SignUpRequest(username, password);
+    SignUpRequestDTO signupReq = new SignUpRequestDTO(accountName, password);
+    ServerConnection.sendData(signupReq);
 
-    ServerConnection.sendData("SIGN_UP");
-    ServerConnection.sendData(req);
-
-    txtUser.clear();
+    accountNameField.clear();
     pwdHidden.clear();
     pwdVisible.clear();
     confirmPwdHidden.clear();

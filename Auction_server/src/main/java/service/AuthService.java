@@ -1,7 +1,10 @@
 package service;
 
-import com.auction.shared.dto.request.SignUpRequest;
-import com.auction.shared.util.IdGenerator;
+import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.request.SignUpRequestDTO;
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.User;
+import com.auction.shared.model.user.Wallet;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import org.mindrot.jbcrypt.BCrypt;
@@ -18,24 +21,25 @@ public class AuthService {
   private static final WalletRepository walletRepo = new WalletRepository();
 
   /**
-   * Xử lý đăng nhập người dùng bằng tên tài khoản và mật khẩu.
+   * Xử lý đăng nhập của người dùng bằng tài khoản và mật khẩu.
    *
-   * <p>Hệ thống sẽ lấy mật khẩu đã mã hóa từ database theo accountName,
-   * sau đó so sánh với mật khẩu người dùng nhập bằng BCrypt.</p>
+   * <p>Tìm mật khẩu đã mã hóa (hash) trong database và so sánh bằng thuật toán BCrypt.</p>
    *
-   * @param accountName tên tài khoản người dùng
-   * @param password mật khẩu người dùng nhập vào (dạng plain text)
-   * @return true nếu đăng nhập thành công, false nếu thất bại
+   * @param loginUser đối tượng {@link LoginRequestDTO} chứa thông tin đăng nhập
+   * @return Đối tượng {@link User} nếu đăng nhập thành công, {@code null} nếu sai thông tin
    */
-  public static boolean login(String accountName, String password) {
-    String hashedPassword = userRepo.getPasswordByAccountName(accountName);
+  public static User login(LoginRequestDTO loginUser) {
+    String hashedPassword = userRepo.getPasswordByAccountName(loginUser.getAccountName());
 
     if (hashedPassword == null) {
-      return false;
+      return null;
     }
 
     // Kiểm tra mật khẩu và mật khẩu đã mã hoá bằng thư viện BCrypt xem có giống nhau không
-    return BCrypt.checkpw(password, hashedPassword);
+    if (BCrypt.checkpw(loginUser.getPassword(), hashedPassword)) {
+      return userRepo.getUserByAccountName(loginUser.getAccountName());
+    }
+    return null; // Sai mật khẩu
   }
 
   /**
@@ -48,48 +52,45 @@ public class AuthService {
    * Nếu quá trình tạo User hoặc Wallet gặp sự cố, toàn bộ tiến trình sẽ
    * bị hoàn tác (rollback) để đảm bảo tính toàn vẹn dữ liệu.
    *
-   * @param req đối tượng {@link SignUpRequest} chứa thông tin đăng ký
+   * @param signUpUser đối tượng {@link SignUpRequestDTO} chứa thông tin đăng ký
    * @return {@code true} nếu quá trình tạo tài khoản và ví thành công,
    * {@code false} nếu tài khoản đã tồn tại hoặc xảy ra lỗi hệ thống
    */
-  public static boolean signup(SignUpRequest req) {
+  public static boolean signUp(SignUpRequestDTO signUpUser) {
 
-    if (userRepo.isAccountExist(req.getAccountName())) {
+    if (userRepo.isAccountExist(signUpUser.getAccountName())) {
       return false;
     }
 
-    String userId = IdGenerator.generateId();
-    String walletId = IdGenerator.generateId();
-
     String hashedPassword = BCrypt.hashpw(
-        req.getPassword(),
+        signUpUser.getPassword(),
         BCrypt.gensalt()
     );
 
+    User newUser = new Bidder();
+    newUser.setAccountName(signUpUser.getAccountName());
+    newUser.setPassword(hashedPassword);
     Connection conn = null;
 
     try {
       conn = DatabaseConnection.getConnection();
-      conn.setAutoCommit(false); // 🔥 transaction
+      conn.setAutoCommit(false);
 
       // 1. tạo user
       boolean userCreated = userRepo.createUser(
           conn,
-          userId,
-          req.getAccountName(),
-          hashedPassword
+          newUser
       );
 
       if (!userCreated) {
         conn.rollback();
         return false;
       }
-
+      Wallet wallet = new Wallet(newUser.getId());
       // 2. tạo wallet
       boolean walletCreated = walletRepo.createWallet(
           conn,
-          walletId,
-          userId
+          wallet
       );
 
       if (!walletCreated) {
@@ -97,7 +98,7 @@ public class AuthService {
         return false;
       }
 
-      conn.commit(); // ✅ OK
+      conn.commit(); // OK
       return true;
 
     } catch (Exception e) {
