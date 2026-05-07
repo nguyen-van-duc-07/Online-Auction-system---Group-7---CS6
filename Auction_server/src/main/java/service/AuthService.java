@@ -1,5 +1,7 @@
 package service;
 
+import com.auction.shared.enums.UserRole;
+import com.auction.shared.model.user.Admin;
 import com.auction.shared.request.LoginRequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
 import com.auction.shared.model.user.Bidder;
@@ -37,7 +39,14 @@ public class AuthService {
 
     // Kiểm tra mật khẩu và mật khẩu đã mã hoá bằng thư viện BCrypt xem có giống nhau không
     if (BCrypt.checkpw(loginUser.getPassword(), hashedPassword)) {
-      return userRepo.getUserByAccountName(loginUser.getAccountName());
+      User user = userRepo.getUserByAccountName(loginUser.getAccountName());
+      if (user.getRole() == UserRole.BIDDER) {
+        Bidder bidder = (Bidder) user;
+        bidder.setWallet(walletRepo.getWalletByUserId(bidder.getId()));
+        return bidder;
+      } else {
+        return  (Admin) user;
+      }
     }
     return null; // Sai mật khẩu
   }
