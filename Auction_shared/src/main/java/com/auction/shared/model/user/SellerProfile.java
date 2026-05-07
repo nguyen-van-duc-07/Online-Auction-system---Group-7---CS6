@@ -2,11 +2,15 @@ package com.auction.shared.model.user;
 
 import com.auction.shared.model.core.Entity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Getter
+@Setter
+@NoArgsConstructor
 public class SellerProfile extends Entity {
   private String managerId;
   private float rating;
