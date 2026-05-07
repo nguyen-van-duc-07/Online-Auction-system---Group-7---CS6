@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
@@ -16,7 +19,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.control.Hyperlink?>
 
 <BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.UploadProductController">
 
@@ -134,7 +136,106 @@
 
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ bắt đầu" />
-                                                    <ComboBox fx:id="startTimeField" prefHeight="35.0" prefWidth="122.0" promptText="Chọn" />
+                                       <HBox prefHeight="0.0" prefWidth="218.0">
+                                          <children>
+                                              <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
+                                                  <items>
+                                                      <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="0" />
+                                                          <String fx:value="1" />
+                                                          <String fx:value="2" />
+                                                          <String fx:value="3" />
+                                                          <String fx:value="4" />
+                                                          <String fx:value="5" />
+                                                          <String fx:value="6" />
+                                                          <String fx:value="7" />
+                                                          <String fx:value="8" />
+                                                          <String fx:value="9" />
+                                                          <String fx:value="10" />
+                                                          <String fx:value="11" />
+                                                          <String fx:value="12" />
+                                                          <String fx:value="13" />
+                                                          <String fx:value="14" />
+                                                          <String fx:value="15" />
+                                                          <String fx:value="16" />
+                                                          <String fx:value="17" />
+                                                          <String fx:value="18" />
+                                                          <String fx:value="19" />
+                                                          <String fx:value="20" />
+                                                          <String fx:value="21" />
+                                                          <String fx:value="22" />
+                                                          <String fx:value="23" />
+                                                      </FXCollections>
+                                                  </items>
+                                              </ComboBox>
+                                              <ComboBox prefWidth="156.0" promptText="Phút">
+                                                  <items>
+                                                      <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="0" />
+                                                          <String fx:value="1" />
+                                                          <String fx:value="2" />
+                                                          <String fx:value="3" />
+                                                          <String fx:value="4" />
+                                                          <String fx:value="5" />
+                                                          <String fx:value="6" />
+                                                          <String fx:value="7" />
+                                                          <String fx:value="8" />
+                                                          <String fx:value="9" />
+                                                          <String fx:value="10" />
+                                                          <String fx:value="11" />
+                                                          <String fx:value="12" />
+                                                          <String fx:value="13" />
+                                                          <String fx:value="14" />
+                                                          <String fx:value="15" />
+                                                          <String fx:value="16" />
+                                                          <String fx:value="17" />
+                                                          <String fx:value="18" />
+                                                          <String fx:value="19" />
+                                                          <String fx:value="20" />
+                                                          <String fx:value="21" />
+                                                          <String fx:value="22" />
+                                                          <String fx:value="23" />
+                                                          <String fx:value="24" />
+                                                          <String fx:value="25" />
+                                                          <String fx:value="26" />
+                                                          <String fx:value="27" />
+                                                          <String fx:value="28" />
+                                                          <String fx:value="29" />
+                                                          <String fx:value="30" />
+                                                          <String fx:value="31" />
+                                                          <String fx:value="32" />
+                                                          <String fx:value="33" />
+                                                          <String fx:value="34" />
+                                                          <String fx:value="35" />
+                                                          <String fx:value="36" />
+                                                          <String fx:value="37" />
+                                                          <String fx:value="38" />
+                                                          <String fx:value="39" />
+                                                          <String fx:value="40" />
+                                                          <String fx:value="41" />
+                                                          <String fx:value="42" />
+                                                          <String fx:value="43" />
+                                                          <String fx:value="44" />
+                                                          <String fx:value="45" />
+                                                          <String fx:value="46" />
+                                                          <String fx:value="47" />
+                                                          <String fx:value="48" />
+                                                          <String fx:value="49" />
+                                                          <String fx:value="50" />
+                                                          <String fx:value="51" />
+                                                          <String fx:value="52" />
+                                                          <String fx:value="53" />
+                                                          <String fx:value="54" />
+                                                          <String fx:value="55" />
+                                                          <String fx:value="56" />
+                                                          <String fx:value="57" />
+                                                          <String fx:value="58" />
+                                                          <String fx:value="59" />
+                                                      </FXCollections>
+                                                  </items>
+                                              </ComboBox>
+                                          </children>
+                                       </HBox>
                                                 </VBox>
 
                                             </children>
@@ -151,7 +252,106 @@
 
                                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                                     <Label text="Giờ kết thúc" />
-                                                    <ComboBox fx:id="endTimeField" prefHeight="35.0" prefWidth="122.0" promptText="Chọn" />
+                                       <HBox prefHeight="0.0" prefWidth="218.0">
+                                          <children>
+                                             <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
+                                                 <items>
+                                                    <FXCollections fx:factory="observableArrayList">
+                                                      <String fx:value="0" />
+                                                      <String fx:value="1" />
+                                                      <String fx:value="2" />
+                                                      <String fx:value="3" />
+                                                      <String fx:value="4" />
+                                                      <String fx:value="5" />
+                                                      <String fx:value="6" />
+                                                      <String fx:value="7" />
+                                                      <String fx:value="8" />
+                                                      <String fx:value="9" />
+                                                      <String fx:value="10" />
+                                                      <String fx:value="11" />
+                                                      <String fx:value="12" />
+                                                      <String fx:value="13" />
+                                                      <String fx:value="14" />
+                                                      <String fx:value="15" />
+                                                      <String fx:value="16" />
+                                                      <String fx:value="17" />
+                                                      <String fx:value="18" />
+                                                      <String fx:value="19" />
+                                                      <String fx:value="20" />
+                                                      <String fx:value="21" />
+                                                      <String fx:value="22" />
+                                                      <String fx:value="23" />
+                                                    </FXCollections>
+                                                 </items>
+                                             </ComboBox>
+                                             <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Phút">
+                                                 <items>
+                                                     <FXCollections fx:factory="observableArrayList">
+                                                         <String fx:value="0" />
+                                                         <String fx:value="1" />
+                                                         <String fx:value="2" />
+                                                         <String fx:value="3" />
+                                                         <String fx:value="4" />
+                                                         <String fx:value="5" />
+                                                         <String fx:value="6" />
+                                                         <String fx:value="7" />
+                                                         <String fx:value="8" />
+                                                         <String fx:value="9" />
+                                                         <String fx:value="10" />
+                                                         <String fx:value="11" />
+                                                         <String fx:value="12" />
+                                                         <String fx:value="13" />
+                                                         <String fx:value="14" />
+                                                         <String fx:value="15" />
+                                                         <String fx:value="16" />
+                                                         <String fx:value="17" />
+                                                         <String fx:value="18" />
+                                                         <String fx:value="19" />
+                                                         <String fx:value="20" />
+                                                         <String fx:value="21" />
+                                                         <String fx:value="22" />
+                                                         <String fx:value="23" />
+                                                         <String fx:value="24" />
+                                                         <String fx:value="25" />
+                                                         <String fx:value="26" />
+                                                         <String fx:value="27" />
+                                                         <String fx:value="28" />
+                                                         <String fx:value="29" />
+                                                         <String fx:value="30" />
+                                                         <String fx:value="31" />
+                                                         <String fx:value="32" />
+                                                         <String fx:value="33" />
+                                                         <String fx:value="34" />
+                                                         <String fx:value="35" />
+                                                         <String fx:value="36" />
+                                                         <String fx:value="37" />
+                                                         <String fx:value="38" />
+                                                         <String fx:value="39" />
+                                                         <String fx:value="40" />
+                                                         <String fx:value="41" />
+                                                         <String fx:value="42" />
+                                                         <String fx:value="43" />
+                                                         <String fx:value="44" />
+                                                         <String fx:value="45" />
+                                                         <String fx:value="46" />
+                                                         <String fx:value="47" />
+                                                         <String fx:value="48" />
+                                                         <String fx:value="49" />
+                                                         <String fx:value="50" />
+                                                         <String fx:value="51" />
+                                                         <String fx:value="52" />
+                                                         <String fx:value="53" />
+                                                         <String fx:value="54" />
+                                                         <String fx:value="55" />
+                                                         <String fx:value="56" />
+                                                         <String fx:value="57" />
+                                                         <String fx:value="58" />
+                                                         <String fx:value="59" />
+                                                     </FXCollections>
+                                                 </items>
+                                             </ComboBox>
+                                          </children>
+                                       </HBox>
                                                 </VBox>
 
                                             </children>
@@ -160,7 +360,18 @@
                                         <!-- Danh mục xuống dòng riêng -->
                                         <VBox spacing="5.0">
                                             <Label text="Danh mục" />
-                                            <ComboBox fx:id="cbCategory" prefHeight="35.0" prefWidth="390.0" promptText="Chọn" />
+                                            <ComboBox fx:id="cbCategory" prefHeight="35.0" prefWidth="390.0" promptText="Chọn">
+                                                <items>
+                                                    <FXCollections fx:factory="observableArrayList">
+                                                        <String fx:value="Thiết bị điện tử" />
+                                                        <String fx:value="Phương tiện di chuyển" />
+                                                        <String fx:value="Đồ sưu tầm" />
+                                                        <String fx:value="Thời trang" />
+                                                        <String fx:value="Thể thao" />
+                                                        <String fx:value="Khác" />
+                                                    </FXCollections>
+                                                </items>
+                                            </ComboBox>
                                         </VBox>
 
                                         <VBox spacing="5.0">
