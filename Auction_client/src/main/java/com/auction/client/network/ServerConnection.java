@@ -1,9 +1,8 @@
 package com.auction.client.network;
 
 import com.auction.shared.network.NetworkConfig;
-import com.auction.shared.response.LoginResponseDTO;
-import com.auction.shared.response.ResponseDTO;
-import com.auction.shared.response.SignUpResponseDTO;
+import com.auction.shared.response.*;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -48,7 +47,13 @@ public class ServerConnection {
         if (response instanceof ResponseDTO) {
           switch (response) {
             case LoginResponseDTO loginRes -> ResponseHandler.login(loginRes);
+
             case SignUpResponseDTO signUpRes -> ResponseHandler.signUp(signUpRes);
+
+            case UploadItemResponseDTO uploadItemRes -> ResponseHandler.handleUploadItem(uploadItemRes);
+
+            case GetActiveAuctionResponseDTO getActiveAuctionRes -> ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

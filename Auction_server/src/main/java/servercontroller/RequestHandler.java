@@ -2,20 +2,27 @@ package servercontroller;
 
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import com.auction.shared.request.LoginRequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
+import com.auction.shared.request.UploadItemRequestDTO;
+import com.auction.shared.response.AuctionResponseDTO;
+import com.auction.shared.response.GetActiveAuctionResponseDTO;
 import com.auction.shared.response.LoginResponseDTO;
 import com.auction.shared.response.SignUpResponseDTO;
+import com.auction.shared.response.UploadItemResponseDTO;
+import java.util.List;
+import repository.SellerProfileRepository;
+import service.AuctionService;
 import service.AuthService;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
- * <p>
- * Lớp này đóng vai trò cầu nối thiết yếu giữa tầng mạng (Network) và tầng dịch vụ (Service).
+ *
+ * <p>Lớp này đóng vai trò cầu nối thiết yếu giữa tầng mạng (Network) và tầng dịch vụ (Service).
  * Nhiệm vụ của nó là nhận các đối tượng Request cụ thể, kích hoạt các phương thức nghiệp vụ
  * trong tầng Service (như {@code AuthService}), và đóng gói kết quả (trạng thái, thông báo)
- * vào các đối tượng {@code ResponseDTO} để trả về cho Client.
- * </p>
+ * vào các đối tượng {@code ResponseDTO} để trả về cho Client.</p>
  *
  * @see service.AuthService
  * @see com.auction.shared.response.ResponseDTO
@@ -45,5 +52,43 @@ public class RequestHandler {
     String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
         "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
     return new SignUpResponseDTO(isSuccess, msg);
+  }
+
+  public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
+    // Kiểm tra xem User đã có hồ sơ người bán chưa
+    SellerProfileRepository profileRepo = new SellerProfileRepository();
+    String sellerProfileId = profileRepo.findProfileIdByUserId(uploadItemReq.getSellerId());
+
+    // Nếu chưa có, chặn lại và báo lỗi về Client
+    if (sellerProfileId == null) {
+      return new UploadItemResponseDTO(false,
+          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
+    }
+
+    // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
+    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq, sellerProfileId);
+
+    String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
+        "Lỗi hệ thống, không thể lưu sản phẩm!";
+    return new UploadItemResponseDTO(isSuccess, msg);
+  }
+
+  /**
+   * Xử lý yêu cầu lấy danh sách các phiên đấu giá đang hoạt động từ Client.
+   *
+   * <p>Đóng vai trò điều phối luồng dữ liệu:
+   * 1. Nhận tín hiệu kích hoạt từ Client qua đối tượng Request.
+   * 2. Gọi đến tầng {@link AuctionService} để thực hiện nghiệp vụ lấy và làm sạch dữ liệu.
+   * 3. Đóng gói danh sách thu được vào đối tượng {@link GetActiveAuctionResponseDTO}
+   * để tầng Network gửi trả về Client.</p>
+   *
+   * @param getActiveAuctionReq Gói tin yêu cầu từ Client (hiện tại đóng vai trò như một tín hiệu báo hiệu, không chứa dữ liệu bên trong).
+   *
+   * @return Đối tượng {@link GetActiveAuctionResponseDTO} mang theo cờ trạng thái thành công,
+   * thông báo hệ thống và danh sách sản phẩm.
+   */
+  public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
+    List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
+    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
   }
 }

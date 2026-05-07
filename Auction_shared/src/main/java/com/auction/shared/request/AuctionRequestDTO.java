@@ -1,4 +1,4 @@
-package com.auction.shared.model.auction;
+package com.auction.shared.request;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;

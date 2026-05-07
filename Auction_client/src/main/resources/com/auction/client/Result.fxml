@@ -36,7 +36,6 @@
             <right>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
                         <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />

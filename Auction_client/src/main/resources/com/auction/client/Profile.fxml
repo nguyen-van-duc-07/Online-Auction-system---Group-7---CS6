@@ -27,7 +27,7 @@
             </padding>
 
             <center>
-                <Hyperlink style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink onAction="#gotoHomeWithHyperLink" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>
@@ -104,7 +104,7 @@
                             <Label text="Họ và tên:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="userNameField" prefHeight="40.0" promptText="Nhập họ và tên..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <TextField fx:id="realNameField" prefHeight="40.0" promptText="Nhập họ và tên..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <font><Font size="14.0" /></font>
                             </TextField>
 

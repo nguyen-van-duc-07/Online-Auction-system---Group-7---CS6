@@ -1,8 +1,7 @@
 package servercontroller;
 
-import com.auction.shared.request.LoginRequestDTO;
-import com.auction.shared.request.RequestDTO;
-import com.auction.shared.request.SignUpRequestDTO;
+import com.auction.shared.request.*;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -49,6 +48,16 @@ public class ClientHandler implements Runnable {
 
             case LoginRequestDTO loginReq -> {
               out.writeObject(RequestHandler.login(loginReq));
+              out.flush();
+            }
+
+            case UploadItemRequestDTO uploadItemReq -> {
+              out.writeObject(RequestHandler.uploadItem(uploadItemReq));
+              out.flush();
+            }
+
+            case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
+              out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
               out.flush();
             }
 
