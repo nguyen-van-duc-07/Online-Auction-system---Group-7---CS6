@@ -16,6 +16,7 @@ import java.util.ResourceBundle;
 
 /**
  * Controller xử lý logic cho màn hình cập nhật thông tin tài khoản (Profile).
+ *
  * <p>Triển khai {@link Initializable} để tự động nạp dữ liệu người dùng từ Session khi màn hình khởi tạo.</p>
  */
 public class ProfileController implements Initializable {
@@ -60,12 +61,18 @@ public class ProfileController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện đăng xuất của người dùng.
+   *
+   * <p>Xác nhận với người dùng, xóa {@link SessionManager} và điều hướng về trang Login.</p>
+   */
   @FXML
   public void gotoLogin() {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
-        homeController.gotoLogin();
+        ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+        SessionManager.clearSession(); // Xoá người dùng hiện tại ra khỏi SessionManager
       }
     });
   }

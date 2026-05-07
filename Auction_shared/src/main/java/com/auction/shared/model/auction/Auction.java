@@ -27,6 +27,7 @@ public class Auction extends Entity implements Serializable {
   private Item item;
 
   private BigDecimal startPrice;
+  private BigDecimal minStepPrice;
   private BigDecimal currentHighestPrice;
   private String highestBidderId;
 
@@ -50,13 +51,35 @@ public class Auction extends Entity implements Serializable {
     this.currentHighestPrice = startPrice;
     this.startTime = startTime;
     this.endTime = endTime;
-    this.status = AuctionStatus.WAITING;
+    // Nếu thời gian bắt đầu bằng hoặc trước thời điểm hiện tại -> ACTIVE luôn
+    // Ngược lại (hẹn giờ trong tương lai) -> WAITING
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+      this.status = AuctionStatus.ACTIVE;
+    } else {
+      this.status = AuctionStatus.WAITING;
+    }
+  }
+
+  public Auction(Item item, BigDecimal startPrice, BigDecimal minStepPrice, LocalDateTime startTime, LocalDateTime endTime) {
+    this.item = item;
+    this.startPrice = startPrice;
+    this.minStepPrice = minStepPrice;
+    this.currentHighestPrice = startPrice;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    // Nếu thời gian bắt đầu bằng hoặc trước thời điểm hiện tại -> ACTIVE luôn
+    // Ngược lại (hẹn giờ trong tương lai) -> WAITING
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+      this.status = AuctionStatus.ACTIVE;
+    } else {
+      this.status = AuctionStatus.WAITING;
+    }
   }
 
   // --- CÁC PHƯƠNG THỨC MỚI ĐƯỢC BỔ SUNG ---
 
   /**
-   * Bắt đầu phiên đấu giá (chuyển trạng thái từ WAITING sang ACTIVE)
+   * Bắt đầu phiên đấu giá (chuyển trạng thái từ WAITING sang ACTIVE).
    */
   public void start() {
     if (this.status != AuctionStatus.WAITING) {
@@ -66,7 +89,7 @@ public class Auction extends Entity implements Serializable {
   }
 
   /**
-   * Đóng phiên đấu giá (chuyển trạng thái từ ACTIVE sang FINISHED)
+   * Đóng phiên đấu giá (chuyển trạng thái từ ACTIVE sang FINISHED).
    */
   public void close() {
     if (this.status != AuctionStatus.ACTIVE) {
@@ -76,7 +99,7 @@ public class Auction extends Entity implements Serializable {
   }
 
   /**
-   * Kiểm tra xem phiên đấu giá đã hết hạn (quá endTime) hay chưa
+   * Kiểm tra xem phiên đấu giá đã hết hạn (quá endTime) hay chưa.
    */
   public boolean isExpired() {
     // Nếu endTime bị null (chưa set) thì mặc định chưa hết hạn

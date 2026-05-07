@@ -107,7 +107,7 @@ public class UserRepository {
         user.setRealName(rs.getString("real_name"));
         user.setEmail(rs.getString("email"));
         user.setPhoneNumber(rs.getString("phone_number"));
-        Date dobDate = rs.getDate("dob");
+        java.sql.Date dobDate = rs.getDate("dob");
         if (dobDate != null) {
           user.setDob(dobDate.toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate
         }

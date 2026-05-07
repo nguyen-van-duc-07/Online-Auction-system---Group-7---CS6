@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.UploadProductController">
+<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.UploadItemController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -109,7 +109,7 @@
 
                                         <VBox spacing="5.0">
                                             <Label text="Tên sản phẩm" />
-                                            <TextField fx:id="nameProductField" prefHeight="35.0" promptText="VanDuc" />
+                                            <TextField fx:id="nameItemField" prefHeight="35.0" promptText="VanDuc" />
                                         </VBox>
 
                                         <HBox spacing="15.0">
@@ -138,7 +138,7 @@
                                                     <Label text="Giờ bắt đầu" />
                                        <HBox prefHeight="0.0" prefWidth="218.0">
                                           <children>
-                                              <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
+                                              <ComboBox fx:id="startHourField" prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
                                                   <items>
                                                       <FXCollections fx:factory="observableArrayList">
                                                           <String fx:value="0" />
@@ -168,7 +168,7 @@
                                                       </FXCollections>
                                                   </items>
                                               </ComboBox>
-                                              <ComboBox prefWidth="156.0" promptText="Phút">
+                                              <ComboBox fx:id="startMinuteField" prefWidth="156.0" promptText="Phút">
                                                   <items>
                                                       <FXCollections fx:factory="observableArrayList">
                                                           <String fx:value="0" />
@@ -254,7 +254,7 @@
                                                     <Label text="Giờ kết thúc" />
                                        <HBox prefHeight="0.0" prefWidth="218.0">
                                           <children>
-                                             <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
+                                             <ComboBox fx:id="finishHourField" prefHeight="26.0" prefWidth="156.0" promptText="Giờ">
                                                  <items>
                                                     <FXCollections fx:factory="observableArrayList">
                                                       <String fx:value="0" />
@@ -284,7 +284,7 @@
                                                     </FXCollections>
                                                  </items>
                                              </ComboBox>
-                                             <ComboBox prefHeight="26.0" prefWidth="156.0" promptText="Phút">
+                                             <ComboBox fx:id="finishMinuteField" prefHeight="26.0" prefWidth="156.0" promptText="Phút">
                                                  <items>
                                                      <FXCollections fx:factory="observableArrayList">
                                                          <String fx:value="0" />
@@ -360,7 +360,7 @@
                                         <!-- Danh mục xuống dòng riêng -->
                                         <VBox spacing="5.0">
                                             <Label text="Danh mục" />
-                                            <ComboBox fx:id="cbCategory" prefHeight="35.0" prefWidth="390.0" promptText="Chọn">
+                                            <ComboBox fx:id="categoryField" prefHeight="35.0" prefWidth="390.0" promptText="Chọn">
                                                 <items>
                                                     <FXCollections fx:factory="observableArrayList">
                                                         <String fx:value="Thiết bị điện tử" />
@@ -379,7 +379,7 @@
                                             <TextArea fx:id="descriptionField" prefHeight="120.0" promptText="Mô tả tình trạng sản phẩm, xuất xứ..." wrapText="true" />
                                         </VBox>
 
-                                        <Button fx:id="btnUpload" maxWidth="Infinity" mnemonicParsing="false" prefHeight="45.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-radius: 5; -fx-cursor: hand;" text="ĐĂNG SẢN PHẨM LÊN SÀN">
+                                        <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#uploadItem" prefHeight="45.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-radius: 5; -fx-cursor: hand;" text="ĐĂNG SẢN PHẨM LÊN SÀN">
                                             <VBox.margin>
                                                 <Insets top="10.0" />
                                             </VBox.margin>

@@ -36,6 +36,6 @@ public class SellerHomeController {
 
   @FXML
   public void gotoUploadProduct() {
-    ScreenController.switchScreen("UploadProduct.fxml", "Đăng sản phẩm");
+    ScreenController.switchScreen("UploadItem.fxml", "Đăng sản phẩm");
   }
 }

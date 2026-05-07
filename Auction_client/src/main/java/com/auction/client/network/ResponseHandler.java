@@ -1,8 +1,11 @@
 package com.auction.client.network;
 
+import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.response.GetActiveAuctionResponseDTO;
 import com.auction.shared.response.LoginResponseDTO;
 import com.auction.shared.response.SignUpResponseDTO;
+import com.auction.shared.response.UploadItemResponseDTO;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -59,6 +62,49 @@ public class ResponseHandler {
     } else {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng kí", signUpRes.getMessage());
+      });
+    }
+  }
+
+  /**
+   * Xử lý gói tin phản hồi đăng bán sản phẩm từ Server.
+   *
+   * <p>Chuyển hướng về trang chủ của người bán nếu lưu dữ liệu thành công.</p>
+   * * @param uploadItemRes Gói tin phản hồi chứa kết quả
+   */
+  public static void handleUploadItem(UploadItemResponseDTO uploadItemRes) {
+    if (uploadItemRes.isSuccess()) {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", uploadItemRes.getMessage()).ifPresent(Response -> {
+              if (Response == ButtonType.OK) {
+                ScreenController.switchScreen("SellerHome.fxml", "Quản lý sản phẩm");
+              }
+        });
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi", uploadItemRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleGetActiveAuctions(GetActiveAuctionResponseDTO getActiveAuctionRes) {
+    if (getActiveAuctionRes.isSuccess()) {
+      Platform.runLater(() -> {
+        // Lấy controller của trang Home hiện tại đang mở trên màn hình
+        HomeController homeController = HomeController.getInstance();
+
+        if (homeController != null) {
+          // Gọi hàm vẽ UI và truyền danh sách sản phẩm vào
+          homeController.loadFeedToUI(getActiveAuctionRes.getActiveAuctions());
+        }
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi tải bảng tin", getActiveAuctionRes.getMessage());
       });
     }
   }

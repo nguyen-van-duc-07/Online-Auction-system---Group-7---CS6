@@ -79,8 +79,8 @@ public class AuctionRepository {
     return a;
   }
   public boolean saveAuction(Auction auction, String sellerProfileId) {
-    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, current_price,highest_bidder_id, start_time, end_time, status) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -89,11 +89,12 @@ public class AuctionRepository {
       ps.setString(2, sellerProfileId);
       ps.setString(3, auction.getItem().getId());
       ps.setBigDecimal(4, auction.getStartPrice());
-      ps.setBigDecimal(5, auction.getCurrentHighestPrice());
-      ps.setString(6, auction.getHighestBidderId());
-      ps.setTimestamp(7, java.sql.Timestamp.valueOf(auction.getStartTime()));
-      ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getEndTime()));
-      ps.setString(9, auction.getStatus().name());
+      ps.setBigDecimal(5, auction.getMinStepPrice());
+      ps.setBigDecimal(6, auction.getCurrentHighestPrice());
+      ps.setString(7, auction.getHighestBidderId());
+      ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getStartTime()));
+      ps.setTimestamp(9, java.sql.Timestamp.valueOf(auction.getEndTime()));
+      ps.setString(10, auction.getStatus().name());
 
       return ps.executeUpdate() > 0;
 
