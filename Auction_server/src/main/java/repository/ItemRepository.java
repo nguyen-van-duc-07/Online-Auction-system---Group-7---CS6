@@ -7,21 +7,16 @@ import config.DatabaseConnection;
 import java.sql.*;
 
 public class ItemRepository {
-  public boolean save(Item item) {
-    String sql = "INSERT INTO items (id, name, type, description, created_at) VALUES (?, ?, ?, ?, ?)";
+  public boolean saveItem(Item item) {
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "INSERT INTO items (id, name, type, description) VALUES (?, ?, ?, ?)";
+      PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, item.getId());
       ps.setString(2, item.getName());
-      // .name() chuyển Enum thành chuỗi (vd: "ELECTRONIC") để lưu xuống DB
       ps.setString(3, item.getType().name());
       ps.setString(4, item.getDescription());
-      ps.setTimestamp(5, Timestamp.valueOf(item.getCreatedAt()));
-
-      int rowsAffected = ps.executeUpdate();
-      return rowsAffected > 0; // Trả về true nếu Insert thành công ít nhất 1 dòng
+      return ps.executeUpdate() > 0; // Trả về true nếu Insert thành công ít nhất 1 dòng
 
     } catch (SQLException e) {
       e.printStackTrace();
