@@ -1,5 +1,8 @@
 package repository;
 
+import com.auction.shared.enums.UserRole;
+import com.auction.shared.model.user.Admin;
+import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
 
@@ -17,7 +20,7 @@ public class UserRepository {
    * @param accountName tên tài khoản người dùng
    * @return mật khẩu tương ứng nếu tìm thấy, ngược lại trả về null
    */
-  public String getPasswordByAccountName(String accountName) {
+  public static String getPasswordByAccountName(String accountName) {
     try (Connection conn = DatabaseConnection.getConnection()) {
 
       String sql = "SELECT password FROM users WHERE account_name = ?";
@@ -37,7 +40,7 @@ public class UserRepository {
     return null;
   }
 
-  public boolean isAccountExist(String accountName) {
+  public static boolean isAccountExist(String accountName) {
     // Dùng SELECT 1 cho tốc độ truy vấn tối đa
     String sql = "SELECT 1 FROM users WHERE account_name = ?";
     try (Connection conn = DatabaseConnection.getConnection();
@@ -91,7 +94,14 @@ public class UserRepository {
       ResultSet rs = ps.executeQuery();
 
       if (rs.next()) {
-        User user = new com.auction.shared.model.user.Bidder();
+        User user = null;
+        UserRole userRole = UserRole.valueOf(rs.getString("role"));
+        if (userRole == UserRole.BIDDER) {
+          user = new Bidder();
+        } else {
+          user = new Admin();
+        }
+        user.setRole(userRole);
         user.setId(rs.getString("id"));
         user.setAccountName(rs.getString("account_name"));
         user.setRealName(rs.getString("real_name"));
@@ -124,6 +134,17 @@ public class UserRepository {
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
+    }
+  }
+  public static boolean deleteAccount(User user) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "DELETE FROM users "
+          + "WHERE id = ?;";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, user.getId());
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException();
     }
   }
 }
