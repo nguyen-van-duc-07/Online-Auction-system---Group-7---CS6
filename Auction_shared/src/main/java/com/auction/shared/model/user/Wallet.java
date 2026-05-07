@@ -1,10 +1,11 @@
 package com.auction.shared.model.user;
 
 import com.auction.shared.model.core.Entity;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+@NoArgsConstructor
 public class Wallet extends Entity {
   private String bidderId;
   private BigDecimal balance;

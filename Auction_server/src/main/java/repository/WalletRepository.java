@@ -1,9 +1,12 @@
 package repository;
 
 import com.auction.shared.model.user.Wallet;
+import config.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Lớp WalletRepository dùng để thao tác với bảng wallets trong cơ sở dữ liệu.
@@ -40,5 +43,38 @@ public class WalletRepository {
     }
 
     return false;
+  }
+  public static boolean deleteWallet(Wallet wallet) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "DELETE FROM wallets WHERE id = ?";
+
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, wallet.getId());
+      return ps.executeUpdate() > 0;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return false;
+  }
+  public Wallet getWalletByUserId(String userId) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "SELECT * FROM wallets WHERE user_id = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, userId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        Wallet wallet = new Wallet();
+        wallet.setId(rs.getString("id"));
+        wallet.setBidderId(rs.getString("user_id"));
+        wallet.setBalance(rs.getBigDecimal("balance"));
+        wallet.setFrozenBalance(rs.getBigDecimal("frozen_balance"));
+        return wallet;
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return null;
   }
 }
