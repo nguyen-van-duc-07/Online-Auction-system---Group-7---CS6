@@ -27,7 +27,7 @@
             </padding>
 
             <center>
-                <Hyperlink onAction="#gotoHomeWithHyperLink" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>
@@ -97,27 +97,28 @@
                             <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
+                     <RowConstraints minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                         <children>
 
                             <Label text="Họ và tên:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="realNameField" prefHeight="40.0" promptText="Nhập họ và tên..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <TextField fx:id="userNameField" prefHeight="40.0" promptText="Nhập họ và tên..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <font><Font size="14.0" /></font>
                             </TextField>
 
-                            <Label text="Email:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="Email:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="2">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="emailField" prefHeight="40.0" promptText="Nhập địa chỉ email..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <TextField fx:id="emailField" prefHeight="40.0" promptText="Nhập địa chỉ email..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                 <font><Font size="14.0" /></font>
                             </TextField>
 
-                            <Label text="Ngày sinh:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label text="Ngày sinh:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <DatePicker fx:id="dateOfBirthField" prefHeight="40.0" prefWidth="1000.0" promptText="Chọn ngày sinh..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            <DatePicker fx:id="dateOfBirthField" prefHeight="40.0" prefWidth="1000.0" promptText="Chọn ngày sinh..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                             <Label text="Số điện thoại:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="3">
                                 <font><Font name="System Bold" size="14.0" /></font>
@@ -125,7 +126,12 @@
                             <TextField fx:id="phoneNumberField" prefHeight="40.0" promptText="Nhập số điện thoại..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                 <font><Font size="14.0" /></font>
                             </TextField>
-
+                            <Label text="Địa chỉ:" textFill="#555555" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                <font><Font name="System Bold" size="14.0" /></font>
+                            </Label>
+                            <TextField fx:id="addressField" prefHeight="40.0" promptText="Nhập địa chỉ..." style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #fafafa;" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                <font><Font size="14.0" /></font>
+                            </TextField>
                         </children>
                     </GridPane>
 
