@@ -1,6 +1,7 @@
 package servercontroller;
 
 import com.auction.shared.request.*;
+import com.auction.shared.response.UploadItemResponseDTO;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -58,6 +59,11 @@ public class ClientHandler implements Runnable {
 
             case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
               out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+              out.flush();
+            }
+
+            case UpdateProfileRequestDTO updateProfileReq -> {
+              out.writeObject(RequestHandler.updateProfile(updateProfileReq));
               out.flush();
             }
 

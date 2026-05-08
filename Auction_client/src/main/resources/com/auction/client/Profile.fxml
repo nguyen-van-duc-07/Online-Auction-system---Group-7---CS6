@@ -140,7 +140,7 @@
                             <Insets top="20.0" />
                         </padding>
                         <children>
-                            <Button mnemonicParsing="false" onAction="#gotoHome" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Lưu">
+                            <Button mnemonicParsing="false" onAction="#handleUpdateProfile" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="Lưu">
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font>

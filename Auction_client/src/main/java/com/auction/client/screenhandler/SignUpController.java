@@ -97,4 +97,9 @@ public class SignUpController {
     confirmPwdHidden.clear();
     confirmPwdVisible.clear();
   }
+
+  @FXML
+  public void gotoLogin() {
+    ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+  }
 }
