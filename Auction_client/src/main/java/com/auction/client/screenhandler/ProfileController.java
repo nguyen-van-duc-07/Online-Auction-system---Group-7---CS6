@@ -1,7 +1,9 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.UpdateProfileRequestDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -20,6 +22,11 @@ import java.util.ResourceBundle;
  * <p>Triển khai {@link Initializable} để tự động nạp dữ liệu người dùng từ Session khi màn hình khởi tạo.</p>
  */
 public class ProfileController implements Initializable {
+  private String realName;
+  private String email;
+  private String phoneNumber;
+  private String address;
+  private LocalDate birthDate;
   private File selectedImageFile;
 
   HomeController homeController = new HomeController();
@@ -32,6 +39,8 @@ public class ProfileController implements Initializable {
   private DatePicker dateOfBirthField;
   @FXML
   private TextField phoneNumberField;
+  @FXML
+  private TextField addressField;
   @FXML
   private ImageView imageViewField;
 
@@ -57,6 +66,9 @@ public class ProfileController implements Initializable {
         if (currentUser.getDob() != null) {
           dateOfBirthField.setValue(currentUser.getDob());
         }
+        if (currentUser.getAddress() != null) {
+          addressField.setText(currentUser.getAddress());
+        }
       }
     }
   }
@@ -77,39 +89,43 @@ public class ProfileController implements Initializable {
     });
   }
 
-  @FXML
-  public void gotoHome() {
-    if (handleUpdateInformation()) {
-      ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
-          "Cập nhật dữ liệu thành công").ifPresent(Response -> {
-        if (Response == ButtonType.OK) {
-          ScreenController.switchScreen("Home.fxml", "Trang chủ");
-        }
-      });
-    } else {
-      ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
-          "Vui lòng điền đầy đủ thông tin");
-      return;
-    }
-  }
-
-  public boolean handleUpdateInformation() {
-    String userName = realNameField.getText();
-    String email = emailField.getText();
-    String phoneNumber = phoneNumberField.getText();
-    LocalDate birthDate = dateOfBirthField.getValue();
+  public boolean isInformationValid() {
+    realName = realNameField.getText();
+    email = emailField.getText();
+    phoneNumber = phoneNumberField.getText();
+    birthDate = dateOfBirthField.getValue();
+    address = addressField.getText();
 
     // Dùng .trim().isEmpty() để kiểm tra chuỗi rỗng hoặc chỉ toàn dấu cách
-    boolean isUserNameValid = userName != null && !userName.trim().isEmpty();
+    boolean isRealNameValid = realName != null && !realName.trim().isEmpty();
     boolean isEmailValid = email != null && !email.trim().isEmpty();
     boolean isPhoneValid = phoneNumber != null && !phoneNumber.trim().isEmpty();
+    boolean isAddressValid = address != null && !address.trim().isEmpty();
     boolean isDateValid = birthDate != null;
 
-    if (isUserNameValid && isEmailValid && isPhoneValid && isDateValid) {
+    if (isRealNameValid && isEmailValid && isPhoneValid && isDateValid && isAddressValid) {
       return true;
     }
 
     return false;
+  }
+
+  @FXML
+  public void handleUpdateProfile() {
+    if (isInformationValid()) {
+      String userId = SessionManager.getCurrentUser().getId();
+      UpdateProfileRequestDTO updateProfileReq = new UpdateProfileRequestDTO(userId,
+                                                                             realName,
+                                                                             email,
+                                                                             phoneNumber,
+                                                                             birthDate,
+                                                                             address);
+      ServerConnection.sendData(updateProfileReq);
+    } else {
+      ScreenController.showAlert(Alert.AlertType.WARNING,
+          "Cảnh báo", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
   }
 
   @FXML

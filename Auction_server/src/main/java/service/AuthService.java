@@ -7,6 +7,7 @@ import com.auction.shared.request.SignUpRequestDTO;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.Wallet;
+import com.auction.shared.request.UpdateProfileRequestDTO;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import org.mindrot.jbcrypt.BCrypt;
@@ -39,7 +40,7 @@ public class AuthService {
 
     // Kiểm tra mật khẩu và mật khẩu đã mã hoá bằng thư viện BCrypt xem có giống nhau không
     if (BCrypt.checkpw(loginUser.getPassword(), hashedPassword)) {
-      User user = userRepo.getUserByAccountName(loginUser.getAccountName());
+      User user = userRepo.getUserByAccountNameOrId(loginUser.getAccountName(), null);
       if (user.getRole() == UserRole.BIDDER) {
         Bidder bidder = (Bidder) user;
         bidder.setWallet(walletRepo.getWalletByUserId(bidder.getId()));
@@ -128,5 +129,21 @@ public class AuthService {
     }
 
     return false;
+  }
+
+  public static User updateProfile(UpdateProfileRequestDTO updateProfileReq) {
+    User user = new Bidder();
+    user.setId(updateProfileReq.getUserId());
+    user.setRealName(updateProfileReq.getRealName());
+    user.setEmail(updateProfileReq.getEmail());
+    user.setAddress(updateProfileReq.getAddress());
+    user.setPhoneNumber(updateProfileReq.getPhoneNumber());
+    user.setDob(updateProfileReq.getBirthDate());
+
+    boolean isSuccess = userRepo.updateProfile(user);
+    if (isSuccess) {
+      return userRepo.getUserByAccountNameOrId(null, user.getId());
+    }
+    return null;
   }
 }

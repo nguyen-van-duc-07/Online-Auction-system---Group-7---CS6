@@ -2,10 +2,7 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
-import com.auction.shared.response.GetActiveAuctionResponseDTO;
-import com.auction.shared.response.LoginResponseDTO;
-import com.auction.shared.response.SignUpResponseDTO;
-import com.auction.shared.response.UploadItemResponseDTO;
+import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -105,6 +102,25 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi tải bảng tin", getActiveAuctionRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleUpdateProfile(UpdateProfileResponseDTO updateProfileRes) {
+    if (updateProfileRes.isSuccess()) {
+      SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
+              if (Response == ButtonType.OK) {
+                ScreenController.switchScreen("Home.fxml", "Trang chủ");
+              }
+        });
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi cập nhật", updateProfileRes.getMessage());
       });
     }
   }

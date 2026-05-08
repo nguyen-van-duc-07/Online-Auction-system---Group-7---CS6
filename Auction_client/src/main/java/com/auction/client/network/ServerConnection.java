@@ -54,6 +54,8 @@ public class ServerConnection {
 
             case GetActiveAuctionResponseDTO getActiveAuctionRes -> ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
 
+            case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }
