@@ -94,9 +94,11 @@ public class HomeController implements Initializable {
       nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
       nameLabel.setTextFill(javafx.scene.paint.Color.web("#333333"));
 
-      // Giá hiện tại
-      Label priceLabel = new Label("Giá: " + auction.getCurrentHighestPrice() + " VNĐ");
-      priceLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+      // Format và in Giá hiện tại
+      // Dấu %,.0f sẽ tự động thêm dấu phẩy ngăn cách hàng nghìn và bỏ phần thập phân
+      String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentHighestPrice());
+      Label priceLabel = new Label("Giá: " + formattedPrice);
+      priceLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
       priceLabel.setTextFill(javafx.scene.paint.Color.web("#e74c3c"));
 
       // Thời gian kết thúc
