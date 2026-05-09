@@ -1,5 +1,6 @@
 package servercontroller;
 
+import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
 
 import java.net.ServerSocket;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
 public class Server {
   public static int SERVER_PORT = 8080;
   private static final ExecutorService pool = Executors.newFixedThreadPool(10);
+  // Luu danh sach clients
   public static List<ClientHandler> clients = new ArrayList<>();
   public static void main(String[] args) {
     try {
@@ -35,7 +37,8 @@ public class Server {
       e.printStackTrace();
     }
   }
-  public static void broadcast(Object response) {
+  // Thong bao khi co cac su kien (gia moi, phien moi) cho cac client
+  public static void broadcast(ResponseDTO response) {
 
     for (ClientHandler client : clients) {
       client.sendResponse(response);

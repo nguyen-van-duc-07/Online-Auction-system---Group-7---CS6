@@ -1,25 +1,24 @@
 package com.auction.shared.model.transaction;
 
+import com.auction.shared.model.core.Entity;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 @Getter
+@Setter
 
-public class BidTransaction extends Transaction {
+public class BidTransaction extends Entity {
   private String auctionId;
+  private String bidderId;
   private BigDecimal bidAmount;
 
-  public BidTransaction(String bidderId, String auctionId, BigDecimal bidAmount) {
-    // Gán bidderId vào fromId, auctionId vào receiveId của lớp cha
-    super(bidderId, auctionId);
+  public BidTransaction(String auctionId, String bidderId, BigDecimal bidAmount) {
+    this.auctionId = auctionId;
+    this.bidderId = bidderId;
     this.bidAmount = bidAmount;
   }
 
-  @Override
-  public void showInfo() {
-    // Gọi getFromId() và getReceiveId() từ lớp cha
-    System.out.println("[BID] User " + getFromId() +
-            " đặt giá " + bidAmount +
-            " cho Auction " + getReceiveId());
-  }
 }
+
+

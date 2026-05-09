@@ -66,6 +66,16 @@ public class ClientHandler implements Runnable {
               out.writeObject(RequestHandler.updateProfile(updateProfileReq));
               out.flush();
             }
+            case PlaceBidRequestDTO bidReq -> {
+
+              out.writeObject(
+                  RequestHandler.placeBid(
+                      bidReq
+                  )
+              );
+
+              out.flush();
+            }
 
             default -> {
               System.out.println(">>> Server nhận được Request không xác định!");

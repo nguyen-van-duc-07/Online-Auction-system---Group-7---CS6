@@ -9,6 +9,7 @@ import java.util.List;
 import repository.SellerProfileRepository;
 import service.AuctionService;
 import service.AuthService;
+import service.BidService;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
@@ -103,5 +104,9 @@ public class RequestHandler {
     } else {
       return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
     }
+  }
+  public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
+    BidService bidService = new BidService();
+    return bidService.placeBid(req);
   }
 }

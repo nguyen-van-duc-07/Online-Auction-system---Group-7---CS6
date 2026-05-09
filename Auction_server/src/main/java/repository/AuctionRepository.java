@@ -72,6 +72,7 @@ public class AuctionRepository {
     );
     a.setId(rs.getString("id"));
     a.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
+    a.setMinStepPrice(rs.getBigDecimal("min_step_price"));
     a.setStatus(AuctionStatus.valueOf(rs.getString("status")));
     a.setHighestBidderId(rs.getString("highest_bidder_id"));
     return a;
@@ -184,6 +185,23 @@ public class AuctionRepository {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+  public Auction findAuctionById(String auctionId) {
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "WHERE a.id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return mapResultSetToAuction(rs);
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 }
