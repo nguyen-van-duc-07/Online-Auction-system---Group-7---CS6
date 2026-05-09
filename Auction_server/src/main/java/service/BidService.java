@@ -9,12 +9,12 @@ import com.auction.shared.response.PlaceBidResponseDTO;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
 import servercontroller.Server;
-
 import java.math.BigDecimal;
 
 public class BidService {
   private final AuctionRepository auctionRepo = new AuctionRepository();
   private final BidTransactionRepository bidRepo = new BidTransactionRepository();
+
   public  PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     Auction auction = auctionRepo.findAuctionById(req.getAuctionId());
     if (auction == null) {
@@ -52,10 +52,10 @@ public class BidService {
     }
     auctionRepo.updatePrice(
         req.getAuctionId(),
-        req.getBidAmount(),
-        req.getBidderId()
+        req.getBidderId(),
+        req.getBidAmount()
     );
-    Server.broadcast(
+    Server.broadcastToAuctionRoom(
         new NewBidDTO(
             req.getAuctionId(),
             req.getBidderId(),

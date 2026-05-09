@@ -36,7 +36,7 @@ public class AuctionRepository {
   }
 
   // Cập nhật giá cao nhất khi có người bid
-  public void updatePrice(String auctionId, java.math.BigDecimal newPrice, String bidderId) {
+  public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -105,6 +105,7 @@ public class RequestHandler {
       return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
     }
   }
+
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     BidService bidService = new BidService();
     return bidService.placeBid(req);

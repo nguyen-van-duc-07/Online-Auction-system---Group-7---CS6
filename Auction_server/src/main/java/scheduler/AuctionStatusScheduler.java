@@ -37,7 +37,7 @@ public class AuctionStatusScheduler {
     auctionRepo.activateAuctions(activateIds);
     for (String id : activateIds) {
       System.out.println("BROADCAST ACTIVE: " + id);
-      Server.broadcast(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
+      Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
     }
 
     List<String> closeIds = auctionRepo.findAuctionsToClose(now);
@@ -46,7 +46,7 @@ public class AuctionStatusScheduler {
 
     for (String id : closeIds) {
       System.out.println("BROADCAST CLOSED: " + id);
-      Server.broadcast(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
+      Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
     }
 
     System.out.println(

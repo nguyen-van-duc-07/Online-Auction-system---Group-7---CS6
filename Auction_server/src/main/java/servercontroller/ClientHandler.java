@@ -66,15 +66,18 @@ public class ClientHandler implements Runnable {
               out.writeObject(RequestHandler.updateProfile(updateProfileReq));
               out.flush();
             }
+
             case PlaceBidRequestDTO bidReq -> {
-
-              out.writeObject(
-                  RequestHandler.placeBid(
-                      bidReq
-                  )
-              );
-
+              out.writeObject(RequestHandler.placeBid(bidReq));
               out.flush();
+            }
+
+            case JoinRoomRequestDTO joinRoomReq -> {
+              Server.joinSeclectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
+            }
+
+            case LeaveRoomRequestDTO leaveRoomReq -> {
+              Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
             }
 
             default -> {
@@ -85,6 +88,8 @@ public class ClientHandler implements Runnable {
       }
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      Server.removeClientFromAllRooms(this);
     }
   }
 
@@ -103,12 +108,19 @@ public class ClientHandler implements Runnable {
       e.printStackTrace();
     }
   }
-  public void sendResponse(Object response) {
+
+  /**
+   * Phương thức để Server gọi khi cần gửi thông báo (Broadcast).
+   * @param response
+   */
+  public void sendData(Object response) {
     try {
-      out.writeObject(response);
-      out.flush();
+      if (out != null) {
+        out.writeObject(response);
+        out.flush();
+      }
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("Lỗi gửi dữ liệu cho Client, Client có thể đã ngắt kết nối.");
     }
   }
 }
