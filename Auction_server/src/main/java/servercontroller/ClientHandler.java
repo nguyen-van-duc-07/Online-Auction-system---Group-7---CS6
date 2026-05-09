@@ -66,6 +66,16 @@ public class ClientHandler implements Runnable {
               out.writeObject(RequestHandler.updateProfile(updateProfileReq));
               out.flush();
             }
+            case PlaceBidRequestDTO bidReq -> {
+
+              out.writeObject(
+                  RequestHandler.placeBid(
+                      bidReq
+                  )
+              );
+
+              out.flush();
+            }
 
             default -> {
               System.out.println(">>> Server nhận được Request không xác định!");
@@ -89,6 +99,14 @@ public class ClientHandler implements Runnable {
       if (clientSocket != null) {
         clientSocket.close();
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  public void sendResponse(Object response) {
+    try {
+      out.writeObject(response);
+      out.flush();
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
@@ -124,6 +125,7 @@ public class HomeController implements Initializable {
    */
   private void gotoProductDetail(String auctionId, String itemName) {
     // Lưu auctionId vào session hoặc truyền qua Controller mới để tải đúng món hàng
+    SessionManager.setCurrentAuctionId(auctionId);
     System.out.println("Đang mở chi tiết phiên đấu giá: " + auctionId);
     ScreenController.switchScreen("ItemAuction.fxml", "Phiên đáu giá " + itemName);
   }

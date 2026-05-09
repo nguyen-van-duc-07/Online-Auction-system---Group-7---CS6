@@ -56,6 +56,19 @@ public class ServerConnection {
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
+            case AuctionStatusUpdateDTO dto ->
+                System.out.println("CLIENT RECEIVED: " + dto.getId()
+                    + " status=" + dto.getAuctionStatus());
+
+            case NewBidDTO dto ->
+                // Cho nay de tam, sau them method() j do trong ResponseHandler sau
+                System.out.println("CLIENT RECEIVED: Phien: " + dto.getAuctionId()
+                                    + "- Bidder: " + dto.getBidderId()
+                + "dat gia: " + dto.getBidAmount());
+
+            case PlaceBidResponseDTO dto ->
+                System.out.println("Ket qua: " + dto.getMessage());
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

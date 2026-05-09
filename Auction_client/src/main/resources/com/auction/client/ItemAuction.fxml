@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ItemAuctionController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -91,7 +91,7 @@
 
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <TextField fx:id="bidAmountField" prefHeight="40" promptText="Nhập mức giá..." style="-fx-border-radius: 5;" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="placeBidButton" prefHeight="40" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Đấu Giá" />
+                                <Button fx:id="placeBidButton" prefHeight="40" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Đấu Giá" onAction="#placeBid" />
                             </HBox>
                         </VBox>
                     </children>
