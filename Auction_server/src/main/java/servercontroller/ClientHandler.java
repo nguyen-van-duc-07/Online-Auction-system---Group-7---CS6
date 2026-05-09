@@ -93,4 +93,12 @@ public class ClientHandler implements Runnable {
       e.printStackTrace();
     }
   }
+  public void sendResponse(Object response) {
+    try {
+      out.writeObject(response);
+      out.flush();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

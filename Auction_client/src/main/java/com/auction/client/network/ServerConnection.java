@@ -56,6 +56,10 @@ public class ServerConnection {
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
+            case AuctionStatusUpdateDTO dto ->
+                System.out.println("CLIENT RECEIVED: " + dto.getId()
+                    + " status=" + dto.getAuctionStatus());
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

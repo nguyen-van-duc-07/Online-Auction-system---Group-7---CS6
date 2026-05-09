@@ -101,62 +101,85 @@ public class AuctionRepository {
       return false;
     }
   }
-  public void activateAuctions(LocalDateTime now) {
+  public void closeExpiredAuctions(List<String> ids) {
 
     String sql =
-        "UPDATE auctions "
-            + "SET status = 'ACTIVE' "
-            + "WHERE status = 'WAITING' "
-            + "AND start_time <= ?";
+        "UPDATE auctions SET status='CLOSED' WHERE id=?";
 
-    try (Connection conn =
-             DatabaseConnection.getConnection();
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-         PreparedStatement ps =
-             conn.prepareStatement(sql)) {
-
-      ps.setTimestamp(
-          1,
-          Timestamp.valueOf(now)
-      );
-
-      int rows = ps.executeUpdate();
-
-      if (rows > 0) {
-        System.out.println(
-            "Activated " + rows + " auctions"
-        );
+      for (String id : ids) {
+        ps.setString(1, id);
+        ps.executeUpdate();
       }
 
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
-  public void closeExpiredAuctions(LocalDateTime now) {
+  public List<String> findAuctionsToActivate(LocalDateTime now) {
+
+    List<String> ids = new ArrayList<>();
 
     String sql =
-        "UPDATE auctions "
-            + "SET status = 'CLOSED' "
-            + "WHERE status = 'ACTIVE' "
-            + "AND end_time <= ?";
+        "SELECT id FROM auctions "
+            + "WHERE status='WAITING' "
+            + "AND start_time <= ?";
 
-    try (Connection conn =
-             DatabaseConnection.getConnection();
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-         PreparedStatement ps =
-             conn.prepareStatement(sql)) {
+      ps.setTimestamp(1, Timestamp.valueOf(now));
 
-      ps.setTimestamp(
-          1,
-          Timestamp.valueOf(now)
-      );
+      ResultSet rs = ps.executeQuery();
 
-      int rows = ps.executeUpdate();
+      while (rs.next()) {
+        ids.add(rs.getString("id"));
+      }
 
-      if (rows > 0) {
-        System.out.println(
-            "Closed " + rows + " auctions"
-        );
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return ids;
+  }
+  public List<String> findAuctionsToClose(LocalDateTime now) {
+
+    List<String> ids = new ArrayList<>();
+
+    String sql =
+        "SELECT id FROM auctions "
+            + "WHERE status='ACTIVE' AND end_time <= ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(1, Timestamp.valueOf(now));
+
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        ids.add(rs.getString("id"));
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return ids;
+  }
+  public void activateAuctions(List<String> ids) {
+
+    String sql =
+        "UPDATE auctions SET status='ACTIVE' WHERE id=?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      for (String id : ids) {
+        ps.setString(1, id);
+        ps.executeUpdate();
       }
 
     } catch (Exception e) {
