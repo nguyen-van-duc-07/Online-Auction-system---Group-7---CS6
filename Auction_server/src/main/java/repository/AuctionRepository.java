@@ -6,10 +6,8 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import config.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class AuctionRepository {
   }
 
   // Cập nhật giá cao nhất khi có người bid
-  public void updatePrice(String auctionId, java.math.BigDecimal newPrice, String bidderId) {
+  public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,6 +72,7 @@ public class AuctionRepository {
     );
     a.setId(rs.getString("id"));
     a.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
+    a.setMinStepPrice(rs.getBigDecimal("min_step_price"));
     a.setStatus(AuctionStatus.valueOf(rs.getString("status")));
     a.setHighestBidderId(rs.getString("highest_bidder_id"));
     return a;
@@ -101,6 +100,108 @@ public class AuctionRepository {
     } catch (SQLException e) {
       e.printStackTrace();
       return false;
+    }
+  }
+  public void closeExpiredAuctions(List<String> ids) {
+
+    String sql =
+        "UPDATE auctions SET status='CLOSED' WHERE id=?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      for (String id : ids) {
+        ps.setString(1, id);
+        ps.executeUpdate();
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  public List<String> findAuctionsToActivate(LocalDateTime now) {
+
+    List<String> ids = new ArrayList<>();
+
+    String sql =
+        "SELECT id FROM auctions "
+            + "WHERE status='WAITING' "
+            + "AND start_time <= ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(1, Timestamp.valueOf(now));
+
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        ids.add(rs.getString("id"));
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return ids;
+  }
+  public List<String> findAuctionsToClose(LocalDateTime now) {
+
+    List<String> ids = new ArrayList<>();
+
+    String sql =
+        "SELECT id FROM auctions "
+            + "WHERE status='ACTIVE' AND end_time <= ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(1, Timestamp.valueOf(now));
+
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        ids.add(rs.getString("id"));
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return ids;
+  }
+  public void activateAuctions(List<String> ids) {
+
+    String sql =
+        "UPDATE auctions SET status='ACTIVE' WHERE id=?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      for (String id : ids) {
+        ps.setString(1, id);
+        ps.executeUpdate();
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  public Auction findAuctionById(String auctionId) {
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "WHERE a.id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return mapResultSetToAuction(rs);
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 }

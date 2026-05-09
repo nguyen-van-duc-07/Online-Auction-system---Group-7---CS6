@@ -95,7 +95,7 @@ public class Auction extends Entity implements Serializable {
     if (this.status != AuctionStatus.ACTIVE) {
       return; // Chỉ đóng được những phiên đang chạy
     }
-    this.status = AuctionStatus.FINISHED;
+    this.status = AuctionStatus.CLOSED;
   }
 
   /**

@@ -24,7 +24,7 @@
                 <Insets left="20.0" right="20.0" />
             </padding>
             <left>
-                <Button mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý sản phẩm" textFill="#2980b9" BorderPane.alignment="CENTER" />
+                <Button mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý hàng giao bán" textFill="#2980b9" BorderPane.alignment="CENTER" />
             </left>
             <right>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
@@ -74,7 +74,7 @@
                         <VBox maxHeight="Infinity" maxWidth="Infinity" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #ddd;" GridPane.columnIndex="1">
                             <Label fx:id="itemNameLabel" style="-fx-font-size: 24; -fx-font-weight: bold;" text="Tên Sản Phẩm" wrapText="true" />
 
-                            <Label fx:id="currentPriceLabel" style="-fx-text-fill: #e67e22; -fx-font-size: 18; -fx-font-weight: bold;" text="Giá hiện tại: 10,000,000 VNĐ" />
+                            <Label fx:id="currentPriceField" style="-fx-text-fill: #e67e22; -fx-font-size: 18; -fx-font-weight: bold;" text="Giá hiện tại: 10,000,000 VNĐ" />
 
                             <Label fx:id="timeRemainingLabel" style="-fx-text-fill: #2980b9; -fx-font-size: 14;" text="Thời gian còn lại: 01:20:30" />
 
@@ -84,14 +84,14 @@
                                 <Label style="-fx-font-weight: bold;" text="Mô tả sản phẩm:" />
                                 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                                     <content>
-                                        <Label fx:id="productDescLabel" style="-fx-text-fill: #555;" text="Mô tả chi tiết sản phẩm sẽ hiển thị ở đây..." wrapText="true" />
+                                        <Label fx:id="descriptionField" style="-fx-text-fill: #555;" text="Mô tả chi tiết sản phẩm sẽ hiển thị ở đây..." wrapText="true" />
                                     </content>
                                 </ScrollPane>
                             </VBox>
 
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <TextField fx:id="bidAmountField" prefHeight="40" promptText="Nhập mức giá..." style="-fx-border-radius: 5;" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="placeBidButton" prefHeight="40" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Đấu Giá" />
+                                <Button fx:id="placeBidButton" onAction="#placeBid" prefHeight="40" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Đấu Giá" />
                             </HBox>
                         </VBox>
                     </children>

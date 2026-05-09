@@ -28,7 +28,7 @@ public class AuctionResponseDTO implements ResponseDTO {
   private String id;
 
   /**
-   * Tên của sản phẩm đang được đấu giá.
+   * Sản phẩm đang được đấu giá.
    */
   private ItemDTO item;
 
