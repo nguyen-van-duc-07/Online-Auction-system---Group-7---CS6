@@ -6,10 +6,8 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import config.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +99,68 @@ public class AuctionRepository {
     } catch (SQLException e) {
       e.printStackTrace();
       return false;
+    }
+  }
+  public void activateAuctions(LocalDateTime now) {
+
+    String sql =
+        "UPDATE auctions "
+            + "SET status = 'ACTIVE' "
+            + "WHERE status = 'WAITING' "
+            + "AND start_time <= ?";
+
+    try (Connection conn =
+             DatabaseConnection.getConnection();
+
+         PreparedStatement ps =
+             conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(
+          1,
+          Timestamp.valueOf(now)
+      );
+
+      int rows = ps.executeUpdate();
+
+      if (rows > 0) {
+        System.out.println(
+            "Activated " + rows + " auctions"
+        );
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  public void closeExpiredAuctions(LocalDateTime now) {
+
+    String sql =
+        "UPDATE auctions "
+            + "SET status = 'CLOSED' "
+            + "WHERE status = 'ACTIVE' "
+            + "AND end_time <= ?";
+
+    try (Connection conn =
+             DatabaseConnection.getConnection();
+
+         PreparedStatement ps =
+             conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(
+          1,
+          Timestamp.valueOf(now)
+      );
+
+      int rows = ps.executeUpdate();
+
+      if (rows > 0) {
+        System.out.println(
+            "Closed " + rows + " auctions"
+        );
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }

@@ -1,5 +1,7 @@
 package servercontroller;
 
+import scheduler.AuctionStatusScheduler;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ public class Server {
 
   public static void main(String[] args) {
     try {
+      AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
+      scheduler.start();
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
       System.out.println(">>> SERVER DA CHAY TREN PORT: " + SERVER_PORT);
       System.out.println(">>> DANG DOI CLIENT KET NOI VAO ...");
