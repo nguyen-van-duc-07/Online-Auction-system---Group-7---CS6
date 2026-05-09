@@ -1,9 +1,15 @@
 package com.auction.client.screenhandler;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 
 public class ItemAuctionController {
   private HomeController homeController = new HomeController();
+
+  @FXML
+  private Label itemNameLabel;
+  @FXML
+  private Label currentPriceLabel;
 
   @FXML
   public void gotoResult() {

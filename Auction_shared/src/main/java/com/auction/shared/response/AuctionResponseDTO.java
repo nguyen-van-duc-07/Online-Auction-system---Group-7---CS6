@@ -2,6 +2,8 @@ package com.auction.shared.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.auction.shared.model.item.ItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +30,7 @@ public class AuctionResponseDTO implements ResponseDTO {
   /**
    * Tên của sản phẩm đang được đấu giá.
    */
-  private String itemName;
+  private ItemDTO item;
 
   /**
    * Mức giá cao nhất hiện tại của phiên đấu giá.
@@ -44,11 +46,6 @@ public class AuctionResponseDTO implements ResponseDTO {
    * Trạng thái hiện tại của phiên đấu giá (ví dụ: WAITING, ACTIVE, FINISHED).
    */
   private String status;
-
-  /**
-   * Đoạn mô tả ngắn gọn về sản phẩm để hiển thị trên thẻ (card) sản phẩm.
-   */
-  private String itemDescription;
   // Lọc bớt các thông tin nhạy cảm/ ko cần thiết để trả về máy khách
   // Không chứa bidHistory hoặc chỉ chứa 5 cái gần nhất để nhẹ băng thông
 }

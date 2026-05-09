@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.shared.model.auction.Auction;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
@@ -75,7 +76,7 @@ public class HomeController implements Initializable {
       // Tạo khung thẻ sản phẩm (Card)
       VBox card = new VBox(10);
       card.setPadding(new Insets(15));
-      card.setPrefWidth(180); // Khớp với kích thước cũ trong FXML của nhóm bạn
+      card.setPrefWidth(180);
       card.setAlignment(Pos.CENTER);
       card.setStyle("-fx-background-color: #ffffff; "
           + "-fx-border-color: #e6e6e6; "
@@ -90,7 +91,7 @@ public class HomeController implements Initializable {
       imageView.setPreserveRatio(true);
 
       // Tên sản phẩm
-      Label nameLabel = new Label(auction.getItemName());
+      Label nameLabel = new Label(auction.getItem().getName());
       nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
       nameLabel.setTextFill(javafx.scene.paint.Color.web("#333333"));
 
@@ -109,7 +110,7 @@ public class HomeController implements Initializable {
       Button bidButton = new Button("Đấu giá");
       bidButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; "
           + "-fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;");
-      bidButton.setOnAction(e -> gotoProductDetail(auction.getId(), auction.getItemName()));
+      bidButton.setOnAction(e -> gotoProductDetail(auction));
 
       // Thêm tất cả vào card
       card.getChildren().addAll(imageView, nameLabel, priceLabel, timeLabel, bidButton);
@@ -122,10 +123,9 @@ public class HomeController implements Initializable {
   /**
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
-  private void gotoProductDetail(String auctionId, String itemName) {
-    // Lưu auctionId vào session hoặc truyền qua Controller mới để tải đúng món hàng
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + auctionId);
-    ScreenController.switchScreen("ItemAuction.fxml", "Phiên đáu giá " + itemName);
+  private void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
+    ScreenController.switchScreen("ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
   }
 
   @FXML

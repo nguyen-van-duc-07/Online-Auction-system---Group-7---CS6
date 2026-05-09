@@ -14,4 +14,11 @@ public class ItemDTO {
     private String name;
     private ItemType type;
     private String description;
+    public  ItemDTO(Item item) {
+        this.id = item.getId();
+        this.CreatedAt = item.getCreatedAt();
+        this.name = item.getName();
+        this.type = item.getType();
+        this.description = item.getDescription();
+    }
 }
