@@ -33,7 +33,7 @@
             </left>
 
             <center>
-                <Hyperlink onAction="#gotoHomeWithHyperLink" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink onAction="#gotoHomeWithHyperLink" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#27ae60" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>

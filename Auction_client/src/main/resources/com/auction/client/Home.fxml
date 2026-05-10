@@ -27,7 +27,7 @@
             </left>
 
             <center>
-                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Label text="ĐẤU GIÁ 88" textFill="#27ae60" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>

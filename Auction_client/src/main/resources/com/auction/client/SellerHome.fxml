@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SellerHomeController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SellerHomeController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
@@ -22,11 +22,15 @@
             </padding>
 
             <left>
-                <Button mnemonicParsing="false" onAction="#gotoHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Chuyển sang đấu giá" textFill="#2980b9" BorderPane.alignment="CENTER" />
+                <Button mnemonicParsing="false" onAction="#gotoHome" styleClass="btn-outline" text="Chuyển sang đấu giá" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
             </left>
 
             <center>
-                <Hyperlink onAction="#gotoHome" style="-fx-border-color: transparent;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                <Hyperlink onAction="#gotoHome" style="-fx-border-color: transparent;" styleClass="text-primary" text="ĐẤU GIÁ 88" BorderPane.alignment="CENTER">
                     <font>
                         <Font name="System Bold" size="40.0" />
                     </font>
@@ -36,13 +40,20 @@
             <right>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
-                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
+                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" styleClass="btn-outline" text="Kết quả đấu giá">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
+                        <MenuButton mnemonicParsing="false" styleClass="btn-outline" text="Profile">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
                                 <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
                                 <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
                             </items>
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
                         </MenuButton>
                     </children>
                 </HBox>
@@ -59,14 +70,14 @@
                     </padding>
                     <children>
 
-                        <VBox alignment="CENTER" prefHeight="206.0" prefWidth="180.0" spacing="10.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 3);">
+                        <VBox alignment="CENTER" prefHeight="206.0" prefWidth="180.0" spacing="10.0" styleClass="card-add">
                             <children>
-                        <Button alignment="CENTER" blendMode="COLOR_BURN" cache="true" cacheHint="SPEED" onAction="#gotoUploadProduct" prefHeight="88.0" prefWidth="86.0" text="+" textFill="#02200b">
-                           <font>
-                              <Font name="System Bold" size="50.0" />
-                           </font>
-                        </Button>
-                                <Label text="Thêm sản phẩm" textFill="#007a00">
+                                <Button alignment="CENTER" onAction="#gotoUploadProduct" prefHeight="88.0" prefWidth="86.0" style="-fx-background-color: transparent; -fx-cursor: hand;" styleClass="text-primary" text="+">
+                                    <font>
+                                        <Font name="System Bold" size="50.0" />
+                                    </font>
+                                </Button>
+                                <Label styleClass="text-primary" text="Thêm sản phẩm">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
                                     </font>

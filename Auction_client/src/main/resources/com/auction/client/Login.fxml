@@ -16,7 +16,7 @@
 
     <VBox alignment="CENTER" maxWidth="550.0" prefHeight="300.0" spacing="25.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 8); -fx-padding: 40;">
 
-        <Label style="-fx-text-fill: #008000; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-style: italic; -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 1, 1);" text="ĐẤU GIÁ 88" />
+        <Label style="-fx-text-fill: #27ae60; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-style: italic; -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 1, 1);" text="ĐẤU GIÁ 88" />
 
         <GridPane alignment="CENTER" hgap="15.0" vgap="20.0">
             <columnConstraints>
