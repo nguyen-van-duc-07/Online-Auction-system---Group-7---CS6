@@ -1,5 +1,5 @@
 package com.auction.shared.enums;
 
-public enum TransactionStatus {
+public enum WalletTransactionStatus {
     PENDING, SUCCESS, FAILED, CANCELED, REFUNDED, EXPIRED;
 }
