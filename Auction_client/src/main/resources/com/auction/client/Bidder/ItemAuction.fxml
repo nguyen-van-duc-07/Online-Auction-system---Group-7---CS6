@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" stylesheets="@AdminScreen/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ItemAuctionController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" stylesheets="@../Admin/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ItemAuctionController">
 
     <top>
         <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" styleClass="root" BorderPane.alignment="CENTER">
@@ -75,7 +75,7 @@
 
                                   <Label fx:id="currentPriceField" style="-fx-text-fill: #e67e22; -fx-font-size: 18; -fx-font-weight: bold;" text="Giá hiện tại: 10,000,000 VNĐ" />
 
-                                  <Label fx:id="timeRemainingLabel" style="-fx-text-fill: #2980b9; -fx-font-size: 14;" text="Thời gian còn lại: 01:20:30" />
+                                  <Label fx:id="timeRemainingLabel" style="-fx-text-fill: #2980b9; -fx-font-size: 14;" text="Thời gian còn lại: " />
 
                                   <Label fx:id="highestBidderLabel" style="-fx-text-fill: #7f8c8d;" text="Người ra giá cao nhất hiện tại: DatGB" />
                              <Label style="-fx-font-weight: bold;" text="Mô tả sản phẩm:" />

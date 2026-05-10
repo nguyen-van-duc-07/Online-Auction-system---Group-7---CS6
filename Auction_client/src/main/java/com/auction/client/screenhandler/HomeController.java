@@ -7,9 +7,11 @@ import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -17,6 +19,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -36,7 +40,7 @@ public class HomeController implements Initializable {
     return instance;
   }
 
-  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Home.fxml. */
+  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Bidder/Home.fxml. */
   @FXML
   private FlowPane feedContainer;
 
@@ -62,73 +66,49 @@ public class HomeController implements Initializable {
   }
 
   /**
-   * Vẽ và hiển thị danh sách sản phẩm lên giao diện.
+   * Tải và hiển thị danh sách thẻ sản phẩm (Component) lên giao diện.
    * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
    * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
    */
   public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
-    // Xóa các card cũ (nếu có) trước khi nạp mới
-    feedContainer.getChildren().clear();
+    // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
+    Platform.runLater(() -> {
+      // Xóa các card cũ (nếu có) trước khi nạp mới
+      feedContainer.getChildren().clear();
 
-    // Định dạng thời gian hiển thị
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+      for (AuctionResponseDTO auction : auctions) {
+        try {
+          // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
+          FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
 
-    for (AuctionResponseDTO auction : auctions) {
-      // Tạo khung thẻ sản phẩm (Card)
-      VBox card = new VBox(10);
-      card.setPadding(new Insets(15));
-      card.setPrefWidth(180); // Khớp với kích thước cũ trong FXML của nhóm bạn
-      card.setAlignment(Pos.CENTER);
-      card.setStyle("-fx-background-color: #ffffff; "
-          + "-fx-border-color: #e6e6e6; "
-          + "-fx-border-radius: 8; "
-          + "-fx-background-radius: 8; "
-          + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);");
+          // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
+          Node cardNode = loader.load();
 
-      // Ảnh sản phẩm
-      ImageView imageView = new ImageView();
-      imageView.setFitHeight(100.0);
-      imageView.setFitWidth(120.0);
-      imageView.setPreserveRatio(true);
+          // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
+          AuctionItemCardController cardController = loader.getController();
 
-      // Tên sản phẩm
-      Label nameLabel = new Label(auction.getItem().getName());
-      nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-      nameLabel.setTextFill(javafx.scene.paint.Color.web("#333333"));
+          // Truyền object auction và 'this' (HomeController) sang để thẻ con biết đường gọi chuyển trang
+          cardController.setData(auction, this);
 
-      // Format và in Giá hiện tại
-      // Dấu %,.0f sẽ tự động thêm dấu phẩy ngăn cách hàng nghìn và bỏ phần thập phân
-      String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentHighestPrice());
-      Label priceLabel = new Label("Giá: " + formattedPrice);
-      priceLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-      priceLabel.setTextFill(javafx.scene.paint.Color.web("#e74c3c"));
+          // 4. Nhét thẻ đã hoàn thiện vào FlowPane
+          feedContainer.getChildren().add(cardNode);
 
-      // Thời gian kết thúc
-      Label timeLabel = new Label("Kết thúc: " + auction.getEndTime().format(formatter));
-      timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #7f8c8d;");
-
-      // Nút Đấu giá
-      Button bidButton = new Button("Đấu giá");
-      bidButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; "
-          + "-fx-background-radius: 4; -fx-padding: 6 12 6 12; -fx-font-weight: bold;");
-      bidButton.setOnAction(e -> gotoProductDetail(auction));
-
-      // Thêm tất cả vào card
-      card.getChildren().addAll(imageView, nameLabel, priceLabel, timeLabel, bidButton);
-
-      // Đưa card vào FlowPane chính
-      feedContainer.getChildren().add(card);
-    }
+        } catch (IOException e) {
+          System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
+          e.printStackTrace();
+        }
+      }
+    });
   }
 
   /**
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
-  private void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+  protected void gotoProductDetail(AuctionResponseDTO selectedAuction) {
     // Lưu sản phẩm vừa chọn vào SessionManager
     SessionManager.setCurrentAuction(selectedAuction);
     System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
-    ScreenController.switchScreen("ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
+    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
   }
 
   @FXML
@@ -136,28 +116,28 @@ public class HomeController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
-        ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
       }
     });
   }
 
   @FXML
   public void gotoSellerHome() {
-    ScreenController.switchScreen("SellerHome.fxml", "Quản lý sản phẩm");
+    ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm");
   }
 
   @FXML
   public void gotoProfile() {
-    ScreenController.switchScreen("Profile.fxml", "Thông tin tài khoản");
+    ScreenController.switchScreen("User/Profile.fxml", "Thông tin tài khoản");
   }
 
   @FXML
   public void gotoWallet() {
-    ScreenController.switchScreen("Wallet.fxml", "Ví người dùng");
+    ScreenController.switchScreen("Wallet/Wallet.fxml", "Ví người dùng");
   }
 
   @FXML
   public void gotoResult() {
-    ScreenController.switchScreen("Result.fxml", "Kết quả đấu giá");
+    ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
   }
 }
