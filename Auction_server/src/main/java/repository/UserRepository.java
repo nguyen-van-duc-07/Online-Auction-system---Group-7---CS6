@@ -86,11 +86,38 @@ public class UserRepository {
     return false;
   }
 
-  public User getUserByAccountName(String accountName) {
+  /**
+   * Lấy thông tin người dùng dựa trên accountName hoặc id.
+   * Nếu accountName khác null, sẽ ưu tiên tìm theo account_name.
+   * Nếu accountName là null, sẽ tìm theo id.
+   *
+   * @param accountName tên tài khoản người dùng (có thể null)
+   * @param id mã định danh người dùng (có thể null)
+   * @return đối tượng User nếu tìm thấy, ngược lại trả về null
+   */
+  public User getUserByAccountNameOrId(String accountName, String id) {
+    // Nếu cả hai đều null thì không cần thực hiện truy vấn
+    if (accountName == null && id == null) {
+      return null;
+    }
+
     try (Connection conn = DatabaseConnection.getConnection()) {
-      String sql = "SELECT * FROM users WHERE account_name = ?";
+      // Cập nhật câu lệnh SQL để tìm kiếm theo account_name hoặc id
+      String sql;
+      if (accountName != null) {
+        sql = "SELECT * FROM users WHERE account_name = ?";
+      } else {
+        sql = "SELECT * FROM users WHERE id = ?";
+      }
+
       PreparedStatement ps = conn.prepareStatement(sql);
-      ps.setString(1, accountName);
+
+      if (accountName != null) {
+        ps.setString(1, accountName);
+      } else {
+        ps.setString(1, id);
+      }
+
       ResultSet rs = ps.executeQuery();
 
       if (rs.next()) {
@@ -107,6 +134,7 @@ public class UserRepository {
         user.setRealName(rs.getString("real_name"));
         user.setEmail(rs.getString("email"));
         user.setPhoneNumber(rs.getString("phone_number"));
+        user.setAddress(rs.getString("address"));
         java.sql.Date dobDate = rs.getDate("dob");
         if (dobDate != null) {
           user.setDob(dobDate.toLocalDate()); // Chuyển java.sql.Date -> java.time.LocalDate

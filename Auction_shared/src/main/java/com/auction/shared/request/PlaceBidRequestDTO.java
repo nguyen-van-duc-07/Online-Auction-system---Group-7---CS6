@@ -1,24 +1,21 @@
-package com.auction.shared.model.transaction;
+package com.auction.shared.request;
 
-import com.auction.shared.model.core.Entity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+@NoArgsConstructor
 @Getter
 @Setter
-
-public class BidTransaction extends Entity {
+public class PlaceBidRequestDTO implements RequestDTO {
   private String auctionId;
   private String bidderId;
   private BigDecimal bidAmount;
 
-  public BidTransaction(String auctionId, String bidderId, BigDecimal bidAmount) {
+  public PlaceBidRequestDTO(String auctionId, String bidderId, BigDecimal bidAmount) {
     this.auctionId = auctionId;
     this.bidderId = bidderId;
     this.bidAmount = bidAmount;
   }
-
 }
-
-

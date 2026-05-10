@@ -1,94 +1,147 @@
 package com.auction.client.screenhandler;
 
-import com.auction.shared.model.auction.Auction; // Đảm bảo đúng path này
-import com.auction.shared.model.item.Item;
+import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
+import com.auction.shared.request.JoinRoomRequestDTO;
+import com.auction.shared.request.LeaveRoomRequestDTO;
+import com.auction.shared.request.PlaceBidRequestDTO;
+import com.auction.shared.response.AuctionResponseDTO;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.text.DecimalFormat;
 
-public class ItemAuctionController {
+public class ItemAuctionController implements Initializable {
+  @FXML
+  private TextField bidAmountField;
+  @FXML
+  private Label itemNameLabel;
+  @FXML
+  private Label descriptionField;
+  @FXML
+  private Label currentPriceField;
+  @FXML
+  private AreaChart<String, Number> priceChart;
+  @FXML
+  private Label errorLabel;
 
+  private AuctionResponseDTO currentAuction;
   private HomeController homeController = new HomeController();
 
-  @FXML private Label productNameLabel;
-  @FXML private Label currentPriceLabel;
-  @FXML private Label timeRemainingLabel;
-  @FXML private Label highestBidderLabel;
-  @FXML private Label productDescLabel;
-  @FXML private TextField bidAmountField;
-  @FXML private Button placeBidButton;
-
-  /**
-   * Hàm này nhận đối tượng Auction thực tế từ nhóm bạn
-   */
-  public void setAuctionData(Auction auction) {
-    if (auction != null && auction.getItem() != null) {
-      Item item = auction.getItem();
-
-      // 1. Hiển thị thông tin từ Item (Sử dụng Getter từ Lombok)
-      productNameLabel.setText(item.getName());
-      productDescLabel.setText(item.getDescription());
-
-      // 2. Hiển thị giá hiện tại (Vì là BigDecimal nên format như sau)
-      if (auction.getCurrentHighestPrice() != null) {
-        String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentHighestPrice());
-        currentPriceLabel.setText(formattedPrice);
-      }
-
-      // 3. Hiển thị người đấu giá cao nhất (Sử dụng ID vì model chưa có Name)
-      if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty()) {
-        highestBidderLabel.setText("ID: " + auction.getHighestBidderId());
-      } else {
-        highestBidderLabel.setText("Chưa có người đấu giá");
-      }
-
-      // 4. Tính toán thời gian còn lại (Vì Model chỉ có endTime)
-      updateTimeRemaining(auction.getEndTime());
-
-      // 5. Gợi ý mức giá đấu tiếp theo (Giá hiện tại + bước giá tối thiểu)
-      if (auction.getMinStepPrice() != null) {
-        java.math.BigDecimal nextBid = auction.getCurrentHighestPrice().add(auction.getMinStepPrice());
-        bidAmountField.setPromptText("Tối thiểu: " + String.format("%,.0f", nextBid));
-      }
-    }
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
+    this.currentAuction = SessionManager.getCurrentAuction();
+    ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
+    itemNameLabel.setText(SessionManager.getCurrentAuction().getItem().getName());
+    descriptionField.setText(SessionManager.getCurrentAuction().getItem().getDescription());
+    DecimalFormat formatter = new DecimalFormat("#,###");
+    String formattedPrice = formatter.format(SessionManager.getCurrentAuction().getCurrentHighestPrice()) + " VNĐ";
+    currentPriceField.setText("Giá hiện tại: " +
+        formattedPrice);
+    loadChartData();
   }
 
-  /**
-   * Hàm phụ trợ tính toán thời gian còn lại từ LocalDateTime
-   */
-  private void updateTimeRemaining(LocalDateTime endTime) {
-    if (endTime == null) {
-      timeRemainingLabel.setText("Không xác định");
-      return;
-    }
+  public void leaveCurrentAuction() {
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
+  }
 
-    LocalDateTime now = LocalDateTime.now();
-    if (now.isAfter(endTime)) {
-      timeRemainingLabel.setText("Đã kết thúc");
-    } else {
-      Duration duration = Duration.between(now, endTime);
-      long hours = duration.toHours();
-      long minutes = duration.toMinutesPart();
-      long seconds = duration.toSecondsPart();
+  private void loadChartData() {
+    // 1. Tạo một "Series" (một đường biểu diễn dữ liệu)
+    XYChart.Series<String, Number> series = new XYChart.Series<>();
+    series.setName("Lịch sử giá"); // Tên của đường (có thể ẩn đi nếu không cần)
 
-      // Format hiển thị kiểu HH:mm:ss
-      timeRemainingLabel.setText(String.format("%02d : %02d : %02d", hours, minutes, seconds));
-    }
+    // 2. Thêm các điểm dữ liệu (Trục X là Thời gian (String), Trục Y là Giá (Number))
+    // Trong thực tế, bạn sẽ dùng vòng lặp để lấy dữ liệu từ Database (MySQL/SQL Server) ở đây
+    series.getData().add(new XYChart.Data<>("10:00", 10.0));
+    series.getData().add(new XYChart.Data<>("10:15", 12.5));
+    series.getData().add(new XYChart.Data<>("10:30", 15.2));
+    series.getData().add(new XYChart.Data<>("11:00", 20.0));
+    series.getData().add(new XYChart.Data<>("11:20", 25.5)); // Mức giá cao nhất hiện tại
+
+    // 3. Xóa dữ liệu cũ (nếu có) và đưa Series mới vào biểu đồ
+    priceChart.getData().clear();
+    priceChart.getData().add(series);
+  }
+
+  private void showError(String message) {
+    errorLabel.setText(message);
+    // Đổi viền ô nhập thành màu đỏ
+    bidAmountField.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px; -fx-border-radius: 8px; -fx-background-radius: 8px;");
+  }
+
+  private void clearError() {
+    errorLabel.setText("");
+    // Đổi viền ô nhập thành màu xanh ngọc đồng bộ hệ thống để báo hiệu thành công
+    bidAmountField.setStyle("-fx-border-color: #27ae60; -fx-border-width: 2px; -fx-border-radius: 8px; -fx-background-radius: 8px;");
   }
 
   @FXML
-  public void handlePlaceBid() {
-    // Lấy giá trị từ TextField và gọi hàm applyBid trong Model của bạn
-    System.out.println("Gửi lệnh bid lên server...");
+  public void gotoResult() {
+    homeController.gotoResult();
   }
 
-  // --- CÁC HÀM ĐIỀU HƯỚNG ---
-  @FXML public void gotoResult() { homeController.gotoResult(); }
-  @FXML public void gotoProfile() { homeController.gotoProfile(); }
-  @FXML public void gotoLogin() { homeController.gotoLogin(); }
-  @FXML public void gotoWallet() { homeController.gotoWallet(); }
-  @FXML public void gotoHomeWithHyperLink() { ScreenController.switchScreen("Home.fxml", "Trang chủ"); }
+  @FXML
+  public void gotoProfile() {
+    homeController.gotoProfile();
+  }
+
+  @FXML
+  public void gotoLogin() {
+    homeController.gotoLogin();
+  }
+
+  @FXML
+  public void gotoWallet() {
+    homeController.gotoWallet();
+  }
+
+  @FXML
+  public void gotoHomeWithHyperLink() {
+    ScreenController.switchScreen("Home.fxml", "Trang chủ");
+  }
+
+  @FXML
+  public void gotoSellerHome() {
+    homeController.gotoSellerHome();
+  }
+
+  @FXML
+  public void placeBid() {
+    String bidText = bidAmountField.getText().trim();
+    if (bidText.isEmpty()) {
+      showError("Vui lòng nhập mức giá bạn muốn đấu!");
+      return; // Dừng hàm ngay lập tức
+    }
+    try{
+      BigDecimal bidAmount = new BigDecimal(bidText);
+      BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
+      BigDecimal stepPrice = currentAuction.getMinStepPrice();
+      if (bidAmount.compareTo(currentPrice) <= 0) {
+        showError("Mức giá phải lớn hơn giá hiện tại của sản phẩm!");
+        return;
+      }
+      if (bidAmount.compareTo(currentPrice.add(stepPrice)) < 0) {
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        showError("Mức giá phải cao hơn ít nhất 1 bước giá (" + formatter.format(stepPrice) + " VNĐ)!");
+        return;
+      }
+      clearError();
+      PlaceBidRequestDTO req =
+              new PlaceBidRequestDTO(SessionManager.getCurrentAuction().getId(),
+                      SessionManager.getCurrentUser().getId(),
+                      bidAmount);
+      ServerConnection.sendData(req);
+    } catch (NumberFormatException e) {
+        showError("Số tiền không hợp lệ. Vui lòng chỉ nhập số!");
+      }
+      catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

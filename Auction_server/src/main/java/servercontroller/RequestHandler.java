@@ -2,19 +2,14 @@ package servercontroller;
 
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
-import com.auction.shared.request.GetActiveAuctionRequestDTO;
-import com.auction.shared.request.LoginRequestDTO;
-import com.auction.shared.request.SignUpRequestDTO;
-import com.auction.shared.request.UploadItemRequestDTO;
-import com.auction.shared.response.AuctionResponseDTO;
-import com.auction.shared.response.GetActiveAuctionResponseDTO;
-import com.auction.shared.response.LoginResponseDTO;
-import com.auction.shared.response.SignUpResponseDTO;
-import com.auction.shared.response.UploadItemResponseDTO;
+import com.auction.shared.request.*;
+import com.auction.shared.response.*;
+
 import java.util.List;
 import repository.SellerProfileRepository;
 import service.AuctionService;
 import service.AuthService;
+import service.BidService;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
@@ -33,13 +28,14 @@ public class RequestHandler {
 
     if (loggedInUser != null) {
       UserDTO userDTO = UserDTO.builder()
-              .id(loggedInUser.getId())
-              .realName(loggedInUser.getRealName())
-              .accountName(loggedInUser.getAccountName())
-              .email(loggedInUser.getEmail())
-              .phoneNumber(loggedInUser.getPhoneNumber())
-              .dob(loggedInUser.getDob())
-              .build();
+          .id(loggedInUser.getId())
+          .realName(loggedInUser.getRealName())
+          .accountName(loggedInUser.getAccountName())
+          .email(loggedInUser.getEmail())
+          .phoneNumber(loggedInUser.getPhoneNumber())
+          .dob(loggedInUser.getDob())
+          .address(loggedInUser.getAddress())
+          .build();
 
       return new LoginResponseDTO(true, "Đăng nhập thành công!", userDTO);
     } else {
@@ -83,12 +79,35 @@ public class RequestHandler {
    * để tầng Network gửi trả về Client.</p>
    *
    * @param getActiveAuctionReq Gói tin yêu cầu từ Client (hiện tại đóng vai trò như một tín hiệu báo hiệu, không chứa dữ liệu bên trong).
-   *
    * @return Đối tượng {@link GetActiveAuctionResponseDTO} mang theo cờ trạng thái thành công,
    * thông báo hệ thống và danh sách sản phẩm.
    */
   public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
     List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
     return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
+  }
+
+  public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {
+    User userAfterUpdatingProfile = AuthService.updateProfile(updateProfileReq);
+
+    if (userAfterUpdatingProfile != null) {
+      UserDTO userDTO = UserDTO.builder()
+          .id(userAfterUpdatingProfile.getId())
+          .realName(userAfterUpdatingProfile.getRealName())
+          .accountName(userAfterUpdatingProfile.getAccountName())
+          .email(userAfterUpdatingProfile.getEmail())
+          .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
+          .dob(userAfterUpdatingProfile.getDob())
+          .address(userAfterUpdatingProfile.getAddress())
+          .build();
+      return new UpdateProfileResponseDTO(true, "Cập nhật thông tin tài khoản thành công", userDTO);
+    } else {
+      return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
+    }
+  }
+
+  public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
+    BidService bidService = new BidService();
+    return bidService.placeBid(req);
   }
 }

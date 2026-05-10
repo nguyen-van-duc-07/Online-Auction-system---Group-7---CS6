@@ -2,6 +2,7 @@ package service;
 
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
+import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 
@@ -178,11 +179,11 @@ public class AuctionService {
     for (Auction auction : activeAuctions) {
       AuctionResponseDTO activeAutionDTO = new AuctionResponseDTO(
           auction.getId(),
-          auction.getItem().getName(),
+          new ItemDTO(auction.getItem()),
           auction.getCurrentHighestPrice(),
+          auction.getMinStepPrice(),
           auction.getEndTime(),
-          auction.getStatus().name(),
-          auction.getItem().getDescription()
+          auction.getStatus().name()
       );
       activeAutionDTOs.add(activeAutionDTO);
     }
