@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.HomeController">
+
+    <top>
+        <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+
+            <left>
+                <Button mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý hàng giao bán" textFill="#2980b9" BorderPane.alignment="CENTER" />
+            </left>
+
+            <center>
+                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="40.0" />
+                    </font>
+                </Label>
+            </center>
+
+            <right>
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
+                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
+                                <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
+            <content>
+                <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f4f6f9;" vgap="25.0">
+                    <padding>
+                        <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="785.0" spacing="20.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                            <padding>
+                                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                            </padding>
+                            <children>
+
+                                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="SP001 - Vinfast VF8 Plus" textFill="#333333">
+                                            <font><Font name="System Bold" size="18.0" /></font>
+                                        </Label>
+                                        <Label text="Trạng thái: Đang diễn ra" textFill="#27ae60" />
+                                    </children>
+                                </VBox>
+
+                                <VBox alignment="CENTER" prefWidth="200.0">
+                                    <children>
+                                        <Label text="Giá hiện tại:" textFill="#7f8c8d" />
+                                        <Label style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" text="2.000.000.000 VNĐ" textFill="#2980b9">
+                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <VBox alignment="CENTER" prefWidth="150.0">
+                                    <children>
+                                        <Label text="Thời gian còn lại:" textFill="#7f8c8d" />
+                                        <Label text="73:13:28" textFill="#e67e22">
+                                            <font><Font name="System Bold" size="16.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="785.0" spacing="20.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                            <padding><Insets bottom="15.0" left="20.0" right="20.0" top="15.0" /></padding>
+                            <children>
+                                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="SP002 - iPhone 17 Pro Max" textFill="#333333">
+                                            <font><Font name="System Bold" size="18.0" /></font>
+                                        </Label>
+                                        <Label text="Trạng thái: Đang diễn ra" textFill="#27ae60" />
+                                    </children>
+                                </VBox>
+                                <VBox alignment="CENTER" prefWidth="200.0">
+                                    <children>
+                                        <Label text="Giá hiện tại:" textFill="#7f8c8d" />
+                                        <Label style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" text="40.000.000 VNĐ" textFill="#2980b9">
+                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <VBox alignment="CENTER" prefWidth="150.0">
+                                    <children>
+                                        <Label text="Thời gian còn lại:" textFill="#7f8c8d" />
+                                        <Label text="47:13:29" textFill="#e67e22">
+                                            <font><Font name="System Bold" size="16.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
+                            </children>
+                        </HBox>
+                    </children>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
