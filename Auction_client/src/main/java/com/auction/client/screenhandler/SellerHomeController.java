@@ -11,7 +11,7 @@ public class SellerHomeController {
 
   @FXML
   public void gotoHome() {
-    ScreenController.switchScreen("Home.fxml", "Trang chủ");
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
   @FXML
@@ -36,6 +36,6 @@ public class SellerHomeController {
 
   @FXML
   public void gotoUploadProduct() {
-    ScreenController.switchScreen("UploadItem.fxml", "Đăng sản phẩm");
+    ScreenController.switchScreen("Seller/UploadItem.fxml", "Đăng sản phẩm");
   }
 }

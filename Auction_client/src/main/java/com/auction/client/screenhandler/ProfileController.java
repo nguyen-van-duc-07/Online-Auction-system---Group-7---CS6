@@ -83,7 +83,7 @@ public class ProfileController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
-        ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
         SessionManager.clearSession(); // Xoá người dùng hiện tại ra khỏi SessionManager
       }
     });
@@ -171,7 +171,7 @@ public class ProfileController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thay đổi",
         "Bạn có chắc chắn muốn về Trang chủ không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
-        ScreenController.switchScreen("Home.fxml", "Trang chủ");
+        ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
       }
     });
   }

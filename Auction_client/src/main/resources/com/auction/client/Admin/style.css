@@ -1,19 +1,112 @@
-.context-menu {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #81C784;
-    -fx-border-width: 1;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-    -fx-padding: 5;
-}
-.menu-item:focused {
-    -fx-background-color: #81C784;
+/* ============================================================
+   1. ĐỊNH NGHĨA BIẾN MÀU (Dễ quản lý)
+   ============================================================ */
+.root {
+    -fx-primary-color: #27ae60;      /* Xanh ngọc chủ đạo của nhóm */
+    -fx-secondary-color: #2ecc71;    /* Xanh ngọc nhạt hơn cho hover */
+    -fx-accent-color: #e67e22;       /* Màu cam cho giá tiền để nổi bật */
+    -fx-bg-color: #f0f2f5;           /* Màu nền xám cực nhẹ (giống app phải) */
+
+    -fx-background-color: -fx-bg-color;
+    -fx-font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.menu-item:focused .label {
+/* ============================================================
+   2. HIỆU ỨNG THẺ (CARD) - Bí kíp để app trông "xịn"
+   ============================================================ */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    /* Đổ bóng nhẹ để tạo độ nổi (Elevation) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+}
+
+/* ============================================================
+   3. TIÊU ĐỀ & CHỮ
+   ============================================================ */
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.price-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-accent-color;
+}
+
+.info-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #555555;
+}
+
+/* ============================================================
+   4. NÚT BẤM (BUTTONS) - Bo tròn và hiệu ứng hover
+   ============================================================ */
+.button-primary {
+    -fx-background-color: -fx-primary-color;
     -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
 }
 
-.menu-item .label {
-    -fx-text-fill: #2E7D32;
+.button-primary:hover {
+    -fx-background-color: -fx-secondary-color;
+}
+
+.button-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #dcdde1;
+    -fx-border-radius: 8;
+    -fx-text-fill: #2f3640;
+    -fx-cursor: hand;
+}
+
+.button-outline:hover {
+    -fx-background-color: #f5f6fa;
+}
+
+/* ============================================================
+   5. Ô NHẬP LIỆU (TEXT FIELD)
+   ============================================================ */
+.text-field {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #dcdde1;
+    -fx-padding: 8;
+}
+
+.text-field:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 1.5;
+}
+
+/* ============================================================
+   6. BIỂU ĐỒ (CHARTS) - Tùy chỉnh màu xanh ngọc cho biểu đồ
+   ============================================================ */
+.chart-series-area-line {
+    -fx-stroke: -fx-primary-color;
+    -fx-stroke-width: 3px;
+}
+
+.chart-series-area-fill {
+    -fx-fill: linear-gradient(to bottom, rgba(39, 174, 96, 0.3), transparent);
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+/* ============================================================
+   LÀM ĐẸP TIÊU ĐỀ BIỂU ĐỒ (CHART TITLE)
+   ============================================================ */
+.chart-title {
+    -fx-font-family: "Segoe UI", Arial, sans-serif; /* Chọn font chữ đẹp */
+    -fx-font-size: 22px; /* Chữ to hơn */
+    -fx-font-weight: bold; /* In đậm */
+    -fx-text-fill: #27ae60; /* Dùng màu xanh ngọc đồng bộ với hệ thống */
+    -fx-padding: 10 0 15 0; /* Cách lề trên dưới cho thoáng */
 }

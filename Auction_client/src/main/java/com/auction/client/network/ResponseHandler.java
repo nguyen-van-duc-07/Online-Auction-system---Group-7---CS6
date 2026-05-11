@@ -31,7 +31,7 @@ public class ResponseHandler {
     if (loginRes.isSuccess()) {
       SessionManager.setCurrentUser(loginRes.getUser());
       Platform.runLater(() -> {
-        ScreenController.switchScreen("Home.fxml", "Trang chủ");
+        ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
       });
 
       // Nếu xử lý đăng nhập thất bại
@@ -50,7 +50,7 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
             signUpRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+                ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
               }
             });
       });
@@ -75,7 +75,7 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", uploadItemRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("SellerHome.fxml", "Quản lý sản phẩm");
+                ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm");
               }
         });
       });
@@ -113,7 +113,7 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("Home.fxml", "Trang chủ");
+                ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
               }
         });
       });

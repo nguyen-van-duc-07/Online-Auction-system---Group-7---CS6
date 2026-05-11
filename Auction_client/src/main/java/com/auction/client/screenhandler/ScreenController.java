@@ -49,7 +49,7 @@ public class ScreenController {
   }
 
   // Dùng để tạo ra cửa sổ con mới, thiết lập quan hệ cha con, khi cửa sổ cha đóng thì cửa sổ con cũng đóng theo
-  public static void creatSubWindow(ActionEvent event, String fxmlFile, String title) {
+  public static void createSubWindow(ActionEvent event, String fxmlFile, String title) {
     try {
       Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
       Scene scene = new Scene(root);
@@ -77,6 +77,7 @@ public class ScreenController {
       newStage.setY(y);
 
       newStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ phụ
+      //primaryStage.setResizable(true);
 
       newStage.show();
     } catch (IOException e) {

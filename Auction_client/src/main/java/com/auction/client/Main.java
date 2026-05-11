@@ -10,7 +10,7 @@ public class Main extends Application {
   public void start(Stage stage) throws Exception {
     // Đặt mặc định cho ScreenController biết rằng đây là stage chính của chương trình
     ScreenController.primaryStage = stage;
-    ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+    ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
     ServerConnection.connect();
   }
 

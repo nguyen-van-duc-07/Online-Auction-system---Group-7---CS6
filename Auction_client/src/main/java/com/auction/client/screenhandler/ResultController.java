@@ -31,6 +31,6 @@ public class ResultController {
 
   @FXML
   public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Home.fxml", "Trang chủ");
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 }

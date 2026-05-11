@@ -181,8 +181,9 @@ public class AuctionService {
           auction.getId(),
           new ItemDTO(auction.getItem()),
           auction.getCurrentHighestPrice(),
+          auction.getMinStepPrice(),
           auction.getEndTime(),
-          auction.getStatus().name()
+          auction.getStatus()
       );
       activeAutionDTOs.add(activeAutionDTO);
     }

@@ -71,6 +71,6 @@ public class LoginController {
 
   @FXML
   private void goToRegister() {
-    ScreenController.switchScreen("SignUp.fxml", "Đăng ký");
+    ScreenController.switchScreen("User/SignUp.fxml", "Đăng ký");
   }
 }

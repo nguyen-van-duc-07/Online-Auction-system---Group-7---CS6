@@ -21,12 +21,12 @@ public class WalletController {
 
   @FXML
   public void gotoWithdraw(ActionEvent event) {
-    ScreenController.creatSubWindow(event, "Withdraw.fxml", "Rút tiền");
+    ScreenController.createSubWindow(event, "Wallet/Withdraw.fxml", "Rút tiền");
   }
 
   @FXML
   public void gotoDeposit(ActionEvent event) {
-    ScreenController.creatSubWindow(event, "Deposit.fxml", "Nạp tiền");
+    ScreenController.createSubWindow(event, "Wallet/Deposit.fxml", "Nạp tiền");
   }
 
   @FXML
@@ -36,6 +36,6 @@ public class WalletController {
 
   @FXML
   public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Home.fxml", "Trang chủ");
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 }

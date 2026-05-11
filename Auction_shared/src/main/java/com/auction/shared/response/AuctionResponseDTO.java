@@ -3,6 +3,7 @@ package com.auction.shared.response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.item.ItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +39,11 @@ public class AuctionResponseDTO implements ResponseDTO {
   private BigDecimal currentHighestPrice;
 
   /**
+   * Bước giá tối thiểu cho mỗi lần ra giá.
+   */
+  private BigDecimal minStepPrice;
+
+  /**
    * Thời điểm kết thúc phiên đấu giá.
    */
   private LocalDateTime endTime;
@@ -45,7 +51,7 @@ public class AuctionResponseDTO implements ResponseDTO {
   /**
    * Trạng thái hiện tại của phiên đấu giá (ví dụ: WAITING, ACTIVE, FINISHED).
    */
-  private String status;
+  private AuctionStatus status;
   // Lọc bớt các thông tin nhạy cảm/ ko cần thiết để trả về máy khách
   // Không chứa bidHistory hoặc chỉ chứa 5 cái gần nhất để nhẹ băng thông
 }
