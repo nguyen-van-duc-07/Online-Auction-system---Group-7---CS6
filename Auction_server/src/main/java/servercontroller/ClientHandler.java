@@ -73,7 +73,9 @@ public class ClientHandler implements Runnable {
             }
 
             case JoinRoomRequestDTO joinRoomReq -> {
-              Server.joinSeclectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
+              Server.joinSelectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
+              out.writeObject(RequestHandler.joinRoom(joinRoomReq));
+              out.flush();
             }
 
             case LeaveRoomRequestDTO leaveRoomReq -> {

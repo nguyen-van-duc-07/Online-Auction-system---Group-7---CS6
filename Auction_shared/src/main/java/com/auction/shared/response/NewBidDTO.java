@@ -11,5 +11,6 @@ import lombok.Setter;
 public class NewBidDTO implements ResponseDTO {
   private String auctionId;
   private String bidderId;
+  private String bidderName;
   private BigDecimal bidAmount;
 }

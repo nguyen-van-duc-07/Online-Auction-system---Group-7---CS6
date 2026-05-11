@@ -33,7 +33,7 @@ public class Server {
    * @param selectedAuctionId
    * @param client
    */
-  public static void joinSeclectedAuctionRoom(String selectedAuctionId, ClientHandler client) {
+  public static void joinSelectedAuctionRoom(String selectedAuctionId, ClientHandler client) {
     auctionRooms.computeIfAbsent(selectedAuctionId, k -> ConcurrentHashMap.newKeySet()).add(client);
   }
 
@@ -75,9 +75,8 @@ public class Server {
    * Phương thức gửi thông báo cho toàn bộ Client bên trong room khi có bid hợp lệ mới.
    */
   public static void broadcastToAuctionRoom(ResponseDTO responseDTO) {
-    if (responseDTO instanceof NewBidDTO) {
-      NewBidDTO newBidDTO = (NewBidDTO) responseDTO;
-      Set<ClientHandler> room = auctionRooms.get(newBidDTO.getAuctionId());
+    if (responseDTO instanceof NewBidDTO newBidDTO) {
+        Set<ClientHandler> room = auctionRooms.get(newBidDTO.getAuctionId());
       if (room != null) {
         for (ClientHandler client : room) {
           client.sendData(newBidDTO);
@@ -87,7 +86,7 @@ public class Server {
   }
 
   /**
-   * Phương thức dùng để xoá các Client bị mất kế nối.
+   * Phương thức dùng để xoá các Client bị mất kết nối.
    * @param client
    */
   public static void removeClientFromAllRooms(ClientHandler client) {

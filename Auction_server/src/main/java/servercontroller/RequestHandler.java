@@ -1,11 +1,16 @@
 package servercontroller;
 
+import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.*;
 
 import java.util.List;
+
+import repository.AuctionRepository;
+import repository.BidTransactionRepository;
 import repository.SellerProfileRepository;
 import service.AuctionService;
 import service.AuthService;
@@ -109,5 +114,30 @@ public class RequestHandler {
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     BidService bidService = new BidService();
     return bidService.placeBid(req);
+  }
+
+  public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO req) {
+    String auctionId = req.getSelectedAuctionId();
+
+    // Gọi Service để lấy thông tin chi tiết phiên đấu giá kèm lịch sử
+    // Chúng ta sử dụng AuctionService để đảm bảo tính đóng gói
+    Auction auction = AuctionService.getAuctionHistory(auctionId);
+
+    if (auction == null) {
+      return null; // Hoặc trả về một thông báo lỗi tùy logic của bạn
+    }
+
+    // Chuyển đổi từ Entity sang DTO để trả về Client
+    AuctionResponseDTO response = new AuctionResponseDTO();
+    response.setId(auction.getId());
+    response.setCurrentHighestPrice(auction.getCurrentHighestPrice());
+    response.setMinStepPrice(auction.getMinStepPrice());
+    response.setEndTime(auction.getEndTime());
+    response.setStatus(auction.getStatus());
+
+    // Đính kèm danh sách BidTransaction (Entity) trực tiếp vào DTO
+    response.setBidHistory(auction.getBidHistory());
+
+    return response;
   }
 }

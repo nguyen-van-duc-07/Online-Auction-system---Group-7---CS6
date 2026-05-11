@@ -59,6 +59,7 @@ public class BidService {
         new NewBidDTO(
             req.getAuctionId(),
             req.getBidderId(),
+            req.getBidderName(),
             req.getBidAmount()
         )
     );

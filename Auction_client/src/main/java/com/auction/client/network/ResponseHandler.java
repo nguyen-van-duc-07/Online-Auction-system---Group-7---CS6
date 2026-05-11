@@ -6,6 +6,7 @@ import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import com.auction.client.screenhandler.ItemAuctionController;
 
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
@@ -122,6 +123,19 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi cập nhật", updateProfileRes.getMessage());
       });
+    }
+  }
+
+  /**
+   * Xử lý gói tin phản hồi khi có người đặt giá mới thành công (Broadcast từ Server).
+   *
+   * @param newBidDTO Gói tin chứa thông tin giá mới và người đặt
+   */
+  public static void handleNewBid(NewBidDTO newBidDTO) {
+    // Kiểm tra xem người dùng có đang mở màn hình đấu giá không (instance != null)
+    if (ItemAuctionController.instance != null) {
+      // Đẩy dữ liệu sang Controller để nó tự vẽ lại UI
+      ItemAuctionController.instance.onNewBidReceived(newBidDTO);
     }
   }
 }

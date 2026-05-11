@@ -19,10 +19,10 @@
         </font>
     </Label>
 
-    <TextField fx:id="amountField" promptText="Nhập số tiền nạp (VNĐ)" style="-fx-font-size: 14; -fx-padding: 10;" />
+    <TextField fx:id="amountTextField" promptText="Nhập số tiền nạp (VNĐ)" style="-fx-font-size: 14; -fx-padding: 10;" />
 
     <HBox alignment="CENTER" spacing="15.0">
-        <Button style="-fx-background-color: #009900; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;" text="Xác nhận" />
-        <Button onAction="#exit" style="-fx-background-color: #cccccc; -fx-padding: 10 20; -fx-cursor: hand;" text="Hủy" />
+        <Button fx:id="confirmButton" onAction="#handleConfirm" style="-fx-background-color: #009900; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;" text="Xác nhận" />
+        <Button fx:id="cancelButton" onAction="#handleCancel" style="-fx-background-color: #cccccc; -fx-padding: 10 20; -fx-cursor: hand;" text="Hủy" />
     </HBox>
 </VBox>
