@@ -54,6 +54,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" text="Quản lý Tài khoản" />
                         <MenuItem mnemonicParsing="false" text="Quản lý Sản phẩm" />
+                        <MenuItem mnemonicParsing="false" text="Quản lý Đấu giá" />
                     </items>
                     <font><Font name="System Bold" size="14.0" /></font>
                 </MenuButton>
