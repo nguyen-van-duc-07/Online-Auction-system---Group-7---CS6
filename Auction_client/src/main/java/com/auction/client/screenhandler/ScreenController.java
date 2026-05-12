@@ -49,7 +49,7 @@ public class ScreenController {
   }
 
   // Dùng để tạo ra cửa sổ con mới, thiết lập quan hệ cha con, khi cửa sổ cha đóng thì cửa sổ con cũng đóng theo
-  public static void createSubWindow(ActionEvent event, String fxmlFile, String title) {
+  public static void createSubWindow(String fxmlFile, String title) {
     try {
       Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
       Scene scene = new Scene(root);
@@ -58,27 +58,30 @@ public class ScreenController {
       newStage.setTitle(title);
       newStage.setScene(scene);
 
-      // Xác đinh cửa sổ cha
-      if (event == null) {
-        showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể mở cửa sổ con");
-      }
-      Stage ownerStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
       // Xác định mối quan hệ cha con giữa 2 cửa sổ
-      newStage.initOwner(ownerStage);
+      newStage.initOwner(primaryStage);
       // Ngăn người dùng tương tác với cửa sổ cũ khi cửa sổ mới đang mở (tùy chọn)
       newStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
 
-      // Tính toán tọa độ X, Y
-      // Công thức: Tọa độ gốc của cha + (Nửa chiều rộng cha - Nửa chiều rộng con)
-      double x = ownerStage.getX() + (ownerStage.getWidth() / 2) - (root.prefWidth(-1) / 2);
-      double y = ownerStage.getY() + (ownerStage.getHeight() / 2) - (root.prefHeight(-1) / 2);
-      newStage.setX(x);
-      newStage.setY(y);
+      // Tạm ẩn cửa sổ đi (độ mờ = 0) để tránh hiệu ứng "nháy" vị trí
+      newStage.setOpacity(0);
+
+      // Lắng nghe sự kiện ngay khi OS vừa cấp phát xong kích thước thực tế
+      newStage.setOnShown(event -> {
+        // Tính điểm chính giữa của cửa sổ cha
+        double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2;
+        double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2;
+
+        // Dịch chuyển cửa sổ con sao cho tâm của nó trùng với tâm cửa sổ cha
+        newStage.setX(centerXPosition - newStage.getWidth() / 2);
+        newStage.setY(centerYPosition - newStage.getHeight() / 2);
+
+        // Hiển thị lại cửa sổ rõ ràng sau khi đã vào đúng vị trí
+        newStage.setOpacity(1);
+      });
 
       newStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ phụ
-      //primaryStage.setResizable(true);
-
       newStage.show();
     } catch (IOException e) {
       e.printStackTrace();

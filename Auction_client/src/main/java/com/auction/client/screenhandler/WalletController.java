@@ -21,12 +21,12 @@ public class WalletController {
 
   @FXML
   public void gotoWithdraw(ActionEvent event) {
-    ScreenController.createSubWindow(event, "Wallet/Withdraw.fxml", "Rút tiền");
+    ScreenController.createSubWindow("User/Wallet/Withdraw.fxml", "Rút tiền");
   }
 
   @FXML
   public void gotoDeposit(ActionEvent event) {
-    ScreenController.createSubWindow(event, "Wallet/Deposit.fxml", "Nạp tiền");
+    ScreenController.createSubWindow("User/Wallet/Deposit.fxml", "Nạp tiền");
   }
 
   @FXML
