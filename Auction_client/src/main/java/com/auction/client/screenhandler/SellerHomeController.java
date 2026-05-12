@@ -10,7 +10,7 @@ public class SellerHomeController {
   HomeController homecontroller = new HomeController();
 
   @FXML
-  public void gotoHome() {
+  public void gotoHomeWithHyperLink() {
     ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
@@ -35,7 +35,7 @@ public class SellerHomeController {
   }
 
   @FXML
-  public void gotoUploadProduct() {
+  public void gotoUploadItem() {
     ScreenController.switchScreen("Seller/UploadItem.fxml", "Đăng sản phẩm");
   }
 }
