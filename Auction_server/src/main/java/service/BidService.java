@@ -6,14 +6,18 @@ import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
+import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
 import servercontroller.Server;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class BidService {
   private final AuctionRepository auctionRepo = new AuctionRepository();
   private final BidTransactionRepository bidRepo = new BidTransactionRepository();
+  private final WalletService walletService = new WalletService();
 
   public  PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     Auction auction = auctionRepo.findAuctionById(req.getAuctionId());
@@ -35,33 +39,65 @@ public class BidService {
           false,
           "Bid không hợp lệ");
     }
-    BidTransaction bid = new BidTransaction(
-        req.getAuctionId(),
-        req.getBidderId(),
-        req.getBidAmount()
-    );
-    boolean saved = bidRepo.saveBid(bid);
-    System.out.println(
-        "SAVE RESULT = " + saved
-    );
-    if (!saved) {
-      return new PlaceBidResponseDTO(
-          false,
-          "Không thể lưu bid"
-      );
+    // Đảm bảo cùng 1 connection
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      // Đảm bảo khi 1 bước hỏng, cả quá trình sẽ ko lưu vào database nữa (đảm bảo tính thống nhất)
+      conn.setAutoCommit(false); // Bắt đầu transaction
+      try {
+        // 2.1 Hoàn tiền (release) cho người đấu giá cao nhất hiện tại (nếu có)
+        String currentHighestBidderId = auction.getHighestBidderId(); // Giả định hàm này tồn tại
+        if (currentHighestBidderId != null && !currentHighestBidderId.isEmpty()) {
+          walletService.releaseFrozen(
+              conn,
+              currentHighestBidderId,
+              auction.getCurrentHighestPrice().multiply(new BigDecimal(0.1)),
+              req.getAuctionId()
+          );
+        }
+        // 2.2 Đóng băng (freeze) tiền của người đấu giá mới
+        walletService.freezeMoney(
+            conn,
+            req.getBidderId(),
+            req.getBidAmount().multiply(new BigDecimal(0.1)),
+            req.getAuctionId()
+        );
+        BidTransaction bid = new BidTransaction(
+            req.getAuctionId(),
+            req.getBidderId(),
+            req.getBidAmount()
+        );
+        boolean saved = bidRepo.saveBid(bid);
+        System.out.println(
+            "SAVE RESULT = " + saved
+        );
+        if (!saved) {
+          return new PlaceBidResponseDTO(
+              false,
+              "Không thể lưu bid"
+          );
+        }
+        auctionRepo.updatePrice(
+            req.getAuctionId(),
+            req.getBidderId(),
+            req.getBidAmount()
+        );
+        conn.commit(); // Lưu vào database
+      } catch (SQLException e) {
+        conn.rollback();
+        return new PlaceBidResponseDTO(false, "Thất bại: " + e.getMessage());
+      } finally {
+        conn.setAutoCommit(true); // Reset trạng thái connection
+      }
+    } catch (SQLException e) {
+        return new PlaceBidResponseDTO(false, "Lỗi kết nối cơ sở dữ liệu");
     }
-    auctionRepo.updatePrice(
-        req.getAuctionId(),
-        req.getBidderId(),
-        req.getBidAmount()
-    );
+    // Sau khi thành công mới bắt đầu thông báo cho các clients
     Server.broadcastToAuctionRoom(
         new NewBidDTO(
             req.getAuctionId(),
             req.getBidderId(),
             req.getBidAmount()
-        )
-    );
+        ));
     return new PlaceBidResponseDTO(
         true,
         "Bid thành công"

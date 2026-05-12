@@ -48,9 +48,5 @@ public class AuctionStatusScheduler {
       System.out.println("BROADCAST CLOSED: " + id);
       Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
     }
-
-    System.out.println(
-        "Checked auction status at: " + now
-    );
   }
 }
