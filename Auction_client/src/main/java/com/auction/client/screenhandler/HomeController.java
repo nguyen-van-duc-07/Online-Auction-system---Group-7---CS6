@@ -116,6 +116,7 @@ public class HomeController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
+        SessionManager.clearSession();
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
       }
     });
@@ -133,7 +134,7 @@ public class HomeController implements Initializable {
 
   @FXML
   public void gotoWallet() {
-    ScreenController.switchScreen("Wallet/Wallet.fxml", "Ví người dùng");
+    ScreenController.switchScreen("User/Wallet/Wallet.fxml", "Ví người dùng");
   }
 
   @FXML
