@@ -41,6 +41,11 @@ public class AuctionResponseDTO implements ResponseDTO {
   private BigDecimal currentHighestPrice;
 
   /**
+   * Người ra giá cao nhất hiện tại của phiên đấu giá.
+   */
+  private String highestBidderName;
+
+  /**
    * Bước giá tối thiểu cho mỗi lần ra giá.
    */
   private BigDecimal minStepPrice;

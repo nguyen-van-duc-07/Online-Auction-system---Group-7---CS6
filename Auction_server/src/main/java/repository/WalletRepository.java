@@ -44,20 +44,7 @@ public class WalletRepository {
 
     return false;
   }
-  public static boolean deleteWallet(Wallet wallet) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
-      String sql = "DELETE FROM wallets WHERE id = ?";
 
-      PreparedStatement ps = conn.prepareStatement(sql);
-      ps.setString(1, wallet.getId());
-      return ps.executeUpdate() > 0;
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return false;
-  }
   public Wallet getWalletByUserId(String userId) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "SELECT * FROM wallets WHERE user_id = ?";
@@ -65,16 +52,65 @@ public class WalletRepository {
       ps.setString(1, userId);
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
-        Wallet wallet = new Wallet();
-        wallet.setId(rs.getString("id"));
-        wallet.setBidderId(rs.getString("user_id"));
-        wallet.setBalance(rs.getBigDecimal("balance"));
-        wallet.setFrozenBalance(rs.getBigDecimal("frozen_balance"));
-        return wallet;
+        return mapRow(rs);
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
     return null;
+  }
+
+  public boolean updateWallet(Wallet wallet) {
+    String sql = "UPDATE wallets "
+        + "SET balance = ?, "
+        + "frozen_balance = ? "
+        + "WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+    PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, String.valueOf(wallet.getBalance()));
+      ps.setString(2, String.valueOf(wallet.getFrozenBalance()));
+      ps.setString(3, wallet.getId());
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  public Wallet getWalletByUserIdForUpdate(Connection conn, String userId) {
+    String sql = "SELECT * FROM wallets WHERE user_id = ? FOR UPDATE";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return mapRow(rs);
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Wallet mapRow(ResultSet rs) throws SQLException {
+    Wallet wallet = new Wallet();
+
+    wallet.setId(rs.getString("id"));
+    wallet.setBidderId(rs.getString("user_id"));
+    wallet.setBalance(rs.getBigDecimal("balance"));
+    wallet.setFrozenBalance(rs.getBigDecimal("frozen_balance"));
+
+    return wallet;
+  }
+  public boolean updateWallet(Connection conn, Wallet wallet) {
+    String sql = "UPDATE wallets "
+        + "SET balance = ?, "
+        + "frozen_balance = ?"
+        + "WHERE id = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, String.valueOf(wallet.getBalance()));
+      ps.setString(2, String.valueOf(wallet.getFrozenBalance()));
+      ps.setString(3, wallet.getId());
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

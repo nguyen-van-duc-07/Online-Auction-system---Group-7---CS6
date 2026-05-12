@@ -33,6 +33,7 @@ public class RequestHandler {
 
     if (loggedInUser != null) {
       UserDTO userDTO = UserDTO.builder()
+          .role(loggedInUser.getRole())
           .id(loggedInUser.getId())
           .realName(loggedInUser.getRealName())
           .accountName(loggedInUser.getAccountName())
@@ -118,25 +119,22 @@ public class RequestHandler {
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO req) {
     String auctionId = req.getSelectedAuctionId();
-
-    // Gọi Service để lấy thông tin chi tiết phiên đấu giá kèm lịch sử
-    // Chúng ta sử dụng AuctionService để đảm bảo tính đóng gói
     Auction auction = AuctionService.getAuctionHistory(auctionId);
 
-    if (auction == null) {
-      return null; // Hoặc trả về một thông báo lỗi tùy logic của bạn
-    }
+    if (auction == null) return null;
 
-    // Chuyển đổi từ Entity sang DTO để trả về Client
     AuctionResponseDTO response = new AuctionResponseDTO();
     response.setId(auction.getId());
+    //response.setItem(auction.getItem().getName()); // QUAN TRỌNG: Gửi thông tin sản phẩm về
     response.setCurrentHighestPrice(auction.getCurrentHighestPrice());
     response.setMinStepPrice(auction.getMinStepPrice());
     response.setEndTime(auction.getEndTime());
     response.setStatus(auction.getStatus());
-
-    // Đính kèm danh sách BidTransaction (Entity) trực tiếp vào DTO
     response.setBidHistory(auction.getBidHistory());
+
+    // QUAN TRỌNG: Lấy tên người cao nhất thật sự từ Auction object
+    // (Đảm bảo trong AuctionService bạn đã JOIN bảng để lấy tên này)
+    response.setHighestBidderName(auction.getHighestBidderId());
 
     return response;
   }

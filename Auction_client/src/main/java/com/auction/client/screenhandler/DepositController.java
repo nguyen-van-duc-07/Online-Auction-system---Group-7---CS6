@@ -1,33 +1,37 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import service.WalletService;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class DepositController {
 
-  @FXML
-  private TextField amountTextField;
+  @FXML private TextField amountTextField;
 
-  @FXML
-  private Button confirmButton;
+  // Khai báo một callback để truyền dữ liệu về màn hình ví
+  private Consumer<BigDecimal> onSuccessCallback;
+  private WalletService walletService = new WalletService();
 
-  @FXML
-  private Button cancelButton;
+  // Setter để màn hình chính truyền hàm xử lý vào
+  public void setOnSuccessCallback(Consumer<BigDecimal> onSuccessCallback) {
+    this.onSuccessCallback = onSuccessCallback;
+  }
 
   @FXML
   public void initialize() {
     // Ràng buộc nhập liệu: Chỉ cho phép số và tối đa một dấu chấm thập phân
     amountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue.matches("\\d*(\\.\\d*)?")) {
+      if (!newValue.matches("\\d*")) {
         amountTextField.setText(oldValue);
       }
     });
@@ -51,25 +55,41 @@ public class DepositController {
         showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số tiền nạp phải lớn hơn 0!");
         return;
       }
+      // Kiểm tra số tiền tối thiểu (Ví dụ: 1000VNĐ)
+      BigDecimal minDeposit = new BigDecimal("1000");
+      if (amount.compareTo(minDeposit) < 0) {
+        showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số tiền nạp tối thiểu là 1.000đ");
+        return;
+      }
 
-      // Giả lập định dạng tiền tệ VNĐ để hiển thị thông báo cho đẹp
-      NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-      String formattedAmount = currencyFormat.format(amount);
+      // 2. THỰC HIỆN GỌI SERVICE ĐỂ LƯU VÀO DATABASE
+      // Lấy ID người dùng đang đăng nhập từ Session
+      String currentUserId = SessionManager.getCurrentUser().getId();
 
-      // =========================================================================
-      // TODO: GỌI SERVICE XỬ LÝ GIAO DỊCH
-      // service.deposit(userId, amount);
-      // =========================================================================
+      // Gọi hàm deposit (hàm này sử dụng SQL UPDATE wallets SET balance = balance + ? ...)
+      boolean isSuccess = walletService.deposit(currentUserId, amount);
 
-      System.out.println("Đang xử lý nạp: " + amount + " thông qua BigDecimal");
+      if (isSuccess) {
+        // CHỈ KHI DATABASE CẬP NHẬT THÀNH CÔNG MỚI CHẠY TIẾP
+        if (onSuccessCallback != null) {
+          onSuccessCallback.accept(amount);
+        }
 
-      showAlert(Alert.AlertType.INFORMATION, "Thành công",
-              "Đã nạp thành công: " + formattedAmount);
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedAmount = currencyFormat.format(amount);
 
-      closeWindow(event);
+        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã nạp thành công: " + formattedAmount);
+        closeWindow(event);
+      } else {
+        // Nếu database trả về false (lỗi kết nối hoặc không tìm thấy user_id trong bảng wallets)
+        showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thực hiện giao dịch vào Database!");
+      }
 
     } catch (NumberFormatException e) {
       showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng số tiền không hợp lệ!");
+    } catch (Exception e) {
+      e.printStackTrace();
+      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Có lỗi xảy ra: " + e.getMessage());
     }
   }
 

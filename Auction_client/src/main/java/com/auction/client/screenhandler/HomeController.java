@@ -116,6 +116,7 @@ public class HomeController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
+        SessionManager.clearSession();
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
       }
     });

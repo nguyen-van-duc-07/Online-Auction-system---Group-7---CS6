@@ -1,30 +1,34 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.SessionManager;
+import service.WalletService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class WithdrawController {
 
-  @FXML
-  private TextField amountTextField;
+  @FXML private TextField amountTextField;
 
-  @FXML private Button confirmButton;
-  @FXML private Button cancelButton;
+  private WalletService walletService = new WalletService();
+  private Consumer<BigDecimal> onSuccessCallback;
+
+  public void setOnSuccessCallback(Consumer<BigDecimal> callback) {
+    this.onSuccessCallback = callback;
+  }
 
   @FXML
   public void initialize() {
-    // Ràng buộc nhập liệu: Chỉ cho phép số và tối đa một dấu chấm thập phân
     amountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue.matches("\\d*(\\.\\d*)?")) {
+      if (!newValue.matches("\\d*")) {
         amountTextField.setText(oldValue);
       }
     });
@@ -33,69 +37,66 @@ public class WithdrawController {
   @FXML
   void handleConfirm(ActionEvent event) {
     String amountStr = amountTextField.getText().trim();
-
-    // 1. Kiểm tra rỗng
     if (amountStr.isEmpty()) {
-      showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng nhập số tiền muốn rút!");
+      showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng nhập số tiền!");
       return;
     }
 
     try {
       BigDecimal amount = new BigDecimal(amountStr);
-
-      // 2. Kiểm tra số tiền phải lớn hơn 0
       if (amount.compareTo(BigDecimal.ZERO) <= 0) {
         showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số tiền rút phải lớn hơn 0!");
         return;
       }
-
-      // =========================================================================
-      // TODO: LẤY SỐ DƯ HIỆN TẠI TỪ DATABASE / API
-      // Ví dụ giả lập số dư đang có là 5.000.000 VNĐ
-      BigDecimal currentBalance = new BigDecimal("5000000");
-      // =========================================================================
-
-      // 3. Kiểm tra số dư có đủ để rút không
-      if (amount.compareTo(currentBalance) > 0) {
-        showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số dư không đủ để thực hiện giao dịch này!");
+      // Kiểm tra số tiền tối thiểu (Ví dụ: 5000VNĐ)
+      BigDecimal minWithdraw = new BigDecimal("5000");
+      if (amount.compareTo(minWithdraw) < 0) {
+        showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số tiền rút tối thiểu là 5.000đ");
         return;
       }
 
-      NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-      String formattedAmount = currencyFormat.format(amount);
+      String currentUserId = SessionManager.getCurrentUser().getId();
 
-      // =========================================================================
-      // TODO: GỌI SERVICE XỬ LÝ GIAO DỊCH RÚT TIỀN (Trừ tiền trong DB)
-      // service.withdraw(userId, amount);
-      // =========================================================================
+      // Kiểm tra số dư thực tế từ Database trước khi thực hiện lệnh
+      BigDecimal currentBalance = walletService.getBalance(currentUserId);
+      if (amount.compareTo(currentBalance) > 0) {
+        showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số dư không đủ!");
+        return;
+      }
 
-      System.out.println("Đang xử lý rút: " + amount);
+      // Thực hiện rút tiền
+      boolean isSuccess = walletService.withdraw(currentUserId, amount);
 
-      showAlert(Alert.AlertType.INFORMATION, "Thành công",
-              "Đã rút thành công: " + formattedAmount);
-
-      closeWindow(event);
+      if (isSuccess) {
+        if (onSuccessCallback != null) {
+          onSuccessCallback.accept(amount);
+        }
+        String formatted = NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(amount);
+        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã rút thành công: " + formatted);
+        closeWindow(event);
+      } else {
+        showAlert(Alert.AlertType.ERROR, "Lỗi", "Giao dịch thất bại. Vui lòng kiểm tra lại!");
+      }
 
     } catch (NumberFormatException e) {
-      showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng số tiền không hợp lệ!");
+      showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng không hợp lệ!");
+    }
+    catch (Exception e){
+      e.printStackTrace();
     }
   }
 
-  @FXML
-  void handleCancel(ActionEvent event) {
-    closeWindow(event);
-  }
+  @FXML void handleCancel(ActionEvent event) { closeWindow(event); }
 
   private void closeWindow(ActionEvent event) {
-    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-    stage.close();
+    ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
   }
 
-  private void showAlert(Alert.AlertType alertType, String title, String message) {
-    Alert alert = new Alert(alertType);
+  private void showAlert(Alert.AlertType type, String title, String msg) {
+    Alert alert = new Alert(type);
     alert.setTitle(title);
     alert.setHeaderText(null);
-    alert.setContentText(message);
+    alert.setContentText(msg);
     alert.showAndWait();
   }
 }

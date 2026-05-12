@@ -14,4 +14,8 @@ module com.auction.client {
     // Cấp quyền cho JavaFX truy cập và khởi tạo các Controller
     opens com.auction.client.screenhandler to javafx.fxml;
     exports com.auction.client.screenhandler;
+
+    // Cấp quyền cho JavaFX truy cập và khởi tại các Controller trong admin
+    opens com.auction.client.screenhandler.admin to javafx.fxml;
+    exports com.auction.client.screenhandler.admin;
 }

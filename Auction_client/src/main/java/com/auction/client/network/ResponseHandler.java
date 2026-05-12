@@ -2,6 +2,8 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.enums.UserRole;
+import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -30,10 +32,18 @@ public class ResponseHandler {
   public static void login(LoginResponseDTO loginRes) {
     // Nếu xử lý đăng nhập thành công
     if (loginRes.isSuccess()) {
-      SessionManager.setCurrentUser(loginRes.getUser());
-      Platform.runLater(() -> {
-        ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
-      });
+      UserDTO user = loginRes.getUser();
+      SessionManager.setCurrentUser(user);
+
+      if (user.getRole() == UserRole.BIDDER) {
+        Platform.runLater(() -> {
+          ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+        });
+      } else {
+        Platform.runLater(() -> {
+          ScreenController.switchScreen("Admin/AdminScreen.fxml", "Trang chủ");
+        });
+      }
 
       // Nếu xử lý đăng nhập thất bại
     } else {

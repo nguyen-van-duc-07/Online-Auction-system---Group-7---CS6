@@ -47,6 +47,8 @@ public class ItemAuctionController implements Initializable {
   private Label timeRemainingLabel;
   @FXML
   private Button placeBidButton;
+  @FXML
+  private Label highestBidderLabel;
 
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
@@ -59,6 +61,7 @@ public class ItemAuctionController implements Initializable {
     ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
     itemNameLabel.setText(SessionManager.getCurrentAuction().getItem().getName());
     descriptionField.setText(SessionManager.getCurrentAuction().getItem().getDescription());
+    updateHighestBidderUI(SessionManager.getCurrentAuction().getHighestBidderName());
     DecimalFormat formatter = new DecimalFormat("#,###");
     String formattedPrice = formatter.format(SessionManager.getCurrentAuction().getCurrentHighestPrice()) + " VNĐ";
     currentPriceField.setText("Giá hiện tại: " +
@@ -67,13 +70,29 @@ public class ItemAuctionController implements Initializable {
     startCountdownTimer();
   }
 
+  private void updateHighestBidderUI(String name) {
+    if (name == null || name.isEmpty()) {
+      highestBidderLabel.setText("Người ra giá: Chưa có");
+    } else {
+      highestBidderLabel.setText("Người ra giá: " + name);
+    }
+  }
+
   private void startCountdownTimer() {
     LocalDateTime endTime = currentAuction.getEndTime();
 
-    // Gọi Helper. Nếu hết giờ thì truyền lệnh ẩn nút "Đấu giá" vào (Chuẩn UX)
     countdownTimer = CountdownHelper.setupCountdown(timeRemainingLabel, endTime, () -> {
-      placeBidButton.setDisable(true); // Khóa nút khi hết giờ
-      countdownTimer.stop();      // Dừng đồng hồ
+      Platform.runLater(() -> {
+        placeBidButton.setDisable(true);
+
+        // RESET BIỂU ĐỒ KHI HẾT PHIÊN
+        priceChart.getData().clear();
+
+        if (highestBidderLabel != null) {
+          highestBidderLabel.setText("Phiên đấu giá đã kết thúc");
+        }
+      });
+      countdownTimer.stop();
     });
 
     countdownTimer.play();
@@ -90,36 +109,22 @@ public class ItemAuctionController implements Initializable {
   private void loadChartData() {
     priceSeries = new XYChart.Series<>();
     priceSeries.setName("Lịch sử giá");
-
-    // 2. Xóa biểu đồ trắng cũ (nếu có) để chuẩn bị gắn dữ liệu mới
     priceChart.getData().clear();
-
-    // 3. Lấy danh sách lịch sử từ Session (đã được Server trả về khi JoinRoom)
     List<BidTransaction> history = currentAuction.getBidHistory();
 
-    // 4. Xử lý Logic Hiển thị
     if (history != null && !history.isEmpty()) {
-      // Kịch bản A: Đã có người đấu giá -> Vẽ lại toàn bộ lịch sử
-      for (BidTransaction tx : currentAuction.getBidHistory()) {
-        // Controller tự format thời gian tại đây
+      // 2. LOGIC GIỚI HẠN 20 LẦN: Tính toán điểm bắt đầu để lấy 20 bản ghi cuối
+      int start = Math.max(0, history.size() - 20);
+      List<BidTransaction> recentHistory = history.subList(start, history.size());
+
+      for (BidTransaction tx : recentHistory) {
         String formattedTime = tx.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-
-        priceSeries.getData().add(new XYChart.Data<>(
-                formattedTime,
-                tx.getBidAmount().doubleValue()
-        ));
+        priceSeries.getData().add(new XYChart.Data<>(formattedTime, tx.getBidAmount().doubleValue()));
       }
-      }
-     else {
-      // Kịch bản B: Sàn đấu giá mới tinh -> Tạo điểm xuất phát
-      String startTime = "Bắt đầu";
+    } else {
+      // Kịch bản Sàn đấu giá mới tinh (giữ nguyên logic gốc của bạn)
+      priceSeries.getData().add(new XYChart.Data<>("Bắt đầu", currentAuction.getCurrentHighestPrice().doubleValue()));
 
-      // Lấy giá khởi điểm (hoặc giá cao nhất hiện tại do chưa ai bid)
-      BigDecimal startPrice = currentAuction.getCurrentHighestPrice();
-
-      priceSeries.getData().add(new XYChart.Data<>(startTime, startPrice.doubleValue()));
-
-      // Bắn một thông báo nhỏ góc màn hình khích lệ người chơi
       Notifications.create()
               .title("Sàn đấu giá đã mở!")
               .text("Sản phẩm chưa có ai trả giá. Hãy là người dẫn đầu!")
@@ -128,7 +133,6 @@ public class ItemAuctionController implements Initializable {
               .showInformation();
     }
 
-    // 5. Gắn đường dữ liệu hoàn chỉnh vào biểu đồ
     priceChart.getData().add(priceSeries);
   }
 
