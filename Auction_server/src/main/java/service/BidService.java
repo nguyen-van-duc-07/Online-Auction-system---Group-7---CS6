@@ -50,16 +50,15 @@ public class BidService {
           walletService.releaseFrozen(
               conn,
               currentHighestBidderId,
-              auction.getCurrentHighestPrice(),
+              auction.getCurrentHighestPrice().multiply(new BigDecimal(0.1)),
               req.getAuctionId()
           );
         }
-
         // 2.2 Đóng băng (freeze) tiền của người đấu giá mới
         walletService.freezeMoney(
             conn,
             req.getBidderId(),
-            req.getBidAmount(),
+            req.getBidAmount().multiply(new BigDecimal(0.1)),
             req.getAuctionId()
         );
         BidTransaction bid = new BidTransaction(

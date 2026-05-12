@@ -7,7 +7,7 @@ public enum WalletTransactionType {
   BID_FREEZE,
   BID_RELEASE,
 
-  BID_WIN,
+  AUCTION_PAYMENT,
   SELLER_PAYOUT,
 
   REFUND
