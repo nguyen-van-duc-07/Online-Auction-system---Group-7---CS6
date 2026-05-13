@@ -264,7 +264,7 @@ public class ItemAuctionController implements Initializable {
     Platform.runLater(() -> {
       // 1. Cập nhật giá mới nhất vào biến hiện tại
       currentAuction.setCurrentHighestPrice(newBid.getBidAmount());
-
+      updateHighestBidderUI(newBid.getBidderName());
       // 2. Chạy hiệu ứng nháy màu và cập nhật Text
       refreshPriceUI();
 
