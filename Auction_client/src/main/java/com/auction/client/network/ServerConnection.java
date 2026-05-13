@@ -69,6 +69,12 @@ public class ServerConnection {
             case PlaceBidResponseDTO dto ->
                 System.out.println("Ket qua: " + dto.getMessage());
 
+            case PaymentNotificationDTO dto ->
+                ResponseHandler.handlePaymentNotification(dto);
+
+            case AuctionResultDTO dto ->
+                ResponseHandler.handleAuctionResult(dto);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

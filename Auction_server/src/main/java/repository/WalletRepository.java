@@ -102,7 +102,7 @@ public class WalletRepository {
   public boolean updateWallet(Connection conn, Wallet wallet) {
     String sql = "UPDATE wallets "
         + "SET balance = ?, "
-        + "frozen_balance = ?"
+        + "frozen_balance = ? "
         + "WHERE id = ?";
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, String.valueOf(wallet.getBalance()));

@@ -9,7 +9,9 @@ import config.DatabaseConnection;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở
@@ -113,6 +115,7 @@ public class AuctionRepository {
       for (String id : ids) {
         ps.setString(1, id);
         ps.executeUpdate();
+
       }
 
     } catch (Exception e) {
@@ -203,5 +206,29 @@ public class AuctionRepository {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+  }
+  // Trả về Map<auctionId, Auction> thay vì chỉ List<String>
+  public Map<String, Auction> findAuctionsToCloseWithDetails(LocalDateTime now) {
+    Map<String, Auction> result = new LinkedHashMap<>();
+
+    String sql =
+        "SELECT a.*, i.id AS item_id, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "WHERE a.status = 'ACTIVE' AND a.end_time <= ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setTimestamp(1, Timestamp.valueOf(now));
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        Auction auction = mapResultSetToAuction(rs); // method có sẵn của bạn
+        result.put(auction.getId(), auction);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return result;
   }
 }

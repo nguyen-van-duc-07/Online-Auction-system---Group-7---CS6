@@ -134,4 +134,18 @@ public class ResponseHandler {
       });
     }
   }
+  public static void handlePaymentNotification(PaymentNotificationDTO dto) {
+    // hiển thị thông báo thanh toán
+    System.out.println("Chúc mừng! Bạn thắng phiên: " + dto.getAuctionId());
+    System.out.println("Sản phẩm: " + dto.getItemName());
+    System.out.println("Giá cuối: " + dto.getFinalPrice());
+    System.out.println("VUI LONG THANH TOAN SAN PHAM TRONG HOM NAY");
+  }
+
+  public static void handleAuctionResult(AuctionResultDTO dto) {
+    // Hiển thị lên UI: "Người thắng: winnerId - Giá: finalPrice"
+    System.out.println("Phiên " + dto.getAuctionId()
+        + " | Người thắng: " + dto.getWinnerId()
+        + " | Giá cuối: " + dto.getFinalPrice());
+  }
 }
