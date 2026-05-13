@@ -4,9 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -62,44 +59,6 @@
     </left>
 
     <center>
-        <VBox fx:id="mainContent" spacing="15.0" style="-fx-padding: 20;" BorderPane.alignment="CENTER">
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <TextField fx:id="searchField" prefHeight="35.0" prefWidth="400.0" promptText="Tìm kiếm nhanh..." style="-fx-background-radius: 5;" />
-                        <Button onAction="#handleSearch" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #4CAF50; -fx-background-radius: 5;" text="Tìm kiếm" textFill="WHITE">
-                            <font><Font name="System Bold" size="12.0" /></font>
-                        </Button>
-                    </children>
-                </HBox>
-
-                <Label text="Danh sách quản lý" textFill="#333333">
-                    <font><Font name="System Bold" size="18.0" /></font>
-                </Label>
-
-                <TableView style="-fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn prefWidth="75.0" text="ID" />
-                        <TableColumn prefWidth="300.0" text="Tên / Nội dung" />
-                        <TableColumn prefWidth="150.0" text="Thời gian" />
-                        <TableColumn prefWidth="150.0" text="Trạng thái" />
-                    </columns>
-                </TableView>
-
-                <HBox spacing="15.0">
-                    <children>
-                        <Button prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #66BB6A; -fx-background-radius: 5;" text="Thêm mới" textFill="WHITE">
-                            <font><Font name="System Bold" size="12.0" /></font>
-                        </Button>
-                        <Button prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2980b9; -fx-background-radius: 5;" text="Chỉnh sửa" textFill="WHITE">
-                            <font><Font name="System Bold" size="12.0" /></font>
-                        </Button>
-                        <Button prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #c0392b; -fx-background-radius: 5;" text="Xóa" textFill="WHITE">
-                            <font><Font name="System Bold" size="12.0" /></font>
-                        </Button>
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
+        <VBox fx:id="mainContent" spacing="15.0" style="-fx-padding: 20;" BorderPane.alignment="CENTER" />
     </center>
 </BorderPane>

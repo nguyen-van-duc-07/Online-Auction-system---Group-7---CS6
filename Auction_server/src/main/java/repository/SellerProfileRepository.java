@@ -1,5 +1,6 @@
 package repository;
 
+import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.model.user.SellerProfile;
 import config.DatabaseConnection;
 import java.sql.Connection;
@@ -10,10 +11,16 @@ import java.sql.SQLException;
 public class SellerProfileRepository {
   public boolean createSellerProfile(SellerProfile sellerProfile){
     try (Connection conn = DatabaseConnection.getConnection()) {
-      String sql = "INSERT INTO seller_profiles (id, user_id) VALUES (?, ?)";
+      String sql = "INSERT INTO seller_profiles (id, user_id, brand_name, cccd, location, bank_account, bank_name, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, sellerProfile.getId());
-      ps.setString(2, sellerProfile.getManagerId());
+      ps.setString(2, sellerProfile.getUserId());
+      ps.setString(3, sellerProfile.getBrandName());
+      ps.setString(4, sellerProfile.getCitizenIdentityCard());
+      ps.setString(5, sellerProfile.getLocation());
+      ps.setString(6, sellerProfile.getBankAccount());
+      ps.setString(7, sellerProfile.getBankName());
+      ps.setString(8, SellerRegisterStatus.UNREGISTERED.toString());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -38,6 +45,31 @@ public class SellerProfileRepository {
       e.printStackTrace();
     }
     return null; // Trả về null nếu User này chưa đăng ký làm người bán
+  }
+
+  /**
+   * Lấy trạng thái hồ sơ người bán dựa trên ID của User.
+   * @param userId ID của người dùng
+   * @return Chuỗi trạng thái ("PENDING", "APPROVED", "REJECTED") hoặc null nếu chưa có hồ sơ
+   */
+  public String getSellerProfileStatus(String userId) {
+    String sql = "SELECT status FROM seller_profiles WHERE user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, userId);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getString("status"); // Trả về trạng thái của hồ sơ
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return null; // Trả về null nếu User này chưa từng đăng ký làm người bán
   }
 }
 

@@ -70,7 +70,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   // CỰC KỲ QUAN TRỌNG: Dừng đồng hồ khi rời khỏi phòng để tránh Memory Leak (Rò rỉ bộ nhớ)
-  public void leaveCurrentAuction() {
+  public void stopCountdownTimer() {
     if (countdownTimer != null) {
       countdownTimer.stop();
     }
@@ -109,31 +109,37 @@ public class ItemAuctionController implements Initializable {
 
   @FXML
   public void gotoResult() {
+    leaveAuctionRoom();
     homeController.gotoResult();
   }
 
   @FXML
   public void gotoProfile() {
+    leaveAuctionRoom();
     homeController.gotoProfile();
   }
 
   @FXML
   public void gotoLogin() {
+    leaveAuctionRoom();
     homeController.gotoLogin();
   }
 
   @FXML
   public void gotoWallet() {
+    leaveAuctionRoom();
     homeController.gotoWallet();
   }
 
   @FXML
   public void gotoHomeWithHyperLink() {
+    leaveAuctionRoom();
     ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
   @FXML
   public void gotoSellerHome() {
+    leaveAuctionRoom();
     homeController.gotoSellerHome();
   }
 
@@ -191,6 +197,7 @@ public class ItemAuctionController implements Initializable {
 
     alert.showAndWait();
   }
+
   private void refreshPriceUI() {
     DecimalFormat formatter = new DecimalFormat("#,###");
     String formattedPrice = formatter.format(currentAuction.getCurrentHighestPrice()) + " VNĐ";
@@ -209,5 +216,14 @@ public class ItemAuctionController implements Initializable {
     javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
     pause.setOnFinished(e -> currentPriceField.setStyle(originalStyle));
     pause.play();
+  }
+
+  /**
+   * Phương thức gửi một yêu cầu thoát khỏi phiên đấu giá hiện tại.
+   * Được gọi khi người dùng ấn vào bất kì buttion nào để chuyển sang trang khác.
+   */
+  public void leaveAuctionRoom() {
+    stopCountdownTimer();
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
   }
 }

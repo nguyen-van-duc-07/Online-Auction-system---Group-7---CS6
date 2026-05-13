@@ -9,11 +9,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="900.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="650.0" prefWidth="900.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SellerRegisterForBidderController">
     <children>
         <AnchorPane prefHeight="80.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Button layoutX="25.0" layoutY="22.0" mnemonicParsing="false" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-cursor: hand;" text="← Quay lại" textFill="#6c757d">
+                <Button layoutX="25.0" layoutY="22.0" mnemonicParsing="false" onAction="#gotoHome" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-cursor: hand;" text="← Quay lại" textFill="#6c757d">
                     <font>
                         <Font name="System" size="14.0" />
                     </font>
@@ -40,7 +40,7 @@
                                         <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
-                                <TextField prefHeight="45.0" promptText="Nhập tên shop của bạn" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                <TextField fx:id="brandNameField" prefHeight="45.0" promptText="Nhập tên shop của bạn" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
                             </children>
                         </VBox>
                         <VBox spacing="8.0">
@@ -50,7 +50,7 @@
                                         <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
-                                <TextField prefHeight="45.0" promptText="Nhập 12 số định danh" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                <TextField fx:id="citizenIdentityCardField" prefHeight="45.0" promptText="Nhập 12 số định danh" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
                             </children>
                         </VBox>
                         <VBox spacing="8.0">
@@ -60,7 +60,7 @@
                                         <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
-                                <TextField prefHeight="45.0" promptText="Số nhà, tên đường, quận/huyện..." style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                <TextField fx:id="locationField" prefHeight="45.0" promptText="Số nhà, tên đường, quận/huyện..." style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
                             </children>
                         </VBox>
                         <VBox spacing="8.0">
@@ -72,13 +72,13 @@
                                 </Label>
                                 <HBox spacing="15.0">
                                     <children>
-                                        <TextField prefHeight="45.0" prefWidth="280.0" promptText="Số tài khoản ngân hàng" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
-                                        <TextField prefHeight="45.0" prefWidth="180.0" promptText="Ngân hàng" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                        <TextField fx:id="bankAccountField" prefHeight="45.0" prefWidth="280.0" promptText="Số tài khoản ngân hàng" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                        <TextField fx:id="bankNameField" prefHeight="45.0" prefWidth="180.0" promptText="Ngân hàng" style="-fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
-                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="470.0" style="-fx-background-color: #28a745; -fx-background-radius: 10; -fx-cursor: hand;" text="XÁC NHẬN ĐĂNG KÝ" textFill="WHITE">
+                        <Button mnemonicParsing="false" onAction="#handleRegister" prefHeight="50.0" prefWidth="470.0" style="-fx-background-color: #28a745; -fx-background-radius: 10; -fx-cursor: hand;" text="XÁC NHẬN ĐĂNG KÝ" textFill="WHITE">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>

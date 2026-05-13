@@ -2,6 +2,7 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.response.*;
@@ -133,5 +134,41 @@ public class ResponseHandler {
             "Lỗi cập nhật", updateProfileRes.getMessage());
       });
     }
+  }
+
+  public static void handleSellerRegister(SellerRegisterResponseDTO sellerRegisterRes) {
+    if (sellerRegisterRes.isSuccess()) {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
+            sellerRegisterRes.getMessage()).ifPresent(Response -> {
+           if (Response == ButtonType.OK) {
+             ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+           }
+        });
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi", sellerRegisterRes.getMessage());
+      });
+    }
+  }
+
+  public static void checkingSellerProfile(CheckingSellerProfileResponseDTO checkingSellerProfileRes) {
+    String message = checkingSellerProfileRes.getMessage();
+    Platform.runLater(() -> {
+      if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
+        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm đăng bán");
+      } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
+      } else if (SellerRegisterStatus.DENIED.toString().equals(message)) {
+        ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
+            "Hồ sơ bán hàng của bạn đã bị từ chối!\nBạn không thể sử dụng tính năng này");
+      } else {
+        ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
+            "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.");
+        ScreenController.switchScreen("Bidder/SellerRegisterForBidder.fxml", "Đăng ký người bán");
+      }
+    });
   }
 }

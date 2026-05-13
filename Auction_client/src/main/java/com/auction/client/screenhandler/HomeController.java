@@ -124,7 +124,7 @@ public class HomeController implements Initializable {
 
   @FXML
   public void gotoSellerHome() {
-    ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm");
+    ScreenController.navigateToSellerChannel();
   }
 
   @FXML

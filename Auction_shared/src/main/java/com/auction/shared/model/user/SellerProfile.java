@@ -10,9 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Setter
-@NoArgsConstructor
 public class SellerProfile extends Entity {
-  private String managerId;
+  private String userId;
+  private String brandName;
+  private String citizenIdentityCard;
+  private String location;
+  private String bankAccount;
+  private String bankName;
   private float rating;
   private final List<String> myAuctionIds = new ArrayList<>();
 
@@ -20,9 +24,19 @@ public class SellerProfile extends Entity {
     super(id, createdAt);
   }
 
-  public SellerProfile(String managerId) {
+  public SellerProfile(String userId, String brandName, String citizenIdentityCard, String location, String bankAccount, String bankName) {
+    this.userId = userId;
+    this.brandName = brandName;
+    this.citizenIdentityCard = citizenIdentityCard;
+    this.location = location;
+    this.bankAccount = bankAccount;
+    this.bankName = bankName;
+    this.rating = 5;
+  }
+
+  public SellerProfile(String userId) {
     super();
-    this.managerId = managerId;
+    this.userId = userId;
     this.rating = 5;
   }
   public void addAuction (String auctionId){

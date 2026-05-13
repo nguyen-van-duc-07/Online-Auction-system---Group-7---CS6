@@ -69,6 +69,12 @@ public class ServerConnection {
             case PlaceBidResponseDTO dto ->
                 System.out.println("Ket qua: " + dto.getMessage());
 
+            case SellerRegisterResponseDTO SellerRegisterRes ->
+                ResponseHandler.handleSellerRegister(SellerRegisterRes);
+
+            case CheckingSellerProfileResponseDTO checkingSellerProfileRes ->
+                ResponseHandler.checkingSellerProfile(checkingSellerProfileRes);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

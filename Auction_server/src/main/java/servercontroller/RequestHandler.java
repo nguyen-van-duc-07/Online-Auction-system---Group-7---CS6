@@ -10,6 +10,7 @@ import repository.SellerProfileRepository;
 import service.AuctionService;
 import service.AuthService;
 import service.BidService;
+import service.SellerService;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
@@ -110,5 +111,21 @@ public class RequestHandler {
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     BidService bidService = new BidService();
     return bidService.placeBid(req);
+  }
+
+  public static SellerRegisterResponseDTO sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {
+    boolean isSuccess = SellerService.sellerRegister(sellerRegisterReq);
+    String message = isSuccess ? "Hồ sơ của bạn đã được tiếp nhận!" : "Không thể đăng kí hồ sơ người bán!";
+    return new SellerRegisterResponseDTO(isSuccess, message);
+  }
+
+  public static CheckingSellerProfileResponseDTO checkingSellerProfile(CheckingSellerProfileRequestDTO req) {
+    boolean isSellerProfileCreated = SellerService.isSellerProfileCreated(req);
+    /* Kiểm tra xem đã có hồ sơ người bán chưa, nếu rồi thì kiểm tra xem trạng thái
+    hiện tại của hồ sơ người bán là gì và trả về, nếu chưa thì trả về dòng message tương ứng
+     */
+    String message = isSellerProfileCreated ? SellerService.sellerProfileStatus(req.getUserId()) :
+        "Bạn chưa có hồ sơ bán hàng!";
+    return new CheckingSellerProfileResponseDTO(isSellerProfileCreated, message);
   }
 }
