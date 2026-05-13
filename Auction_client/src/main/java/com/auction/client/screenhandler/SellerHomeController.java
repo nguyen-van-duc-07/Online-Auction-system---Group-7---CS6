@@ -1,7 +1,14 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
+import com.auction.shared.request.CheckingSellerProfileRequestDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Class có nhiệm vụ quản lý màn hình seller.

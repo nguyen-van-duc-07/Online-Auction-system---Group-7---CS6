@@ -89,6 +89,16 @@ public class ClientHandler implements Runnable {
                 Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
               }
 
+              case SellerRegisterRequestDTO sellerRegisterReq -> {
+                out.writeObject(RequestHandler.sellerRegister(sellerRegisterReq));
+                out.flush();
+              }
+
+              case CheckingSellerProfileRequestDTO checkingSellerProfileReq -> {
+                out.writeObject(RequestHandler.checkingSellerProfile(checkingSellerProfileReq));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }

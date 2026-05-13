@@ -81,6 +81,12 @@ public class ServerConnection {
             case AuctionResultDTO dto ->
                 ResponseHandler.handleAuctionResult(dto);
 
+            case SellerRegisterResponseDTO SellerRegisterRes ->
+                ResponseHandler.handleSellerRegister(SellerRegisterRes);
+
+            case CheckingSellerProfileResponseDTO checkingSellerProfileRes ->
+                ResponseHandler.checkingSellerProfile(checkingSellerProfileRes);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

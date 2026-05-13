@@ -84,6 +84,7 @@ public class ItemAuctionController implements Initializable {
   private void startCountdownTimer() {
     LocalDateTime endTime = currentAuction.getEndTime();
 
+    // Gọi Helper. Nếu hết giờ thì truyền lệnh ẩn nút "Đấu giá" vào (Chuẩn UX)
     countdownTimer = CountdownHelper.setupCountdown(timeRemainingLabel, endTime, () -> {
       Platform.runLater(() -> {
         placeBidButton.setDisable(true);
@@ -102,7 +103,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   // CỰC KỲ QUAN TRỌNG: Dừng đồng hồ khi rời khỏi phòng để tránh Memory Leak (Rò rỉ bộ nhớ)
-  public void leaveCurrentAuction() {
+  public void stopCountdownTimer() {
     if (countdownTimer != null) {
       countdownTimer.stop();
     }
@@ -155,37 +156,37 @@ public class ItemAuctionController implements Initializable {
 
   @FXML
   public void gotoResult() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     homeController.gotoResult();
   }
 
   @FXML
   public void gotoProfile() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     homeController.gotoProfile();
   }
 
   @FXML
   public void gotoLogin() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     homeController.gotoLogin();
   }
 
   @FXML
   public void gotoWallet() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     homeController.gotoWallet();
   }
 
   @FXML
   public void gotoHomeWithHyperLink() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
   @FXML
   public void gotoSellerHome() {
-    leaveCurrentAuction();
+    leaveAuctionRoom();
     homeController.gotoSellerHome();
   }
 
@@ -343,5 +344,14 @@ public class ItemAuctionController implements Initializable {
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
     });
+  }
+
+  /**
+   * Phương thức gửi một yêu cầu thoát khỏi phiên đấu giá hiện tại.
+   * Được gọi khi người dùng ấn vào bất kì buttion nào để chuyển sang trang khác.
+   */
+  public void leaveAuctionRoom() {
+    stopCountdownTimer();
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
   }
 }

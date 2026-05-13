@@ -2,6 +2,10 @@ package com.auction.client.screenhandler;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
+import com.auction.shared.request.CheckingSellerProfileRequestDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -123,5 +127,15 @@ public class ScreenController {
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
       return null;
     }
+  }
+
+  /**
+   * Hàm dùng chung để kiểm tra quyền truy cập trước khi vào Kênh người bán.
+   */
+  public static void navigateToSellerChannel() {
+    // Gửi yêu cầu kiểm tra hồ sơ người bán lên Server
+    String userId = SessionManager.currentUser.getId();
+    CheckingSellerProfileRequestDTO request = new CheckingSellerProfileRequestDTO(userId);
+    ServerConnection.sendData(request);
   }
 }

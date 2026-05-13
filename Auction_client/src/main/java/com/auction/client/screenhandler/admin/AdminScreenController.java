@@ -3,11 +3,14 @@ package com.auction.client.screenhandler.admin;
 import com.auction.client.network.SessionManager;
 import com.auction.client.screenhandler.ScreenController;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -17,7 +20,7 @@ import java.util.ResourceBundle;
  */
 public class AdminScreenController implements Initializable {
   @FXML
-  private TextField searchField;
+  private VBox mainContent;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -29,23 +32,20 @@ public class AdminScreenController implements Initializable {
    */
   @FXML
   public void gotoUserManager() {
-    ScreenController.createSubWindow(
-        "Admin/UserAndAuctionManager.fxml", "Quản lý Người dùng");
+    loadComponent("/com/auction/client/Admin/UserAndAuctionManager.fxml");
   }
 
   @FXML
   public void gotoAuctionManager() {
-    ScreenController.createSubWindow(
-        "Admin/UserAndAuctionManager.fxml", "Quản lý Phiên đấu giá");
+    loadComponent("/com/auction/client/Admin/UserAndAuctionManager.fxml");
   }
 
   /**
-   * Mở màn hình duyệt yêu cầu Seller.
+   * Chuyển vùng nội dung bên trong VBox sang Quản lý duyệt Seller.
    */
   @FXML
   public void gotoSellerAccountManager() {
-    ScreenController.createSubWindow(
-        "Admin/SellerAccountManager.fxml", "QUản lý yêu cầu đăng kí Người bán");
+    loadComponent("/com/auction/client/Admin/SellerAccountManager.fxml");
   }
 
   /**
@@ -63,9 +63,21 @@ public class AdminScreenController implements Initializable {
   }
 
   /**
-   * Tìm kiếm chung toàn hệ thống.
+   * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của VBox.
    */
-  public void handleSearch() {
-    String keyword = searchField.getText();
+  private void loadComponent(String fxmlPath) {
+    try {
+      FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+      Parent newNode = loader.load();
+
+      // Xóa sạch các node cũ và thêm node mới vào VBox
+      mainContent.getChildren().setAll(newNode);
+
+      // Đảm bảo nội dung mới luôn giãn nở hết cỡ theo VBox
+      VBox.setVgrow(newNode, javafx.scene.layout.Priority.ALWAYS);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
