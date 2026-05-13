@@ -1,7 +1,9 @@
 package servercontroller;
 
 import com.auction.shared.request.*;
+import com.auction.shared.response.LoginResponseDTO;
 import com.auction.shared.response.UploadItemResponseDTO;
+import lombok.Getter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,7 +24,7 @@ public class ClientHandler implements Runnable {
   private Socket clientSocket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
-
+  private String userId;
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
   }
@@ -48,6 +50,11 @@ public class ClientHandler implements Runnable {
             }
 
             case LoginRequestDTO loginReq -> {
+              LoginResponseDTO res = RequestHandler.login(loginReq);
+              if (res.isSuccess()) {
+                this.userId = res.getUser().getId();
+                Server.registerClient(this.userId, this);
+              }
               out.writeObject(RequestHandler.login(loginReq));
               out.flush();
             }
@@ -90,6 +97,7 @@ public class ClientHandler implements Runnable {
       e.printStackTrace();
     } finally {
       Server.removeClientFromAllRooms(this);
+      Server.unregisterClient(this.userId);
     }
   }
 

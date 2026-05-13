@@ -1,6 +1,7 @@
 package com.auction.shared.response;
 
 import com.auction.shared.model.user.UserDTO;
+import lombok.Getter;
 
 /**
  * Lớp DTO mang theo kết quả của quá trình Đăng nhập từ Server trả về Client.
@@ -13,6 +14,7 @@ import com.auction.shared.model.user.UserDTO;
  *
  * @see com.auction.shared.request.LoginRequestDTO
  */
+@Getter
 public class LoginResponseDTO implements ResponseDTO {
   /**
    * Trạng thái xác thực đăng nhập.

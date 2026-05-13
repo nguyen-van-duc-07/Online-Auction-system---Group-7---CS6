@@ -6,6 +6,7 @@ import com.auction.shared.model.transaction.WalletTransaction;
 import com.auction.shared.model.user.Wallet;
 import repository.WalletRepository;
 import repository.WalletTransactionRepository;
+import repository.debug.Format;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -15,7 +16,7 @@ public class WalletService {
   private final WalletTransactionRepository txRepo = new WalletTransactionRepository();
 
   public void freezeMoney(Connection conn, String userId, BigDecimal amount, String auctionId) {
-    System.out.println("[WALLET - FREEZE] Yêu cầu đóng băng " + amount + " của User: " + userId + " (Auction: " + auctionId + ")");
+    System.out.println("[WALLET - FREEZE] Yêu cầu đóng băng " + Format.fmt(amount) + " của User: " + userId + " (Auction: " + auctionId + ")");
     Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
     if (wallet.getBalance().compareTo(amount) < 0) {
       throw new RuntimeException("Số dư không đủ để đặt giá");
@@ -40,12 +41,13 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, tx);
-    System.out.println("[WALLET - FREEZE] Thành công! User: " + userId + " | Số dư khả dụng: " + balBefore + " -> " + wallet.getBalance() + " | Đang đóng băng: " + frozBefore + " -> " + wallet.getFrozenBalance());
+    System.out.println("[WALLET - FREEZE] Thành công! User: " + userId
+        + " | Số dư: " + Format.fmt(balBefore) + " -> " + Format.fmt(wallet.getBalance())
+        + " | Đóng băng: " + Format.fmt(frozBefore) + " -> " + Format.fmt(wallet.getFrozenBalance()));
   }
 
   public void releaseFrozen(Connection conn, String userId, BigDecimal amount, String auctionId) {
-    System.out.println("[WALLET - RELEASE] Yêu cầu hoàn trả " + amount + " cho User: " + userId + " (Auction: " + auctionId + ")");
-    Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
+    System.out.println("[WALLET - RELEASE] Yêu cầu hoàn trả " + Format.fmt(amount) + " cho User: " + userId + " (Auction: " + auctionId + ")");    Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
 
     BigDecimal balBefore = wallet.getBalance();
     BigDecimal frozBefore = wallet.getFrozenBalance();
@@ -66,6 +68,7 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, tx);
-    System.out.println("[WALLET - RELEASE] Thành công! User: " + userId + " | Số dư khả dụng: " + balBefore + " -> " + wallet.getBalance() + " | Đang đóng băng: " + frozBefore + " -> " + wallet.getFrozenBalance());
-  }
+    System.out.println("[WALLET - RELEASE] Thành công! User: " + userId
+        + " | Số dư: " + Format.fmt(balBefore) + " -> " + Format.fmt(wallet.getBalance())
+        + " | Đóng băng: " + Format.fmt(frozBefore) + " -> " + Format.fmt(wallet.getFrozenBalance()));  }
 }

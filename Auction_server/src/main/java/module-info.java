@@ -5,7 +5,8 @@ module com.auction.server {
 
     // Nếu bạn dùng các thư viện như BCrypt hay JDBC trong server, bạn cũng phải requires chúng ở đây
     requires java.sql; // Cần cho DatabaseConnection
-    requires jbcrypt;  // Cần cho AuthService (bạn có thể phải check lại tên chính xác của module jbcrypt)
+    requires jbcrypt;
+  requires static lombok;  // Cần cho AuthService (bạn có thể phải check lại tên chính xác của module jbcrypt)
     // Xuất các package của server nếu cần (tùy chọn)
     exports service;
     exports repository;
