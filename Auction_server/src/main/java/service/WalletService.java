@@ -10,13 +10,11 @@ import com.auction.shared.model.transaction.WalletTransaction;
 import com.auction.shared.model.user.Wallet;
 import repository.WalletRepository;
 import repository.WalletTransactionRepository;
+import repository.debug.Format;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 
-/**
- * Class xử lý các nghiệp vụ liên quan đến Ví tiền của người dùng.
- */
 public class WalletService {
     private final WalletRepository walletRepo = new WalletRepository();
     private final WalletTransactionRepository txRepo = new WalletTransactionRepository();
@@ -79,26 +77,28 @@ public class WalletService {
         System.out.println("[WALLET - RELEASE] Yêu cầu hoàn trả " + amount + " cho User: " + userId + " (Auction: " + auctionId + ")");
         Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
 
-        BigDecimal balBefore = wallet.getBalance();
-        BigDecimal frozBefore = wallet.getFrozenBalance();
+    BigDecimal balBefore = wallet.getBalance();
+    BigDecimal frozBefore = wallet.getFrozenBalance();
 
-        wallet.setFrozenBalance(frozBefore.subtract(amount));
-        wallet.setBalance(balBefore.add(amount));
-        walletRepo.updateWallet(conn, wallet);
+    wallet.setFrozenBalance(frozBefore.subtract(amount));
+    wallet.setBalance(balBefore.add(amount));
+    walletRepo.updateWallet(conn, wallet);
 
-        WalletTransaction tx = new WalletTransaction(
-                wallet.getId(),
-                WalletTransactionType.BID_RELEASE,
-                amount,
-                balBefore,
-                wallet.getBalance(),
-                frozBefore,
-                wallet.getFrozenBalance(),
-                auctionId,
-                WalletTransactionStatus.SUCCESS
-        );
-        txRepo.saveWalletTransaction(conn, tx);
-        System.out.println("[WALLET - RELEASE] Thành công! User: " + userId + " | Số dư khả dụng: " + balBefore + " -> " + wallet.getBalance() + " | Đang đóng băng: " + frozBefore + " -> " + wallet.getFrozenBalance());
+    WalletTransaction tx = new WalletTransaction(
+            wallet.getId(),
+            WalletTransactionType.BID_RELEASE,
+            amount,
+            balBefore,
+            wallet.getBalance(),
+            frozBefore,
+            wallet.getFrozenBalance(),
+            auctionId,
+            WalletTransactionStatus.SUCCESS
+    );
+    txRepo.saveWalletTransaction(conn, tx);
+    System.out.println("[WALLET - RELEASE] Thành công! User: " + userId
+            + " | Số dư: " + Format.fmt(balBefore) + " -> " + Format.fmt(wallet.getBalance())
+            + " | Đóng băng: " + Format.fmt(frozBefore) + " -> " + Format.fmt(wallet.getFrozenBalance()));
     }
 
     /**

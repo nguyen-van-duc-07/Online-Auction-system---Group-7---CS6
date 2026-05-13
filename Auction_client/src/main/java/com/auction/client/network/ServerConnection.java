@@ -75,8 +75,13 @@ public class ServerConnection {
             case AuctionResponseDTO auctionRes -> {
               ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
             }
+            case PaymentNotificationDTO dto ->
+                ResponseHandler.handlePaymentNotification(dto);
 
-            default -> System.out.println("Phan hoi khong hop le");
+            case AuctionResultDTO dto ->
+                ResponseHandler.handleAuctionResult(dto);
+
+            default -> System.out.println("Phản hồi không hợp lệ");
           }
         }
       }

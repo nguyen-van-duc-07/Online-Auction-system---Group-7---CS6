@@ -196,7 +196,7 @@ public class ItemAuctionController implements Initializable {
       showError("Vui lòng nhập mức giá bạn muốn đấu!");
       return; // Dừng hàm ngay lập tức
     }
-    try{
+    try {
       BigDecimal bidAmount = new BigDecimal(bidText);
       BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
       BigDecimal stepPrice = currentAuction.getMinStepPrice();
