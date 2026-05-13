@@ -84,9 +84,10 @@ public class BidService {
             req.getBidAmount()
         );
         conn.commit(); // Lưu vào database
-      } catch (SQLException e) {
+      } catch (Exception e) {
         conn.rollback();
-        return new PlaceBidResponseDTO(false, "Thất bại: " + e.getMessage());
+        e.printStackTrace();
+        return new PlaceBidResponseDTO(false, e.getMessage());
       } finally {
         conn.setAutoCommit(true); // Reset trạng thái connection
       }
@@ -95,10 +96,10 @@ public class BidService {
     }
     // Sau khi thành công mới bắt đầu thông báo cho các clients
     Server.broadcastToAuctionRoom(
-        req.getAuctionId(),
         new NewBidDTO(
             req.getAuctionId(),
             req.getBidderId(),
+            req.getBidderName(),
             req.getBidAmount()
         ));
     return new PlaceBidResponseDTO(

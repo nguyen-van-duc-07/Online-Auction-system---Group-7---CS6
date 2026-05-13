@@ -8,6 +8,7 @@ import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import com.auction.client.screenhandler.ItemAuctionController;
 
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
@@ -147,5 +148,32 @@ public class ResponseHandler {
     System.out.println("Phiên " + dto.getAuctionId()
         + " | Người thắng: " + dto.getWinnerId()
         + " | Giá cuối: " + dto.getFinalPrice());
+  }
+
+  /**
+   * Xử lý gói tin phản hồi khi có người đặt giá mới thành công (Broadcast từ Server).
+   *
+   * @param newBidDTO Gói tin chứa thông tin giá mới và người đặt
+   */
+  public static void handleNewBid(NewBidDTO newBidDTO) {
+    // Kiểm tra xem người dùng có đang mở màn hình đấu giá không (instance != null)
+    if (ItemAuctionController.instance != null) {
+      // Đẩy dữ liệu sang Controller để nó tự vẽ lại UI
+      ItemAuctionController.instance.onNewBidReceived(newBidDTO);
+    }
+  }
+
+  // Xử lý khi nhận được kết quả Đặt giá (Thành công/Thất bại do thiếu tiền)
+  public static void handlePlaceBidResponse(PlaceBidResponseDTO response) {
+    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
+      com.auction.client.screenhandler.ItemAuctionController.instance.onPlaceBidResponse(response);
+    }
+  }
+
+  // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
+  public static void handleAuctionRoomJoined(AuctionResponseDTO response) {
+    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
+      com.auction.client.screenhandler.ItemAuctionController.instance.onAuctionRoomJoined(response);
+    }
   }
 }

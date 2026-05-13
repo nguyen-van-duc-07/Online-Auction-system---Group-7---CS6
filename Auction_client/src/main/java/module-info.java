@@ -1,9 +1,11 @@
 module com.auction.client {
+    requires org.controlsfx.controls;
     requires javafx.controls;
     requires javafx.fxml;
     requires com.auction.shared;
     requires static lombok;
-    requires java.desktop; // Gọi sang Shared
+    requires java.desktop;
+    requires com.auction.server; // Gọi sang Shared
 
     // Cho phép JavaFX truy cập package gốc
     opens com.auction.client to javafx.fxml;

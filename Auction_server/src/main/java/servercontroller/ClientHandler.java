@@ -38,59 +38,65 @@ public class ClientHandler implements Runnable {
 
       Object requestObj;
       while ((requestObj = in.readObject()) != null) {
+        try{
+          // Đảm bảo dữ liệu được gửi là 1 DTO hợp lệ
+          if (requestObj instanceof RequestDTO) {
 
-        // Đảm bảo dữ liệu được gửi là 1 DTO hợp lệ
-        if (requestObj instanceof RequestDTO) {
-
-          // Tự dộng rẽ nhánh và ép kiểu
-          switch (requestObj) {
-            case SignUpRequestDTO signUpReq -> {
-              out.writeObject(RequestHandler.signup(signUpReq));
-              out.flush();
-            }
-
-            case LoginRequestDTO loginReq -> {
-              LoginResponseDTO res = RequestHandler.login(loginReq);
-              if (res.isSuccess()) {
-                this.userId = res.getUser().getId();
-                Server.registerClient(this.userId, this);
+            // Tự dộng rẽ nhánh và ép kiểu
+            switch (requestObj) {
+              case SignUpRequestDTO signUpReq -> {
+                out.writeObject(RequestHandler.signup(signUpReq));
+                out.flush();
               }
-              out.writeObject(RequestHandler.login(loginReq));
-              out.flush();
-            }
 
-            case UploadItemRequestDTO uploadItemReq -> {
-              out.writeObject(RequestHandler.uploadItem(uploadItemReq));
-              out.flush();
-            }
+              case LoginRequestDTO loginReq -> {
+                LoginResponseDTO res = RequestHandler.login(loginReq);
+                if (res.isSuccess()) {
+                  this.userId = res.getUser().getId();
+                  Server.registerClient(this.userId, this);
+                }
+                out.writeObject(RequestHandler.login(loginReq));
+                out.flush();
+              }
 
-            case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
-              out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
-              out.flush();
-            }
+              case UploadItemRequestDTO uploadItemReq -> {
+                out.writeObject(RequestHandler.uploadItem(uploadItemReq));
+                out.flush();
+              }
 
-            case UpdateProfileRequestDTO updateProfileReq -> {
-              out.writeObject(RequestHandler.updateProfile(updateProfileReq));
-              out.flush();
-            }
+              case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
+                out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                out.flush();
+              }
 
-            case PlaceBidRequestDTO bidReq -> {
-              out.writeObject(RequestHandler.placeBid(bidReq));
-              out.flush();
-            }
+              case UpdateProfileRequestDTO updateProfileReq -> {
+                out.writeObject(RequestHandler.updateProfile(updateProfileReq));
+                out.flush();
+              }
 
-            case JoinRoomRequestDTO joinRoomReq -> {
-              Server.joinSeclectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
-            }
+              case PlaceBidRequestDTO bidReq -> {
+                out.writeObject(RequestHandler.placeBid(bidReq));
+                out.flush();
+              }
 
-            case LeaveRoomRequestDTO leaveRoomReq -> {
-              Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
-            }
+              case JoinRoomRequestDTO joinRoomReq -> {
+                Server.joinSelectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
+                out.writeObject(RequestHandler.joinRoom(joinRoomReq));
+                out.flush();
+              }
 
-            default -> {
-              System.out.println(">>> Server nhận được Request không xác định!");
+              case LeaveRoomRequestDTO leaveRoomReq -> {
+                Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
+              }
+
+              default -> {
+                System.out.println(">>> Server nhận được Request không xác định!");
+              }
             }
           }
+        }
+        catch(Exception e){
+          e.printStackTrace();
         }
       }
     } catch (Exception e) {

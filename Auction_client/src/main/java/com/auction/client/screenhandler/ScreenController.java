@@ -88,4 +88,40 @@ public class ScreenController {
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình" + fxmlFile);
     }
   }
+
+  // Dùng để tạo ra cửa sổ con mới VÀ trả về Controller của màn hình đó để xử lý logic (như truyền Callback)
+  public static <T> T createSubWindowAndGetController(String fxmlFile, String title) {
+    try {
+      FXMLLoader loader = new FXMLLoader(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
+      Parent root = loader.load();
+      Scene scene = new Scene(root);
+
+      Stage newStage = new Stage();
+      newStage.setTitle(title);
+      newStage.setScene(scene);
+
+      newStage.initOwner(primaryStage);
+      newStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+      newStage.setOpacity(0);
+
+      newStage.setOnShown(event -> {
+        double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2;
+        double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2;
+
+        newStage.setX(centerXPosition - newStage.getWidth() / 2);
+        newStage.setY(centerYPosition - newStage.getHeight() / 2);
+        newStage.setOpacity(1);
+      });
+
+      newStage.setResizable(false);
+      newStage.show();
+
+      return loader.getController();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
+      return null;
+    }
+  }
 }

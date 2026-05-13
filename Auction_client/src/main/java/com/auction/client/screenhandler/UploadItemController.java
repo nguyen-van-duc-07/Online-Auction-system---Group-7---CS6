@@ -91,7 +91,7 @@ public class UploadItemController {
 
   @FXML
   public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Hone.fxml", "Trang chủ");
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
   @FXML

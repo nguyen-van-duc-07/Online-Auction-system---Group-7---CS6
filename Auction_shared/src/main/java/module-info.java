@@ -2,6 +2,8 @@ module com.auction.shared{
   requires jakarta.validation;
   requires jakarta.persistence;
   requires static lombok;
+  requires org.controlsfx.controls;
+  requires javafx.controls;
   exports com.auction.shared.enums;
   exports com.auction.shared.model.auction;
   exports com.auction.shared.model.core;

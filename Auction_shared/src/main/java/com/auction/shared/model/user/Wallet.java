@@ -1,10 +1,14 @@
 package com.auction.shared.model.user;
 
 import com.auction.shared.model.core.Entity;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+@Getter
+@Setter
 @NoArgsConstructor
 public class Wallet extends Entity {
   private String bidderId;
@@ -63,29 +67,5 @@ public class Wallet extends Entity {
     }
     this.frozenBalance = this.frozenBalance.subtract(amount);
     this.balance = this.balance.subtract(amount);
-  }
-
-  public BigDecimal getBalance() {
-    return balance;
-  }
-
-  public void setBalance(BigDecimal balance) {
-    this.balance = balance;
-  }
-
-  public BigDecimal getFrozenBalance() {
-    return frozenBalance;
-  }
-
-  public void setFrozenBalance(BigDecimal frozenBalance) {
-    this.frozenBalance = frozenBalance;
-  }
-
-  public String getBidderId() {
-    return bidderId;
-  }
-
-  public void setBidderId(String bidder_id) {
-    this.bidderId = bidder_id;
   }
 }

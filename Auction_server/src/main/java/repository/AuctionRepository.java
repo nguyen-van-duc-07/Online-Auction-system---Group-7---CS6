@@ -17,17 +17,18 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở
   public List<Auction> findActiveAuctions() {
     List<Auction> auctions = new ArrayList<>();
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
-        + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
-        + "WHERE a.status = 'ACTIVE'";
+    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+            + "WHERE a.status = 'ACTIVE'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
-        // Chuyển đổi dữ liệu từ DB sang Object
         Auction auction = mapResultSetToAuction(rs);
         auctions.add(auction);
       }
@@ -77,6 +78,8 @@ public class AuctionRepository {
     a.setMinStepPrice(rs.getBigDecimal("min_step_price"));
     a.setStatus(AuctionStatus.valueOf(rs.getString("status")));
     a.setHighestBidderId(rs.getString("highest_bidder_id"));
+    // THÊM DÒNG NÀY: Gán Tên người ra giá cao nhất lấy từ câu lệnh LEFT JOIN
+    a.setHighestBidderName(rs.getString("highest_bidder_name"));
     return a;
   }
   public boolean saveAuction(Auction auction, String sellerProfileId) {
@@ -191,10 +194,12 @@ public class AuctionRepository {
     }
   }
   public Auction findAuctionById(String auctionId) {
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
-        + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
-        + "WHERE a.id = ?";
+    // Cập nhật câu SQL tương tự như trên
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+            + "WHERE a.id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, auctionId);

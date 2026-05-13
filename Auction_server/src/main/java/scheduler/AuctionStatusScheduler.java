@@ -43,7 +43,7 @@ public class AuctionStatusScheduler {
     auctionRepo.activateAuctions(activateIds);
     for (String id : activateIds) {
       System.out.println("BROADCAST ACTIVE: " + id);
-      Server.broadcastToAuctionRoom(id, new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
+      Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
     }
 
     Map<String, Auction> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
@@ -55,7 +55,7 @@ public class AuctionStatusScheduler {
         Auction auction = entry.getValue();
 
         System.out.println("BROADCAST CLOSED: " + id);
-        Server.broadcastToAuctionRoom(id, new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
+        Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
 
         String winnerId = auction.getHighestBidderId();
         if (winnerId != null && !winnerId.isBlank()) {
@@ -63,7 +63,7 @@ public class AuctionStatusScheduler {
               + " [AuctionId: " + id
               + " | Winner: " + winnerId
               + " | Giá cuối : " + Format.fmt(auction.getCurrentHighestPrice()));
-          Server.broadcastToAuctionRoom(id, new AuctionResultDTO(
+          Server.broadcastToAuctionRoom(new AuctionResultDTO(
               id,
               winnerId,
               auction.getCurrentHighestPrice()
