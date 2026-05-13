@@ -152,7 +152,6 @@ public class RequestHandler {
 
     return response;
   }
-}
 
   public static SellerRegisterResponseDTO sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {
     boolean isSuccess = SellerService.sellerRegister(sellerRegisterReq);

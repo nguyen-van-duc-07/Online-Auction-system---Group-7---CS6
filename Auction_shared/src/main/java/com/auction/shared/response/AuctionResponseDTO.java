@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Lớp DTO (Data Transfer Object) đại diện cho dữ liệu của một phiên đấu giá
+ * Lớp DTO (Data Transfer Object) đại diện cho dữ liệu của một phiên đấu giá.
  * được gửi từ Server về Client để hiển thị trên giao diện trang chủ (Feed).
  *
  * <p>Lớp này đã được lược bỏ các thông tin nhạy cảm và phức tạp (như lịch sử đặt giá,
@@ -61,7 +61,7 @@ public class AuctionResponseDTO implements ResponseDTO {
   private AuctionStatus status;
   // Lọc bớt các thông tin nhạy cảm/ ko cần thiết để trả về máy khách
   /**
-   * Danh sách lịch sử đấu giá (giới hạn 20 phần tử)
+   * Danh sách lịch sử đấu giá (giới hạn 20 phần tử).
    */
   private List<BidTransaction> bidHistory;
 }
