@@ -1,6 +1,8 @@
 package servercontroller;
 
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.item.Item;
+import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
@@ -117,8 +119,8 @@ public class RequestHandler {
     return bidService.placeBid(req);
   }
 
-  public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO req) {
-    String auctionId = req.getSelectedAuctionId();
+  public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
+    String auctionId = request.getSelectedAuctionId();
     Auction auction = AuctionService.getAuctionHistory(auctionId);
 
     if (auction == null) return null;
@@ -131,10 +133,21 @@ public class RequestHandler {
     response.setEndTime(auction.getEndTime());
     response.setStatus(auction.getStatus());
     response.setBidHistory(auction.getBidHistory());
+    Item itemEntity = auction.getItem();
+    if (itemEntity != null) {
+      ItemDTO itemDTO = ItemDTO.builder()
+              .id(itemEntity.getId())
+              .name(itemEntity.getName())
+              .description(itemEntity.getDescription())
+              .type(itemEntity.getType())
+              .CreatedAt(itemEntity.getCreatedAt())
+              .build();
 
+      response.setItem(itemDTO); // Bây giờ kiểu dữ liệu đã khớp (ItemDTO)
+    }
     // QUAN TRỌNG: Lấy tên người cao nhất thật sự từ Auction object
     // (Đảm bảo trong AuctionService bạn đã JOIN bảng để lấy tên này)
-    response.setHighestBidderName(auction.getHighestBidderId());
+    response.setHighestBidderName(auction.getHighestBidderName());
 
     return response;
   }

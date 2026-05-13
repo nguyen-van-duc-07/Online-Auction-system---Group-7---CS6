@@ -67,8 +67,14 @@ public class ServerConnection {
                 + "dat gia: " + dto.getBidAmount());
             }
 
-            case PlaceBidResponseDTO dto ->
-                System.out.println("Ket qua: " + dto.getMessage());
+            case PlaceBidResponseDTO dto -> {
+              System.out.println("Ket qua: " + dto.getMessage());
+              ResponseHandler.handlePlaceBidResponse(dto); // THÊM DÒNG NÀY
+            }
+
+            case AuctionResponseDTO auctionRes -> {
+              ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
+            }
 
             default -> System.out.println("Phan hoi khong hop le");
           }

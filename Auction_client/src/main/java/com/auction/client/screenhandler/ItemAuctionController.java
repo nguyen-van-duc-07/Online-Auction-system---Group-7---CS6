@@ -8,6 +8,7 @@ import com.auction.shared.request.LeaveRoomRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.NewBidDTO;
+import com.auction.shared.response.PlaceBidResponseDTO;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -31,6 +32,7 @@ import org.controlsfx.control.Notifications;
 public class ItemAuctionController implements Initializable {
   public static ItemAuctionController instance;
   private XYChart.Series<String, Number> priceSeries;
+  private int bidSequence = 1;
   @FXML
   private TextField bidAmountField;
   @FXML
@@ -66,6 +68,7 @@ public class ItemAuctionController implements Initializable {
     String formattedPrice = formatter.format(SessionManager.getCurrentAuction().getCurrentHighestPrice()) + " VNĐ";
     currentPriceField.setText("Giá hiện tại: " +
         formattedPrice);
+    priceChart.setAnimated(false);
     loadChartData();
     startCountdownTimer();
   }
@@ -110,16 +113,18 @@ public class ItemAuctionController implements Initializable {
     priceSeries = new XYChart.Series<>();
     priceSeries.setName("Lịch sử giá");
     priceChart.getData().clear();
+    bidSequence = 1;
     List<BidTransaction> history = currentAuction.getBidHistory();
 
     if (history != null && !history.isEmpty()) {
       // 2. LOGIC GIỚI HẠN 20 LẦN: Tính toán điểm bắt đầu để lấy 20 bản ghi cuối
-      int start = Math.max(0, history.size() - 20);
-      List<BidTransaction> recentHistory = history.subList(start, history.size());
-
+      int limit = Math.min(20, history.size());
+      List<BidTransaction> recentHistory = new java.util.ArrayList<>(history.subList(0, limit));
+      java.util.Collections.reverse(recentHistory);
       for (BidTransaction tx : recentHistory) {
         String formattedTime = tx.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        priceSeries.getData().add(new XYChart.Data<>(formattedTime, tx.getBidAmount().doubleValue()));
+        String uniqueXLabel = formattedTime + " (#" + (bidSequence++) + ")";
+        priceSeries.getData().add(new XYChart.Data<>(uniqueXLabel, tx.getBidAmount().doubleValue()));
       }
     } else {
       // Kịch bản Sàn đấu giá mới tinh (giữ nguyên logic gốc của bạn)
@@ -267,10 +272,10 @@ public class ItemAuctionController implements Initializable {
       if (priceSeries != null) {
         // Lấy thời gian thực lúc nhận được Bid
         String currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-
+        String uniqueXLabel = currentTime + " (#" + (bidSequence++) + ")";
         // Thêm điểm mới vào đường series hiện tại
         // Lưu ý: Dùng doubleValue() vì Chart yêu cầu kiểu Number
-        priceSeries.getData().add(new XYChart.Data<>(currentTime, newBid.getBidAmount().doubleValue()));
+        priceSeries.getData().add(new XYChart.Data<>(uniqueXLabel, newBid.getBidAmount().doubleValue()));
 
         // (Tùy chọn) Giới hạn số điểm hiển thị để biểu đồ đẹp, không bị quá dày
         if (priceSeries.getData().size() > 20) {
@@ -289,9 +294,54 @@ public class ItemAuctionController implements Initializable {
                 .threshold(3, Notifications.create().title("Nhiều thông báo quá!")) // Giới hạn nếu nổ bid liên tục
                 .showInformation(); // Hoặc .showWarning() nếu bạn muốn đổi icon
       } else {
-        // Trường hợp 2: LÀ MÌNH vừa đặt giá thành công
-        showBidSuccess(currentAuction.getItem().getName(), newBid.getBidAmount());
+          // Trường hợp 2: LÀ MÌNH vừa đặt giá thành công
+          // Phòng thủ: Cố gắng lấy tên từ currentAuction, nếu null thì lấy từ Session backup ra
+          String itemName = "sản phẩm này"; // Tên mặc định nếu mọi cách đều thất bại
+          if (currentAuction.getItem() != null) {
+              itemName = currentAuction.getItem().getName();
+          } else if (SessionManager.getCurrentAuction().getItem() != null) {
+              itemName = SessionManager.getCurrentAuction().getItem().getName();
+          }
+          showBidSuccess(itemName, newBid.getBidAmount());
       }
+    });
+  }
+
+  public void onPlaceBidResponse(PlaceBidResponseDTO response) {
+    Platform.runLater(() -> {
+      if (!response.isSuccess()) {
+        showError(response.getMessage());
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Không thể trả giá");
+        alert.setHeaderText(null);
+        alert.setContentText(response.getMessage());
+        alert.showAndWait();
+      } else {
+        clearError();
+      }
+    });
+  }
+
+  // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
+  public void onAuctionRoomJoined(AuctionResponseDTO auctionData) {
+    Platform.runLater(() -> {
+      // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
+      this.currentAuction = auctionData;
+      SessionManager.setCurrentAuction(auctionData);
+
+      // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
+      updateHighestBidderUI(auctionData.getHighestBidderName());
+
+      DecimalFormat formatter = new DecimalFormat("#,###");
+      String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
+      currentPriceField.setText("Giá hiện tại: " + formattedPrice);
+
+      // 3. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
+      loadChartData();
+
+      // In log ra để dễ debug
+      int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
+      System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
     });
   }
 }

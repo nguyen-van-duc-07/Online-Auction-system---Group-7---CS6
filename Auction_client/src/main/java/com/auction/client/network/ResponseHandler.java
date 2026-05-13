@@ -148,4 +148,18 @@ public class ResponseHandler {
       ItemAuctionController.instance.onNewBidReceived(newBidDTO);
     }
   }
+
+  // Xử lý khi nhận được kết quả Đặt giá (Thành công/Thất bại do thiếu tiền)
+  public static void handlePlaceBidResponse(PlaceBidResponseDTO response) {
+    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
+      com.auction.client.screenhandler.ItemAuctionController.instance.onPlaceBidResponse(response);
+    }
+  }
+
+  // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
+  public static void handleAuctionRoomJoined(AuctionResponseDTO response) {
+    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
+      com.auction.client.screenhandler.ItemAuctionController.instance.onAuctionRoomJoined(response);
+    }
+  }
 }

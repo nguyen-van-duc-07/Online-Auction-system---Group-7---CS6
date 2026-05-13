@@ -30,6 +30,7 @@ public class Auction extends Entity implements Serializable {
   private BigDecimal minStepPrice;
   private BigDecimal currentHighestPrice;
   private String highestBidderId;
+  private String highestBidderName;
 
   private LocalDateTime startTime;
   private LocalDateTime endTime;
