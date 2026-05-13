@@ -3,6 +3,7 @@ package service;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import repository.AuctionRepository;
+import repository.BidTransactionRepository;
 import repository.ItemRepository;
 
 /**
@@ -23,7 +25,7 @@ import repository.ItemRepository;
 public class AuctionService {
   private static final ItemRepository itemRepo = new ItemRepository();
   private static final AuctionRepository auctionRepo = new AuctionRepository();
-
+  private static final BidTransactionRepository bidRepo = new BidTransactionRepository();
   private AuctionService() {
   }
 
@@ -181,13 +183,31 @@ public class AuctionService {
           auction.getId(),
           new ItemDTO(auction.getItem()),
           auction.getCurrentHighestPrice(),
+          auction.getHighestBidderId(),
           auction.getMinStepPrice(),
           auction.getEndTime(),
-          auction.getStatus()
+          auction.getStatus(),
+          auction.getBidHistory()
       );
       activeAutionDTOs.add(activeAutionDTO);
     }
     return activeAutionDTOs;
+  }
+
+  public static Auction getAuctionHistory(String auctionId) {
+    // 1. Lấy thông tin cơ bản của phiên đấu giá từ AuctionRepository
+    Auction auction = auctionRepo.findAuctionById(auctionId);
+
+    if (auction != null) {
+      // 2. Lấy 20 giao dịch gần nhất từ BidTransactionRepository
+      // Việc giới hạn (limit) được thực hiện ngay trong SQL để tối ưu
+      List<BidTransaction> history = bidRepo.findRecentByAuctionId(auctionId, 20);
+
+      // 3. Gán vào attribute bidHistory của đối tượng Auction
+      auction.setBidHistory(history);
+    }
+
+    return auction;
   }
 
   /**

@@ -18,6 +18,7 @@ public class BidService {
   private final AuctionRepository auctionRepo = new AuctionRepository();
   private final BidTransactionRepository bidRepo = new BidTransactionRepository();
   private final WalletService walletService = new WalletService();
+  private static final BigDecimal FREEZE_RATE = new BigDecimal("0.1");
 
   public  PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     Auction auction = auctionRepo.findAuctionById(req.getAuctionId());
@@ -50,7 +51,7 @@ public class BidService {
           walletService.releaseFrozen(
               conn,
               currentHighestBidderId,
-              auction.getCurrentHighestPrice().multiply(new BigDecimal(0.1)),
+              auction.getCurrentHighestPrice().multiply(FREEZE_RATE),
               req.getAuctionId()
           );
         }
@@ -58,7 +59,7 @@ public class BidService {
         walletService.freezeMoney(
             conn,
             req.getBidderId(),
-            req.getBidAmount().multiply(new BigDecimal(0.1)),
+            req.getBidAmount().multiply(FREEZE_RATE),
             req.getAuctionId()
         );
         BidTransaction bid = new BidTransaction(
@@ -71,6 +72,7 @@ public class BidService {
             "SAVE RESULT = " + saved
         );
         if (!saved) {
+          conn.rollback();
           return new PlaceBidResponseDTO(
               false,
               "Không thể lưu bid"
@@ -82,9 +84,10 @@ public class BidService {
             req.getBidAmount()
         );
         conn.commit(); // Lưu vào database
-      } catch (SQLException e) {
+      } catch (Exception e) {
         conn.rollback();
-        return new PlaceBidResponseDTO(false, "Thất bại: " + e.getMessage());
+        e.printStackTrace();
+        return new PlaceBidResponseDTO(false, e.getMessage());
       } finally {
         conn.setAutoCommit(true); // Reset trạng thái connection
       }
@@ -96,6 +99,7 @@ public class BidService {
         new NewBidDTO(
             req.getAuctionId(),
             req.getBidderId(),
+            req.getBidderName(),
             req.getBidAmount()
         ));
     return new PlaceBidResponseDTO(

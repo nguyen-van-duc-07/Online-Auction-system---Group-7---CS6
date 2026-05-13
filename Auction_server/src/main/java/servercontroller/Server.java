@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -27,13 +28,14 @@ public class Server {
    * <p>Value: Tập hợp các luồng kết nối (ClientHandler) đang xem phiên đó</p>
    */
   private static final ConcurrentHashMap<String, Set<ClientHandler>> auctionRooms = new ConcurrentHashMap<>();
+  private static final Map<String, ClientHandler> connectedClients = new ConcurrentHashMap<>();
 
   /**
    * Phương thức ghi thông tin Client vào trong danh sách quản lý của Room đấu giá.
    * @param selectedAuctionId
    * @param client
    */
-  public static void joinSeclectedAuctionRoom(String selectedAuctionId, ClientHandler client) {
+  public static void joinSelectedAuctionRoom(String selectedAuctionId, ClientHandler client) {
     auctionRooms.computeIfAbsent(selectedAuctionId, k -> ConcurrentHashMap.newKeySet()).add(client);
   }
 
@@ -75,8 +77,7 @@ public class Server {
    * Phương thức gửi thông báo cho toàn bộ Client bên trong room khi có bid hợp lệ mới.
    */
   public static void broadcastToAuctionRoom(ResponseDTO responseDTO) {
-    if (responseDTO instanceof NewBidDTO) {
-      NewBidDTO newBidDTO = (NewBidDTO) responseDTO;
+    if (responseDTO instanceof NewBidDTO newBidDTO) {
       Set<ClientHandler> room = auctionRooms.get(newBidDTO.getAuctionId());
       if (room != null) {
         for (ClientHandler client : room) {
@@ -87,10 +88,31 @@ public class Server {
   }
 
   /**
-   * Phương thức dùng để xoá các Client bị mất kế nối.
+   * Phương thức dùng để xoá các Client bị mất kết nối.
    * @param client
    */
   public static void removeClientFromAllRooms(ClientHandler client) {
     auctionRooms.values().forEach(room -> room.remove(client));
+  }
+
+  public static void registerClient(String userId, ClientHandler handler) {
+    connectedClients.put(userId, handler);
+    System.out.println("Client đã đăng ký: " + userId);
+  }
+
+  public static void unregisterClient(String userId) {
+    if (userId != null) {
+      connectedClients.remove(userId);
+      System.out.println("Client đã hủy đăng ký: " + userId);
+    }
+  }
+
+  public static void sendToUser(String userId, Object dto) {
+    ClientHandler handler = connectedClients.get(userId);
+    if (handler != null) {
+      handler.sendData(dto);
+    } else {
+      System.out.println("User " + userId + " không online, bỏ qua.");
+    }
   }
 }

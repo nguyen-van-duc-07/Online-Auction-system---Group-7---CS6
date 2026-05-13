@@ -58,12 +58,12 @@
 
                                <VBox spacing="5" styleClass="card" HBox.hgrow="ALWAYS">
                      <children>
-                        <AreaChart fx:id="priceChart" title="Biểu đồ giá (Triệu)">
+                        <AreaChart fx:id="priceChart" title="Biểu đồ đấu giá hiện tại">
                           <xAxis>
                             <CategoryAxis side="BOTTOM" />
                           </xAxis>
                           <yAxis>
-                            <NumberAxis side="LEFT" />
+                            <NumberAxis forceZeroInRange="false" side="LEFT" />
                           </yAxis>
                         </AreaChart>
                      </children>
@@ -77,7 +77,10 @@
 
                                   <Label fx:id="timeRemainingLabel" style="-fx-text-fill: #2980b9; -fx-font-size: 14;" text="Thời gian còn lại: " />
 
-                                  <Label fx:id="highestBidderLabel" style="-fx-text-fill: #7f8c8d;" text="Người ra giá cao nhất hiện tại: DatGB" />
+                                  <Label fx:id="highestBidderLabel" style="-fx-text-fill: #7f8c8d;" text="Người ra giá cao nhất hiện tại: DatGB" textFill="#1a8d03">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font></Label>
                              <Label style="-fx-font-weight: bold;" text="Mô tả sản phẩm:" />
                              <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                                  <content>

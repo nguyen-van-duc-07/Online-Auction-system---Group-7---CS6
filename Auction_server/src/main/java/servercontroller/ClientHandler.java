@@ -1,7 +1,9 @@
 package servercontroller;
 
 import com.auction.shared.request.*;
+import com.auction.shared.response.LoginResponseDTO;
 import com.auction.shared.response.UploadItemResponseDTO;
+import lombok.Getter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,7 +24,7 @@ public class ClientHandler implements Runnable {
   private Socket clientSocket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
-
+  private String userId;
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
   }
@@ -36,70 +38,82 @@ public class ClientHandler implements Runnable {
 
       Object requestObj;
       while ((requestObj = in.readObject()) != null) {
+        try{
+          // Đảm bảo dữ liệu được gửi là 1 DTO hợp lệ
+          if (requestObj instanceof RequestDTO) {
 
-        // Đảm bảo dữ liệu được gửi là 1 DTO hợp lệ
-        if (requestObj instanceof RequestDTO) {
+            // Tự dộng rẽ nhánh và ép kiểu
+            switch (requestObj) {
+              case SignUpRequestDTO signUpReq -> {
+                out.writeObject(RequestHandler.signup(signUpReq));
+                out.flush();
+              }
 
-          // Tự dộng rẽ nhánh và ép kiểu
-          switch (requestObj) {
-            case SignUpRequestDTO signUpReq -> {
-              out.writeObject(RequestHandler.signup(signUpReq));
-              out.flush();
-            }
+              case LoginRequestDTO loginReq -> {
+                LoginResponseDTO res = RequestHandler.login(loginReq);
+                if (res.isSuccess()) {
+                  this.userId = res.getUser().getId();
+                  Server.registerClient(this.userId, this);
+                }
+                out.writeObject(RequestHandler.login(loginReq));
+                out.flush();
+              }
 
-            case LoginRequestDTO loginReq -> {
-              out.writeObject(RequestHandler.login(loginReq));
-              out.flush();
-            }
+              case UploadItemRequestDTO uploadItemReq -> {
+                out.writeObject(RequestHandler.uploadItem(uploadItemReq));
+                out.flush();
+              }
 
-            case UploadItemRequestDTO uploadItemReq -> {
-              out.writeObject(RequestHandler.uploadItem(uploadItemReq));
-              out.flush();
-            }
+              case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
+                out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                out.flush();
+              }
 
-            case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
-              out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
-              out.flush();
-            }
+              case UpdateProfileRequestDTO updateProfileReq -> {
+                out.writeObject(RequestHandler.updateProfile(updateProfileReq));
+                out.flush();
+              }
 
-            case UpdateProfileRequestDTO updateProfileReq -> {
-              out.writeObject(RequestHandler.updateProfile(updateProfileReq));
-              out.flush();
-            }
+              case PlaceBidRequestDTO bidReq -> {
+                out.writeObject(RequestHandler.placeBid(bidReq));
+                out.flush();
+              }
 
-            case PlaceBidRequestDTO bidReq -> {
-              out.writeObject(RequestHandler.placeBid(bidReq));
-              out.flush();
-            }
+              case JoinRoomRequestDTO joinRoomReq -> {
+                Server.joinSelectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
+                out.writeObject(RequestHandler.joinRoom(joinRoomReq));
+                out.flush();
+              }
 
-            case JoinRoomRequestDTO joinRoomReq -> {
-              Server.joinSeclectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
-            }
+              case LeaveRoomRequestDTO leaveRoomReq -> {
+                Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
+              }
 
-            case LeaveRoomRequestDTO leaveRoomReq -> {
-              Server.leaveSelectedAuctionRoom(leaveRoomReq.getSelectedAuctionId(), this);
-            }
+              case SellerRegisterRequestDTO sellerRegisterReq -> {
+                out.writeObject(RequestHandler.sellerRegister(sellerRegisterReq));
+                out.flush();
+              }
 
-            case SellerRegisterRequestDTO sellerRegisterReq -> {
-              out.writeObject(RequestHandler.sellerRegister(sellerRegisterReq));
-              out.flush();
-            }
+              case CheckingSellerProfileRequestDTO checkingSellerProfileReq -> {
+                out.writeObject(RequestHandler.checkingSellerProfile(checkingSellerProfileReq));
+                out.flush();
+              }
 
-            case CheckingSellerProfileRequestDTO checkingSellerProfileReq -> {
-              out.writeObject(RequestHandler.checkingSellerProfile(checkingSellerProfileReq));
-              out.flush();
-            }
-
-            default -> {
-              System.out.println(">>> Server nhận được Request không xác định!");
+              default -> {
+                System.out.println(">>> Server nhận được Request không xác định!");
+              }
             }
           }
+        }
+        catch(Exception e){
+          e.printStackTrace();
         }
       }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
       Server.removeClientFromAllRooms(this);
+      Server.unregisterClient(this.userId);
     }
   }
 
