@@ -168,4 +168,23 @@ public class RequestHandler {
         "Bạn chưa có hồ sơ bán hàng!";
     return new CheckingSellerProfileResponseDTO(isSellerProfileCreated, message);
   }
+
+  public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {
+    List<SellerRegisterRequestDTO> list = SellerService.getSellerProfiles();
+    GetSellerProfileResponseDTO response = new GetSellerProfileResponseDTO();
+    response.setSuccess(true);
+    response.setMessage("Tải thông tin thành công");
+    response.setSellerProfileList(list);
+    return response;
+  }
+
+  public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
+      UpdateSellerProfileStatusRequestDTO request) {
+    boolean success = SellerService.handleUpdateSellerProfileStatus(request);
+    String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
+    UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
+    response.setSuccess(success);
+    response.setMessage(message);
+    return response;
+  }
 }

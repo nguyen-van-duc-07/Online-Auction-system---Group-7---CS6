@@ -99,6 +99,16 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetSellerProfileRequestDTO getSellerProfileReq -> {
+                out.writeObject(RequestHandler.getSellerProfile(getSellerProfileReq));
+                out.flush();
+              }
+
+              case UpdateSellerProfileStatusRequestDTO updateSellerProfileStatusReq -> {
+                out.writeObject(RequestHandler.updateSellerProfileStatus(updateSellerProfileStatusReq));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }

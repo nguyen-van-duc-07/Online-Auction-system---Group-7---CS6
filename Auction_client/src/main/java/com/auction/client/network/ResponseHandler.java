@@ -2,14 +2,19 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.GetSellerProfileRequestDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import com.auction.client.screenhandler.ItemAuctionController;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
@@ -212,5 +217,34 @@ public class ResponseHandler {
         ScreenController.switchScreen("Bidder/SellerRegisterForBidder.fxml", "Đăng ký người bán");
       }
     });
+  }
+
+  public static void handleGetSellerProfile(GetSellerProfileResponseDTO getSellerProfileRes) {
+    if (getSellerProfileRes.isSuccess()) {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", getSellerProfileRes.getMessage());
+        SellerAccountManagerController controller = SellerAccountManagerController.getInstance();
+
+        if (controller != null) {
+          controller.loadDataToTable(getSellerProfileRes.getSellerProfileList());
+        }
+      });
+    }
+  }
+
+  public static void handleUpdateSellerProfileStatus(UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes) {
+    if (updateSellerProfileStatusRes.isSuccess()) {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", updateSellerProfileStatusRes.getMessage());
+        ServerConnection.sendData(new GetSellerProfileRequestDTO());
+      });
+    } else  {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi",  updateSellerProfileStatusRes.getMessage());
+      });
+    }
   }
 }
