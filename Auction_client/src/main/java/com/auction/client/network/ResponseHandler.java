@@ -2,6 +2,7 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.client.screenhandler.SellerHomeController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
@@ -119,6 +120,21 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi tải bảng tin", getActiveAuctionRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleGetAuctionsBySeller(GetAuctionsBySellerResponseDTO getAuctionsBySellerRes) {
+    if (getAuctionsBySellerRes.isSuccess()) {
+      Platform.runLater(() -> {
+        SellerHomeController sellerHomeController = SellerHomeController.getInstance();
+        if (sellerHomeController != null) {
+          sellerHomeController.loadFeedToUI(getAuctionsBySellerRes.getActiveAuctions());
+        }
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi tải bảng tin", getAuctionsBySellerRes.getMessage());
       });
     }
   }

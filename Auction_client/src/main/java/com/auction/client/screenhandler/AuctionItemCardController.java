@@ -21,9 +21,10 @@ public class AuctionItemCardController {
     @FXML private Button bidButton;
     private Timeline countdownTimer;
     /**
-     * Hàm này dùng để bơm dữ liệu từ HomeController truyền sang.
+     * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
+     * Controller cha phải implement ProductDetailNavigator.
      */
-    public void setData(AuctionResponseDTO auction, HomeController parentController) {
+    public void setData(AuctionResponseDTO auction, ProductDetailNavigator navigator) {
         // 1. Đổ dữ liệu text
         nameLabel.setText(auction.getItem().getName());
 
@@ -66,7 +67,7 @@ public class AuctionItemCardController {
         countdownTimer.play();
 
         // 2. Gắn sự kiện cho nút bấm
-        // Gọi ngược lại hàm chuyển trang của HomeController
-        bidButton.setOnAction(e -> parentController.gotoProductDetail(auction));
+        // Gọi ngược lại hàm chuyển trang của navigator
+        bidButton.setOnAction(e -> navigator.gotoProductDetail(auction));
     }
 }

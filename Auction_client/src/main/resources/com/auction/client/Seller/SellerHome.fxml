@@ -48,28 +48,10 @@
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
             <content>
-                <FlowPane alignment="TOP_CENTER" depthTest="DISABLE" hgap="25.0" prefHeight="283.0" prefWidth="798.0" style="-fx-background-color: #f4f6f9;" vgap="25.0">
+                <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f4f6f9;" vgap="25.0">
                     <padding>
                         <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
                     </padding>
-                    <children>
-
-                        <VBox alignment="CENTER" prefHeight="206.0" prefWidth="180.0" spacing="10.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 3);">
-                            <children>
-                                <Button alignment="CENTER" blendMode="COLOR_BURN" cache="true" cacheHint="SPEED" onAction="#gotoUploadItem" prefHeight="88.0" prefWidth="86.0" text="+" textFill="#02200b">
-                                    <font>
-                                        <Font name="System Bold" size="50.0" />
-                                    </font>
-                                </Button>
-                                <Label text="Thêm sản phẩm" textFill="#007a00">
-                                    <font>
-                                        <Font name="System Bold" size="16.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </VBox>
-
-                    </children>
                 </FlowPane>
             </content>
         </ScrollPane>
