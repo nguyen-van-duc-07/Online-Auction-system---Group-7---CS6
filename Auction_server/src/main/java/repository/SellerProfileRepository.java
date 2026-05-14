@@ -117,6 +117,30 @@ public class SellerProfileRepository {
     return sellerList;
   }
 
+  public String getUserIdBySellerId(String sellerId) {
+    // Câu lệnh SQL tìm user_id dựa vào id của bảng seller_profiles
+    String sql = "SELECT user_id FROM seller_profiles WHERE id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      // Gán tham số sellerId vào dấu ?
+      ps.setString(1, sellerId);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        // Nếu tìm thấy kết quả, trả về cột user_id
+        if (rs.next()) {
+          return rs.getString("user_id");
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    // Trả về null nếu không tìm thấy hoặc có lỗi xảy ra
+    return null;
+  }
+
   public boolean updateStatus(String userId, SellerRegisterStatus status) {
     String sql = "UPDATE seller_profiles SET status = ? WHERE user_id = ?";
     try (Connection conn = DatabaseConnection.getConnection();

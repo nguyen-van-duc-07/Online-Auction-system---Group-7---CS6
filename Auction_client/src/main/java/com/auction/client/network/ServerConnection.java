@@ -55,6 +55,9 @@ public class ServerConnection {
             case GetActiveAuctionResponseDTO getActiveAuctionRes ->
                 ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
 
+            case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
+              ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
+
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
             case AuctionStatusUpdateDTO dto -> System.out.println("CLIENT RECEIVED: " + dto.getId()

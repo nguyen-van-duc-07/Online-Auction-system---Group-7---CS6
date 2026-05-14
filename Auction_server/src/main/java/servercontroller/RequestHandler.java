@@ -96,6 +96,11 @@ public class RequestHandler {
     return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
   }
 
+  public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
+    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công", list);
+  }
+
   public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {
     User userAfterUpdatingProfile = AuthService.updateProfile(updateProfileReq);
 

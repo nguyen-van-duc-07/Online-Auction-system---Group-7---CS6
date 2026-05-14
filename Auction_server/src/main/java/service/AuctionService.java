@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
 import repository.ItemRepository;
+import repository.SellerProfileRepository;
 
 /**
  * Lớp AuctionService xử lý logic nghiệp vụ của hệ thống đấu giá.
@@ -177,10 +178,13 @@ public class AuctionService {
   public static List<AuctionResponseDTO> getActiveAuctionsForClient() {
     List<Auction> activeAuctions = auctionRepo.findActiveAuctions();
     List<AuctionResponseDTO> activeAutionDTOs = new ArrayList<>();
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
 
     for (Auction auction : activeAuctions) {
+      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
       AuctionResponseDTO activeAutionDTO = new AuctionResponseDTO(
           auction.getId(),
+          userId,
           new ItemDTO(auction.getItem()),
           auction.getCurrentHighestPrice(),
           auction.getHighestBidderId(),
@@ -192,6 +196,29 @@ public class AuctionService {
       activeAutionDTOs.add(activeAutionDTO);
     }
     return activeAutionDTOs;
+  }
+
+  public static List<AuctionResponseDTO> getAuctionsBySeller(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    List<Auction> auctions = auctionRepo.findAuctionsBySellerId(sellerId);
+    List<AuctionResponseDTO> auctionsBelongsToSeller = new ArrayList<>();
+
+    for (Auction auction : auctions) {
+      AuctionResponseDTO auctionBelongsToSeller = new AuctionResponseDTO(
+          auction.getId(),
+          userId,
+          new ItemDTO(auction.getItem()),
+          auction.getCurrentHighestPrice(),
+          auction.getHighestBidderId(),
+          auction.getMinStepPrice(),
+          auction.getEndTime(),
+          auction.getStatus(),
+          auction.getBidHistory()
+      );
+      auctionsBelongsToSeller.add(auctionBelongsToSeller);
+    }
+    return auctionsBelongsToSeller;
   }
 
   public static Auction getAuctionHistory(String auctionId) {

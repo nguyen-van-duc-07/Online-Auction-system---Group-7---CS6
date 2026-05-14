@@ -38,6 +38,32 @@ public class AuctionRepository {
     return auctions;
   }
 
+  public List<Auction> findAuctionsBySellerId(String sellerId) {
+    List<Auction> auctions = new ArrayList<>();
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+        + "WHERE a.seller_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      // Gán giá trị userId vào dấu ? trong câu lệnh SQL
+      ps.setString(1, sellerId);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          Auction auction = mapResultSetToAuction(rs);
+          auctions.add(auction);
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return auctions;
+  }
+
   // Cập nhật giá cao nhất khi có người bid
   public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
@@ -74,12 +100,19 @@ public class AuctionRepository {
         rs.getTimestamp("end_time").toLocalDateTime()
     );
     a.setId(rs.getString("id"));
+    a.setSellerId(rs.getString("seller_id"));
     a.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
     a.setMinStepPrice(rs.getBigDecimal("min_step_price"));
     a.setStatus(AuctionStatus.valueOf(rs.getString("status")));
     a.setHighestBidderId(rs.getString("highest_bidder_id"));
     // THÊM DÒNG NÀY: Gán Tên người ra giá cao nhất lấy từ câu lệnh LEFT JOIN
-    a.setHighestBidderName(rs.getString("highest_bidder_name"));
+    try {
+      a.setHighestBidderName(rs.getString("highest_bidder_name"));
+    } catch (SQLException e) {
+      // Nếu câu lệnh SQL nào đó không có cột highest_bidder_name, nó sẽ nhảy vào đây
+      // Ta an toàn bỏ qua hoặc gán giá trị mặc định, chương trình sẽ không bị crash nữa.
+      a.setHighestBidderName(null);
+    }
     return a;
   }
   public boolean saveAuction(Auction auction, String sellerProfileId) {
@@ -227,7 +260,7 @@ public class AuctionRepository {
       ps.setTimestamp(1, Timestamp.valueOf(now));
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
-        Auction auction = mapResultSetToAuction(rs); // method có sẵn của bạn
+        Auction auction = mapResultSetToAuction(rs);
         result.put(auction.getId(), auction);
       }
     } catch (Exception e) {
