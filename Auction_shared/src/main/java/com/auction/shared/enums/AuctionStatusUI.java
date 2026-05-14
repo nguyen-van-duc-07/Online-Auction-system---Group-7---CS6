@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum AuctionStatusUI {
     ACTIVE("Đang diễn ra", "#27ae60"),
-    FINISHED("Đã kết thúc", "#7f8c8d"),
-    PENDING("Sắp diễn ra", "#f39c12");
+    CLOSED("Đã kết thúc", "#7f8c8d"),
+    WAITING("Sắp diễn ra", "#f39c12");
 
     private final String displayName;
     private final String color;

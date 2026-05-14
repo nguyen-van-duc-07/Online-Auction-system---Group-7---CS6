@@ -57,7 +57,7 @@ public class AdminScreenController implements Initializable {
         "Đăng xuất", "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
           if  (Response == ButtonType.OK) {
             SessionManager.clearSession();
-            ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+            ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
           }
     });
   }

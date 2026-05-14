@@ -100,6 +100,6 @@ public class SignUpController {
 
   @FXML
   public void gotoLogin() {
-    ScreenController.switchScreen("Login.fxml", "Đăng nhập");
+    ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
   }
 }
