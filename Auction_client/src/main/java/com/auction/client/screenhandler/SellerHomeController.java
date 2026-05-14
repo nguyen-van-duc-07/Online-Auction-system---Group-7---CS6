@@ -18,6 +18,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+
 /**
  * Class có nhiệm vụ quản lý màn hình seller.
  */
@@ -58,6 +62,38 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
     Platform.runLater(() -> {
       // Xóa các card cũ (nếu có) trước khi nạp mới
       feedContainer.getChildren().clear();
+
+      VBox addNewCard = new VBox(5); // Khoảng cách giữa các phần tử là 10px
+
+      // CHÚ Ý: Đổi 220, 300 thành kích thước đúng với AuctionItemCard.fxml của bạn
+      addNewCard.setPrefSize(760, 110);
+      addNewCard.setAlignment(Pos.CENTER);
+
+      // Trang trí CSS cho Card (Nền xám nhạt, viền bo góc)
+      // Khi bình thường
+      String normalStyle = "-fx-background-color: #27ae60; -fx-border-color: #219653; -fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
+      // Khi di chuột vào (Sáng hơn)
+      String hoverStyle = "-fx-background-color: #2ecc71; -fx-border-color: #27ae60; -fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
+      addNewCard.setStyle(normalStyle);
+
+      // Hiệu ứng Hover (Làm sáng lên khi đưa chuột vào)
+      addNewCard.setOnMouseEntered(e -> addNewCard.setStyle(hoverStyle));
+      addNewCard.setOnMouseExited(e -> addNewCard.setStyle(normalStyle));
+
+      // Tạo Label dấu + và Text
+      Label plusIcon = new Label("+");
+      plusIcon.setStyle("-fx-font-size: 60px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+      Label textLabel = new Label("Đăng bán sản phẩm");
+      textLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+      addNewCard.getChildren().addAll(plusIcon, textLabel);
+
+      // Bắt sự kiện Click để chuyển sang trang Upload
+      addNewCard.setOnMouseClicked(event -> gotoUploadItem());
+
+      // Thêm card này vào Container đầu tiên
+      feedContainer.getChildren().add(addNewCard);
 
       for (AuctionResponseDTO auction : auctions) {
         try {
@@ -120,8 +156,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
     homecontroller.gotoResult();
   }
 
-  @FXML
   public void gotoUploadItem() {
-    ScreenController.switchScreen("Seller/UploadProduct.fxml", "Đăng sản phẩm");
+    ScreenController.switchScreen("Seller/UploadItem.fxml", "Đăng sản phẩm");
   }
 }
