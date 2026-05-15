@@ -290,4 +290,13 @@ public class ResponseHandler {
       });
     }
   }
+
+  public static void handleAuctionPriceUpdate(AuctionPriceUpdateDTO dto) {
+    Platform.runLater(() -> {
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
+      }
+    });
+  }
 }

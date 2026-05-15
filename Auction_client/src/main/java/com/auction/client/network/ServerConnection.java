@@ -105,6 +105,9 @@ public class ServerConnection {
             case OrderUpdateNotificationDTO dto ->
                 ResponseHandler.handleOrderUpdateNotification(dto);
 
+            case AuctionPriceUpdateDTO dto ->
+                ResponseHandler.handleAuctionPriceUpdate(dto);
+            
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

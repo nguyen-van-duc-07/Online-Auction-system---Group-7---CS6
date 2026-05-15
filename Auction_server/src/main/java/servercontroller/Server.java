@@ -124,4 +124,10 @@ public class Server {
       System.out.println("User " + userId + " không online, bỏ qua.");
     }
   }
+
+  public static void broadcastToAll(ResponseDTO responseDTO) {
+    for (ClientHandler client : connectedClients.values()) {
+      client.sendData(responseDTO);
+    }
+  }
 }
