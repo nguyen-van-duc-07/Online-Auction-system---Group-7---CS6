@@ -96,6 +96,15 @@ public class ServerConnection {
             case UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes ->
                 ResponseHandler.handleUpdateSellerProfileStatus(updateSellerProfileStatusRes);
 
+            case OrderActionResponseDTO dto ->
+                ResponseHandler.handleOrderAction(dto);
+
+            case GetOrderResponseDTO dto ->
+                ResponseHandler.handleGetOrder(dto);
+
+            case OrderUpdateNotificationDTO dto ->
+                ResponseHandler.handleOrderUpdateNotification(dto);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }
