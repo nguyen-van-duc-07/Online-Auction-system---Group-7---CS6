@@ -6,20 +6,15 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class PaymentNotificationDTO implements ResponseDTO {
-  private String auctionId;
+  private String orderId;
   private String itemName;
   private BigDecimal finalPrice;
-  private String winnerId;
 
-  public PaymentNotificationDTO(String auctionId,
+  public PaymentNotificationDTO(String orderId,
                                 String itemName,
-                                BigDecimal finalPrice,
-                                String winnerId) {
-    this.auctionId = auctionId;
+                                BigDecimal finalPrice) {
+    this.orderId = orderId;
     this.itemName   = itemName;
     this.finalPrice = finalPrice;
-    this.winnerId   = winnerId;
   }
-
-  // getters...
 }

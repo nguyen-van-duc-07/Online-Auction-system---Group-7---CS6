@@ -87,6 +87,15 @@ public class ServerConnection {
             case CheckingSellerProfileResponseDTO checkingSellerProfileRes ->
                 ResponseHandler.checkingSellerProfile(checkingSellerProfileRes);
 
+            case OrderActionResponseDTO dto ->
+                ResponseHandler.handleOrderAction(dto);
+
+            case GetOrderResponseDTO dto ->
+                ResponseHandler.handleGetOrder(dto);
+
+            case OrderUpdateNotificationDTO dto ->
+                ResponseHandler.handleOrderUpdateNotification(dto);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

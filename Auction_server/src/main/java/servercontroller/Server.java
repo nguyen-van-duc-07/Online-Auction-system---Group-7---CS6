@@ -1,5 +1,7 @@
 package servercontroller;
 
+import com.auction.shared.model.auction.Auction;
+import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
@@ -82,6 +84,13 @@ public class Server {
       if (room != null) {
         for (ClientHandler client : room) {
           client.sendData(newBidDTO);
+        }
+      }
+    } else if (responseDTO instanceof AuctionResultDTO auctionResult) {
+      Set<ClientHandler> room = auctionRooms.get(auctionResult.getAuctionId());
+      if (room != null) {
+        for (ClientHandler client : room) {
+          client.sendData(auctionResult);
         }
       }
     }

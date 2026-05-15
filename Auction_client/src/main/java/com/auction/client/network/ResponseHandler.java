@@ -2,6 +2,7 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
@@ -138,10 +139,8 @@ public class ResponseHandler {
   }
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
     // hiển thị thông báo thanh toán
-    System.out.println("Chúc mừng! Bạn thắng phiên: " + dto.getAuctionId());
-    System.out.println("Sản phẩm: " + dto.getItemName());
+    System.out.println("VUI LONG THANH TOAN SAN PHAM: " + dto.getItemName());
     System.out.println("Giá cuối: " + dto.getFinalPrice());
-    System.out.println("VUI LONG THANH TOAN SAN PHAM TRONG HOM NAY");
   }
 
   public static void handleAuctionResult(AuctionResultDTO dto) {
@@ -211,6 +210,34 @@ public class ResponseHandler {
             "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.");
         ScreenController.switchScreen("Bidder/SellerRegisterForBidder.fxml", "Đăng ký người bán");
       }
+    });
+  }
+  public static void handleOrderAction(OrderActionResponseDTO dto) {
+    Platform.runLater(() -> {
+      Alert alert = new Alert(
+          dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR
+      );
+      alert.setTitle(dto.isSuccess() ? "Thành công" : "Thất bại");
+      alert.setHeaderText(dto.getMessage());
+      alert.showAndWait();
+    });
+  }
+
+  public static void handleGetOrder(GetOrderResponseDTO dto) {
+    // Ae viet hien thi UI o day
+  }
+
+  public static void handleOrderUpdateNotification(OrderUpdateNotificationDTO dto) {
+    Platform.runLater(() -> {
+      String message = dto.getStatus() == OrderStatus.CONFIRMED
+          ? "Người mua đã xác nhận thanh toán đơn hàng!"
+          : "Người mua đã hủy đơn hàng!";
+
+      ScreenController.showAlert(
+          Alert.AlertType.INFORMATION,
+          "Cập nhật đơn hàng",
+          message
+      );
     });
   }
 }

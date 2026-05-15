@@ -3,6 +3,7 @@ package servercontroller;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.order.Order;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
@@ -14,10 +15,7 @@ import java.util.List;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
 import repository.SellerProfileRepository;
-import service.AuctionService;
-import service.AuthService;
-import service.BidService;
-import service.SellerService;
+import service.*;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
@@ -167,5 +165,30 @@ public class RequestHandler {
     String message = isSellerProfileCreated ? SellerService.sellerProfileStatus(req.getUserId()) :
         "Bạn chưa có hồ sơ bán hàng!";
     return new CheckingSellerProfileResponseDTO(isSellerProfileCreated, message);
+  }
+  public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
+    OrderService orderService = new OrderService();
+    boolean success = orderService.confirmOrder(req.getOrderId());
+    if (success) {
+      return new OrderActionResponseDTO(true, "Xác nhận thanh toán thành công!");
+    }
+    return new OrderActionResponseDTO(false, "Xác nhận thanh toán thất bại!");
+  }
+
+  public static OrderActionResponseDTO cancelOrder(CancelOrderRequestDTO req) {
+    OrderService orderService = new OrderService();
+    boolean success = orderService.cancelOrder(req.getOrderId());
+    if (success) {
+      return new OrderActionResponseDTO(true, "Hủy đơn hàng thành công!");
+    }
+    return new OrderActionResponseDTO(false, "Hủy đơn hàng thất bại!");
+  }
+  public static GetOrderResponseDTO getOrder(GetOrderRequestDTO req) {
+    OrderService orderService = new OrderService();
+    Order order = orderService.getOrderById(req.getOrderId());
+    if (order != null) {
+      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
+    }
+    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
   }
 }

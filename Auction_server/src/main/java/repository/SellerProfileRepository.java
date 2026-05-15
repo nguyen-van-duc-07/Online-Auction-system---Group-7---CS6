@@ -71,5 +71,21 @@ public class SellerProfileRepository {
 
     return null; // Trả về null nếu User này chưa từng đăng ký làm người bán
   }
+
+  public String getUserIdByProfileId(String profileId) {
+    String sql = "SELECT user_id FROM seller_profiles WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, profileId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return rs.getString("user_id");
+      }
+      return null;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
 }
 

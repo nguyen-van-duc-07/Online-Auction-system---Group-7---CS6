@@ -99,6 +99,21 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case ConfirmOrderRequestDTO confirmReq -> {
+                out.writeObject(RequestHandler.confirmOrder(confirmReq));
+                out.flush();
+              }
+
+              case CancelOrderRequestDTO cancelReq -> {
+                out.writeObject(RequestHandler.cancelOrder(cancelReq));
+                out.flush();
+              }
+
+              case GetOrderRequestDTO getOrderReq -> {
+                out.writeObject(RequestHandler.getOrder(getOrderReq));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }
