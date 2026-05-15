@@ -70,7 +70,7 @@
                          </VBox>
 
                               <!-- RIGHT: INFO CARD -->
-                        <VBox maxHeight="Infinity" maxWidth="Infinity" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #ddd;" styleClass="card" HBox.hgrow="ALWAYS">
+                        <VBox maxHeight="458.0" maxWidth="324.0" minHeight="458.0" minWidth="324.0" prefHeight="458.0" prefWidth="324.0" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #ddd;" styleClass="card" HBox.hgrow="NEVER">
                             <Label fx:id="itemNameLabel" style="-fx-font-size: 24; -fx-font-weight: bold;" text="Tên Sản Phẩm" wrapText="true" />
 
                                   <Label fx:id="currentPriceField" style="-fx-text-fill: #e67e22; -fx-font-size: 18; -fx-font-weight: bold;" text="Giá hiện tại: 10,000,000 VNĐ" />
