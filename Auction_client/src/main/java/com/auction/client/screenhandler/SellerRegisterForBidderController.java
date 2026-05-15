@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.request.SellerRegisterRequestDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -77,13 +78,13 @@ public class SellerRegisterForBidderController implements Initializable {
           "Thông báo", "Vui lòng điền đầy đủ thông tin");
       return;
     } else {
-      SellerRegisterRequestDTO sellerRegisterReq = new SellerRegisterRequestDTO(
-                                                    SessionManager.getCurrentUser().getId(),
-                                                    brandName,
-                                                    citizenIdentityCard,
-                                                    location,
-                                                    bankAccount,
-                                                    bankName);
+      SellerRegisterRequestDTO sellerRegisterReq = new SellerRegisterRequestDTO();
+      sellerRegisterReq.setUserId(SessionManager.getCurrentUser().getId());
+      sellerRegisterReq.setBrandName(brandName);
+      sellerRegisterReq.setCitizenIdentityCard(citizenIdentityCard);
+      sellerRegisterReq.setLocation(location);
+      sellerRegisterReq.setBankAccount(bankAccount);
+      sellerRegisterReq.setBankName(bankName);
       ServerConnection.sendData(sellerRegisterReq);
     }
   }

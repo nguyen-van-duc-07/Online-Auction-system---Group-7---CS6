@@ -69,6 +69,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
+                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
+                out.flush();
+              }
+
               case UpdateProfileRequestDTO updateProfileReq -> {
                 out.writeObject(RequestHandler.updateProfile(updateProfileReq));
                 out.flush();
@@ -99,18 +104,13 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
-              case ConfirmOrderRequestDTO confirmReq -> {
-                out.writeObject(RequestHandler.confirmOrder(confirmReq));
+              case GetSellerProfileRequestDTO getSellerProfileReq -> {
+                out.writeObject(RequestHandler.getSellerProfile(getSellerProfileReq));
                 out.flush();
               }
 
-              case CancelOrderRequestDTO cancelReq -> {
-                out.writeObject(RequestHandler.cancelOrder(cancelReq));
-                out.flush();
-              }
-
-              case GetOrderRequestDTO getOrderReq -> {
-                out.writeObject(RequestHandler.getOrder(getOrderReq));
+              case UpdateSellerProfileStatusRequestDTO updateSellerProfileStatusReq -> {
+                out.writeObject(RequestHandler.updateSellerProfileStatus(updateSellerProfileStatusReq));
                 out.flush();
               }
 

@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
  * Controller xử lý logic cho màn hình trang chủ.
  * Chịu trách nhiệm hiển thị danh sách sản phâ đấu giá động từ Server.
  */
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, ProductDetailNavigator {
 
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
@@ -104,7 +104,8 @@ public class HomeController implements Initializable {
   /**
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
-  protected void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+  @Override
+  public void gotoProductDetail(AuctionResponseDTO selectedAuction) {
     // Lưu sản phẩm vừa chọn vào SessionManager
     SessionManager.setCurrentAuction(selectedAuction);
     System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());

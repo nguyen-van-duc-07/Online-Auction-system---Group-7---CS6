@@ -71,6 +71,24 @@ public class ItemAuctionController implements Initializable {
     priceChart.setAnimated(false);
     loadChartData();
     startCountdownTimer();
+
+    String currentUserId = SessionManager.getCurrentUser().getId();
+
+    String auctionUserId = SessionManager.getCurrentAuction().getUserId();
+
+    if (currentUserId.equals(auctionUserId)) {
+      bidAmountField.setDisable(true);
+      placeBidButton.setDisable(true);
+
+      // Đổi giao diện chữ để báo cho Seller biết họ đang ở chế độ xem
+      bidAmountField.setPromptText("Chế độ xem (Phiên của bạn)");
+      placeBidButton.setText("Không thể tự đặt giá");
+    } else {
+      bidAmountField.setDisable(false);
+      placeBidButton.setDisable(false);
+      bidAmountField.setPromptText("Nhập mức giá...");
+      placeBidButton.setText("Đấu giá");
+    }
   }
 
   private void updateHighestBidderUI(String name) {

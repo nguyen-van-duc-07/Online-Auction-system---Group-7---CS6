@@ -94,6 +94,11 @@ public class RequestHandler {
     return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
   }
 
+  public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
+    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công", list);
+  }
+
   public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {
     User userAfterUpdatingProfile = AuthService.updateProfile(updateProfileReq);
 
@@ -190,5 +195,24 @@ public class RequestHandler {
       return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
     }
     return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
+  }
+
+  public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {
+    List<SellerRegisterRequestDTO> list = SellerService.getSellerProfiles();
+    GetSellerProfileResponseDTO response = new GetSellerProfileResponseDTO();
+    response.setSuccess(true);
+    response.setMessage("Tải thông tin thành công");
+    response.setSellerProfileList(list);
+    return response;
+  }
+
+  public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
+      UpdateSellerProfileStatusRequestDTO request) {
+    boolean success = SellerService.handleUpdateSellerProfileStatus(request);
+    String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
+    UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
+    response.setSuccess(success);
+    response.setMessage(message);
+    return response;
   }
 }

@@ -52,19 +52,22 @@ public class ServerConnection {
 
             case UploadItemResponseDTO uploadItemRes -> ResponseHandler.handleUploadItem(uploadItemRes);
 
-            case GetActiveAuctionResponseDTO getActiveAuctionRes -> ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
+            case GetActiveAuctionResponseDTO getActiveAuctionRes ->
+                ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
+
+            case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
+              ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
-            case AuctionStatusUpdateDTO dto ->
-                System.out.println("CLIENT RECEIVED: " + dto.getId()
-                    + " status=" + dto.getAuctionStatus());
+            case AuctionStatusUpdateDTO dto -> System.out.println("CLIENT RECEIVED: " + dto.getId()
+                + " status=" + dto.getAuctionStatus());
 
             case NewBidDTO dto -> {
               ResponseHandler.handleNewBid(dto);
-                System.out.println("CLIENT RECEIVED: Phien: " + dto.getAuctionId()
-                                    + "- Bidder: " + dto.getBidderId()
-                + "dat gia: " + dto.getBidAmount());
+              System.out.println("CLIENT RECEIVED: Phien: " + dto.getAuctionId()
+                  + "- Bidder: " + dto.getBidderId()
+                  + "dat gia: " + dto.getBidAmount());
             }
 
             case PlaceBidResponseDTO dto -> {
@@ -72,9 +75,9 @@ public class ServerConnection {
               ResponseHandler.handlePlaceBidResponse(dto); // THÊM DÒNG NÀY
             }
 
-            case AuctionResponseDTO auctionRes -> {
-              ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
-            }
+            case AuctionResponseDTO auctionRes ->
+                ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
+
             case PaymentNotificationDTO dto ->
                 ResponseHandler.handlePaymentNotification(dto);
 
@@ -86,6 +89,12 @@ public class ServerConnection {
 
             case CheckingSellerProfileResponseDTO checkingSellerProfileRes ->
                 ResponseHandler.checkingSellerProfile(checkingSellerProfileRes);
+
+            case GetSellerProfileResponseDTO getSellerProfileRes ->
+                ResponseHandler.handleGetSellerProfile(getSellerProfileRes);
+
+            case UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes ->
+                ResponseHandler.handleUpdateSellerProfileStatus(updateSellerProfileStatusRes);
 
             case OrderActionResponseDTO dto ->
                 ResponseHandler.handleOrderAction(dto);

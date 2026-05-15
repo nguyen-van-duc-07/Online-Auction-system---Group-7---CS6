@@ -26,6 +26,7 @@ public class Auction extends Entity implements Serializable {
   @JoinColumn(name = "item_id")
   private Item item;
 
+  private String sellerId;
   private BigDecimal startPrice;
   private BigDecimal minStepPrice;
   private BigDecimal currentHighestPrice;
