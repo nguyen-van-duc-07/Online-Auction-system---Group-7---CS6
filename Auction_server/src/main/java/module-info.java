@@ -12,4 +12,5 @@ module com.auction.server {
     exports repository;
     exports servercontroller;
     exports config;
+  exports scheduler;
 }

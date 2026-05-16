@@ -110,6 +110,9 @@ public class ServerConnection {
             case AuctionPriceUpdateDTO dto ->
                 ResponseHandler.handleAuctionPriceUpdate(dto);
 
+            case AutoBidResponseDTO dto ->
+                ResponseHandler.handleAutoBidResponse(dto);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

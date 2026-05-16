@@ -118,6 +118,15 @@ public class ClientHandler implements Runnable {
                 out.writeObject(RequestHandler.getOrder(getOrderReq));
                 out.flush();
               }
+              case SetAutoBidRequestDTO setAutoBidReq -> {
+                out.writeObject(RequestHandler.setAutoBid(setAutoBidReq));
+                out.flush();
+              }
+
+              case CancelAutoBidRequestDTO cancelAutoBidReq -> {
+                out.writeObject(RequestHandler.cancelAutoBid(cancelAutoBidReq));
+                out.flush();
+              }
 
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");

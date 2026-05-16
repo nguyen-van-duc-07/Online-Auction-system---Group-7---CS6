@@ -215,4 +215,19 @@ public class RequestHandler {
     response.setMessage(message);
     return response;
   }
+  private static final AutoBidService autoBidService = new AutoBidService();
+
+  public static AutoBidResponseDTO setAutoBid(SetAutoBidRequestDTO req) {
+    boolean success = autoBidService.setAutoBid(req);
+    return success
+        ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
+        : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+  }
+
+  public static AutoBidResponseDTO cancelAutoBid(CancelAutoBidRequestDTO req) {
+    boolean success = autoBidService.cancelAutoBid(req);
+    return success
+        ? new AutoBidResponseDTO(true, "Đã tắt tự động đấu giá!")
+        : new AutoBidResponseDTO(false, "Không thể tắt tự động đấu giá!");
+  }
 }
