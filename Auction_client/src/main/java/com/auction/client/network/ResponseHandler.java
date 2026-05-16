@@ -1,21 +1,23 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.HomeController;
-import com.auction.client.screenhandler.ScreenController;
-import com.auction.client.screenhandler.SellerHomeController;
+import com.auction.client.screenhandler.*;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.GetOrderRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import com.auction.client.screenhandler.ItemAuctionController;
+import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
 /**
@@ -159,7 +161,16 @@ public class ResponseHandler {
     }
   }
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
-    // hiển thị thông báo thanh toán
+    Platform.runLater(() -> {
+      DecimalFormat formatter = new DecimalFormat("#,###");
+      ToastNotification.show(
+          ScreenController.primaryStage,
+          "Chúc mừng! Bạn đã thắng!",
+          dto.getItemName() + "\n" + formatter.format(dto.getFinalPrice()) + " VNĐ • Nhấn để thanh toán",
+          () -> ServerConnection.sendData(new GetOrderRequestDTO(dto.getOrderId()))
+      );
+    });
+
     System.out.println("VUI LONG THANH TOAN SAN PHAM: " + dto.getItemName());
     System.out.println("Giá cuối: " + dto.getFinalPrice());
   }
@@ -245,7 +256,16 @@ public class ResponseHandler {
   }
 
   public static void handleGetOrder(GetOrderResponseDTO dto) {
-    // Ae viet hien thi UI o day
+    if (dto.isSuccess()) {
+      Platform.runLater(() -> {
+        SessionManager.setCurrentOrder(dto.getOrder());
+        ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi", dto.getMessage());
+      });
+    }
   }
 
   public static void handleOrderUpdateNotification(OrderUpdateNotificationDTO dto) {
