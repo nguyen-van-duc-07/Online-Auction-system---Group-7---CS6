@@ -69,6 +69,7 @@ public class AuctionStatusScheduler {
                 auction.getCurrentHighestPrice()
             ));
             Order order = orderService.createOrder(id, winnerId, auction.getCurrentHighestPrice());
+            System.out.println("[SCHEDULER] createOrder result: " + (order != null ? order.getId() : "NULL"));
             PaymentNotificationDTO paymentDTO = new PaymentNotificationDTO(
                 order.getId(),
                 auction.getItem().getName(),

@@ -4,6 +4,7 @@ import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.PlaceBidRequestDTO;
+import com.auction.shared.response.AuctionPriceUpdateDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
 import config.DatabaseConnection;
@@ -102,6 +103,10 @@ public class BidService {
             req.getBidderName(),
             req.getBidAmount()
         ));
+    Server.broadcastToAll(new AuctionPriceUpdateDTO(
+        req.getAuctionId(),
+        req.getBidAmount()
+    ));
     return new PlaceBidResponseDTO(
         true,
         "Bid thành công"
