@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="850.0" style="-fx-background-color: #F0F4F8;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Pane prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #2BA659, #54ca85); -fx-background-radius: 0 0 30 30;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+        <VBox spacing="30.0" style="-fx-background-color: white; -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 15);" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="50.0">
+            <padding>
+                <Insets bottom="40.0" left="50.0" right="50.0" top="35.0" />
+            </padding>
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Cập nhật hồ sơ" textFill="#2D3748">
+                            <font><Font name="System Bold" size="26.0" /></font>
+                        </Label>
+                        <Label text="Thay đổi thông tin cá nhân của bạn bên dưới" textFill="#A0AEC0">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <GridPane hgap="30.0" vgap="25.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label text="HỌ VÀ TÊN" textFill="#718096">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <TextField fx:id="txtFullName" promptText="Nhập họ và tên" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1">
+                            <children>
+                                <Label text="ĐỊA CHỈ EMAIL" textFill="#718096">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <TextField fx:id="txtEmail" promptText="example@gmail.com" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.rowIndex="1">
+                            <children>
+                                <Label text="SỐ ĐIỆN THOẠI" textFill="#718096">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <TextField fx:id="txtPhone" promptText="Nhập số điện thoại" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <children>
+                                <Label text="NGÀY SINH" textFill="#718096">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <DatePicker fx:id="dpDob" prefHeight="45.0" prefWidth="400.0" promptText="Chọn ngày sinh" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                            <children>
+                                <Label text="ĐỊA CHỈ THƯỜNG TRÚ" textFill="#718096">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <TextField fx:id="txtAddress" alignment="TOP_LEFT" prefHeight="80.0" promptText="Số nhà, tên đường, quận/huyện, tỉnh/thành phố..." style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                            </children>
+                        </VBox>
+                    </children>
+                </GridPane>
+
+                <HBox alignment="CENTER_RIGHT" spacing="20.0">
+                    <children>
+                        <Button mnemonicParsing="false" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #EDF2F7; -fx-border-radius: 12; -fx-text-fill: #718096; -fx-cursor: hand;" text="Hủy bỏ">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                            <padding><Insets bottom="12.0" top="12.0" /></padding>
+                        </Button>
+                        <Button mnemonicParsing="false" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #2BA659, #48bb78); -fx-background-radius: 12; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(43,166,89,0.3), 10, 0, 0, 5); -fx-cursor: hand;" text="LƯU THAY ĐỔI">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                            <padding><Insets bottom="12.0" top="12.0" /></padding>
+                        </Button>
+                    </children>
+                    <VBox.margin><Insets top="10.0" /></VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
