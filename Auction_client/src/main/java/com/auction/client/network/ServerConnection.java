@@ -55,6 +55,9 @@ public class ServerConnection {
             case GetActiveAuctionResponseDTO getActiveAuctionRes ->
                 ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
 
+            case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
+              ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
+
             case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
               ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
 

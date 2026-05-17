@@ -69,6 +69,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetActiveAndWaitingAuctionsRequestDTO getActiveAndWaitingAuctionsReq -> {
+                out.writeObject(RequestHandler.getActiveAndWaitingAuctions(getActiveAndWaitingAuctionsReq));
+                out.flush();
+              }
+
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
                 out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
                 out.flush();

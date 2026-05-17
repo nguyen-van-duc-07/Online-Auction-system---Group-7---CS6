@@ -32,12 +32,12 @@ public class AdminScreenController implements Initializable {
    */
   @FXML
   public void gotoUserManager() {
-    loadComponent("/com/auction/client/Admin/UserAndAuctionManager.fxml");
+    loadComponent("/com/auction/client/Admin/UserManager.fxml");
   }
 
   @FXML
   public void gotoAuctionManager() {
-    loadComponent("/com/auction/client/Admin/UserAndAuctionManager.fxml");
+    loadComponent("/com/auction/client/Admin/AuctionManager.fxml");
   }
 
   /**

@@ -12,10 +12,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -37,13 +35,20 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
 
-
+  /**
+   * Phương thức dùng để lấy ra instance của HomeController.
+   * @return đối tượng kiểu HomeController
+   */
   public static HomeController getInstance() {
     return instance;
   }
+
   // THÊM field này
   private List<AuctionResponseDTO> currentAuctions = new ArrayList<>();
-  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Bidder/Home.fxml. */
+
+  @FXML
+  private ScrollPane mainContent;
+
   @FXML
   private FlowPane feedContainer;
 
@@ -159,7 +164,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   @FXML
   public void gotoProfile() {
-    ScreenController.switchScreen("User/Profile.fxml", "Thông tin tài khoản");
+    loadComponent("/com/auction/client/User/Profile.fxml");
   }
 
   @FXML
@@ -170,5 +175,22 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   public void gotoResult() {
     ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
+  }
+
+  /**
+   * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của ScrollPane.
+   */
+  public void loadComponent(String fxmlPath) {
+    try {
+      FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+      Parent newNode = loader.load();
+
+      mainContent.setContent(newNode);
+
+      mainContent.setFitToHeight(true);
+      mainContent.setFitToWidth(true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

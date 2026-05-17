@@ -1,6 +1,7 @@
 package com.auction.client.network;
 
 import com.auction.client.screenhandler.*;
+import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
@@ -291,6 +292,21 @@ public class ResponseHandler {
 
         if (controller != null) {
           controller.loadDataToTable(getSellerProfileRes.getSellerProfileList());
+        }
+      });
+    }
+  }
+
+  public static void handleGetActiveAndWaitingAuctions(
+      GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes) {
+    if (getActiveAndWaitingAuctionsRes.isSuccess()) {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION,
+            "Thông báo", getActiveAndWaitingAuctionsRes.getMessage());
+        AuctionManagerController controller = AuctionManagerController.getInstance();
+
+        if (controller != null) {
+          controller.loadDataToTable(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
         }
       });
     }
