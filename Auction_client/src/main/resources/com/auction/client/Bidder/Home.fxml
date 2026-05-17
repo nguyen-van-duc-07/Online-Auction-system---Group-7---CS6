@@ -45,12 +45,17 @@
                 <right>
                     <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
                         <children>
-                            <Label style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                            <VBox alignment="CENTER_RIGHT" spacing="2.0">
+                                <children>
+                                    <Label style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                                    <Label fx:id="lblSoDu" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
+                                </children>
+                            </VBox>
                             <MenuButton mnemonicParsing="false" style="-fx-background-color: #f8f9fa; -fx-border-color: #ddd; -fx-border-radius: 20; -fx-background-radius: 20;" text="Tài khoản">
                                 <items>
                                     <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
                                     <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
-                           <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                                    <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
                                 </items>
                             </MenuButton>
                         </children>
@@ -102,9 +107,9 @@
         </center>
     </BorderPane>
 
-    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: move;" StackPane.alignment="BOTTOM_RIGHT">
+    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: move;" StackPane.alignment="BOTTOM_LEFT">
         <StackPane.margin>
-            <Insets bottom="30.0" right="30.0" />
+            <Insets bottom="30.0" left="30.0" />
         </StackPane.margin>
         <children>
             <StackPane>
