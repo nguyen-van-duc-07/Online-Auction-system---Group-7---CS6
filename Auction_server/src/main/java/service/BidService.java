@@ -10,6 +10,7 @@ import com.auction.shared.response.PlaceBidResponseDTO;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
+import scheduler.AutoBidProcessor;
 import servercontroller.Server;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -107,6 +108,9 @@ public class BidService {
         req.getAuctionId(),
         req.getBidAmount()
     ));
+    new Thread(() ->
+        AutoBidProcessor.process(req.getAuctionId(), req.getBidderId(), req.getBidAmount())
+    ).start();
     return new PlaceBidResponseDTO(
         true,
         "Bid thành công"

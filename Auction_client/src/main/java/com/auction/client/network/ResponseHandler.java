@@ -319,4 +319,14 @@ public class ResponseHandler {
       }
     });
   }
+
+  public static void handleAutoBidResponse(AutoBidResponseDTO dto) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          dto.isSuccess() ? "Thành công" : "Thất bại",
+          dto.getMessage()
+      );
+    });
+  }
 }
