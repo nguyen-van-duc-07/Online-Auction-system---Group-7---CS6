@@ -91,12 +91,18 @@ public class RequestHandler {
    */
   public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
     List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
-    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
+    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
+      GetActiveAndWaitingAuctionsRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getActiveAndWaitingAuctions();
+    return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
     List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
-    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công", list);
+    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {

@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class UserAndAuctionManagerController implements Initializable {
+public class UserManagerController implements Initializable {
 
   @FXML
   private TextField searchField;
