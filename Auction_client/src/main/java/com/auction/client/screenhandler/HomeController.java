@@ -12,17 +12,17 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -35,12 +35,20 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
 
-
+  /**
+   * Phương thức dùng để lấy ra instance của HomeController.
+   * @return đối tượng kiểu HomeController
+   */
   public static HomeController getInstance() {
     return instance;
   }
 
-  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Bidder/Home.fxml. */
+  // THÊM field này
+  private List<AuctionResponseDTO> currentAuctions = new ArrayList<>();
+
+  @FXML
+  private ScrollPane mainContent;
+
   @FXML
   private FlowPane feedContainer;
 
@@ -71,6 +79,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
    */
   public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
+    this.currentAuctions = auctions;
     // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
     Platform.runLater(() -> {
       // Xóa các card cũ (nếu có) trước khi nạp mới
@@ -86,7 +95,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
           // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
-
+          cardNode.setUserData(cardController);
           // Truyền object auction và 'this' (HomeController) sang để thẻ con biết đường gọi chuyển trang
           cardController.setData(auction, this);
 
@@ -96,6 +105,31 @@ public class HomeController implements Initializable, ProductDetailNavigator {
         } catch (IOException e) {
           System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
           e.printStackTrace();
+        }
+      }
+    });
+  }
+
+  public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
+    // Tìm auction trong danh sách hiện tại và cập nhật giá
+    for (AuctionResponseDTO auction : currentAuctions) {
+      if (auction.getId().equals(auctionId)) {
+        auction.setCurrentHighestPrice(newPrice);
+        // Cập nhật UI của card tương ứng
+        refreshAuctionCard(auctionId, newPrice);
+        break;
+      }
+    }
+  }
+
+  private void refreshAuctionCard(String auctionId, BigDecimal newPrice) {
+    Platform.runLater(() -> {
+      for (Node node : feedContainer.getChildren()) {
+        AuctionItemCardController controller =
+            (AuctionItemCardController) node.getUserData();
+        if (controller != null && controller.getAuctionId().equals(auctionId)) {
+          controller.updatePrice(newPrice);
+          break;
         }
       }
     });
@@ -130,7 +164,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   @FXML
   public void gotoProfile() {
-    ScreenController.switchScreen("User/Profile.fxml", "Thông tin tài khoản");
+    loadComponent("/com/auction/client/User/Profile.fxml");
   }
 
   @FXML
@@ -141,5 +175,22 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   public void gotoResult() {
     ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
+  }
+
+  /**
+   * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của ScrollPane.
+   */
+  public void loadComponent(String fxmlPath) {
+    try {
+      FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+      Parent newNode = loader.load();
+
+      mainContent.setContent(newNode);
+
+      mainContent.setFitToHeight(true);
+      mainContent.setFitToWidth(true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

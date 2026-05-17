@@ -4,11 +4,13 @@ import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.PlaceBidRequestDTO;
+import com.auction.shared.response.AuctionPriceUpdateDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
+import scheduler.AutoBidProcessor;
 import servercontroller.Server;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -102,6 +104,13 @@ public class BidService {
             req.getBidderName(),
             req.getBidAmount()
         ));
+    Server.broadcastToAll(new AuctionPriceUpdateDTO(
+        req.getAuctionId(),
+        req.getBidAmount()
+    ));
+    new Thread(() ->
+        AutoBidProcessor.process(req.getAuctionId(), req.getBidderId(), req.getBidAmount())
+    ).start();
     return new PlaceBidResponseDTO(
         true,
         "Bid thành công"

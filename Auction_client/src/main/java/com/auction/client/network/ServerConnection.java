@@ -81,8 +81,10 @@ public class ServerConnection {
             case AuctionResponseDTO auctionRes ->
                 ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
 
-            case PaymentNotificationDTO dto ->
+            case PaymentNotificationDTO dto -> {
+              System.out.println("[CLIENT] Nhận PaymentNotification: " + dto.getItemName());
                 ResponseHandler.handlePaymentNotification(dto);
+            }
 
             case AuctionResultDTO dto ->
                 ResponseHandler.handleAuctionResult(dto);
@@ -107,6 +109,12 @@ public class ServerConnection {
 
             case OrderUpdateNotificationDTO dto ->
                 ResponseHandler.handleOrderUpdateNotification(dto);
+
+            case AuctionPriceUpdateDTO dto ->
+                ResponseHandler.handleAuctionPriceUpdate(dto);
+
+            case AutoBidResponseDTO dto ->
+                ResponseHandler.handleAutoBidResponse(dto);
 
             default -> System.out.println("Phản hồi không hợp lệ");
           }

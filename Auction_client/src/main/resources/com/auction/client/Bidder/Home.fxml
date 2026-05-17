@@ -6,57 +6,116 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.HomeController">
+<StackPane prefHeight="650.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.HomeController">
 
-    <top>
-        <BorderPane prefHeight="80.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets left="20.0" right="20.0" />
-            </padding>
+    <BorderPane>
+        <top>
+            <BorderPane prefHeight="70.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+                <padding><Insets left="25.0" right="25.0" /></padding>
 
-            <left>
-                <Button mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Quản lý hàng giao bán" textFill="#2980b9" BorderPane.alignment="CENTER" />
-            </left>
+                <left>
+                    <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                        <font><Font name="System Bold" size="36.0" /></font>
+                    </Label>
+                </left>
 
-            <center>
-                <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
-                    <font>
-                        <Font name="System Bold" size="40.0" />
-                    </font>
+                <center>
+                    <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="400.0" prefHeight="42.0" prefWidth="440.0" spacing="10.0" style="-fx-background-color: #f0f2f5; -fx-background-radius: 20; -fx-border-color: #ddd; -fx-border-radius: 20; -fx-padding: 5 15;">
+                        <BorderPane.margin>
+                            <Insets left="50.0" right="50.0" />
+                        </BorderPane.margin>
+                        <children>
+                            <Label style="-fx-font-size: 16px;" text="🔍" textFill="#888888" />
+                            <TextField fx:id="searchField" promptText="Tìm kiếm sản phẩm, phiên đấu giá..." style="-fx-background-color: transparent; -fx-prompt-text-fill: #888888; -fx-font-size: 14px;" HBox.hgrow="ALWAYS" />
+                        </children>
+                    </HBox>
+                </center>
+
+                <right>
+                    <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
+                        <children>
+                            <Label style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                            <MenuButton mnemonicParsing="false" style="-fx-background-color: #f8f9fa; -fx-border-color: #ddd; -fx-border-radius: 20; -fx-background-radius: 20;" text="Tài khoản">
+                                <items>
+                                    <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
+                                    <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
+                           <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                                </items>
+                            </MenuButton>
+                        </children>
+                    </HBox>
+                </right>
+            </BorderPane>
+        </top>
+
+        <left>
+            <VBox fx:id="sidebar" prefHeight="580.0" prefWidth="235.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom, #1e7d32, #009900);" BorderPane.alignment="CENTER">
+                <padding><Insets left="15.0" right="15.0" top="30.0" /></padding>
+                <children>
+                    <Button fx:id="btnQuanLy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: white; -fx-text-fill: #1e7d32; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🛒 Quản lý hàng giao bán">
+                        <effect><DropShadow blurType="GAUSSIAN" height="10.0" radius="4.5" width="10.0"><color><Color opacity="0.3" /></color></DropShadow></effect>
+                    </Button>
+
+                    <Button fx:id="btnKetQua" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoResult" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🏆 Kết quả đấu giá" />
+
+                    <Label fx:id="lblStatusHeader" text="TRẠNG THÁI PHIÊN" textFill="#c8e6c9">
+                        <VBox.margin><Insets bottom="5.0" left="10.0" top="25.0" /></VBox.margin>
+                        <font><Font name="System Bold" size="11.0" /></font>
+                    </Label>
+
+                    <Button fx:id="btnDangDienRa" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🟢 Đang diễn ra">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
+                    <Button fx:id="btnSapDienRa" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🕒 Sắp diễn ra">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
+                    <Button fx:id="btnDaKetThuc" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🔴 Đã kết thúc">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
+                    <Region VBox.vgrow="ALWAYS" />
+                </children>
+            </VBox>
+        </left>
+
+        <center>
+            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: #f0f2f5;" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
+                <content>
+                    <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
+                        <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>
+                    </FlowPane>
+                </content>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+
+    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: move;" StackPane.alignment="BOTTOM_RIGHT">
+        <StackPane.margin>
+            <Insets bottom="30.0" right="30.0" />
+        </StackPane.margin>
+        <children>
+            <StackPane>
+                <Label style="-fx-font-size: 26px;" text="🔔" />
+                <Label alignment="CENTER" style="-fx-background-color: red; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-min-width: 18; -fx-min-height: 18;" text="3" StackPane.alignment="TOP_RIGHT">
+                    <StackPane.margin><Insets right="-5.0" top="-5.0" /></StackPane.margin>
                 </Label>
-            </center>
-
-            <right>
-                <HBox alignment="CENTER_RIGHT" spacing="15.0" BorderPane.alignment="CENTER">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#gotoResult" prefHeight="35.0" prefWidth="136.0" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Kết quả đấu giá" textFill="#333333" />
-                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 4 10 4 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Profile">
-                            <items>
-                                <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
-                                <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
-                                <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
-                            </items>
-                        </MenuButton>
-                    </children>
-                </HBox>
-            </right>
-        </BorderPane>
-    </top>
-
-    <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
-            <content>
-                <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f4f6f9;" vgap="25.0">
-                    <padding>
-                        <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
-                    </padding>
-                </FlowPane>
-            </content>
-        </ScrollPane>
-    </center>
-</BorderPane>
+            </StackPane>
+        </children>
+        <effect>
+            <DropShadow blurType="GAUSSIAN" color="#00000066" offsetX="2.0" offsetY="2.0" radius="10.0" />
+        </effect>
+    </VBox>
+</StackPane>

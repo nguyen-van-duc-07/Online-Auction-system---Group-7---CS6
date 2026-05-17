@@ -2,9 +2,12 @@ package com.auction.client.screenhandler;
 import com.auction.shared.enums.AuctionStatusUI;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.animation.Animation;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import javafx.animation.KeyFrame;
@@ -20,11 +23,13 @@ public class AuctionItemCardController {
     @FXML private Label timeLabel;
     @FXML private Button bidButton;
     private Timeline countdownTimer;
+    private String auctionId;
     /**
      * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
      * Controller cha phải implement ProductDetailNavigator.
      */
     public void setData(AuctionResponseDTO auction, ProductDetailNavigator navigator) {
+        this.auctionId = auction.getId();
         // 1. Đổ dữ liệu text
         nameLabel.setText(auction.getItem().getName());
 
@@ -70,4 +75,14 @@ public class AuctionItemCardController {
         // Gọi ngược lại hàm chuyển trang của navigator
         bidButton.setOnAction(e -> navigator.gotoProductDetail(auction));
     }
+    public String getAuctionId() {
+        return auctionId;
+    }
+
+    public void updatePrice(BigDecimal newPrice) {
+        Platform.runLater(() -> {
+            priceLabel.setText(String.format("%,.0f VNĐ", newPrice));
+        });
+    }
+
 }
