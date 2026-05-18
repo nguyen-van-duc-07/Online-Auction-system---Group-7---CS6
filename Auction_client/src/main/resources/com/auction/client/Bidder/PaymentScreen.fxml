@@ -16,7 +16,7 @@
     <children>
         <AnchorPane prefHeight="70.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Button layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-cursor: hand;" text="← Quay lại" textFill="#6c757d" AnchorPane.leftAnchor="25.0">
+                <Button fx:id="btnBack" layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-cursor: hand;" text="← Quay lại" textFill="#6c757d" AnchorPane.leftAnchor="25.0">
                     <font><Font name="System" size="14.0" /></font>
                 </Button>
 
@@ -24,7 +24,7 @@
                     <font><Font name="System Bold" size="24.0" /></font>
                 </Label>
 
-                <Button layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: #dc3545; -fx-background-radius: 5; -fx-cursor: hand;" text="Hủy đơn hàng" textFill="WHITE" AnchorPane.rightAnchor="40.0">
+                <Button fx:id="btnCancelOrder" layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: #dc3545; -fx-background-radius: 5; -fx-cursor: hand;" text="Hủy đơn hàng" textFill="WHITE" AnchorPane.rightAnchor="40.0">
                     <font><Font name="System Bold" size="13.0" /></font>
                 </Button>
             </children>
@@ -40,13 +40,13 @@
                                 <Label text="1. Thông tin giao hàng" textFill="#343a40">
                                     <font><Font name="System Bold" size="16.0" /></font>
                                 </Label>
-                                <TextField prefHeight="40.0" promptText="Họ và tên người nhận" style="-fx-background-radius: 5;" />
+                                <TextField fx:id="txtFullName" prefHeight="40.0" promptText="Họ và tên người nhận" style="-fx-background-radius: 5;" />
                                 <HBox spacing="15.0">
                                     <children>
-                                        <TextField prefHeight="40.0" promptText="Số điện thoại" style="-fx-background-radius: 5;" HBox.hgrow="ALWAYS" />
+                                        <TextField fx:id="txtPhoneNumber" prefHeight="40.0" promptText="Số điện thoại" style="-fx-background-radius: 5;" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
-                                <TextField prefHeight="40.0" promptText="Địa chỉ chi tiết (Số nhà, đường...)" style="-fx-background-radius: 5;" />
+                                <TextField fx:id="txtAddress" prefHeight="40.0" promptText="Địa chỉ chi tiết (Số nhà, đường...)" style="-fx-background-radius: 5;" />
                             </children>
                         </VBox>
 
@@ -58,11 +58,11 @@
                                 </Label>
                                 <VBox spacing="12.0">
                                     <children>
-                                        <RadioButton mnemonicParsing="false" selected="true" text="Ví người dùng">
+                                        <RadioButton fx:id="rbUserWallet" mnemonicParsing="false" selected="true" text="Ví người dùng">
                                             <toggleGroup><ToggleGroup fx:id="paymentMethod" /></toggleGroup>
                                         </RadioButton>
-                                        <RadioButton mnemonicParsing="false" text="Chuyển khoản ngân hàng" toggleGroup="$paymentMethod" />
-                                        <RadioButton mnemonicParsing="false" text="Thanh toán khi nhận hàng (COD)" toggleGroup="$paymentMethod" />
+                                        <RadioButton fx:id="rbBankTransfer" mnemonicParsing="false" text="Chuyển khoản ngân hàng" toggleGroup="$paymentMethod" />
+                                        <RadioButton fx:id="rbCashOnDelivery" mnemonicParsing="false" text="Thanh toán khi nhận hàng (COD)" toggleGroup="$paymentMethod" />
                                     </children>
                                 </VBox>
                             </children>
@@ -81,13 +81,13 @@
                             <children>
                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                     <children>
-                                        <Label text="iPhone 17 Pro Max" textFill="#495057">
+                                        <Label fx:id="lblItemName" text="iPhone 17 Pro Max" textFill="#495057">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Label>
-                                        <Label text="Mã SP: SP002" textFill="#adb5bd" />
+                                        <Label fx:id="lblItemId" text="Mã SP: SP002" textFill="#adb5bd" />
                                     </children>
                                 </VBox>
-                                <Label text="40.000.000đ" textFill="#28a745">
+                                <Label fx:id="lblItemPrice" text="40.000.000đ" textFill="#28a745">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
                             </children>
@@ -98,19 +98,19 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
                                         <Label text="Tạm tính" textFill="#6c757d" />
-                                        <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.000.000đ" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblSubTotal" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.000.000đ" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
                                         <Label text="Phí vận chuyển" textFill="#6c757d" />
-                                        <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="30.000đ" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblShippingFee" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="30.000đ" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
                                         <Label text="Giảm giá" textFill="#6c757d" />
-                                        <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="-0đ" textFill="#e74c3c" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblDiscount" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="-0đ" textFill="#e74c3c" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
@@ -121,12 +121,12 @@
                                 <Label text="TỔNG CỘNG" textFill="#343a40">
                                     <font><Font name="System Bold" size="16.0" /></font>
                                 </Label>
-                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.030.000đ" textFill="#28a745" HBox.hgrow="ALWAYS">
+                                <Label fx:id="lblTotalAmount" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.030.000đ" textFill="#28a745" HBox.hgrow="ALWAYS">
                                     <font><Font name="System Bold" size="20.0" /></font>
                                 </Label>
                             </children>
                         </HBox>
-                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: #28a745; -fx-background-radius: 8; -fx-cursor: hand;" text="HOÀN TẤT THANH TOÁN" textFill="WHITE">
+                        <Button fx:id="btnCompletePayment" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: #28a745; -fx-background-radius: 8; -fx-cursor: hand;" text="HOÀN TẤT THANH TOÁN" textFill="WHITE">
                             <font><Font name="System Bold" size="16.0" /></font>
                             <VBox.margin><Insets top="10.0" /></VBox.margin>
                         </Button>

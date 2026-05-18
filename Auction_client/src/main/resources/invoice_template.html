@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 30px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
+        .title { color: #2c3e50; font-size: 24px; font-weight: bold; }
+        .info-table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        .info-table td { padding: 8px; border: 1px solid #ddd; }
+        .info-table th { background-color: #f2f2f2; padding: 8px; text-align: left; }
+        .total { font-size: 18px; color: #e74c3c; font-weight: bold; text-align: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="title">APP ĐẤU GIÁ 88 - HÓA ĐƠN THẮNG CUỘC</div>
+    <p>Mã phiên đấu giá: {{auctionId}}</p>
+</div>
+
+<table class="info-table">
+    <tr>
+        <th>Thông tin</th>
+        <th>Chi tiết</th>
+    </tr>
+    <tr>
+        <td>Người mua (From ID)</td>
+        <td>{{fromId}}</td>
+    </tr>
+    <tr>
+        <td>Người bán/Hệ thống (To ID)</td>
+        <td>{{toId}}</td>
+    </tr>
+    <tr>
+        <td>Mã sản phẩm (Item ID)</td>
+        <td>{{itemId}}</td>
+    </tr>
+</table>
+
+<div class="total">
+    Giá chốt hóa đơn: {{finalPrice}} VND
+</div>
+</body>
+</html>

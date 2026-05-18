@@ -24,7 +24,8 @@ public class ClientHandler implements Runnable {
   private Socket clientSocket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
-  private String userId;
+  @Getter
+  private String authenticatedUserId = null;
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
   }
@@ -50,17 +51,19 @@ public class ClientHandler implements Runnable {
               }
 
               case LoginRequestDTO loginReq -> {
-                LoginResponseDTO res = RequestHandler.login(loginReq);
-                if (res.isSuccess()) {
-                  this.userId = res.getUser().getId();
-                  Server.registerClient(this.userId, this);
+                LoginResponseDTO loginRes = RequestHandler.login(loginReq);
+                if (loginRes.isSuccess()) {
+                  this.authenticatedUserId = loginRes.getUser().getId();
+                  Server.registerClient(this.authenticatedUserId, this);
+                  System.out.println("Đăng nhập thành công, đã lưu phiên cho user: " + this.authenticatedUserId);
                 }
                 out.writeObject(RequestHandler.login(loginReq));
                 out.flush();
               }
 
               case UploadItemRequestDTO uploadItemReq -> {
-                out.writeObject(RequestHandler.uploadItem(uploadItemReq));
+                if (!isAuthenticated()) break;
+                out.writeObject(RequestHandler.uploadItem(uploadItemReq, this.authenticatedUserId));
                 out.flush();
               }
 
@@ -70,12 +73,14 @@ public class ClientHandler implements Runnable {
               }
 
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
-                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
+                if (!isAuthenticated()) break;
+                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq, this.authenticatedUserId));
                 out.flush();
               }
 
               case UpdateProfileRequestDTO updateProfileReq -> {
-                out.writeObject(RequestHandler.updateProfile(updateProfileReq));
+                if (!isAuthenticated()) break;
+                out.writeObject(RequestHandler.updateProfile(updateProfileReq, this.authenticatedUserId));
                 out.flush();
               }
 
@@ -142,8 +147,16 @@ public class ClientHandler implements Runnable {
       e.printStackTrace();
     } finally {
       Server.removeClientFromAllRooms(this);
-      Server.unregisterClient(this.userId);
+      Server.unregisterClient(this.authenticatedUserId);
     }
+  }
+
+  private boolean isAuthenticated() {
+    if (this.authenticatedUserId == null) {
+      System.out.println("Từ chối truy cập: Client chưa đăng nhập!");
+      return false;
+    }
+    return true;
   }
 
   public void closeConnection() {

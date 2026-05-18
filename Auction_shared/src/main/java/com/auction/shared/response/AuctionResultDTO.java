@@ -1,28 +1,19 @@
 package com.auction.shared.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class AuctionResultDTO implements ResponseDTO {
+@Builder
+@Getter
+@AllArgsConstructor
+public class AuctionResultDTO implements ResponseDTO, Serializable{
   private String auctionId;
   private String winnerId;
+  private String itemId;
+  private String itemName;
   private BigDecimal finalPrice;
-
-  public AuctionResultDTO(String auctionId, String winnerId, BigDecimal finalPrice) {
-    this.auctionId = auctionId;
-    this.winnerId = winnerId;
-    this.finalPrice = finalPrice;
-  }
-
-  public String getAuctionId() {
-    return auctionId;
-  }
-
-  public String getWinnerId() {
-    return winnerId;
-  }
-
-  public BigDecimal getFinalPrice() {
-    return finalPrice;
-  }
 }

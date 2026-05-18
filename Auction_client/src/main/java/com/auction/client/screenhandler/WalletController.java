@@ -1,25 +1,15 @@
 package com.auction.client.screenhandler;
 
-import com.auction.client.network.SessionManager;
+import com.auction.client.network.ServerConnection;
+import com.auction.shared.request.GetBalanceRequestDTO;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import service.WalletService;
-
-import java.io.IOException;
+import lombok.Getter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
-
-import static com.auction.client.screenhandler.ScreenController.primaryStage;
-import static com.auction.client.screenhandler.ScreenController.showAlert;
 
 /**
  * Class có nhiệm vụ quản lý màn hình ví người dùng.
@@ -28,10 +18,13 @@ public class WalletController {
   HomeController homeController = new HomeController();
   @FXML private Label balanceLabel;
 
-  private WalletService walletService = new WalletService();
+  @Getter
+  private static WalletController instance;
+
 
   @FXML
   public void initialize() {
+    instance = this;
     // Gọi hàm load dữ liệu khi mở màn hình lần đầu
     refreshBalance();
   }
@@ -44,24 +37,31 @@ public class WalletController {
     if (balanceLabel != null) {
       balanceLabel.setText("Đang tải...");
     }
+    System.out.println("Gửi yêu cầu lấy số dư lên Server...");
+    GetBalanceRequestDTO request = new GetBalanceRequestDTO();
+    ServerConnection.sendData(request);
+  }
 
-    try {
-      String currentUserId = SessionManager.getCurrentUser().getId();
+  /**
+   * Hàm này sẽ được gọi từ ResponseHandler sau khi có kết quả mạng trả về.
+   */
+  public void updateBalanceUI(BigDecimal currentBalance) {
+    // Bắt buộc dùng Platform.runLater vì luồng mạng không được phép đổi giao diện trực tiếp
+    Platform.runLater(() -> {
+      if (balanceLabel != null) {
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedBalance = currencyFormat.format(currentBalance);
+        balanceLabel.setText(formattedBalance);
+      }
+    });
+  }
 
-      // Gọi hàm getBalance từ Service lấy số dư mới nhất từ DB
-      BigDecimal balance = walletService.getBalance(currentUserId);
-
-      NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-      String formattedBalance = currencyFormat.format(balance);
-
-      balanceLabel.setText(formattedBalance);
-
-    } catch (Exception e) {
-      e.printStackTrace();
+  public void showErrorUI() {
+    Platform.runLater(() -> {
       if (balanceLabel != null) {
         balanceLabel.setText("Lỗi kết nối");
       }
-    }
+    });
   }
 
   @FXML

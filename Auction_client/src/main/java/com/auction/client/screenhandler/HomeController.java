@@ -9,94 +9,68 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller xử lý logic cho màn hình trang chủ.
- * Chịu trách nhiệm hiển thị danh sách sản phâ đấu giá động từ Server.
+ * Controller xử lý logic cho màn hình trang chủ mới.
+ * Chịu trách nhiệm hiển thị danh sách sản phẩm đấu giá động từ Server
+ * và điều hướng các chức năng quản lý, lọc trạng thái.
  */
 public class HomeController implements Initializable, ProductDetailNavigator {
 
-  /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
-
 
   public static HomeController getInstance() {
     return instance;
   }
-  // THÊM field này
+
   private List<AuctionResponseDTO> currentAuctions = new ArrayList<>();
-  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Bidder/Home.fxml. */
+
+  /** Khung chứa các thẻ sản phẩm (Nằm trong ScrollPane ở giữa màn hình) */
   @FXML
   private FlowPane feedContainer;
 
-  /**
-   * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
-   *
-   * <p>Được tự động gọi ngay sau khi file FXML của màn hình Home được tải lên thành công
-   * và các thành phần giao diện (UI components) đã được ánh xạ.
-   * Tại đây, hệ thống sẽ tự động gửi một {@link GetActiveAuctionRequestDTO}
-   * qua Socket lên Server để xin danh sách sản phẩm hiển thị lên bảng tin (Feed)
-   * mà không cần người dùng phải bấm nút tải lại.</p>
-   *
-   * @param location  Đường dẫn tương đối (URL) tới file FXML.
-   * @param resources Các tài nguyên bản địa hóa (nếu có).
-   */
+  /** Thanh tìm kiếm ở Header */
+  @FXML
+  private TextField searchField;
+
+  private double mouseAnchorX;
+  private double mouseAnchorY;
+
+
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    // Ghi nhận bản thân (this) làm instance hiện tại ngay khi màn hình vừa mở lên
     instance = this;
-
-    // Gửi yêu cầu lấy danh sách ngay khi load UI
+    // Gửi yêu cầu lấy danh sách (mặc định lấy Đang diễn ra) ngay khi load UI
     ServerConnection.sendData(new GetActiveAuctionRequestDTO());
   }
 
-  /**
-   * Tải và hiển thị danh sách thẻ sản phẩm (Component) lên giao diện.
-   * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
-   * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
-   */
   public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
     this.currentAuctions = auctions;
-    // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
     Platform.runLater(() -> {
-      // Xóa các card cũ (nếu có) trước khi nạp mới
       feedContainer.getChildren().clear();
 
       for (AuctionResponseDTO auction : auctions) {
         try {
-          // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
           FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
-
-          // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
           Node cardNode = loader.load();
 
-          // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          // Truyền object auction và 'this' (HomeController) sang để thẻ con biết đường gọi chuyển trang
           cardController.setData(auction, this);
 
-          // 4. Nhét thẻ đã hoàn thiện vào FlowPane
           feedContainer.getChildren().add(cardNode);
-
         } catch (IOException e) {
           System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
           e.printStackTrace();
@@ -106,11 +80,9 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   }
 
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
-    // Tìm auction trong danh sách hiện tại và cập nhật giá
     for (AuctionResponseDTO auction : currentAuctions) {
       if (auction.getId().equals(auctionId)) {
         auction.setCurrentHighestPrice(newPrice);
-        // Cập nhật UI của card tương ứng
         refreshAuctionCard(auctionId, newPrice);
         break;
       }
@@ -120,8 +92,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   private void refreshAuctionCard(String auctionId, BigDecimal newPrice) {
     Platform.runLater(() -> {
       for (Node node : feedContainer.getChildren()) {
-        AuctionItemCardController controller =
-            (AuctionItemCardController) node.getUserData();
+        AuctionItemCardController controller = (AuctionItemCardController) node.getUserData();
         if (controller != null && controller.getAuctionId().equals(auctionId)) {
           controller.updatePrice(newPrice);
           break;
@@ -130,32 +101,74 @@ public class HomeController implements Initializable, ProductDetailNavigator {
     });
   }
 
-  /**
-   * Chuyển hướng sang màn hình chi tiết sản phẩm.
-   */
   @Override
   public void gotoProductDetail(AuctionResponseDTO selectedAuction) {
-    // Lưu sản phẩm vừa chọn vào SessionManager
     SessionManager.setCurrentAuction(selectedAuction);
     System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
     ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
   }
 
+  /** Xử lý tìm kiếm khi người dùng Enter hoặc click nút Search */
   @FXML
-  public void gotoLogin() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
-        "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        SessionManager.clearSession();
-        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
-      }
-    });
+  public void handleSearch() {
+    String keyword = searchField.getText().trim();
+    System.out.println("Đang tìm kiếm: " + keyword);
+    // TODO: Gửi Request tìm kiếm lên Server hoặc filter list currentAuctions local
   }
+
+  /** Xử lý click vào chuông thông báo góc dưới phải */
+  @FXML
+  public void handleNotifications() {
+    System.out.println("Mở popup/panel thông báo...");
+    // TODO: Hiển thị giao diện thông báo
+  }
+  /** Ghi lại vị trí chuột ngay khi người dùng vừa nhấn giữ vào quả chuông */
+  @FXML
+  public void onIconPressed(javafx.scene.input.MouseEvent event) {
+    javafx.scene.Node node = (javafx.scene.Node) event.getSource();
+    mouseAnchorX = event.getSceneX() - node.getTranslateX();
+    mouseAnchorY = event.getSceneY() - node.getTranslateY();
+  }
+  /** Cập nhật vị trí mới của quả chuông liên tục theo đường di chuyển của chuột */
+  @FXML
+  public void onIconDragged(javafx.scene.input.MouseEvent event) {
+    javafx.scene.Node node = (javafx.scene.Node) event.getSource();
+    node.setTranslateX(event.getSceneX() - mouseAnchorX);
+    node.setTranslateY(event.getSceneY() - mouseAnchorY);
+  }
+
+  // --- CÁC NÚT Ở SIDEBAR BÊN TRÁI ---
 
   @FXML
   public void gotoSellerHome() {
     ScreenController.navigateToSellerChannel();
   }
+
+  @FXML
+  public void gotoResult() {
+    ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
+  }
+
+  @FXML
+  public void filterOngoingAuctions() {
+    System.out.println("Lọc phiên: Đang diễn ra");
+    // TODO: Gửi request lấy phiên "Đang diễn ra" (Active) hoặc đổi style của nút để báo hiệu đang chọn
+    ServerConnection.sendData(new GetActiveAuctionRequestDTO());
+  }
+
+  @FXML
+  public void filterUpcomingAuctions() {
+    System.out.println("Lọc phiên: Sắp diễn ra");
+    // TODO: Gửi request lấy phiên "Sắp diễn ra" (Upcoming)
+  }
+
+  @FXML
+  public void filterEndedAuctions() {
+    System.out.println("Lọc phiên: Đã kết thúc");
+    // TODO: Gửi request lấy phiên "Đã kết thúc" (Completed/Ended)
+  }
+
+  // --- CÁC NÚT TRONG DROPDOWN "TÀI KHOẢN" ---
 
   @FXML
   public void gotoProfile() {
@@ -168,7 +181,13 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   }
 
   @FXML
-  public void gotoResult() {
-    ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
+  public void gotoLogin() {
+    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
+            "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(response -> {
+      if (response == ButtonType.OK) {
+        SessionManager.clearSession();
+        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+      }
+    });
   }
 }

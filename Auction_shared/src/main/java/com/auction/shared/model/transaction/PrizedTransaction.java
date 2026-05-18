@@ -1,21 +1,24 @@
 package com.auction.shared.model.transaction;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
 @Getter
-@Setter
+@NoArgsConstructor
+@ToString(callSuper = true) // In ra cả các thuộc tính của lớp cha (fromId, toId)
 public class PrizedTransaction extends Transaction {
   private String auctionId;
   private String itemId;
   private BigDecimal finalPrice;
 
-  public PrizedTransaction(String fromId, String receiveId, String auctionId, String itemId, BigDecimal finalPrice) {
+  public PrizedTransaction(String fromId, String toId, String auctionId, String itemId, BigDecimal finalPrice) {
     // fromId: Người thắng (Người bị trừ tiền)
-    // receiveId: Người bán hoặc Hệ thống (Người nhận tiền)
-    super(fromId, receiveId);
+    // toId: Người bán hoặc Hệ thống (Người nhận tiền)
+    super(fromId, toId);
 
     if (auctionId == null || auctionId.trim().isEmpty()) {
       throw new IllegalArgumentException("Auction ID không được để trống.");
@@ -29,15 +32,6 @@ public class PrizedTransaction extends Transaction {
     this.auctionId = auctionId;
     this.itemId = itemId;
     this.finalPrice = finalPrice;
-  }
-  @Override
-
-  public void showInfo() {
-    System.out.println("--- HÓA ĐƠN THẮNG CUỘC ---");
-    System.out.println("Người thắng: " + getFromId());
-    System.out.println("Món hàng: " + itemId);
-    System.out.println("Giá chốt: " + finalPrice);
-    System.out.println("--------------------------");
   }
 }
 /*3. Logic xử lý (Flow quan trọng)
