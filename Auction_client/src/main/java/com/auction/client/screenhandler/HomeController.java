@@ -3,6 +3,7 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.request.CheckingSellerProfileRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
@@ -52,6 +53,12 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   private FlowPane feedContainer;
 
+  @FXML
+  private Node homeFeedNode;
+
+  @FXML
+  private Label realNameLabel;
+
   /**
    * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
    *
@@ -68,6 +75,20 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   public void initialize(URL location, ResourceBundle resources) {
     // Ghi nhận bản thân (this) làm instance hiện tại ngay khi màn hình vừa mở lên
     instance = this;
+
+    // Lưu lại giao diện Node gốc của trang chủ
+    homeFeedNode = mainContent.getContent();
+
+    // Hiện Label chào user
+    String phoneNumber = SessionManager.currentUser.getPhoneNumber();
+    String realName = SessionManager.currentUser.getRealName();
+    if (realName != null) {
+      realNameLabel.setText("Chào, " + realName);
+    } else if (phoneNumber != null) {
+      realNameLabel.setText("Chào, " + phoneNumber);
+    } else {
+      realNameLabel.setText("N/A");
+    }
 
     // Gửi yêu cầu lấy danh sách ngay khi load UI
     ServerConnection.sendData(new GetActiveAuctionRequestDTO());
@@ -159,7 +180,10 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   @FXML
   public void gotoSellerHome() {
-    ScreenController.navigateToSellerChannel();
+    // Gửi yêu cầu kiểm tra hồ sơ người bán lên Server
+    String userId = SessionManager.currentUser.getId();
+    CheckingSellerProfileRequestDTO request = new CheckingSellerProfileRequestDTO(userId);
+    ServerConnection.sendData(request);
   }
 
   @FXML
@@ -175,6 +199,18 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   public void gotoResult() {
     ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
+  }
+
+  @FXML
+  public void gotoHomeFeed() {
+    // Nếu đã lưu giao diện Feed, chỉ cần set lại nó vào phần mainContent
+    if (homeFeedNode != null) {
+      mainContent.setContent(homeFeedNode);
+
+      /* Gửi lại request lên Server để cập nhật danh sách đấu giá mới nhất
+         mỗi khi người dùng bấm về trang chủ*/
+      ServerConnection.sendData(new GetActiveAuctionRequestDTO());
+    }
   }
 
   /**

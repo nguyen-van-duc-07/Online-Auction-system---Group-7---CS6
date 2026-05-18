@@ -25,7 +25,7 @@
                 <padding><Insets left="25.0" right="25.0" /></padding>
 
                 <left>
-                    <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <Label onMouseClicked="#gotoHomeFeed" style="-fx-cursor: hand;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                         <font><Font name="System Bold" size="36.0" /></font>
                     </Label>
                 </left>
@@ -47,7 +47,7 @@
                         <children>
                             <VBox alignment="CENTER_RIGHT" spacing="2.0">
                                 <children>
-                                    <Label style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                                    <Label fx:id="realNameLabel" style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
                                     <Label fx:id="lblSoDu" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
                                 </children>
                             </VBox>

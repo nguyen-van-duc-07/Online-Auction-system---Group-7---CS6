@@ -2,18 +2,11 @@ package com.auction.client.screenhandler;
 
 import java.io.IOException;
 import java.util.Optional;
-
-import com.auction.client.network.ServerConnection;
-import com.auction.client.network.SessionManager;
-import com.auction.shared.request.CheckingSellerProfileRequestDTO;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
 /**
@@ -31,7 +24,8 @@ public class ScreenController {
       primaryStage.setScene(scene);
       primaryStage.setTitle(title);
 
-      primaryStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ
+      primaryStage.setMaximized(true);
+      primaryStage.setResizable(false);
 
       primaryStage.show();
 
@@ -127,15 +121,5 @@ public class ScreenController {
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
       return null;
     }
-  }
-
-  /**
-   * Hàm dùng chung để kiểm tra quyền truy cập trước khi vào Kênh người bán.
-   */
-  public static void navigateToSellerChannel() {
-    // Gửi yêu cầu kiểm tra hồ sơ người bán lên Server
-    String userId = SessionManager.currentUser.getId();
-    CheckingSellerProfileRequestDTO request = new CheckingSellerProfileRequestDTO(userId);
-    ServerConnection.sendData(request);
   }
 }

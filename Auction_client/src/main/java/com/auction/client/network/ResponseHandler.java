@@ -150,7 +150,9 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+                SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
+                HomeController homeController = HomeController.getInstance();
+                homeController.gotoHomeFeed();
               }
         });
       });
@@ -161,6 +163,7 @@ public class ResponseHandler {
       });
     }
   }
+
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
     Platform.runLater(() -> {
       DecimalFormat formatter = new DecimalFormat("#,###");
@@ -228,10 +231,11 @@ public class ResponseHandler {
   }
 
   public static void checkingSellerProfile(CheckingSellerProfileResponseDTO checkingSellerProfileRes) {
+    HomeController homeController = HomeController.getInstance();
     String message = checkingSellerProfileRes.getMessage();
     Platform.runLater(() -> {
       if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
-        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm đăng bán");
+        homeController.loadComponent("/com/auction/client/Seller/SellerHome.fxml");
       } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
@@ -240,11 +244,15 @@ public class ResponseHandler {
             "Hồ sơ bán hàng của bạn đã bị từ chối!\nBạn không thể sử dụng tính năng này");
       } else {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
-            "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.");
-        ScreenController.switchScreen("Bidder/SellerRegisterForBidder.fxml", "Đăng ký người bán");
+            "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.").ifPresent(Response -> {
+              if  (Response == ButtonType.OK) {
+                homeController.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
+              }
+        });
       }
     });
   }
+
   public static void handleOrderAction(OrderActionResponseDTO dto) {
     Platform.runLater(() -> {
       Alert alert = new Alert(
