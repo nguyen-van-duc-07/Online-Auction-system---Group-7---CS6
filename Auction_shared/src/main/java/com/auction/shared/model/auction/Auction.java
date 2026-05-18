@@ -126,7 +126,7 @@ public class Auction extends Entity implements Serializable {
     this.currentHighestPrice = bidAmount;
     this.highestBidderId = bidderId;
 
-    BidTransaction newTransaction = new BidTransaction(bidderId, this.getId(), bidAmount);
+    BidTransaction newTransaction = new BidTransaction(this.getId(), bidderId, bidAmount);
     this.bidHistory.add(newTransaction);
 
     return true;
