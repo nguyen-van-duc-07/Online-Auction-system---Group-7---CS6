@@ -2,8 +2,6 @@ package servercontroller;
 
 import com.auction.shared.request.*;
 import com.auction.shared.response.LoginResponseDTO;
-import com.auction.shared.response.UploadItemResponseDTO;
-import lombok.Getter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -73,13 +71,27 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case LogoutRequestDTO logoutReq -> {
+                RequestHandler.logout(logoutReq);
+              }
+
               case UploadItemRequestDTO uploadItemReq -> {
                 out.writeObject(RequestHandler.uploadItem(uploadItemReq));
                 out.flush();
               }
 
-              case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
+              case GetActiveAuctionsRequestDTO getActiveAuctionReq -> {
                 out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                out.flush();
+              }
+
+              case GetWaitingAuctionsRequestDTO getWaitingAuctionsReq -> {
+                out.writeObject(RequestHandler.getWaitingAuctions(getWaitingAuctionsReq));
+                out.flush();
+              }
+
+              case GetClosedAuctionsRequestDTO getClosedAuctionsReq -> {
+                out.writeObject(RequestHandler.getClosedAuctions(getClosedAuctionsReq));
                 out.flush();
               }
 

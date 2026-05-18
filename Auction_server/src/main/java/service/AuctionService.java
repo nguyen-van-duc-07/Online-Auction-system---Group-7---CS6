@@ -189,6 +189,7 @@ public class AuctionService {
           auction.getCurrentHighestPrice(),
           auction.getHighestBidderId(),
           auction.getMinStepPrice(),
+          auction.getStartTime(),
           auction.getEndTime(),
           auction.getStatus(),
           auction.getBidHistory()
@@ -196,6 +197,54 @@ public class AuctionService {
       activeAutionDTOs.add(activeAutionDTO);
     }
     return activeAutionDTOs;
+  }
+
+  public static List<AuctionResponseDTO> getWaitingAuctionsForClient() {
+    List<Auction> waitingAuctions = auctionRepo.findWaitingAuctions();
+    List<AuctionResponseDTO> waitingAuctionDTOs = new ArrayList<>();
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+
+    for (Auction auction : waitingAuctions) {
+      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
+      AuctionResponseDTO waitingAuctionDTO = new AuctionResponseDTO(
+          auction.getId(),
+          userId,
+          new ItemDTO(auction.getItem()),
+          auction.getCurrentHighestPrice(),
+          auction.getHighestBidderId(),
+          auction.getMinStepPrice(),
+          auction.getStartTime(),
+          auction.getEndTime(),
+          auction.getStatus(),
+          auction.getBidHistory()
+      );
+      waitingAuctionDTOs.add(waitingAuctionDTO);
+    }
+    return waitingAuctionDTOs;
+  }
+
+  public static List<AuctionResponseDTO> getClosedAuctionsForClient() {
+    List<Auction> closedAuctions = auctionRepo.findClosedAuctions();
+    List<AuctionResponseDTO> closedAuctionDTOs = new ArrayList<>();
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+
+    for (Auction auction : closedAuctions) {
+      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
+      AuctionResponseDTO closedAuctionDTO = new AuctionResponseDTO(
+          auction.getId(),
+          userId,
+          new ItemDTO(auction.getItem()),
+          auction.getCurrentHighestPrice(),
+          auction.getHighestBidderId(),
+          auction.getMinStepPrice(),
+          auction.getStartTime(),
+          auction.getEndTime(),
+          auction.getStatus(),
+          auction.getBidHistory()
+      );
+      closedAuctionDTOs.add(closedAuctionDTO);
+    }
+    return closedAuctionDTOs;
   }
 
   /**
@@ -212,7 +261,7 @@ public class AuctionService {
    * của các sản phẩm đang được đấu giá trên sàn.
    */
   public static List<AuctionResponseDTO> getActiveAndWaitingAuctions() {
-    List<Auction> activeAuctions = auctionRepo.findActiveAuctions();
+    List<Auction> activeAuctions = auctionRepo.findActiveAndWaitingAuctions();
     List<AuctionResponseDTO> activeAutionDTOs = new ArrayList<>();
     SellerProfileRepository sellerRepo = new SellerProfileRepository();
 
@@ -225,6 +274,7 @@ public class AuctionService {
           auction.getCurrentHighestPrice(),
           auction.getHighestBidderId(),
           auction.getMinStepPrice(),
+          auction.getStartTime(),
           auction.getEndTime(),
           auction.getStatus(),
           auction.getBidHistory()
@@ -248,6 +298,7 @@ public class AuctionService {
           auction.getCurrentHighestPrice(),
           auction.getHighestBidderId(),
           auction.getMinStepPrice(),
+          auction.getStartTime(),
           auction.getEndTime(),
           auction.getStatus(),
           auction.getBidHistory()

@@ -56,6 +56,10 @@ public class AuctionResponseDTO implements ResponseDTO {
   private BigDecimal minStepPrice;
 
   /**
+   * Thời điểm bắt đầu phiên đấu giá.
+   */
+  private LocalDateTime startTime;
+  /**
    * Thời điểm kết thúc phiên đấu giá.
    */
   private LocalDateTime endTime;
@@ -69,15 +73,4 @@ public class AuctionResponseDTO implements ResponseDTO {
    * Danh sách lịch sử đấu giá (giới hạn 20 phần tử).
    */
   private List<BidTransaction> bidHistory;
-
-  public AuctionResponseDTO(String id, ItemDTO item, BigDecimal currentHighestPrice, String highestBidderName, BigDecimal minStepPrice, LocalDateTime endTime, AuctionStatus status, List<BidTransaction> bidHistory) {
-    this.id = id;
-    this.item = item;
-    this.currentHighestPrice = currentHighestPrice;
-    this.highestBidderName = highestBidderName;
-    this.minStepPrice = minStepPrice;
-    this.endTime = endTime;
-    this.status = status;
-    this.bidHistory = bidHistory;
-  }
 }

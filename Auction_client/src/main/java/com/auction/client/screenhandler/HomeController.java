@@ -2,27 +2,20 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.Auction;
-import com.auction.shared.request.CheckingSellerProfileRequestDTO;
+import com.auction.shared.request.*;
 import com.auction.shared.response.AuctionResponseDTO;
-import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -64,7 +57,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    *
    * <p>Được tự động gọi ngay sau khi file FXML của màn hình Home được tải lên thành công
    * và các thành phần giao diện (UI components) đã được ánh xạ.
-   * Tại đây, hệ thống sẽ tự động gửi một {@link GetActiveAuctionRequestDTO}
+   * Tại đây, hệ thống sẽ tự động gửi một {@link GetActiveAuctionsRequestDTO}
    * qua Socket lên Server để xin danh sách sản phẩm hiển thị lên bảng tin (Feed)
    * mà không cần người dùng phải bấm nút tải lại.</p>
    *
@@ -91,7 +84,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
     }
 
     // Gửi yêu cầu lấy danh sách ngay khi load UI
-    ServerConnection.sendData(new GetActiveAuctionRequestDTO());
+    ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
   }
 
   /**
@@ -172,8 +165,12 @@ public class HomeController implements Initializable, ProductDetailNavigator {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
+        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+        logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
+        ServerConnection.sendData(logoutRequestDTO);
         SessionManager.clearSession();
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+        ScreenController.primaryStage.setMaximized(false);
       }
     });
   }
@@ -193,7 +190,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   @FXML
   public void gotoWallet() {
-    ScreenController.switchScreen("User/Wallet/Wallet.fxml", "Ví người dùng");
+    loadComponent(("/com/auction/client/User/Wallet/Wallet.fxml"));
   }
 
   @FXML
@@ -209,8 +206,23 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
       /* Gửi lại request lên Server để cập nhật danh sách đấu giá mới nhất
          mỗi khi người dùng bấm về trang chủ*/
-      ServerConnection.sendData(new GetActiveAuctionRequestDTO());
+      ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
     }
+  }
+
+  @FXML
+  public void handleGetActiveAuctions() {
+    ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
+  }
+
+  @FXML
+  public void handleGetWaitingAuctions() {
+    ServerConnection.sendData(new GetWaitingAuctionsRequestDTO());
+  }
+
+  @FXML
+  public void handleGetClosedAuctions() {
+    ServerConnection.sendData(new GetClosedAuctionsRequestDTO());
   }
 
   /**

@@ -18,15 +18,11 @@ public class ScreenController {
   // Dùng để chuyển sang trang bất kì hiệu quả hơn
   public static void switchScreen(String fxmlFile, String title) {
     try {
-      Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
-      Scene scene = new Scene(root);
-
-      primaryStage.setScene(scene);
-      primaryStage.setTitle(title);
-
       primaryStage.setMaximized(true);
       primaryStage.setResizable(false);
-
+      Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
+      primaryStage.getScene().setRoot(root);
+      primaryStage.setTitle(title);
       primaryStage.show();
 
     } catch (Exception e) {

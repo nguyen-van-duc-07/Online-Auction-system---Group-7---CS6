@@ -4,7 +4,6 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.order.Order;
-import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
@@ -12,8 +11,6 @@ import com.auction.shared.response.*;
 
 import java.util.List;
 
-import repository.AuctionRepository;
-import repository.BidTransactionRepository;
 import repository.SellerProfileRepository;
 import service.*;
 
@@ -50,6 +47,11 @@ public class RequestHandler {
     }
   }
 
+  public static void logout(LogoutRequestDTO logoutReq) {
+    String userId = logoutReq.getUserId();
+    Server.unregisterClient(userId);
+  }
+
   public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
     boolean isSuccess = AuthService.signUp(signUpReq);
     String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
@@ -82,16 +84,26 @@ public class RequestHandler {
    * <p>Đóng vai trò điều phối luồng dữ liệu:
    * 1. Nhận tín hiệu kích hoạt từ Client qua đối tượng Request.
    * 2. Gọi đến tầng {@link AuctionService} để thực hiện nghiệp vụ lấy và làm sạch dữ liệu.
-   * 3. Đóng gói danh sách thu được vào đối tượng {@link GetActiveAuctionResponseDTO}
+   * 3. Đóng gói danh sách thu được vào đối tượng {@link GetActiveAuctionsResponseDTO}
    * để tầng Network gửi trả về Client.</p>
    *
    * @param getActiveAuctionReq Gói tin yêu cầu từ Client (hiện tại đóng vai trò như một tín hiệu báo hiệu, không chứa dữ liệu bên trong).
-   * @return Đối tượng {@link GetActiveAuctionResponseDTO} mang theo cờ trạng thái thành công,
+   * @return Đối tượng {@link GetActiveAuctionsResponseDTO} mang theo cờ trạng thái thành công,
    * thông báo hệ thống và danh sách sản phẩm.
    */
-  public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
+  public static GetActiveAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
     List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
-    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công!", list);
+    return new GetActiveAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetWaitingAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getWaitingAuctionsForClient();
+    return new GetWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetClosedAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getClosedAuctionsForClient();
+    return new GetClosedAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
@@ -133,13 +145,17 @@ public class RequestHandler {
     String auctionId = request.getSelectedAuctionId();
     Auction auction = AuctionService.getAuctionHistory(auctionId);
 
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+
     if (auction == null) return null;
 
     AuctionResponseDTO response = new AuctionResponseDTO();
     response.setId(auction.getId());
+    response.setUserId(sellerRepo.getUserIdBySellerId(auction.getSellerId()));
     //response.setItem(auction.getItem().getName()); // QUAN TRỌNG: Gửi thông tin sản phẩm về
     response.setCurrentHighestPrice(auction.getCurrentHighestPrice());
     response.setMinStepPrice(auction.getMinStepPrice());
+    response.setStartTime(auction.getStartTime());
     response.setEndTime(auction.getEndTime());
     response.setStatus(auction.getStatus());
     response.setBidHistory(auction.getBidHistory());

@@ -87,58 +87,6 @@ public class UploadItemController {
 
   private File selectedImageFile;
 
-  HomeController homeController = new HomeController();
-
-  @FXML
-  public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
-  }
-
-  @FXML
-  public void gotoResult() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thông tin sản phẩm",
-        "Bạn có chắc chắn muốn chuyển sang trang Kết quả đấu giá không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        homeController.gotoResult();
-      }
-    });
-  }
-
-  @FXML
-  public void gotoProfile() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thông tin sản phẩm",
-        "Bạn có chắc chắn muốn chuyển sang trang Thông tin tài khoản không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        homeController.gotoProfile();
-      }
-    });
-  }
-
-  @FXML
-  public void gotoLogin() {
-    homeController.gotoLogin();
-  }
-
-  @FXML
-  public void gotoWallet() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thông tin sản phẩm",
-        "Bạn có chắc chắn muốn chuyển sang trang Ví người dùng không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        homeController.gotoWallet();
-      }
-    });
-  }
-
-  @FXML
-  public void gotoSellerHome() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Bạn chưa lưu thông tin sản phẩm",
-        "Bạn có chắc chắn muốn chuyển sang trang Quản lý sản phẩm không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        homeController.gotoSellerHome();
-      }
-    });
-  }
-
   /**
    * Xử lý sự kiện khi người dùng click vào nút "ĐĂNG SẢN PHẨM LÊN SÀN".
    *

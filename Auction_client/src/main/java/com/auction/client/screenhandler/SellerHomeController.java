@@ -39,7 +39,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
   @FXML
   private FlowPane feedContainer;
 
-  HomeController homecontroller = new HomeController();
+  HomeController homecontroller = HomeController.getInstance();
 
 
   @Override
@@ -131,32 +131,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
     ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
   }
 
-  @FXML
-  public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
-  }
-
-  @FXML
-  public void gotoLogin() {
-    homecontroller.gotoLogin();
-  }
-
-  @FXML
-  public void gotoProfile() {
-    homecontroller.gotoProfile();
-  }
-
-  @FXML
-  public void gotoWallet() {
-    homecontroller.gotoWallet();
-  }
-
-  @FXML
-  public void gotoResult() {
-    homecontroller.gotoResult();
-  }
-
   public void gotoUploadItem() {
-    ScreenController.switchScreen("Seller/UploadItem.fxml", "Đăng sản phẩm");
+    homecontroller.loadComponent("/com/auction/client/Seller/UploadItem.fxml");
   }
 }

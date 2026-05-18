@@ -52,8 +52,14 @@ public class ServerConnection {
 
             case UploadItemResponseDTO uploadItemRes -> ResponseHandler.handleUploadItem(uploadItemRes);
 
-            case GetActiveAuctionResponseDTO getActiveAuctionRes ->
+            case GetActiveAuctionsResponseDTO getActiveAuctionRes ->
                 ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
+
+            case GetWaitingAuctionsResponseDTO getWaitingAuctionsRes ->
+                ResponseHandler.handleGetWaitingAuctions(getWaitingAuctionsRes);
+
+            case GetClosedAuctionsResponseDTO getClosedAuctionsRes ->
+                ResponseHandler.handleGetClosedAuctions(getClosedAuctionsRes);
 
             case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
               ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
