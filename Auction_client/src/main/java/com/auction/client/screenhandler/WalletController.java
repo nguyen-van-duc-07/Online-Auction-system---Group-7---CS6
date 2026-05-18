@@ -18,9 +18,11 @@ public class WalletController {
   HomeController homeController = new HomeController();
   @FXML private Label balanceLabel;
 
-  @Getter
   private static WalletController instance;
 
+  public static WalletController getInstance() {
+    return instance;
+  }
 
   @FXML
   public void initialize() {
