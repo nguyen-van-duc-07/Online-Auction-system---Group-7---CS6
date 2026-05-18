@@ -13,7 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class GetActiveAuctionResponseDTO implements ResponseDTO {
+public class GetActiveAuctionsResponseDTO implements ResponseDTO {
   /** Cờ đánh dấu trạng thái truy vấn thành công hay thất bại. */
   private boolean success;
 
