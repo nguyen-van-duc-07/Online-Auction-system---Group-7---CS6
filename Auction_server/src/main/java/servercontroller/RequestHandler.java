@@ -57,10 +57,10 @@ public class RequestHandler {
     return new SignUpResponseDTO(isSuccess, msg);
   }
 
-  public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq, String authenticatedUserId) {
+  public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
     // Kiểm tra xem User đã có hồ sơ người bán chưa
     SellerProfileRepository profileRepo = new SellerProfileRepository();
-    String sellerProfileId = profileRepo.findProfileIdByUserId(authenticatedUserId);
+    String sellerProfileId = profileRepo.findProfileIdByUserId(uploadItemReq.getSellerId());
 
     // Nếu chưa có, chặn lại và báo lỗi về Client
     if (sellerProfileId == null) {
@@ -91,11 +91,17 @@ public class RequestHandler {
    */
   public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
     List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
-    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công", list);
+    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
-  public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request, String authenticatedUserId) {
-    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(authenticatedUserId);
+  public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
+      GetActiveAndWaitingAuctionsRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getActiveAndWaitingAuctions();
+    return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
+    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
     return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công", list);
   }
 

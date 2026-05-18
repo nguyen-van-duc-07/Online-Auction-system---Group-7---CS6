@@ -198,6 +198,42 @@ public class AuctionService {
     return activeAutionDTOs;
   }
 
+  /**
+   * Truy xuất danh sách các phiên đấu giá đang mở (ACTIVE) và sắp diễn ra (WAITING)
+   * từ cơ sở dữ liệu và chuyển đổi (mapping) chúng sang định dạng DTO cho Client.
+   *
+   * <p>Mục đích của việc chuyển đổi từ thực thể {@link Auction} nguyên bản sang
+   * {@link AuctionResponseDTO} là để lược bỏ các thông tin nhạy cảm và dư thừa
+   * (như lịch sử đặt giá chi tiết, thông tin người bán). Việc này giúp giảm tải
+   * dung lượng gói tin gửi qua Socket, tối ưu hóa băng thông mạng và tăng tốc độ
+   * tải trang chủ cho người dùng.</p>
+   *
+   * @return Danh sách các đối tượng {@link AuctionResponseDTO} chứa thông tin tóm tắt
+   * của các sản phẩm đang được đấu giá trên sàn.
+   */
+  public static List<AuctionResponseDTO> getActiveAndWaitingAuctions() {
+    List<Auction> activeAuctions = auctionRepo.findActiveAuctions();
+    List<AuctionResponseDTO> activeAutionDTOs = new ArrayList<>();
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+
+    for (Auction auction : activeAuctions) {
+      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
+      AuctionResponseDTO activeAutionDTO = new AuctionResponseDTO(
+          auction.getId(),
+          userId,
+          new ItemDTO(auction.getItem()),
+          auction.getCurrentHighestPrice(),
+          auction.getHighestBidderId(),
+          auction.getMinStepPrice(),
+          auction.getEndTime(),
+          auction.getStatus(),
+          auction.getBidHistory()
+      );
+      activeAutionDTOs.add(activeAutionDTO);
+    }
+    return activeAutionDTOs;
+  }
+
   public static List<AuctionResponseDTO> getAuctionsBySeller(String userId) {
     SellerProfileRepository sellerRepo = new SellerProfileRepository();
     String sellerId = sellerRepo.findProfileIdByUserId(userId);

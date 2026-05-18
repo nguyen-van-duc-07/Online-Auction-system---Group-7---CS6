@@ -38,6 +38,30 @@ public class AuctionRepository {
     return auctions;
   }
 
+  // Lấy tất cả các phiên đấu giá đang mở hoặc sắp diễn ra
+  public List<Auction> findActiveAndWaitingAuctions() {
+    List<Auction> auctions = new ArrayList<>();
+    // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thời gian bắt đầu
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+        + "WHERE a.status IN ('WAITING', 'ACTIVE') "
+        + "ORDER BY a.start_time ASC";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        Auction auction = mapResultSetToAuction(rs);
+        auctions.add(auction);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return auctions;
+  }
+
   public List<Auction> findAuctionsBySellerId(String sellerId) {
     List<Auction> auctions = new ArrayList<>();
     String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "

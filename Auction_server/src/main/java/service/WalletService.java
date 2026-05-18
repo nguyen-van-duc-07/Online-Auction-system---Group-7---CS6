@@ -108,7 +108,7 @@ public class WalletService {
   }
 
   /**
-   * Hàm cập nhật số dư ví trực tiếp dưới Database
+   * Hàm cập nhật số dư ví trực tiếp dưới Database.
    */
   public boolean deposit(String userId, BigDecimal amount) {
     // Cập nhật đúng tên bảng là 'wallets' và cột khóa ngoại là 'user_id'

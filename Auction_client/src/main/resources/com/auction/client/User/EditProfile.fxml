@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="850.0" style="-fx-background-color: #F0F4F8;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="650.0" prefWidth="850.0" style="-fx-background-color: #F0F4F8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.EditProfileController">
     <children>
         <Pane prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #2BA659, #54ca85); -fx-background-radius: 0 0 30 30;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
@@ -50,7 +50,7 @@
                                 <Label text="HỌ VÀ TÊN" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <TextField fx:id="txtFullName" promptText="Nhập họ và tên" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                                <TextField fx:id="realNameField" promptText="Nhập họ và tên" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
                             </children>
                         </VBox>
 
@@ -59,7 +59,7 @@
                                 <Label text="ĐỊA CHỈ EMAIL" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <TextField fx:id="txtEmail" promptText="example@gmail.com" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                                <TextField fx:id="emailField" promptText="example@gmail.com" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
                             </children>
                         </VBox>
 
@@ -68,7 +68,7 @@
                                 <Label text="SỐ ĐIỆN THOẠI" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <TextField fx:id="txtPhone" promptText="Nhập số điện thoại" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                                <TextField fx:id="phoneNumberField" promptText="Nhập số điện thoại" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
                             </children>
                         </VBox>
 
@@ -77,7 +77,7 @@
                                 <Label text="NGÀY SINH" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <DatePicker fx:id="dpDob" prefHeight="45.0" prefWidth="400.0" promptText="Chọn ngày sinh" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10;" />
+                                <DatePicker fx:id="dateOfBirthField" prefHeight="45.0" prefWidth="400.0" promptText="Chọn ngày sinh" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10;" />
                             </children>
                         </VBox>
 
@@ -86,7 +86,7 @@
                                 <Label text="ĐỊA CHỈ THƯỜNG TRÚ" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <TextField fx:id="txtAddress" alignment="TOP_LEFT" prefHeight="80.0" promptText="Số nhà, tên đường, quận/huyện, tỉnh/thành phố..." style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                                <TextField fx:id="addressField" alignment="TOP_LEFT" prefHeight="80.0" promptText="Số nhà, tên đường, quận/huyện, tỉnh/thành phố..." style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
                             </children>
                         </VBox>
                     </children>
@@ -94,11 +94,11 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="20.0">
                     <children>
-                        <Button mnemonicParsing="false" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #EDF2F7; -fx-border-radius: 12; -fx-text-fill: #718096; -fx-cursor: hand;" text="Hủy bỏ">
+                        <Button mnemonicParsing="false" onAction="#handleCancel" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #EDF2F7; -fx-border-radius: 12; -fx-text-fill: #718096; -fx-cursor: hand;" text="Hủy bỏ">
                             <font><Font name="System Bold" size="14.0" /></font>
                             <padding><Insets bottom="12.0" top="12.0" /></padding>
                         </Button>
-                        <Button mnemonicParsing="false" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #2BA659, #48bb78); -fx-background-radius: 12; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(43,166,89,0.3), 10, 0, 0, 5); -fx-cursor: hand;" text="LƯU THAY ĐỔI">
+                        <Button mnemonicParsing="false" onAction="#handleUpdateProfile" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #2BA659, #48bb78); -fx-background-radius: 12; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(43,166,89,0.3), 10, 0, 0, 5); -fx-cursor: hand;" text="LƯU THAY ĐỔI">
                             <font><Font name="System Bold" size="14.0" /></font>
                             <padding><Insets bottom="12.0" top="12.0" /></padding>
                         </Button>

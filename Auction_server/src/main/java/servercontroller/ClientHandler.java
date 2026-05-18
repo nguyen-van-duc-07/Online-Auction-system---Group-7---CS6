@@ -63,7 +63,7 @@ public class ClientHandler implements Runnable {
 
               case UploadItemRequestDTO uploadItemReq -> {
                 if (!isAuthenticated()) break;
-                out.writeObject(RequestHandler.uploadItem(uploadItemReq, this.authenticatedUserId));
+                out.writeObject(RequestHandler.uploadItem(uploadItemReq));
                 out.flush();
               }
 
@@ -72,9 +72,14 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetActiveAndWaitingAuctionsRequestDTO getActiveAndWaitingAuctionsReq -> {
+                out.writeObject(RequestHandler.getActiveAndWaitingAuctions(getActiveAndWaitingAuctionsReq));
+                out.flush();
+              }
+
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
                 if (!isAuthenticated()) break;
-                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq, this.authenticatedUserId));
+                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
                 out.flush();
               }
 
