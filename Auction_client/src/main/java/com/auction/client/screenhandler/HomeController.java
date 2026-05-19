@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.application.Platform;
@@ -38,7 +39,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   }
 
   // THÊM field này
-  private List<AuctionResponseDTO> currentAuctions = new ArrayList<>();
+  private List<AuctionDTO> currentAuctions = new ArrayList<>();
 
   @FXML
   private ScrollPane mainContent;
@@ -92,14 +93,14 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
    * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
    */
-  public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
+  public void loadFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
     // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
     Platform.runLater(() -> {
       // Xóa các card cũ (nếu có) trước khi nạp mới
       feedContainer.getChildren().clear();
 
-      for (AuctionResponseDTO auction : auctions) {
+      for (AuctionDTO auction : auctions) {
         try {
           // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
           FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
@@ -126,9 +127,9 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     // Tìm auction trong danh sách hiện tại và cập nhật giá
-    for (AuctionResponseDTO auction : currentAuctions) {
-      if (auction.getId().equals(auctionId)) {
-        auction.setCurrentHighestPrice(newPrice);
+    for (AuctionDTO auction : currentAuctions) {
+      if (auction.getAuctionId().equals(auctionId)) {
+        auction.setCurrentPrice(newPrice);
         // Cập nhật UI của card tương ứng
         refreshAuctionCard(auctionId, newPrice);
         break;
@@ -153,11 +154,11 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
   @Override
-  public void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+  public void gotoProductDetail(AuctionDTO selectedAuction) {
     // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuction(selectedAuction);
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
+    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
+    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
+    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
   }
 
   @FXML

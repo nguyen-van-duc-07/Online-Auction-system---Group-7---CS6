@@ -1,5 +1,7 @@
 package com.auction.client.screenhandler;
+import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.AuctionStatusUI;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.animation.Animation;
 import javafx.application.Platform;
@@ -28,16 +30,16 @@ public class AuctionItemCardController {
      * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
      * Controller cha phải implement ProductDetailNavigator.
      */
-    public void setData(AuctionResponseDTO auction, ProductDetailNavigator navigator) {
-        this.auctionId = auction.getId();
+    public void setData(AuctionDTO auction, ProductDetailNavigator navigator) {
+        this.auctionId = auction.getAuctionId();
         // 1. Đổ dữ liệu text
-        nameLabel.setText(auction.getItem().getName());
+        nameLabel.setText(auction.getItemName());
 
         AuctionStatusUI status = AuctionStatusUI.fromShared(auction.getStatus());
         statusLabel.setText(status.getDisplayName());
         statusLabel.setStyle("-fx-text-fill: " + status.getColor() + "; -fx-font-weight: bold;");
 
-        String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentHighestPrice());
+        String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
         priceLabel.setText(formattedPrice);
 
         // Tạo bộ đếm thời gian chạy mỗi 1 giây

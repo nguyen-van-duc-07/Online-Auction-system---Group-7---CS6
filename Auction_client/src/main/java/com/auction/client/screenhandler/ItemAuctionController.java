@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
@@ -51,6 +52,8 @@ public class ItemAuctionController implements Initializable {
   private Button placeBidButton;
   @FXML
   private Label highestBidderLabel;
+  @FXML
+  private Label minStepPriceLabel;
 
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
@@ -58,24 +61,14 @@ public class ItemAuctionController implements Initializable {
   @FXML
   public void gotoHome() {
     stopCountdownTimer();
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
     ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this; // Gán màn hình hiện tại vào biến static
-    this.currentAuction = SessionManager.getCurrentAuction();
-    ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
-    itemNameLabel.setText(SessionManager.getCurrentAuction().getItem().getName());
-//    descriptionField.setText(SessionManager.getCurrentAuction().getItem().getDescription());
-    updateHighestBidderUI(SessionManager.getCurrentAuction().getHighestBidderName());
-    DecimalFormat formatter = new DecimalFormat("#,###");
-    String formattedPrice = formatter.format(SessionManager.getCurrentAuction().getCurrentHighestPrice()) + " VNĐ";
-    currentPriceField.setText("Giá hiện tại: " + formattedPrice);
-    priceChart.setAnimated(false);
-    loadChartData();
-    startCountdownTimer();
+    ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 
   private void updateBidControlState(boolean isAuctionActive) {
@@ -106,9 +99,9 @@ public class ItemAuctionController implements Initializable {
 
   private void updateHighestBidderUI(String name) {
     if (name == null || name.isEmpty()) {
-      highestBidderLabel.setText("Người ra giá: Chưa có");
+      highestBidderLabel.setText("Chưa có");
     } else {
-      highestBidderLabel.setText("Người ra giá: " + name);
+      highestBidderLabel.setText(name);
     }
   }
 
@@ -158,7 +151,7 @@ public class ItemAuctionController implements Initializable {
     if (countdownTimer != null) {
       countdownTimer.stop();
     }
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 
   private void loadChartData() {
@@ -241,7 +234,7 @@ public class ItemAuctionController implements Initializable {
       }
       clearError();
       PlaceBidRequestDTO req =
-              new PlaceBidRequestDTO(SessionManager.getCurrentAuction().getId(),
+              new PlaceBidRequestDTO(SessionManager.getCurrentAuctionId(),
                       SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getRealName(),
                       bidAmount);
       ServerConnection.sendData(req);
@@ -325,12 +318,10 @@ public class ItemAuctionController implements Initializable {
                 .showInformation(); // Hoặc .showWarning() nếu bạn muốn đổi icon
       } else {
           // Trường hợp 2: LÀ MÌNH vừa đặt giá thành công
-          // Phòng thủ: Cố gắng lấy tên từ currentAuction, nếu null thì lấy từ Session backup ra
+          // Phòng thủ: Cố gắng lấy tên từ currentAuction
           String itemName = "sản phẩm này"; // Tên mặc định nếu mọi cách đều thất bại
           if (currentAuction.getItem() != null) {
               itemName = currentAuction.getItem().getName();
-          } else if (SessionManager.getCurrentAuction().getItem() != null) {
-              itemName = SessionManager.getCurrentAuction().getItem().getName();
           }
           showBidSuccess(itemName, newBid.getBidAmount());
       }
@@ -357,7 +348,8 @@ public class ItemAuctionController implements Initializable {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
-      SessionManager.setCurrentAuction(auctionData);
+      itemNameLabel.setText(auctionData.getItem().getName());
+      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + auctionData.getMinStepPrice().toString() + " VNĐ");
 
       // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
@@ -366,7 +358,10 @@ public class ItemAuctionController implements Initializable {
       String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
       currentPriceField.setText("Giá hiện tại: " + formattedPrice);
 
-      // 3. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
+      // 3. Bắt đầu khởi động bộ đếm thời gian
+      startCountdownTimer();
+
+      // 4. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
       loadChartData();
 
       // In log ra để dễ debug

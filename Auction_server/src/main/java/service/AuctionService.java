@@ -1,6 +1,7 @@
 package service;
 
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.transaction.BidTransaction;
@@ -175,76 +176,19 @@ public class AuctionService {
    * @return Danh sách các đối tượng {@link AuctionResponseDTO} chứa thông tin tóm tắt
    * của các sản phẩm đang được đấu giá trên sàn.
    */
-  public static List<AuctionResponseDTO> getActiveAuctionsForClient() {
-    List<Auction> activeAuctions = auctionRepo.findActiveAuctions();
-    List<AuctionResponseDTO> activeAutionDTOs = new ArrayList<>();
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-
-    for (Auction auction : activeAuctions) {
-      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
-      AuctionResponseDTO activeAutionDTO = new AuctionResponseDTO(
-          auction.getId(),
-          userId,
-          new ItemDTO(auction.getItem()),
-          auction.getCurrentHighestPrice(),
-          auction.getHighestBidderId(),
-          auction.getMinStepPrice(),
-          auction.getStartTime(),
-          auction.getEndTime(),
-          auction.getStatus(),
-          auction.getBidHistory()
-      );
-      activeAutionDTOs.add(activeAutionDTO);
-    }
-    return activeAutionDTOs;
+  public static List<AuctionDTO> getActiveAuctionsForClient() {
+    List<AuctionDTO> activeAuctions = auctionRepo.findActiveAuctions();
+    return activeAuctions;
   }
 
-  public static List<AuctionResponseDTO> getWaitingAuctionsForClient() {
-    List<Auction> waitingAuctions = auctionRepo.findWaitingAuctions();
-    List<AuctionResponseDTO> waitingAuctionDTOs = new ArrayList<>();
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-
-    for (Auction auction : waitingAuctions) {
-      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
-      AuctionResponseDTO waitingAuctionDTO = new AuctionResponseDTO(
-          auction.getId(),
-          userId,
-          new ItemDTO(auction.getItem()),
-          auction.getCurrentHighestPrice(),
-          auction.getHighestBidderId(),
-          auction.getMinStepPrice(),
-          auction.getStartTime(),
-          auction.getEndTime(),
-          auction.getStatus(),
-          auction.getBidHistory()
-      );
-      waitingAuctionDTOs.add(waitingAuctionDTO);
-    }
-    return waitingAuctionDTOs;
+  public static List<AuctionDTO> getWaitingAuctionsForClient() {
+    List<AuctionDTO> waitingAuctions = auctionRepo.findWaitingAuctions();
+    return waitingAuctions;
   }
 
-  public static List<AuctionResponseDTO> getClosedAuctionsForClient() {
-    List<Auction> closedAuctions = auctionRepo.findClosedAuctions();
-    List<AuctionResponseDTO> closedAuctionDTOs = new ArrayList<>();
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-
-    for (Auction auction : closedAuctions) {
-      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
-      AuctionResponseDTO closedAuctionDTO = new AuctionResponseDTO(
-          auction.getId(),
-          userId,
-          new ItemDTO(auction.getItem()),
-          auction.getCurrentHighestPrice(),
-          auction.getHighestBidderId(),
-          auction.getMinStepPrice(),
-          auction.getStartTime(),
-          auction.getEndTime(),
-          auction.getStatus(),
-          auction.getBidHistory()
-      );
-      closedAuctionDTOs.add(closedAuctionDTO);
-    }
-    return closedAuctionDTOs;
+  public static List<AuctionDTO> getClosedAuctionsForClient() {
+    List<AuctionDTO> closedAuctions = auctionRepo.findClosedAuctions();
+    return closedAuctions;
   }
 
   /**
@@ -252,59 +196,23 @@ public class AuctionService {
    * từ cơ sở dữ liệu và chuyển đổi (mapping) chúng sang định dạng DTO cho Client.
    *
    * <p>Mục đích của việc chuyển đổi từ thực thể {@link Auction} nguyên bản sang
-   * {@link AuctionResponseDTO} là để lược bỏ các thông tin nhạy cảm và dư thừa
+   * {@link AuctionDTO} là để lược bỏ các thông tin nhạy cảm và dư thừa
    * (như lịch sử đặt giá chi tiết, thông tin người bán). Việc này giúp giảm tải
    * dung lượng gói tin gửi qua Socket, tối ưu hóa băng thông mạng và tăng tốc độ
    * tải trang chủ cho người dùng.</p>
    *
-   * @return Danh sách các đối tượng {@link AuctionResponseDTO} chứa thông tin tóm tắt
+   * @return Danh sách các đối tượng {@link AuctionDTO} chứa thông tin tóm tắt
    * của các sản phẩm đang được đấu giá trên sàn.
    */
-  public static List<AuctionResponseDTO> getActiveAndWaitingAuctions() {
-    List<Auction> activeAuctions = auctionRepo.findActiveAndWaitingAuctions();
-    List<AuctionResponseDTO> activeAutionDTOs = new ArrayList<>();
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-
-    for (Auction auction : activeAuctions) {
-      String userId = sellerRepo.getUserIdBySellerId(auction.getSellerId());
-      AuctionResponseDTO activeAutionDTO = new AuctionResponseDTO(
-          auction.getId(),
-          userId,
-          new ItemDTO(auction.getItem()),
-          auction.getCurrentHighestPrice(),
-          auction.getHighestBidderId(),
-          auction.getMinStepPrice(),
-          auction.getStartTime(),
-          auction.getEndTime(),
-          auction.getStatus(),
-          auction.getBidHistory()
-      );
-      activeAutionDTOs.add(activeAutionDTO);
-    }
-    return activeAutionDTOs;
+  public static List<AuctionDTO> getActiveAndWaitingAuctions() {
+    List<AuctionDTO> activeAuctions = auctionRepo.findActiveAndWaitingAuctions();
+    return activeAuctions;
   }
 
-  public static List<AuctionResponseDTO> getAuctionsBySeller(String userId) {
+  public static List<AuctionDTO> getAuctionsBySeller(String userId) {
     SellerProfileRepository sellerRepo = new SellerProfileRepository();
     String sellerId = sellerRepo.findProfileIdByUserId(userId);
-    List<Auction> auctions = auctionRepo.findAuctionsBySellerId(sellerId);
-    List<AuctionResponseDTO> auctionsBelongsToSeller = new ArrayList<>();
-
-    for (Auction auction : auctions) {
-      AuctionResponseDTO auctionBelongsToSeller = new AuctionResponseDTO(
-          auction.getId(),
-          userId,
-          new ItemDTO(auction.getItem()),
-          auction.getCurrentHighestPrice(),
-          auction.getHighestBidderId(),
-          auction.getMinStepPrice(),
-          auction.getStartTime(),
-          auction.getEndTime(),
-          auction.getStatus(),
-          auction.getBidHistory()
-      );
-      auctionsBelongsToSeller.add(auctionBelongsToSeller);
-    }
+    List<AuctionDTO> auctionsBelongsToSeller = auctionRepo.findAuctionsBySellerId(sellerId);
     return auctionsBelongsToSeller;
   }
 

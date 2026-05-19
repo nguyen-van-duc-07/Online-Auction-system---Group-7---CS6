@@ -1,6 +1,7 @@
 package servercontroller;
 
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.order.Order;
@@ -92,28 +93,28 @@ public class RequestHandler {
    * thông báo hệ thống và danh sách sản phẩm.
    */
   public static GetActiveAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
-    List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
+    List<AuctionDTO> list = AuctionService.getActiveAuctionsForClient();
     return new GetActiveAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetWaitingAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getWaitingAuctionsForClient();
+    List<AuctionDTO> list = AuctionService.getWaitingAuctionsForClient();
     return new GetWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetClosedAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getClosedAuctionsForClient();
+    List<AuctionDTO> list = AuctionService.getClosedAuctionsForClient();
     return new GetClosedAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
       GetActiveAndWaitingAuctionsRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getActiveAndWaitingAuctions();
+    List<AuctionDTO> list = AuctionService.getActiveAndWaitingAuctions();
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
+    List<AuctionDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
     return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
