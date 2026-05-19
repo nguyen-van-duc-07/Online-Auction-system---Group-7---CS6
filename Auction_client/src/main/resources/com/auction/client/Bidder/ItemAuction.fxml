@@ -90,7 +90,7 @@
                                     </VBox.margin>
                                     <children>
                                         <VBox prefHeight="16.0" prefWidth="4.0" style="-fx-background-color: #009900; -fx-background-radius: 2;" />
-                                        <Label text="Thông số và Hình ảnh " textFill="#2C3E50">
+                                        <Label text="Thông tin sản phẩm " textFill="#2C3E50">
                                             <font>
                                                 <Font name="System Bold" size="14.0" />
                                             </font>
@@ -101,69 +101,15 @@
                                 <VBox spacing="12.0" VBox.vgrow="ALWAYS">
                                     <children>
 
-                                        <HBox spacing="12.0">
-                                            <children>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="48.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
-                                                    <padding><Insets left="12.0" right="12.0" /></padding>
-                                                    <children>
-                                                        <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                                            <children>
-                                                                <Label text="PHIÊN BẢN" textFill="#64748B"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                                                <Label text="VF8 Plus (Cao cấp)" textFill="#1E293B"><font><Font name="System Bold" size="13.0" /></font></Label>
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="48.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
-                                                    <padding><Insets left="12.0" right="12.0" /></padding>
-                                                    <children>
-                                                        <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                                            <children>
-                                                                <Label text="NĂM SẢN XUẤT" textFill="#64748B"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                                                <Label text="2024 (Mới 100%)" textFill="#1E293B"><font><Font name="System Bold" size="13.0" /></font></Label>
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </HBox>
+                                        <HBox spacing="12.0" />
 
                                         <HBox spacing="12.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="39.0" prefWidth="159.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
+                                                <HBox alignment="CENTER_LEFT" prefHeight="455.0" prefWidth="409.0" style="-fx-background-color: #F0FDF4; -fx-background-radius: 8; -fx-border-color: #DCFCE7; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
                                                     <padding><Insets left="12.0" right="12.0" /></padding>
-                                                    <children>
-                                                        <VBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="163.0" HBox.hgrow="ALWAYS">
-                                                            <children>
-                                                                <Label text="KIỂU DÁNG" textFill="#64748B"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                                                <Label text="SUV D-Crossover (5 chỗ)" textFill="#1E293B"><font><Font name="System Bold" size="13.0" /></font></Label>
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="48.0" style="-fx-background-color: #F0FDF4; -fx-background-radius: 8; -fx-border-color: #DCFCE7; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
-                                                    <padding><Insets left="12.0" right="12.0" /></padding>
-                                                    <children>
-                                                        <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                                            <children>
-                                                                <Label text="CHẾ ĐỘ PIN" textFill="#16A34A"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                                                <Label text="Đã kèm Pin (Sở hữu)" textFill="#15803D"><font><Font name="System Bold" size="13.0" /></font></Label>
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
                                                 </HBox>
                                             </children>
                                         </HBox>
-
-                                        <VBox style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-padding: 8 12 8 12; -fx-border-color: #E2E8F0; -fx-border-radius: 8;">
-                                            <children>
-                                                <Label text="HỒ SƠ PHÁP LÝ TÀI SẢN CHI TIẾT" textFill="#475569"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                                <Label text="Giấy chứng nhận xuất xưởng hải quan đầy đủ, hóa đơn VAT gốc. Hỗ trợ giao xe tận nhà an toàn." textFill="#334155" wrapText="true">
-                                                    <font><Font size="11.5" /></font>
-                                                    <VBox.margin><Insets top="2.0" /></VBox.margin>
-                                                </Label>
-                                            </children>
-                                        </VBox>
 
                                     </children>
                                 </VBox>
@@ -173,7 +119,7 @@
                     </children>
                 </VBox>
 
-                <VBox prefHeight="745.0" prefWidth="635.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 12, 0, 0, 6);">
+                <VBox prefHeight="745.0" prefWidth="758.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 12, 0, 0, 6);">
                     <children>
                         <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #009900; -fx-padding: 4 10 4 10; -fx-background-radius: 4;" text="● PHIÊN ĐANG DIỄN RA">
                             <font><Font name="System Bold" size="11.0" /></font>
