@@ -1,6 +1,8 @@
 package com.auction.shared.response;
 
 import java.util.List;
+
+import com.auction.shared.model.auction.AuctionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,5 +14,5 @@ import lombok.Getter;
 public class GetWaitingAuctionsResponseDTO implements ResponseDTO {
   private boolean success;
   private String message;
-  private List<AuctionResponseDTO> waitingAuctions;
+  private List<AuctionDTO> waitingAuctions;
 }

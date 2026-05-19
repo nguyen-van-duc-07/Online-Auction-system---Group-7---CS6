@@ -2,6 +2,7 @@ package com.auction.client.screenhandler.admin;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO;
 import com.auction.shared.request.SellerRegisterRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
@@ -28,34 +29,28 @@ public class AuctionManagerController implements Initializable {
   private TextField searchField;
 
   @FXML
-  private TableView<AuctionResponseDTO> auctionTable;
+  private TableView<AuctionDTO> auctionTable;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, Integer> serialColumn;
+  private TableColumn<AuctionDTO, Integer> serialColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, String> auctionIdColumn;
+  private TableColumn<AuctionDTO, String> auctionIdColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, String> itemNameColumn;
+  private TableColumn<AuctionDTO, String> itemNameColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, LocalDateTime> createAtColumn;
+  private TableColumn<AuctionDTO, LocalDateTime> startTimeColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, String> userIdColumn;
+  private TableColumn<AuctionDTO, BigDecimal> currentHighestPriceColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, BigDecimal> currentHighestPriceColumn;
+  private TableColumn<AuctionDTO, LocalDateTime> endTimeColumn;
 
   @FXML
-  private TableColumn<AuctionResponseDTO, String> currentHighestBidderColumn;
-
-  @FXML
-  private TableColumn<AuctionResponseDTO, LocalDateTime> endTimeColumn;
-
-  @FXML
-  private TableColumn<AuctionResponseDTO, String> statusColumn;
+  private TableColumn<AuctionDTO, String> statusColumn;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -82,7 +77,7 @@ public class AuctionManagerController implements Initializable {
     });
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    createAtColumn.setCellFactory(column -> new TableCell<>() {
+    startTimeColumn.setCellFactory(column -> new TableCell<>() {
       @Override
       protected void updateItem(LocalDateTime item, boolean empty) {
         super.updateItem(item, empty);
@@ -112,21 +107,17 @@ public class AuctionManagerController implements Initializable {
     serialColumn.setStyle("-fx-alignment: CENTER;"); // Căn giữa cho các cột
     auctionIdColumn.setStyle("-fx-alignment: CENTER;");
     itemNameColumn.setStyle("-fx-alignment: CENTER;");
-    createAtColumn.setStyle("-fx-alignment: CENTER;");
-    userIdColumn.setStyle("-fx-alignment: CENTER;");
+    startTimeColumn.setStyle("-fx-alignment: CENTER;");
     currentHighestPriceColumn.setStyle("-fx-alignment: CENTER;");
-    currentHighestBidderColumn.setStyle("-fx-alignment: CENTER;");
     endTimeColumn.setStyle("-fx-alignment: CENTER;");
     statusColumn.setStyle("-fx-alignment: CENTER;");
 
 
     // Các cột còn lại ánh xạ đúng với tên biến trong AuctionRequestDTO.java
-    auctionIdColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-    itemNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getItem().getName()));
-    createAtColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem().getCreatedAt()));
-    userIdColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserId()));
-    currentHighestPriceColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrentHighestPrice()));
-    currentHighestBidderColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getHighestBidderName()));
+    auctionIdColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getAuctionId()));
+    itemNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getItemName()));
+    startTimeColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
+    currentHighestPriceColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrentPrice()));
     endTimeColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
     statusColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
   }
@@ -135,10 +126,10 @@ public class AuctionManagerController implements Initializable {
    * Phương thức dùng để đẩy danh sách dữ liệu vào bảng.
    * @param auctionsList Danh sách các đơn đăng ký nhận từ Server
    */
-  public void loadDataToTable(List<AuctionResponseDTO> auctionsList) {
+  public void loadDataToTable(List<AuctionDTO> auctionsList) {
     if (auctionsList != null) {
       System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC: " + auctionsList.size() + " đơn ==="); // THÊM DÒNG NÀY
-      ObservableList<AuctionResponseDTO> observableList = FXCollections.observableArrayList(auctionsList);
+      ObservableList<AuctionDTO> observableList = FXCollections.observableArrayList(auctionsList);
       auctionTable.setItems(observableList);
     } else {
       System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");

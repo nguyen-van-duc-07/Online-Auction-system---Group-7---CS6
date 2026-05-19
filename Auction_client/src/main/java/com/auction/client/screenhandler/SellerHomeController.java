@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.CheckingSellerProfileRequestDTO;
 import com.auction.shared.request.GetAuctionsBySellerRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
@@ -57,7 +58,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
    * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
    * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
    */
-  public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
+  public void loadFeedToUI(List<AuctionDTO> auctions) {
     // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
     Platform.runLater(() -> {
       // Xóa các card cũ (nếu có) trước khi nạp mới
@@ -95,7 +96,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
       // Thêm card này vào Container đầu tiên
       feedContainer.getChildren().add(addNewCard);
 
-      for (AuctionResponseDTO auction : auctions) {
+      for (AuctionDTO auction : auctions) {
         try {
           // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
           FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
@@ -124,11 +125,11 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
   @Override
-  public void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+  public void gotoProductDetail(AuctionDTO selectedAuction) {
     // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuction(selectedAuction);
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
+    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
+    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
+    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
   }
 
   public void gotoUploadItem() {

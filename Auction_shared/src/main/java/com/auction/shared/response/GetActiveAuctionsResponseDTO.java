@@ -1,6 +1,8 @@
 package com.auction.shared.response;
 
 import java.util.List;
+
+import com.auction.shared.model.auction.AuctionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,7 +11,7 @@ import lombok.Getter;
  * lấy danh sách các phiên đấu giá đang hoạt động.
  *
  * <p>Bao gồm trạng thái thành công/thất bại của truy vấn, thông báo từ hệ thống
- * và một danh sách các đối tượng {@link AuctionResponseDTO} đã được đóng gói sẵn.</p>
+ * và một danh sách các đối tượng {@link AuctionDTO} đã được đóng gói sẵn.</p>
  */
 @Getter
 @AllArgsConstructor
@@ -21,5 +23,5 @@ public class GetActiveAuctionsResponseDTO implements ResponseDTO {
   private String message;
 
   /** Danh sách các phiên đấu giá đang mở đã được chắt lọc dữ liệu. */
-  private List<AuctionResponseDTO> activeAuctions;
+  private List<AuctionDTO> activeAuctions;
 }

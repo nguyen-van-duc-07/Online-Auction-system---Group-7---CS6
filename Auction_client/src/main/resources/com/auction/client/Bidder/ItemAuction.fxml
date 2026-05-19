@@ -29,7 +29,7 @@
                 </Button>
                 <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label text="PHIÊN ĐẤU GIÁ TRỰC TUYẾN SỐ 1" textFill="#2C3E50">
+                        <Label text="PHIÊN ĐẤU GIÁ TRỰC TUYẾN" textFill="#2C3E50">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
@@ -184,7 +184,7 @@
                                 <Insets top="10.0" />
                             </VBox.margin>
                             <children>
-                                <Label fx:id="itemNameLabel" text="VinFast VF8 Plus bản cao cấp (2024)" textFill="#2C3E50" wrapText="true" HBox.hgrow="ALWAYS">
+                                <Label fx:id="itemNameLabel" textFill="#2C3E50" wrapText="true" HBox.hgrow="ALWAYS">
                                     <font><Font name="System Bold" size="22.0" /></font>
                                 </Label>
 
@@ -208,14 +208,14 @@
                                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Giá khởi điểm" textFill="#7F8C8D" />
-                                        <Label text="850.000.000 đ" textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
                                     </children>
                                 </VBox>
                                 <Separator orientation="VERTICAL" prefHeight="200.0" />
                                 <VBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="GIÁ HIỆN TẠI" textFill="#009900"><font><Font name="System Bold" size="12.0" /></font></Label>
-                                        <Label fx:id="currentPriceField" text="1.025.000.000 đ" textFill="#009900"><font><Font name="System Bold" size="22.0" /></font></Label>
+                                        <Label fx:id="currentPriceField" textFill="#009900"><font><Font name="System Bold" size="22.0" /></font></Label>
                                     </children>
                                 </VBox>
                             </children>
@@ -224,12 +224,12 @@
                         <HBox spacing="5.0">
                             <children>
                                 <Label text="Người dẫn đầu:" textFill="#7F8C8D" />
-                                <Label fx:id="highestBidderLabel" text="Nguyễn Văn Đức" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></Label>
+                                <Label fx:id="highestBidderLabel" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></Label>
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </HBox>
                         <Separator prefWidth="200.0" />
-                        <Label text="Bước giá quy định của sàn: tối thiểu 5.000.000 đ" textFill="#E67E22"><font><Font name="System Italic" size="12.0" /></font><VBox.margin><Insets top="15.0" /></VBox.margin></Label>
+                        <Label fx:id="minStepPriceLabel" text="Bước giá quy định tối thiểu: " textFill="#E67E22"><font><Font name="System Italic" size="12.0" /></font><VBox.margin><Insets top="15.0" /></VBox.margin></Label>
                         <TextField fx:id="bidAmountField" alignment="CENTER" prefHeight="45.0" promptText="Nhập số tiền bạn muốn trả (Đấu giá thủ công)..." style="-fx-background-radius: 8; -fx-border-color: #BDC3C7; -fx-border-radius: 8;"><font><Font size="14.0" /></font><VBox.margin><Insets top="10.0" /></VBox.margin></TextField>
                         <VBox spacing="12.0" style="-fx-background-color: #F4F6F7; -fx-background-radius: 12; -fx-padding: 15;">
                             <VBox.margin><Insets top="20.0" /></VBox.margin>
