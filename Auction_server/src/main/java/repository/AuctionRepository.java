@@ -5,6 +5,9 @@ import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
+import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.user.User;
+import com.auction.shared.response.AuctionResponseDTO;
 import config.DatabaseConnection;
 
 import java.sql.*;
@@ -236,7 +239,7 @@ public class AuctionRepository {
   }
 
   // Hàm phụ trợ để mapping dữ liệu (tránh viết lặp code)
-  private Auction mapResultSetToAuction(ResultSet rs) throws SQLException {
+  private AuctionResponseDTO mapResultSetToAuction(ResultSet rs) throws SQLException {
     String typeStr = rs.getString("item_type");
     ItemType itemType;
     try {
@@ -245,32 +248,29 @@ public class AuctionRepository {
       // Mặc định là OTHER nếu dưới Database lỡ nhập sai chữ
       itemType = ItemType.OTHER;
     }
-    Item item = new Item(rs.getString("item_id"),
-        rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null,
-        rs.getString("item_name"),   // Lấy từ AS item_name của lệnh JOIN
-        itemType,                    // Enum vừa xử lý ở trên
-        rs.getString("item_desc"));
-    Auction a = new Auction(
-        item,
-        rs.getBigDecimal("start_price"),
-        rs.getTimestamp("start_time").toLocalDateTime(),
-        rs.getTimestamp("end_time").toLocalDateTime()
-    );
-    a.setId(rs.getString("id"));
-    a.setSellerId(rs.getString("seller_id"));
-    a.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
-    a.setMinStepPrice(rs.getBigDecimal("min_step_price"));
-    a.setStatus(AuctionStatus.valueOf(rs.getString("status")));
-    a.setHighestBidderId(rs.getString("highest_bidder_id"));
-    // THÊM DÒNG NÀY: Gán Tên người ra giá cao nhất lấy từ câu lệnh LEFT JOIN
-    try {
-      a.setHighestBidderName(rs.getString("highest_bidder_name"));
-    } catch (SQLException e) {
-      // Nếu câu lệnh SQL nào đó không có cột highest_bidder_name, nó sẽ nhảy vào đây
-      // Ta an toàn bỏ qua hoặc gán giá trị mặc định, chương trình sẽ không bị crash nữa.
-      a.setHighestBidderName(null);
-    }
-    return a;
+    ItemDTO item = new ItemDTO();
+    item.setId(rs.getString("item_id"));
+    item.setName(rs.getString("item_name"));
+    item.setType(itemType);
+    item.setDescription(rs.getString("item_description"));
+    AuctionResponseDTO auction = new AuctionResponseDTO();
+    auction.setId(rs.getString("id"));
+    auction.setUserId(rs.getString("seller_id"));
+    auction.setItem(item);
+    auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
+    auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
+    auction.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+    auction.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+    auction.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+    UserRepository userRepo = new  UserRepository();
+    String highestBidderId = rs.getString("highest_bidder_id");
+    String highestBidderName = rs.getString("highest_bidder_name");
+
+    auction.setHighestBidderId(highestBidderId);
+    auction.setHighestBidderName(highestBidderName);
+
+    return auction;
   }
   public boolean saveAuction(Auction auction, String sellerProfileId) {
     String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
@@ -383,7 +383,7 @@ public class AuctionRepository {
       e.printStackTrace();
     }
   }
-  public Auction findAuctionById(String auctionId) {
+  public AuctionResponseDTO findAuctionById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
     String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
             + "FROM auctions a "
@@ -403,8 +403,8 @@ public class AuctionRepository {
     }
   }
   // Trả về Map<auctionId, Auction> thay vì chỉ List<String>
-  public Map<String, Auction> findAuctionsToCloseWithDetails(LocalDateTime now) {
-    Map<String, Auction> result = new LinkedHashMap<>();
+  public Map<String, AuctionResponseDTO> findAuctionsToCloseWithDetails(LocalDateTime now) {
+    Map<String, AuctionResponseDTO> result = new LinkedHashMap<>();
 
     String sql =
         "SELECT a.*, i.id AS item_id, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
@@ -417,7 +417,7 @@ public class AuctionRepository {
       ps.setTimestamp(1, Timestamp.valueOf(now));
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
-        Auction auction = mapResultSetToAuction(rs);
+        AuctionResponseDTO auction = mapResultSetToAuction(rs);
         result.put(auction.getId(), auction);
       }
     } catch (Exception e) {

@@ -151,38 +151,13 @@ public class RequestHandler {
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
     String auctionId = request.getSelectedAuctionId();
-    Auction auction = AuctionService.getAuctionHistory(auctionId);
+    AuctionResponseDTO auction = AuctionService.getAuctionHistory(auctionId);
 
     SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    auction.setUserId(sellerRepo.getUserIdBySellerId(auction.getUserId()));
 
     if (auction == null) return null;
-
-    AuctionResponseDTO response = new AuctionResponseDTO();
-    response.setId(auction.getId());
-    response.setUserId(sellerRepo.getUserIdBySellerId(auction.getSellerId()));
-    //response.setItem(auction.getItem().getName()); // QUAN TRỌNG: Gửi thông tin sản phẩm về
-    response.setCurrentHighestPrice(auction.getCurrentHighestPrice());
-    response.setMinStepPrice(auction.getMinStepPrice());
-    response.setStartTime(auction.getStartTime());
-    response.setEndTime(auction.getEndTime());
-    response.setStatus(auction.getStatus());
-    response.setBidHistory(auction.getBidHistory());
-    Item itemEntity = auction.getItem();
-    if (itemEntity != null) {
-      ItemDTO itemDTO = new ItemDTO();
-      itemDTO.setId(itemEntity.getId());
-      itemDTO.setName(itemEntity.getName());
-      itemDTO.setDescription(itemEntity.getDescription());
-      itemDTO.setType(itemEntity.getType());
-      itemDTO.setCreatedAt(itemEntity.getCreatedAt());
-
-      response.setItem(itemDTO); // Bây giờ kiểu dữ liệu đã khớp (ItemDTO)
-    }
-    // QUAN TRỌNG: Lấy tên người cao nhất thật sự từ Auction object
-    // (Đảm bảo trong AuctionService bạn đã JOIN bảng để lấy tên này)
-    response.setHighestBidderName(auction.getHighestBidderName());
-
-    return response;
+    return auction;
   }
 
   public static SellerRegisterResponseDTO sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {

@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.ScrollPane?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1200.0" style="-fx-background-color: #F4F6F8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ItemAuctionController">
 
     <top>
@@ -119,92 +120,98 @@
                     </children>
                 </VBox>
 
-                <VBox prefHeight="745.0" prefWidth="758.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 12, 0, 0, 6);">
-                    <children>
-                        <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #009900; -fx-padding: 4 10 4 10; -fx-background-radius: 4;" text="● PHIÊN ĐANG DIỄN RA">
-                            <font><Font name="System Bold" size="11.0" /></font>
-                        </Label>
-
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
+                <!-- Đã bọc VBox cũ vào trong ScrollPane -->
+                <ScrollPane prefHeight="745.0" prefWidth="758.0" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background-radius: 16;">
+                    <content>
+                        <!-- Đây là VBox gốc ở dòng 122 của bạn, bỏ prefHeight cố định để nó tự co giãn theo nội dung khi cuộn -->
+                        <VBox prefWidth="742.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 12, 0, 0, 6);">
+                            <padding><Insets bottom="25.0" left="20.0" right="20.0" top="25.0" /></padding>
                             <children>
-                                <Label fx:id="itemNameLabel" textFill="#2C3E50" wrapText="true" HBox.hgrow="ALWAYS">
-                                    <font><Font name="System Bold" size="22.0" /></font>
+                                <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #009900; -fx-padding: 4 10 4 10; -fx-background-radius: 4;" text="● PHIÊN ĐANG DIỄN RA">
+                                    <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
 
-                                <Button fx:id="btnViewImages" mnemonicParsing="false" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 12 6 12;" text="👁 Xem ảnh">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Button>
-                            </children>
-                        </HBox>
-                        <Label text="Mã sản phẩm: SP-00918" textFill="#95A5A6" />
-                        <Separator prefWidth="200.0"><VBox.margin><Insets bottom="15.0" top="15.0" /></VBox.margin></Separator>
-                        <VBox alignment="CENTER" style="-fx-background-color: #FFF5F5; -fx-background-radius: 8; -fx-padding: 10;">
-                            <children>
-                                <Label text="THỜI GIAN CÒN LẠI" textFill="#E74C3C"><font><Font name="System Bold" size="12.0" /></font></Label>
-                                <Label fx:id="timeRemainingLabel" textFill="#C0392B"><font><Font name="System Bold" size="24.0" /></font></Label>
-                            </children>
-                        </VBox>
-                        <HBox alignment="CENTER_LEFT" prefHeight="70.0">
-                            <children>
-                                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <Label text="Giá khởi điểm" textFill="#7F8C8D" />
-                                        <Label textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
-                                    </children>
-                                </VBox>
-                                <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                <VBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <Label text="GIÁ HIỆN TẠI" textFill="#009900"><font><Font name="System Bold" size="12.0" /></font></Label>
-                                        <Label fx:id="currentPriceField" textFill="#009900"><font><Font name="System Bold" size="22.0" /></font></Label>
-                                    </children>
-                                </VBox>
-                            </children>
-                            <VBox.margin><Insets top="15.0" /></VBox.margin>
-                        </HBox>
-                        <HBox spacing="5.0">
-                            <children>
-                                <Label text="Người dẫn đầu:" textFill="#7F8C8D" />
-                                <Label fx:id="highestBidderLabel" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></Label>
-                            </children>
-                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
-                        </HBox>
-                        <Separator prefWidth="200.0" />
-                        <Label fx:id="minStepPriceLabel" text="Bước giá quy định tối thiểu: " textFill="#E67E22"><font><Font name="System Italic" size="12.0" /></font><VBox.margin><Insets top="15.0" /></VBox.margin></Label>
-                        <TextField fx:id="bidAmountField" alignment="CENTER" prefHeight="45.0" promptText="Nhập số tiền bạn muốn trả (Đấu giá thủ công)..." style="-fx-background-radius: 8; -fx-border-color: #BDC3C7; -fx-border-radius: 8;"><font><Font size="14.0" /></font><VBox.margin><Insets top="10.0" /></VBox.margin></TextField>
-                        <VBox spacing="12.0" style="-fx-background-color: #F4F6F7; -fx-background-radius: 12; -fx-padding: 15;">
-                            <VBox.margin><Insets top="20.0" /></VBox.margin>
-                            <children>
-                                <CheckBox fx:id="chkAutoBid" mnemonicParsing="false" text="Kích hoạt tính năng Đấu giá tự động" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></CheckBox>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <VBox.margin>
+                                        <Insets top="10.0" />
+                                    </VBox.margin>
                                     <children>
-                                        <VBox HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label text="Giá tối đa sẵn sàng trả:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
-                                                <TextField fx:id="txtAutoBidLimit" prefHeight="35.0" promptText="Ví dụ: 1.200.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
-                                            </children>
-                                        </VBox>
-                                        <VBox HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label text="Bước giá tăng tự động:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
-                                                <TextField fx:id="txtAutoBidStep" prefHeight="35.0" promptText="Ví dụ: 5.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
-                                            </children>
-                                        </VBox>
+                                        <Label fx:id="itemNameLabel" textFill="#2C3E50" wrapText="true" HBox.hgrow="ALWAYS">
+                                            <font><Font name="System Bold" size="22.0" /></font>
+                                        </Label>
+
+                                        <Button fx:id="btnViewImages" mnemonicParsing="false" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 12 6 12;" text="👁 Xem ảnh">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Button>
                                     </children>
                                 </HBox>
-                                <Label text="* Khi có người vượt giá, hệ thống sẽ tự động cộng thêm số tiền bằng &quot;Bước giá tăng tự động&quot; bạn đã cài đặt để giữ vị trí dẫn đầu cho đến khi chạm mốc giới hạn tối đa." textFill="#7F8C8D" wrapText="true"><font><Font name="System Italic" size="11.0" /></font></Label>
+                                <Label text="Mã sản phẩm: SP-00918" textFill="#95A5A6" />
+                                <Separator prefWidth="200.0"><VBox.margin><Insets bottom="15.0" top="15.0" /></VBox.margin></Separator>
+                                <VBox alignment="CENTER" style="-fx-background-color: #FFF5F5; -fx-background-radius: 8; -fx-padding: 10;">
+                                    <children>
+                                        <Label text="THỜI GIAN CÒN LẠI" textFill="#E74C3C"><font><Font name="System Bold" size="12.0" /></font></Label>
+                                        <Label fx:id="timeRemainingLabel" textFill="#C0392B"><font><Font name="System Bold" size="24.0" /></font></Label>
+                                    </children>
+                                </VBox>
+                                <HBox alignment="CENTER_LEFT" prefHeight="70.0">
+                                    <children>
+                                        <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="Giá khởi điểm" textFill="#7F8C8D" />
+                                                <Label textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                            </children>
+                                        </VBox>
+                                        <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                        <VBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="GIÁ HIỆN TẠI" textFill="#009900"><font><Font name="System Bold" size="12.0" /></font></Label>
+                                                <Label fx:id="currentPriceField" textFill="#009900"><font><Font name="System Bold" size="22.0" /></font></Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                    <VBox.margin><Insets top="15.0" /></VBox.margin>
+                                </HBox>
+                                <HBox spacing="5.0">
+                                    <children>
+                                        <Label text="Người dẫn đầu:" textFill="#7F8C8D" />
+                                        <Label fx:id="highestBidderLabel" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></Label>
+                                    </children>
+                                    <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                                </HBox>
+                                <Separator prefWidth="200.0" />
+                                <Label fx:id="minStepPriceLabel" text="Bước giá quy định tối thiểu: " textFill="#E67E22"><font><Font name="System Italic" size="12.0" /></font><VBox.margin><Insets top="15.0" /></VBox.margin></Label>
+                                <TextField fx:id="bidAmountField" alignment="CENTER" prefHeight="45.0" promptText="Nhập số tiền bạn muốn trả (Đấu giá thủ công)..." style="-fx-background-radius: 8; -fx-border-color: #BDC3C7; -fx-border-radius: 8;"><font><Font size="14.0" /></font><VBox.margin><Insets top="10.0" /></VBox.margin></TextField>
+                                <VBox spacing="12.0" style="-fx-background-color: #F4F6F7; -fx-background-radius: 12; -fx-padding: 15;">
+                                    <VBox.margin><Insets top="20.0" /></VBox.margin>
+                                    <children>
+                                        <CheckBox fx:id="chkAutoBid" mnemonicParsing="false" text="Kích hoạt tính năng Đấu giá tự động" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></CheckBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                            <children>
+                                                <VBox HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label text="Giá tối đa sẵn sàng trả:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
+                                                        <TextField fx:id="txtAutoBidLimit" prefHeight="35.0" promptText="Ví dụ: 1.200.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label text="Bước giá tăng tự động:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
+                                                        <TextField fx:id="txtAutoBidStep" prefHeight="35.0" promptText="Ví dụ: 5.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                        <Label text="* Khi có người vượt giá, hệ thống sẽ tự động cộng thêm số tiền bằng &quot;Bước giá tăng tự động&quot; bạn đã cài đặt để giữ vị trí dẫn đầu cho đến khi chạm mốc giới hạn tối đa." textFill="#7F8C8D" wrapText="true"><font><Font name="System Italic" size="11.0" /></font></Label>
+                                    </children>
+                                </VBox>
+                                <Button fx:id="placeBidButton" mnemonicParsing="false" onAction="#placeBid" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #009900; -fx-background-radius: 8; -fx-cursor: hand;" text="XÁC NHẬN ĐẶT PHIẾU ĐẤU GIÁ" textFill="WHITE"><font><Font name="System Bold" size="16.0" /></font><VBox.margin><Insets top="20.0" /></VBox.margin></Button>
+                                <Label fx:id="errorLabel" textAlignment="CENTER" textFill="#e74c3c" wrapText="true" />
                             </children>
                         </VBox>
-                        <Button fx:id="placeBidButton" mnemonicParsing="false" onAction="#placeBid" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #009900; -fx-background-radius: 8; -fx-cursor: hand;" text="XÁC NHẬN ĐẶT PHIẾU ĐẤU GIÁ" textFill="WHITE"><font><Font name="System Bold" size="16.0" /></font><VBox.margin><Insets top="20.0" /></VBox.margin></Button>
-                  <Label fx:id="errorLabel" textAlignment="CENTER" textFill="#e74c3c" wrapText="true" />
-                    </children>
-                    <padding><Insets bottom="25.0" left="20.0" right="20.0" top="25.0" /></padding>
-                </VBox>
+                    </content>
+                </ScrollPane>
 
             </children>
             <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>

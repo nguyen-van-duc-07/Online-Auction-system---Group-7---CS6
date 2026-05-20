@@ -3,6 +3,7 @@ package scheduler;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
+import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.AuctionStatusUpdateDTO;
 import com.auction.shared.response.PaymentNotificationDTO;
@@ -47,12 +48,12 @@ public class AuctionStatusScheduler {
         System.out.println("BROADCAST ACTIVE: " + id);
         Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
       }
-      Map<String, Auction> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
+      Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
       if (!auctionsToClose.isEmpty()) {
         auctionRepo.closeExpiredAuctions(new ArrayList<>(auctionsToClose.keySet()));
-        for (Map.Entry<String, Auction> entry : auctionsToClose.entrySet()) {
+        for (Map.Entry<String, AuctionResponseDTO> entry : auctionsToClose.entrySet()) {
           String id      = entry.getKey();
-          Auction auction = entry.getValue();
+          AuctionResponseDTO auction = entry.getValue();
 
           System.out.println("BROADCAST CLOSED: " + id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));

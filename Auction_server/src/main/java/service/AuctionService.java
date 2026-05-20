@@ -241,9 +241,9 @@ public class AuctionService {
     return auctionRepo.restoreCanceledAuctionsBySellerId(sellerId, LocalDateTime.now());
   }
 
-  public static Auction getAuctionHistory(String auctionId) {
+  public static AuctionResponseDTO getAuctionHistory(String auctionId) {
     // 1. Lấy thông tin cơ bản của phiên đấu giá từ AuctionRepository
-    Auction auction = auctionRepo.findAuctionById(auctionId);
+    AuctionResponseDTO auction = auctionRepo.findAuctionById(auctionId);
 
     if (auction != null) {
       // 2. Lấy 20 giao dịch gần nhất từ BidTransactionRepository
