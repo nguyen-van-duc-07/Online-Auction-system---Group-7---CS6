@@ -114,6 +114,12 @@ public class RequestHandler {
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
+  public static GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
+      GetActiveAuctionsBySellerRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getActiveAuctionsBySeller(request.getUserId());
+    return new GetActiveAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
     List<AuctionDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
     return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
@@ -163,13 +169,12 @@ public class RequestHandler {
     response.setBidHistory(auction.getBidHistory());
     Item itemEntity = auction.getItem();
     if (itemEntity != null) {
-      ItemDTO itemDTO = ItemDTO.builder()
-              .id(itemEntity.getId())
-              .name(itemEntity.getName())
-              .description(itemEntity.getDescription())
-              .type(itemEntity.getType())
-              .CreatedAt(itemEntity.getCreatedAt())
-              .build();
+      ItemDTO itemDTO = new ItemDTO();
+      itemDTO.setId(itemEntity.getId());
+      itemDTO.setName(itemEntity.getName());
+      itemDTO.setDescription(itemEntity.getDescription());
+      itemDTO.setType(itemEntity.getType());
+      itemDTO.setCreatedAt(itemEntity.getCreatedAt());
 
       response.setItem(itemDTO); // Bây giờ kiểu dữ liệu đã khớp (ItemDTO)
     }
@@ -240,6 +245,22 @@ public class RequestHandler {
     response.setSuccess(success);
     response.setMessage(message);
     return response;
+  }
+
+  public static CancelSellerAuctionsResponseDTO cancelSellerAuctions(CancelSellerAuctionsRequestDTO request) {
+    boolean success = AuctionService.cancelActiveAndWaitingAuctionsBySellerUserId(request.getUserId());
+    String message = success
+        ? "Đã hủy các phiên đấu giá đang/sắp diễn ra của seller!"
+        : "Không thể hủy các phiên đấu giá của seller!";
+    return new CancelSellerAuctionsResponseDTO(success, message);
+  }
+
+  public static RestoreSellerAuctionsResponseDTO restoreSellerAuctions(RestoreSellerAuctionsRequestDTO request) {
+    boolean success = AuctionService.restoreCanceledAuctionsBySellerUserId(request.getUserId());
+    String message = success
+        ? "Đã mở lại các phiên đấu giá bị hủy của seller!"
+        : "Không thể mở lại các phiên đấu giá của seller!";
+    return new RestoreSellerAuctionsResponseDTO(success, message);
   }
 
   private static final AutoBidService autoBidService = new AutoBidService();

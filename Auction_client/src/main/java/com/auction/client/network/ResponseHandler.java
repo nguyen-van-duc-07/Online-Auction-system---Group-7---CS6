@@ -157,6 +157,21 @@ public class ResponseHandler {
     }
   }
 
+  public static void handleGetActiveAuctionsBySelelr(GetActiveAuctionsBySellerResponseDTO response) {
+    if (response.isSuccess()) {
+      Platform.runLater(() -> {
+        SellerHomeController sellerHomeController = SellerHomeController.getInstance();
+        if (sellerHomeController != null) {
+          sellerHomeController.loadFeedToUI(response.getActiveAuctionsBelongToSeller());
+        } else {
+          Platform.runLater(() -> {
+            ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi tải bảng tin", response.getMessage());
+          });
+        }
+      });
+    }
+  }
+
   public static void handleGetAuctionsBySeller(GetAuctionsBySellerResponseDTO getAuctionsBySellerRes) {
     if (getAuctionsBySellerRes.isSuccess()) {
       Platform.runLater(() -> {
@@ -264,7 +279,7 @@ public class ResponseHandler {
     String message = checkingSellerProfileRes.getMessage();
     Platform.runLater(() -> {
       if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
-        homeController.loadComponent("/com/auction/client/Seller/SellerHome.fxml");
+        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý hàng giao bán");
       } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
@@ -371,6 +386,26 @@ public class ResponseHandler {
             "Lỗi",  updateSellerProfileStatusRes.getMessage());
       });
     }
+  }
+
+  public static void handleCancelSellerAuctions(CancelSellerAuctionsResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thông báo" : "Lỗi",
+          response.getMessage()
+      );
+    });
+  }
+
+  public static void handleRestoreSellerAuctions(RestoreSellerAuctionsResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thông báo" : "Lỗi",
+          response.getMessage()
+      );
+    });
   }
 
   public static void handleAuctionPriceUpdate(AuctionPriceUpdateDTO dto) {

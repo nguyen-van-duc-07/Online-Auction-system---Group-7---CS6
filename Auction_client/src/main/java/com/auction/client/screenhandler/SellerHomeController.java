@@ -3,15 +3,16 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.request.CheckingSellerProfileRequestDTO;
-import com.auction.shared.request.GetAuctionsBySellerRequestDTO;
-import com.auction.shared.response.AuctionResponseDTO;
+import com.auction.shared.request.*;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ import javafx.scene.control.Label;
 /**
  * Class có nhiệm vụ quản lý màn hình seller.
  */
-public class SellerHomeController implements Initializable, ProductDetailNavigator {
+public class SellerHomeController implements Initializable, Controller {
   /**
    * Biến static lưu trữ Controller hiện tại của SellerHome.
    */
@@ -40,6 +41,14 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
   @FXML
   private FlowPane feedContainer;
 
+  @FXML
+  private ScrollPane mainContent;
+
+  private Node homeFeedNode;
+
+  @FXML
+  private Label realNameLabel;
+
   HomeController homecontroller = HomeController.getInstance();
 
 
@@ -47,6 +56,20 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
   public void initialize(URL location, ResourceBundle resources) {
     // Ghi nhận bản thân (this) làm instance hiện tại ngay khi màn hình vừa mở lên
     instance = this;
+
+    // Lưu lại giao diện Node gốc của trang chủ
+    homeFeedNode = mainContent.getContent();
+
+    // Hiện Label chào user
+    String phoneNumber = SessionManager.currentUser.getPhoneNumber();
+    String realName = SessionManager.currentUser.getRealName();
+    if (realName != null) {
+      realNameLabel.setText("Chào, " + realName);
+    } else if (phoneNumber != null) {
+      realNameLabel.setText("Chào, " + phoneNumber);
+    } else {
+      realNameLabel.setText("N/A");
+    }
 
     // Gửi yêu cầu lấy danh sách ngay khi load UI
     String sellerId = SessionManager.getCurrentUser().getId();
@@ -107,8 +130,8 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
           // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
 
-          // Truyền object auction và 'this' (SellerHomeController) sang để thẻ con biết đường gọi chuyển trang
-          cardController.setData(auction, this);
+          // Truyền object auction
+          cardController.setData(auction, instance);
 
           // 4. Nhét thẻ đã hoàn thiện vào FlowPane
           feedContainer.getChildren().add(cardNode);
@@ -121,18 +144,91 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
     });
   }
 
-  /**
-   * Chuyển hướng sang màn hình chi tiết sản phẩm.
-   */
-  @Override
-  public void gotoProductDetail(AuctionDTO selectedAuction) {
-    // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
+  public void gotoUploadItem() {
+    loadComponent("/com/auction/client/Seller/UploadItem.fxml");
   }
 
-  public void gotoUploadItem() {
-    homecontroller.loadComponent("/com/auction/client/Seller/UploadItem.fxml");
+  @FXML
+  public void gotoLogin() {
+    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
+        "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
+      if (Response == ButtonType.OK) {
+        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+        logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
+        ServerConnection.sendData(logoutRequestDTO);
+        SessionManager.setCurrentUser(null);
+        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+        ScreenController.primaryStage.setMaximized(false);
+      }
+    });
+  }
+
+  @FXML
+  public void gotoProfile() {
+    loadComponent("/com/auction/client/User/Profile.fxml");
+  }
+
+  @FXML
+  public void gotoWallet() {
+    loadComponent(("/com/auction/client/User/Wallet/Wallet.fxml"));
+  }
+
+  @FXML
+  public void gotoHome() {
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+  }
+
+  @FXML
+  public void handleReload() {
+    gotoHomeFeed();
+    String sellerId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(sellerId));
+  }
+
+  @FXML
+  public void handleGetPendingOrders() {
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetPendingOrdersOfSellerRequestDTO(userId));
+  }
+
+  @FXML
+  public void handleGetCompletedOrders() {
+
+  }
+
+  @FXML
+  public void handleGetCanceledOrders() {
+
+  }
+
+  @FXML
+  public void handleGetMyActiveAuctions() {
+    gotoHomeFeed();
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetActiveAuctionsBySellerRequestDTO(userId));
+  }
+
+  /**
+   * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của ScrollPane.
+   */
+  public void loadComponent(String fxmlPath) {
+    try {
+      FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+      Parent newNode = loader.load();
+
+      mainContent.setContent(newNode);
+
+      mainContent.setFitToHeight(true);
+      mainContent.setFitToWidth(true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void gotoHomeFeed() {
+    // Nếu đã lưu giao diện Feed, chỉ cần set lại nó vào phần mainContent
+    if (homeFeedNode != null) {
+      mainContent.setContent(homeFeedNode);
+    }
   }
 }

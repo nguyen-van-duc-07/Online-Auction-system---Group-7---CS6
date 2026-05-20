@@ -205,8 +205,15 @@ public class AuctionService {
    * của các sản phẩm đang được đấu giá trên sàn.
    */
   public static List<AuctionDTO> getActiveAndWaitingAuctions() {
-    List<AuctionDTO> activeAuctions = auctionRepo.findActiveAndWaitingAuctions();
-    return activeAuctions;
+    List<AuctionDTO> activeAndWaitingAuctions = auctionRepo.findActiveAndWaitingAuctions();
+    return activeAndWaitingAuctions;
+  }
+
+  public static List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    List<AuctionDTO> activeAuctionsBelongsToSeller = auctionRepo.findActiveAuctionsBySellerId(sellerId);
+    return activeAuctionsBelongsToSeller;
   }
 
   public static List<AuctionDTO> getAuctionsBySeller(String userId) {
@@ -214,6 +221,24 @@ public class AuctionService {
     String sellerId = sellerRepo.findProfileIdByUserId(userId);
     List<AuctionDTO> auctionsBelongsToSeller = auctionRepo.findAuctionsBySellerId(sellerId);
     return auctionsBelongsToSeller;
+  }
+
+  public static boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    if (sellerId == null) {
+      return false;
+    }
+    return auctionRepo.cancelActiveAndWaitingAuctionsBySellerId(sellerId);
+  }
+
+  public static boolean restoreCanceledAuctionsBySellerUserId(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    if (sellerId == null) {
+      return false;
+    }
+    return auctionRepo.restoreCanceledAuctionsBySellerId(sellerId, LocalDateTime.now());
   }
 
   public static Auction getAuctionHistory(String auctionId) {

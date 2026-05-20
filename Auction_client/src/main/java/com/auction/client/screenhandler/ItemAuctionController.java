@@ -62,7 +62,11 @@ public class ItemAuctionController implements Initializable {
   public void gotoHome() {
     stopCountdownTimer();
     ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+    if (SessionManager.getPreviousScreen() instanceof HomeController) {
+      ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+    } else {
+      ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý hàng giao bán");
+    }
   }
 
   @Override
