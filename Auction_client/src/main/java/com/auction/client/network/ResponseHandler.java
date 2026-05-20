@@ -454,4 +454,33 @@ public class ResponseHandler {
       );
     }
   }
+
+  public static void handleGetNotifications(GetNotificationsResponseDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge trên Home
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.updateNotificationBadge(dto.getUnreadCount());
+      }
+
+      // Load danh sách nếu đang ở màn hình thông báo
+      if (NotificationController.instance != null) {
+        NotificationController.instance.loadNotifications(
+            dto.getNotifications(),
+            dto.getUnreadCount()
+        );
+      }
+    });
+  }
+
+  public static void handleNewNotification(NotificationDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.incrementNotificationBadge();
+      }
+      System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
+    });
+  }
 }

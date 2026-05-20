@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="600.0" prefWidth="750.0"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.screenhandler.NotificationController"
+      style="-fx-background-color: #f0f2f5;">
+
+    <!-- Panel trái: danh sách -->
+    <VBox prefWidth="280" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
+
+        <!-- Header trái -->
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-background-color: #1e7d32; -fx-padding: 15 20;">
+            <Label text="🔔 Thông báo"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        </HBox>
+
+        <!-- Danh sách -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent;" hbarPolicy="NEVER">
+            <content>
+                <VBox fx:id="notificationList" spacing="0"
+                      style="-fx-background-color: white;"/>
+            </content>
+        </ScrollPane>
+
+        <!-- Footer -->
+        <HBox style="-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+            <Button text="Đánh dấu tất cả đã đọc"
+                    onAction="#markAllAsRead"
+                    maxWidth="Infinity"
+                    HBox.hgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-text-fill: #1e7d32;
+                           -fx-font-size: 12px; -fx-cursor: hand;
+                           -fx-border-color: #1e7d32; -fx-border-radius: 8;
+                           -fx-background-radius: 8; -fx-padding: 8;"/>
+        </HBox>
+    </VBox>
+
+    <!-- Panel phải: chi tiết -->
+    <VBox fx:id="detailPanel" HBox.hgrow="ALWAYS"
+          style="-fx-background-color: #f8f9fa;">
+
+        <!-- Placeholder khi chưa chọn -->
+        <VBox fx:id="emptyDetail" alignment="CENTER" VBox.vgrow="ALWAYS">
+            <Label text="📭" style="-fx-font-size: 48px;"/>
+            <Label text="Chọn thông báo để xem chi tiết"
+                   style="-fx-text-fill: #999; -fx-font-size: 14px;"/>
+        </VBox>
+
+        <!-- Nội dung chi tiết -->
+        <VBox fx:id="detailContent" spacing="15" visible="false"
+              style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 12;"
+              VBox.vgrow="ALWAYS">
+            <VBox.margin><Insets top="15" right="15" bottom="15" left="15"/></VBox.margin>
+
+            <!-- Icon + Title -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="detailIcon" style="-fx-font-size: 28px;" text="🔔"/>
+                <Label fx:id="detailTitle"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e7d32;"
+                       wrapText="true" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <Label fx:id="detailTime"
+                   style="-fx-font-size: 11px; -fx-text-fill: #999;"/>
+
+            <Separator/>
+
+            <Label fx:id="detailContent_"
+                   style="-fx-font-size: 13px; -fx-text-fill: #444;"
+                   wrapText="true"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Nút action nếu có -->
+            <Button fx:id="actionButton" text="Xem chi tiết"
+                    onAction="#handleAction"
+                    visible="false"
+                    style="-fx-background-color: #1e7d32; -fx-text-fill: white;
+                           -fx-font-weight: bold; -fx-padding: 10 20;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </VBox>
+    </VBox>
+</HBox>
