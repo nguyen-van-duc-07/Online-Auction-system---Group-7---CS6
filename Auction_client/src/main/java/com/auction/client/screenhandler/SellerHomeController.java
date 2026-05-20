@@ -39,7 +39,7 @@ public class SellerHomeController implements Initializable, ProductDetailNavigat
   /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Seller/SellerHome.fxml. */
   @FXML
   private FlowPane feedContainer;
-
+  
   HomeController homecontroller = HomeController.getInstance();
 
 
