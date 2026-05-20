@@ -40,7 +40,7 @@ public class WalletTransactionTest {
                     .amount(invalidAmount)
                     .build();
         });
-        assertEquals("Transaction amount must be greater than zero", exception.getMessage());
+        assertEquals("Số tiền giao dịch phải lớn hơn 0!", exception.getMessage());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class WalletTransactionTest {
                     .amount(invalidAmount)
                     .build();
         });
-        assertEquals("Transaction amount must be greater than zero", exception.getMessage());
+        assertEquals("Số tiền giao dịch phải lớn hơn 0!", exception.getMessage());
     }
 
     @Test
@@ -67,6 +67,6 @@ public class WalletTransactionTest {
                     .amount(new BigDecimal("100.00"))
                     .build();
         });
-        assertEquals("WalletId must not be null", exception.getMessage());
+        assertEquals("Mã ví (Wallet ID) không được để trống!", exception.getMessage());
     }
 }
