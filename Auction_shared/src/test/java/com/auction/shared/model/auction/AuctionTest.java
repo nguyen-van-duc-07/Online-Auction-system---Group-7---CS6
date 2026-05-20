@@ -122,7 +122,7 @@ class AuctionTest {
     @DisplayName("applyBid() thành công: cập nhật giá, người bid và lưu lịch sử")
     void testApplyBid_ValidBid_ShouldSucceed() {
         Auction auction = new Auction(dummyItem, new BigDecimal("100.00"), LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusDays(1));
-
+        auction.setId("AUCTION_123");
         boolean result = auction.applyBid("USER_123", new BigDecimal("150.00"));
 
         assertTrue(result);

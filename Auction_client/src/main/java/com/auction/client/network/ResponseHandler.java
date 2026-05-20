@@ -391,4 +391,32 @@ public class ResponseHandler {
       );
     });
   }
+
+  public static void handleGetBalance(GetBalanceResponseDTO balanceRes) {
+    if (balanceRes.isSuccess()) {
+      System.out.println("Lấy số dư thành công: " + balanceRes.getBalance());
+      // Gọi sang Controller giao diện để cập nhật Label
+      if (WalletController.getInstance() != null) {
+        WalletController.getInstance().updateBalanceUI(balanceRes.getBalance());
+      }
+    } else {
+      System.out.println("Lỗi lấy số dư: " + balanceRes.getMessage());
+      if (WalletController.getInstance() != null) {
+        WalletController.getInstance().showErrorUI();
+      }
+    }
+  }
+
+  public static void handlePaymentResponse(PaymentResponseDTO responseDTO) {
+    // Kiểm tra xem màn hình thanh toán có đang mở không
+    if (PaymentScreenController.instance != null) {
+
+      // Đẩy dữ liệu ngược về màn hình Controller để nó cập nhật giao diện
+      PaymentScreenController.instance.processPaymentResponse(
+              responseDTO.isSuccess(),
+              responseDTO.getMessage(),
+              responseDTO.getTransaction()
+      );
+    }
+  }
 }

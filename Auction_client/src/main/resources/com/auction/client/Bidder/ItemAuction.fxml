@@ -201,6 +201,7 @@
                             </children>
                         </VBox>
                         <Button fx:id="placeBidButton" mnemonicParsing="false" onAction="#placeBid" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #009900; -fx-background-radius: 8; -fx-cursor: hand;" text="XÁC NHẬN ĐẶT PHIẾU ĐẤU GIÁ" textFill="WHITE"><font><Font name="System Bold" size="16.0" /></font><VBox.margin><Insets top="20.0" /></VBox.margin></Button>
+                  <Label fx:id="errorLabel" textAlignment="CENTER" textFill="#e74c3c" wrapText="true" />
                     </children>
                     <padding><Insets bottom="25.0" left="20.0" right="20.0" top="25.0" /></padding>
                 </VBox>

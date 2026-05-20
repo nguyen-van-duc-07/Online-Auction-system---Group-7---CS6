@@ -56,7 +56,8 @@ public class AuctionStatusScheduler {
 
           System.out.println("BROADCAST CLOSED: " + id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
-
+          String itemId = auction.getItem().getId();
+          String itemName = auction.getItem().getName();
           String winnerId = auction.getHighestBidderId();
           if (winnerId != null && !winnerId.isBlank()) {
             System.out.println("SERVER GUI THONG BAO CHIEN THANG "
@@ -66,6 +67,8 @@ public class AuctionStatusScheduler {
             Server.broadcastToAuctionRoom(new AuctionResultDTO(
                 id,
                 winnerId,
+                itemId,
+                itemName,
                 auction.getCurrentHighestPrice()
             ));
             Order order = orderService.createOrder(id, winnerId, auction.getCurrentHighestPrice());

@@ -122,6 +122,11 @@ public class ServerConnection {
             case AutoBidResponseDTO dto ->
                 ResponseHandler.handleAutoBidResponse(dto);
 
+            case GetBalanceResponseDTO balanceRes -> {
+              System.out.println("Nhận phản hồi lấy số dư từ Server.");
+              ResponseHandler.handleGetBalance(balanceRes);
+            }
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

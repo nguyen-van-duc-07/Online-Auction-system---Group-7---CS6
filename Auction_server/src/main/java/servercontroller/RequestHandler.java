@@ -10,6 +10,7 @@ import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import repository.SellerProfileRepository;
@@ -32,15 +33,15 @@ public class RequestHandler {
 
     if (loggedInUser != null) {
       UserDTO userDTO = UserDTO.builder()
-          .role(loggedInUser.getRole())
-          .id(loggedInUser.getId())
-          .realName(loggedInUser.getRealName())
-          .accountName(loggedInUser.getAccountName())
-          .email(loggedInUser.getEmail())
-          .phoneNumber(loggedInUser.getPhoneNumber())
-          .dob(loggedInUser.getDob())
-          .address(loggedInUser.getAddress())
-          .build();
+              .role(loggedInUser.getRole())
+              .id(loggedInUser.getId())
+              .realName(loggedInUser.getRealName())
+              .accountName(loggedInUser.getAccountName())
+              .email(loggedInUser.getEmail())
+              .phoneNumber(loggedInUser.getPhoneNumber())
+              .dob(loggedInUser.getDob())
+              .address(loggedInUser.getAddress())
+              .build();
 
       return new LoginResponseDTO(true, "Đăng nhập thành công!", userDTO);
     } else {
@@ -56,7 +57,7 @@ public class RequestHandler {
   public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
     boolean isSuccess = AuthService.signUp(signUpReq);
     String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
-        "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
+            "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
     return new SignUpResponseDTO(isSuccess, msg);
   }
 
@@ -68,14 +69,14 @@ public class RequestHandler {
     // Nếu chưa có, chặn lại và báo lỗi về Client
     if (sellerProfileId == null) {
       return new UploadItemResponseDTO(false,
-          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
+              "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
     }
 
     // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
     boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq, sellerProfileId);
 
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
-        "Lỗi hệ thống, không thể lưu sản phẩm!";
+            "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);
   }
 
@@ -108,7 +109,7 @@ public class RequestHandler {
   }
 
   public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
-      GetActiveAndWaitingAuctionsRequestDTO request) {
+          GetActiveAndWaitingAuctionsRequestDTO request) {
     List<AuctionDTO> list = AuctionService.getActiveAndWaitingAuctions();
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
@@ -123,14 +124,14 @@ public class RequestHandler {
 
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
-          .id(userAfterUpdatingProfile.getId())
-          .realName(userAfterUpdatingProfile.getRealName())
-          .accountName(userAfterUpdatingProfile.getAccountName())
-          .email(userAfterUpdatingProfile.getEmail())
-          .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
-          .dob(userAfterUpdatingProfile.getDob())
-          .address(userAfterUpdatingProfile.getAddress())
-          .build();
+              .id(userAfterUpdatingProfile.getId())
+              .realName(userAfterUpdatingProfile.getRealName())
+              .accountName(userAfterUpdatingProfile.getAccountName())
+              .email(userAfterUpdatingProfile.getEmail())
+              .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
+              .dob(userAfterUpdatingProfile.getDob())
+              .address(userAfterUpdatingProfile.getAddress())
+              .build();
       return new UpdateProfileResponseDTO(true, "Cập nhật thông tin tài khoản thành công", userDTO);
     } else {
       return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
@@ -191,9 +192,10 @@ public class RequestHandler {
     hiện tại của hồ sơ người bán là gì và trả về, nếu chưa thì trả về dòng message tương ứng
      */
     String message = isSellerProfileCreated ? SellerService.sellerProfileStatus(req.getUserId()) :
-        "Bạn chưa có hồ sơ bán hàng!";
+            "Bạn chưa có hồ sơ bán hàng!";
     return new CheckingSellerProfileResponseDTO(isSellerProfileCreated, message);
   }
+
   public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
     OrderService orderService = new OrderService();
     boolean success = orderService.confirmOrder(req.getOrderId());
@@ -211,6 +213,7 @@ public class RequestHandler {
     }
     return new OrderActionResponseDTO(false, "Hủy đơn hàng thất bại!");
   }
+
   public static GetOrderResponseDTO getOrder(GetOrderRequestDTO req) {
     OrderService orderService = new OrderService();
     Order order = orderService.getOrderById(req.getOrderId());
@@ -230,7 +233,7 @@ public class RequestHandler {
   }
 
   public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
-      UpdateSellerProfileStatusRequestDTO request) {
+          UpdateSellerProfileStatusRequestDTO request) {
     boolean success = SellerService.handleUpdateSellerProfileStatus(request);
     String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
     UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
@@ -238,19 +241,32 @@ public class RequestHandler {
     response.setMessage(message);
     return response;
   }
+
   private static final AutoBidService autoBidService = new AutoBidService();
 
   public static AutoBidResponseDTO setAutoBid(SetAutoBidRequestDTO req) {
     boolean success = autoBidService.setAutoBid(req);
     return success
-        ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
-        : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+            ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
+            : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
   }
 
   public static AutoBidResponseDTO cancelAutoBid(CancelAutoBidRequestDTO req) {
     boolean success = autoBidService.cancelAutoBid(req);
     return success
-        ? new AutoBidResponseDTO(true, "Đã tắt tự động đấu giá!")
-        : new AutoBidResponseDTO(false, "Không thể tắt tự động đấu giá!");
+            ? new AutoBidResponseDTO(true, "Đã tắt tự động đấu giá!")
+            : new AutoBidResponseDTO(false, "Không thể tắt tự động đấu giá!");
+  }
+
+  public static GetBalanceResponseDTO getBalance(String userId) {
+    WalletService walletService = new WalletService();
+    try {
+      BigDecimal currentBalance = walletService.getBalance(userId);
+      return new GetBalanceResponseDTO(true, "Lấy số dư thành công", currentBalance);
+
+    } catch (Exception e) {
+      System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
+      return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
+    }
   }
 }

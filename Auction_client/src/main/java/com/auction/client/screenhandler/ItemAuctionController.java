@@ -155,6 +155,13 @@ public class ItemAuctionController implements Initializable {
   }
 
   private void loadChartData() {
+    javafx.scene.chart.NumberAxis yAxis = (javafx.scene.chart.NumberAxis) priceChart.getYAxis();
+    yAxis.setForceZeroInRange(false);
+    javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) priceChart.getXAxis();
+    xAxis.setAnimated(false);
+    xAxis.getCategories().clear();
+    xAxis.setTickLabelRotation(-90);
+    xAxis.setTickLabelsVisible(true);
     priceSeries = new XYChart.Series<>();
     priceSeries.setName("Lịch sử giá");
     priceChart.getData().clear();

@@ -159,6 +159,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetBalanceRequestDTO getBalanceReq -> {
+                out.writeObject(RequestHandler.getBalance(this.userId));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }

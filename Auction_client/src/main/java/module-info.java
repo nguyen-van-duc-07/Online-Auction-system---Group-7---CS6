@@ -5,7 +5,8 @@ module com.auction.client {
     requires com.auction.shared;
     requires static lombok;
     requires java.desktop;
-    requires com.auction.server; // Gọi sang Shared
+    requires com.auction.server;
+    requires openhtmltopdf.pdfbox; // Gọi sang Shared
 
     // Cho phép JavaFX truy cập package gốc
     opens com.auction.client to javafx.fxml;
@@ -15,7 +16,7 @@ module com.auction.client {
     opens com.auction.client.screenhandler to javafx.fxml;
     exports com.auction.client.screenhandler;
 
-    // Cấp quyền cho JavaFX truy cập và khởi tại các Controller trong admin
+    // Cấp quyền cho JavaFX truy cập và khởi tạo tại các Controller trong admin
     opens com.auction.client.screenhandler.admin to javafx.fxml;
     exports com.auction.client.screenhandler.admin;
 }

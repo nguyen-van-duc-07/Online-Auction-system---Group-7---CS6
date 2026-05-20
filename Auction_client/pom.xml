@@ -54,11 +54,19 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.auction</groupId>
             <artifactId>Auction_server</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Thư viện chuyển đổi HTML sang PDF -->
+        <dependency>
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>1.0.10</version>
         </dependency>
     </dependencies>
 
