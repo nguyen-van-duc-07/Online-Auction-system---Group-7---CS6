@@ -64,6 +64,9 @@ public class ServerConnection {
             case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
               ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
 
+            case GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySellerRes ->
+              ResponseHandler.handleGetActiveAuctionsBySelelr(getActiveAuctionsBySellerRes);
+
             case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
               ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
 
@@ -106,6 +109,12 @@ public class ServerConnection {
 
             case UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes ->
                 ResponseHandler.handleUpdateSellerProfileStatus(updateSellerProfileStatusRes);
+
+            case CancelSellerAuctionsResponseDTO cancelSellerAuctionsRes ->
+                ResponseHandler.handleCancelSellerAuctions(cancelSellerAuctionsRes);
+
+            case RestoreSellerAuctionsResponseDTO restoreSellerAuctionsRes ->
+                ResponseHandler.handleRestoreSellerAuctions(restoreSellerAuctionsRes);
 
             case OrderActionResponseDTO dto ->
                 ResponseHandler.handleOrderAction(dto);

@@ -133,7 +133,82 @@ public class AuctionRepository {
     return auctions;
   }
 
+  // Lấy tất cả các phiên đấu giá đang mở thuộc về một seller
+  public List<AuctionDTO> findActiveAuctionsBySellerId(String sellerId) {
+    List<AuctionDTO> auctions = new ArrayList<>();
+    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "WHERE a.status = 'ACTIVE' AND a.seller_id = ?"
+        + "ORDER BY a.start_time ASC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      // Gán giá trị userId vào dấu ? trong câu lệnh SQL
+      ps.setString(1, sellerId);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          AuctionDTO auction = mapResultSetToAuctionDTO(rs);
+          auctions.add(auction);
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return auctions;
+  }
+
   // Cập nhật giá cao nhất khi có người bid
+  public boolean cancelActiveAndWaitingAuctionsBySellerId(String sellerId) {
+    String sql = "UPDATE auctions SET status = ? WHERE seller_id = ? AND status IN (?, ?)";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, AuctionStatus.CANCELED.name());
+      ps.setString(2, sellerId);
+      ps.setString(3, AuctionStatus.ACTIVE.name());
+      ps.setString(4, AuctionStatus.WAITING.name());
+      ps.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public boolean restoreCanceledAuctionsBySellerId(String sellerId, LocalDateTime now) {
+    String sql = "UPDATE auctions SET status = CASE "
+        + "WHEN end_time <= ? THEN ? "
+        + "WHEN start_time <= ? AND end_time > ? THEN ? "
+        + "WHEN start_time > ? THEN ? "
+        + "ELSE status END "
+        + "WHERE seller_id = ? AND status = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      Timestamp currentTimestamp = Timestamp.valueOf(now);
+      ps.setTimestamp(1, currentTimestamp);
+      ps.setString(2, AuctionStatus.CLOSED.name());
+      ps.setTimestamp(3, currentTimestamp);
+      ps.setTimestamp(4, currentTimestamp);
+      ps.setString(5, AuctionStatus.ACTIVE.name());
+      ps.setTimestamp(6, currentTimestamp);
+      ps.setString(7, AuctionStatus.WAITING.name());
+      ps.setString(8, sellerId);
+      ps.setString(9, AuctionStatus.CANCELED.name());
+      ps.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();

@@ -2,6 +2,7 @@ package repository;
 
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.order.Order;
+import com.auction.shared.model.order.OrderDTO;
 import config.DatabaseConnection;
 
 import java.sql.*;
@@ -73,6 +74,26 @@ public class OrderRepository {
     }
   }
 
+  public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
+    String sql = "SELECT * FROM orders WHERE seller_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, sellerId);
+      ResultSet rs = ps.executeQuery();
+
+      if (rs.next()) {
+//        return mapRow(rs);
+      }
+      return null;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
   // Tìm các order PENDING quá 7 ngày để tự động hủy
   public List<Order> findExpiredPendingOrders(LocalDateTime now) {
     List<Order> orders = new ArrayList<>();
@@ -111,6 +132,12 @@ public class OrderRepository {
       return false;
     }
   }
+
+//  private OrderDTO mapResultSetToOrderDTO(ResultSet rs) throws SQLException {
+//    OrderDTO orderDTO = new OrderDTO();
+//    orderDTO.setOrderId(rs.getString("id"));
+//    orderDTO.setBrandName(rs.getString("brand_name"));
+//  }
 
   private Order mapRow(ResultSet rs) throws SQLException {
     Order order = new Order();

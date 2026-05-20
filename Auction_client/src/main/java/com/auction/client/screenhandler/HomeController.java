@@ -4,7 +4,6 @@ import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
-import com.auction.shared.response.AuctionResponseDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,7 +24,7 @@ import java.util.ResourceBundle;
  * Controller xử lý logic cho màn hình trang chủ.
  * Chịu trách nhiệm hiển thị danh sách sản phâ đấu giá động từ Server.
  */
-public class HomeController implements Initializable, ProductDetailNavigator {
+public class HomeController implements Initializable, Controller {
 
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
@@ -111,8 +110,8 @@ public class HomeController implements Initializable, ProductDetailNavigator {
           // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          // Truyền object auction và 'this' (HomeController) sang để thẻ con biết đường gọi chuyển trang
-          cardController.setData(auction, this);
+          // Truyền object auction
+          cardController.setData(auction, instance);
 
           // 4. Nhét thẻ đã hoàn thiện vào FlowPane
           feedContainer.getChildren().add(cardNode);
@@ -150,17 +149,6 @@ public class HomeController implements Initializable, ProductDetailNavigator {
     });
   }
 
-  /**
-   * Chuyển hướng sang màn hình chi tiết sản phẩm.
-   */
-  @Override
-  public void gotoProductDetail(AuctionDTO selectedAuction) {
-    // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
-  }
-
   @FXML
   public void gotoLogin() {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
@@ -169,7 +157,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
         LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
         logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
         ServerConnection.sendData(logoutRequestDTO);
-        SessionManager.clearSession();
+        SessionManager.setCurrentUser(null);
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
         ScreenController.primaryStage.setMaximized(false);
       }
