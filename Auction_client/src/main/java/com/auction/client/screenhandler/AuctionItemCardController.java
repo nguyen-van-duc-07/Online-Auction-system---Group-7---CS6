@@ -1,9 +1,8 @@
 package com.auction.client.screenhandler;
 
-import com.auction.shared.enums.AuctionStatus;
+import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.AuctionStatusUI;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.response.AuctionResponseDTO;
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,7 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 import javafx.animation.KeyFrame;
@@ -30,36 +28,42 @@ public class AuctionItemCardController {
   private Label priceLabel;
   @FXML
   private Label timeLabel;
-  @FXML
-  private Button bidButton;
+
+  private Controller currentScreen;
   private Timeline countdownTimer;
-  private String auctionId;
+  private AuctionDTO auction;
 
   /**
    * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
-   * Controller cha phải implement ProductDetailNavigator.
+   *
    */
-  public void setData(AuctionDTO auction, ProductDetailNavigator navigator) {
-    this.auctionId = auction.getAuctionId();
-    // 1. Đổ dữ liệu text
-    nameLabel.setText(auction.getItemName());
+  public void setData(AuctionDTO auction, Controller currentScreen) {
+      this.currentScreen = currentScreen;
+      this.auction = auction;
+      // 1. Đổ dữ liệu text
+      nameLabel.setText(auction.getItemName());
 
-    updateStatus(auction.getStartTime(), auction.getEndTime());
+      updateStatus(auction.getStartTime(), auction.getEndTime());
 
-    String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
-    priceLabel.setText(formattedPrice);
+      String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
+      priceLabel.setText(formattedPrice);
 
-    // Tạo bộ đếm thời gian chạy mỗi 1 giây
-    countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e ->
-        updateStatus(auction.getStartTime(), auction.getEndTime())
-    ));
+      // Tạo bộ đếm thời gian chạy mỗi 1 giây
+      countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e ->
+          updateStatus(auction.getStartTime(), auction.getEndTime())
+      ));
 
-    countdownTimer.setCycleCount(Animation.INDEFINITE);
-    countdownTimer.play();
+      countdownTimer.setCycleCount(Animation.INDEFINITE);
+      countdownTimer.play();
+  }
 
-    // 2. Gắn sự kiện cho nút bấm
-    // Gọi ngược lại hàm chuyển trang của navigator
-    bidButton.setOnAction(e -> navigator.gotoProductDetail(auction));
+  @FXML
+  public void gotoAuctionDetail() {
+    // Lưu sản phẩm vừa chọn vào SessionManager
+    SessionManager.setCurrentAuctionId(auction.getAuctionId());
+    SessionManager.setPreviousScreen(currentScreen);
+    System.out.println("Đang mở chi tiết phiên đấu giá: " + auction.getAuctionId());
+    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + auction.getItemName());
   }
 
   /**
@@ -79,7 +83,7 @@ public class AuctionItemCardController {
   }
 
   public String getAuctionId() {
-    return auctionId;
+    return auction.getAuctionId();
   }
 
   public void updatePrice(BigDecimal newPrice) {

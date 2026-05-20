@@ -100,6 +100,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetActiveAuctionsBySellerRequestDTO getActiveAuctionsBySellerReq -> {
+                out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));
+                out.flush();
+              }
+
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
                 out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
                 out.flush();
@@ -142,6 +147,16 @@ public class ClientHandler implements Runnable {
 
               case UpdateSellerProfileStatusRequestDTO updateSellerProfileStatusReq -> {
                 out.writeObject(RequestHandler.updateSellerProfileStatus(updateSellerProfileStatusReq));
+                out.flush();
+              }
+
+              case CancelSellerAuctionsRequestDTO cancelSellerAuctionsReq -> {
+                out.writeObject(RequestHandler.cancelSellerAuctions(cancelSellerAuctionsReq));
+                out.flush();
+              }
+
+              case RestoreSellerAuctionsRequestDTO restoreSellerAuctionsReq -> {
+                out.writeObject(RequestHandler.restoreSellerAuctions(restoreSellerAuctionsReq));
                 out.flush();
               }
 
