@@ -1,5 +1,6 @@
 package service;
 
+import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.Admin;
 import com.auction.shared.request.LoginRequestDTO;
@@ -109,6 +110,14 @@ public class AuthService {
       }
 
       conn.commit(); // OK
+      NotificationService notifService = new NotificationService();
+      notifService.send(
+          newUser.getId(),
+          NotificationType.SYSTEM,
+          "🎉 Chào mừng bạn đến với Đấu Giá 88!",
+          "Tài khoản của bạn đã được tạo thành công. Khám phá ngay các phiên đấu giá hấp dẫn đang diễn ra!",
+          null
+      );
       return true;
 
     } catch (Exception e) {

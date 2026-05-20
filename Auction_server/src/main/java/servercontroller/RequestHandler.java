@@ -4,6 +4,7 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
@@ -267,6 +268,22 @@ public class RequestHandler {
     } catch (Exception e) {
       System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
       return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
+    }
+  }
+
+  public static GetNotificationsResponseDTO getNotifications(GetNotificationsRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    List<Notification> notifications = notifService.getNotifications(req.getUserId());
+    // Dem so thong bao chua doc ( isRead = false)
+    int unreadCount = (int) notifications.stream().filter(n -> !n.isRead()).count();
+    return new GetNotificationsResponseDTO(true, notifications, unreadCount);
+  }
+  public static void markNotificationRead(MarkNotificationReadRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    if (req.isMarkAll()) {
+      notifService.markAllAsRead(req.getUserId());
+    } else {
+      notifService.markAsRead(req.getNotificationId());
     }
   }
 }

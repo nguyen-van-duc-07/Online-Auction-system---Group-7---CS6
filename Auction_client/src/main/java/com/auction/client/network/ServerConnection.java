@@ -127,6 +127,12 @@ public class ServerConnection {
               ResponseHandler.handleGetBalance(balanceRes);
             }
 
+            case GetNotificationsResponseDTO dto ->
+                ResponseHandler.handleGetNotifications(dto);
+
+            case NotificationDTO dto ->
+                ResponseHandler.handleNewNotification(dto);
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }
