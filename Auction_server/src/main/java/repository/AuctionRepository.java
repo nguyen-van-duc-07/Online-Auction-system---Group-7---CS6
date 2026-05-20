@@ -3,6 +3,7 @@ package repository;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import config.DatabaseConnection;
 
@@ -15,21 +16,67 @@ import java.util.Map;
 
 public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở
-  public List<Auction> findActiveAuctions() {
-    List<Auction> auctions = new ArrayList<>();
+  public List<AuctionDTO> findActiveAuctions() {
+    List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
             + "FROM auctions a "
             + "JOIN items i ON a.item_id = i.id "
-            + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
-            + "WHERE a.status = 'ACTIVE'";
+            + "WHERE a.status = 'ACTIVE'"
+            + "ORDER BY a.start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
-        Auction auction = mapResultSetToAuction(rs);
+        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
+        auctions.add(auction);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return auctions;
+  }
+
+  // Lấy tất cả các phiên đấu giá đang chờ bắt đầu
+  public List<AuctionDTO> findWaitingAuctions() {
+    List<AuctionDTO> auctions = new ArrayList<>();
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "WHERE a.status = 'WAITING' "
+            + "ORDER BY a.start_time ASC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
+        auctions.add(auction);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return auctions;
+  }
+
+  // Lấy tất cả các phiên đấu giá đã kết thúc
+  public List<AuctionDTO> findClosedAuctions() {
+    List<AuctionDTO> auctions = new ArrayList<>();
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "WHERE a.status = 'CLOSED' "
+            + "ORDER BY a.end_time DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
         auctions.add(auction);
       }
     } catch (SQLException e) {
@@ -39,21 +86,20 @@ public class AuctionRepository {
   }
 
   // Lấy tất cả các phiên đấu giá đang mở hoặc sắp diễn ra
-  public List<Auction> findActiveAndWaitingAuctions() {
-    List<Auction> auctions = new ArrayList<>();
+  public List<AuctionDTO> findActiveAndWaitingAuctions() {
+    List<AuctionDTO> auctions = new ArrayList<>();
     // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thời gian bắt đầu
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
-        + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
-        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
-        + "WHERE a.status IN ('WAITING', 'ACTIVE') "
-        + "ORDER BY a.start_time ASC";
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "WHERE a.status IN ('WAITING', 'ACTIVE') "
+            + "ORDER BY a.start_time ASC";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
-        Auction auction = mapResultSetToAuction(rs);
+        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
         auctions.add(auction);
       }
     } catch (SQLException e) {
@@ -62,13 +108,12 @@ public class AuctionRepository {
     return auctions;
   }
 
-  public List<Auction> findAuctionsBySellerId(String sellerId) {
-    List<Auction> auctions = new ArrayList<>();
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
-        + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
-        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
-        + "WHERE a.seller_id = ?";
+  public List<AuctionDTO> findAuctionsBySellerId(String sellerId) {
+    List<AuctionDTO> auctions = new ArrayList<>();
+    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
+            + "FROM auctions a "
+            + "JOIN items i ON a.item_id = i.id "
+            + "WHERE a.seller_id = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -78,7 +123,7 @@ public class AuctionRepository {
 
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
-          Auction auction = mapResultSetToAuction(rs);
+          AuctionDTO auction = mapResultSetToAuctionDTO(rs);
           auctions.add(auction);
         }
       }
@@ -100,6 +145,19 @@ public class AuctionRepository {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  // Hàm phụ trợ mapping dữ liệu và trả về AuctionDTO
+  private AuctionDTO mapResultSetToAuctionDTO(ResultSet rs) throws SQLException {
+    AuctionDTO auctionDTO = new AuctionDTO();
+    auctionDTO.setAuctionId(rs.getString("id"));
+    auctionDTO.setItemName(rs.getString("item_name"));
+    auctionDTO.setCurrentPrice(rs.getBigDecimal("current_price"));
+    auctionDTO.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+    auctionDTO.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+    auctionDTO.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+    return auctionDTO;
   }
 
   // Hàm phụ trợ để mapping dữ liệu (tránh viết lặp code)

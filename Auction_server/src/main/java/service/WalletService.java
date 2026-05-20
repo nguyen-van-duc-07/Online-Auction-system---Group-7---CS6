@@ -67,7 +67,7 @@ public class WalletService {
     WalletTransaction tx = new WalletTransaction(
         wallet.getId(),
         WalletTransactionType.BID_FREEZE,
-        amount.negate(),
+        amount,
         balBefore,
         wallet.getBalance(),
         frozBefore,
@@ -167,7 +167,7 @@ public class WalletService {
     WalletTransaction buyerTx = new WalletTransaction(
         buyerWallet.getId(),
         WalletTransactionType.AUCTION_PAYMENT,
-        order.getFinalPrice().negate(),
+        order.getFinalPrice(),
         buyerBalBefore,
         buyerWallet.getBalance(),
         buyerFrozBefore,
@@ -232,7 +232,7 @@ public class WalletService {
     WalletTransaction buyerTx = new WalletTransaction(
         buyerWallet.getId(),
         WalletTransactionType.REFUND,
-        order.getDepositAmount().negate(),
+        order.getDepositAmount(),
         buyerBalBefore,
         buyerWallet.getBalance(),
         buyerFrozBefore,

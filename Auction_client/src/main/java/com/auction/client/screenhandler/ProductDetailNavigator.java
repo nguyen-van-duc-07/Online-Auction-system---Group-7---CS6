@@ -1,5 +1,6 @@
 package com.auction.client.screenhandler;
 
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 
 /**
@@ -7,5 +8,5 @@ import com.auction.shared.response.AuctionResponseDTO;
  * Các Controller muốn điều hướng đến chi tiết sản phẩm sẽ implement interface này.
  */
 public interface ProductDetailNavigator {
-  void gotoProductDetail(AuctionResponseDTO selectedAuction);
+  void gotoProductDetail(AuctionDTO selectedAuction);
 }

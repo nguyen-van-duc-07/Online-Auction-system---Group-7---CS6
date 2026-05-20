@@ -1,19 +1,18 @@
 package servercontroller;
 
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.order.Order;
-import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-import repository.AuctionRepository;
-import repository.BidTransactionRepository;
 import repository.SellerProfileRepository;
 import service.*;
 
@@ -34,15 +33,15 @@ public class RequestHandler {
 
     if (loggedInUser != null) {
       UserDTO userDTO = UserDTO.builder()
-          .role(loggedInUser.getRole())
-          .id(loggedInUser.getId())
-          .realName(loggedInUser.getRealName())
-          .accountName(loggedInUser.getAccountName())
-          .email(loggedInUser.getEmail())
-          .phoneNumber(loggedInUser.getPhoneNumber())
-          .dob(loggedInUser.getDob())
-          .address(loggedInUser.getAddress())
-          .build();
+              .role(loggedInUser.getRole())
+              .id(loggedInUser.getId())
+              .realName(loggedInUser.getRealName())
+              .accountName(loggedInUser.getAccountName())
+              .email(loggedInUser.getEmail())
+              .phoneNumber(loggedInUser.getPhoneNumber())
+              .dob(loggedInUser.getDob())
+              .address(loggedInUser.getAddress())
+              .build();
 
       return new LoginResponseDTO(true, "Đăng nhập thành công!", userDTO);
     } else {
@@ -50,10 +49,15 @@ public class RequestHandler {
     }
   }
 
+  public static void logout(LogoutRequestDTO logoutReq) {
+    String userId = logoutReq.getUserId();
+    Server.unregisterClient(userId);
+  }
+
   public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
     boolean isSuccess = AuthService.signUp(signUpReq);
     String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
-        "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
+            "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
     return new SignUpResponseDTO(isSuccess, msg);
   }
 
@@ -65,14 +69,14 @@ public class RequestHandler {
     // Nếu chưa có, chặn lại và báo lỗi về Client
     if (sellerProfileId == null) {
       return new UploadItemResponseDTO(false,
-          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
+              "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
     }
 
     // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
     boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq, sellerProfileId);
 
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
-        "Lỗi hệ thống, không thể lưu sản phẩm!";
+            "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);
   }
 
@@ -82,43 +86,52 @@ public class RequestHandler {
    * <p>Đóng vai trò điều phối luồng dữ liệu:
    * 1. Nhận tín hiệu kích hoạt từ Client qua đối tượng Request.
    * 2. Gọi đến tầng {@link AuctionService} để thực hiện nghiệp vụ lấy và làm sạch dữ liệu.
-   * 3. Đóng gói danh sách thu được vào đối tượng {@link GetActiveAuctionResponseDTO}
+   * 3. Đóng gói danh sách thu được vào đối tượng {@link GetActiveAuctionsResponseDTO}
    * để tầng Network gửi trả về Client.</p>
    *
    * @param getActiveAuctionReq Gói tin yêu cầu từ Client (hiện tại đóng vai trò như một tín hiệu báo hiệu, không chứa dữ liệu bên trong).
-   * @return Đối tượng {@link GetActiveAuctionResponseDTO} mang theo cờ trạng thái thành công,
+   * @return Đối tượng {@link GetActiveAuctionsResponseDTO} mang theo cờ trạng thái thành công,
    * thông báo hệ thống và danh sách sản phẩm.
    */
-  public static GetActiveAuctionResponseDTO getActiveAuctions(GetActiveAuctionRequestDTO getActiveAuctionReq) {
-    List<AuctionResponseDTO> list = AuctionService.getActiveAuctionsForClient();
-    return new GetActiveAuctionResponseDTO(true, "Tải danh sách thành công!", list);
+  public static GetActiveAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
+    List<AuctionDTO> list = AuctionService.getActiveAuctionsForClient();
+    return new GetActiveAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetWaitingAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getWaitingAuctionsForClient();
+    return new GetWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetClosedAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getClosedAuctionsForClient();
+    return new GetClosedAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
-      GetActiveAndWaitingAuctionsRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getActiveAndWaitingAuctions();
+          GetActiveAndWaitingAuctionsRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getActiveAndWaitingAuctions();
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
-    List<AuctionResponseDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
-    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công", list);
+    List<AuctionDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
+    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
-  public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq, String authenticatedUserId) {
-    //updateProfileReq.setId(authenticatedUserId);
+  public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {
     User userAfterUpdatingProfile = AuthService.updateProfile(updateProfileReq);
 
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
-          .id(userAfterUpdatingProfile.getId())
-          .realName(userAfterUpdatingProfile.getRealName())
-          .accountName(userAfterUpdatingProfile.getAccountName())
-          .email(userAfterUpdatingProfile.getEmail())
-          .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
-          .dob(userAfterUpdatingProfile.getDob())
-          .address(userAfterUpdatingProfile.getAddress())
-          .build();
+              .id(userAfterUpdatingProfile.getId())
+              .realName(userAfterUpdatingProfile.getRealName())
+              .accountName(userAfterUpdatingProfile.getAccountName())
+              .email(userAfterUpdatingProfile.getEmail())
+              .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
+              .dob(userAfterUpdatingProfile.getDob())
+              .address(userAfterUpdatingProfile.getAddress())
+              .build();
       return new UpdateProfileResponseDTO(true, "Cập nhật thông tin tài khoản thành công", userDTO);
     } else {
       return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
@@ -134,13 +147,17 @@ public class RequestHandler {
     String auctionId = request.getSelectedAuctionId();
     Auction auction = AuctionService.getAuctionHistory(auctionId);
 
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+
     if (auction == null) return null;
 
     AuctionResponseDTO response = new AuctionResponseDTO();
     response.setId(auction.getId());
+    response.setUserId(sellerRepo.getUserIdBySellerId(auction.getSellerId()));
     //response.setItem(auction.getItem().getName()); // QUAN TRỌNG: Gửi thông tin sản phẩm về
     response.setCurrentHighestPrice(auction.getCurrentHighestPrice());
     response.setMinStepPrice(auction.getMinStepPrice());
+    response.setStartTime(auction.getStartTime());
     response.setEndTime(auction.getEndTime());
     response.setStatus(auction.getStatus());
     response.setBidHistory(auction.getBidHistory());
@@ -175,9 +192,10 @@ public class RequestHandler {
     hiện tại của hồ sơ người bán là gì và trả về, nếu chưa thì trả về dòng message tương ứng
      */
     String message = isSellerProfileCreated ? SellerService.sellerProfileStatus(req.getUserId()) :
-        "Bạn chưa có hồ sơ bán hàng!";
+            "Bạn chưa có hồ sơ bán hàng!";
     return new CheckingSellerProfileResponseDTO(isSellerProfileCreated, message);
   }
+
   public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
     OrderService orderService = new OrderService();
     boolean success = orderService.confirmOrder(req.getOrderId());
@@ -195,6 +213,7 @@ public class RequestHandler {
     }
     return new OrderActionResponseDTO(false, "Hủy đơn hàng thất bại!");
   }
+
   public static GetOrderResponseDTO getOrder(GetOrderRequestDTO req) {
     OrderService orderService = new OrderService();
     Order order = orderService.getOrderById(req.getOrderId());
@@ -214,7 +233,7 @@ public class RequestHandler {
   }
 
   public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
-      UpdateSellerProfileStatusRequestDTO request) {
+          UpdateSellerProfileStatusRequestDTO request) {
     boolean success = SellerService.handleUpdateSellerProfileStatus(request);
     String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
     UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
@@ -222,19 +241,32 @@ public class RequestHandler {
     response.setMessage(message);
     return response;
   }
+
   private static final AutoBidService autoBidService = new AutoBidService();
 
   public static AutoBidResponseDTO setAutoBid(SetAutoBidRequestDTO req) {
     boolean success = autoBidService.setAutoBid(req);
     return success
-        ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
-        : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+            ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
+            : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
   }
 
   public static AutoBidResponseDTO cancelAutoBid(CancelAutoBidRequestDTO req) {
     boolean success = autoBidService.cancelAutoBid(req);
     return success
-        ? new AutoBidResponseDTO(true, "Đã tắt tự động đấu giá!")
-        : new AutoBidResponseDTO(false, "Không thể tắt tự động đấu giá!");
+            ? new AutoBidResponseDTO(true, "Đã tắt tự động đấu giá!")
+            : new AutoBidResponseDTO(false, "Không thể tắt tự động đấu giá!");
+  }
+
+  public static GetBalanceResponseDTO getBalance(String userId) {
+    WalletService walletService = new WalletService();
+    try {
+      BigDecimal currentBalance = walletService.getBalance(userId);
+      return new GetBalanceResponseDTO(true, "Lấy số dư thành công", currentBalance);
+
+    } catch (Exception e) {
+      System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
+      return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
+    }
   }
 }

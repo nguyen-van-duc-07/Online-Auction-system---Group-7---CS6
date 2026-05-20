@@ -25,7 +25,7 @@
                 <padding><Insets left="25.0" right="25.0" /></padding>
 
                 <left>
-                    <Label text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
+                    <Label onMouseClicked="#gotoHomeFeed" style="-fx-cursor: hand;" text="ĐẤU GIÁ 88" textFill="#009900" BorderPane.alignment="CENTER">
                         <font><Font name="System Bold" size="36.0" /></font>
                     </Label>
                 </left>
@@ -47,7 +47,7 @@
                         <children>
                             <VBox alignment="CENTER_RIGHT" spacing="2.0">
                                 <children>
-                                    <Label style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                                    <Label fx:id="realNameLabel" style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
                                     <Label fx:id="lblSoDu" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
                                 </children>
                             </VBox>
@@ -79,15 +79,15 @@
                         <font><Font name="System Bold" size="11.0" /></font>
                     </Label>
 
-                    <Button fx:id="btnDangDienRa" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🟢 Đang diễn ra">
+                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGetActiveAuctions" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🟢 Đang diễn ra">
                         <font><Font name="System Bold" size="12.0" /></font>
                     </Button>
 
-                    <Button fx:id="btnSapDienRa" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🕒 Sắp diễn ra">
+                    <Button fx:id="btnSapDienRa" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGetWaitingAuctions" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🕒 Sắp diễn ra">
                         <font><Font name="System Bold" size="12.0" /></font>
                     </Button>
 
-                    <Button fx:id="btnDaKetThuc" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🔴 Đã kết thúc">
+                    <Button fx:id="btnDaKetThuc" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGetClosedAuctions" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🔴 Đã kết thúc">
                         <font><Font name="System Bold" size="12.0" /></font>
                     </Button>
 

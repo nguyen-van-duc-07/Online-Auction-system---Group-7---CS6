@@ -2,6 +2,7 @@ package com.auction.shared.response;
 
 import com.auction.shared.model.user.UserDTO;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Lớp DTO mang theo kết quả của quá trình Đăng nhập từ Server trả về Client.
@@ -15,6 +16,7 @@ import lombok.Getter;
  * @see com.auction.shared.request.LoginRequestDTO
  */
 @Getter
+@Setter
 public class LoginResponseDTO implements ResponseDTO {
   /**
    * Trạng thái xác thực đăng nhập.
@@ -45,29 +47,5 @@ public class LoginResponseDTO implements ResponseDTO {
     this.success = success;
     this.message = message;
     this.user = user;
-  }
-
-  /**
-   * Lấy trạng thái đăng nhập.
-   * @return true nếu thành công
-   */
-  public boolean isSuccess() {
-    return success;
-  }
-
-  /**
-   * Lấy câu thông báo từ Server.
-   * @return chuỗi thông báo
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * Lấy thông tin người dùng.
-   * @return đối tượng {@link UserDTO}
-   */
-  public UserDTO getUser() {
-    return user;
   }
 }

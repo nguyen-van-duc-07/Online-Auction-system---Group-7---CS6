@@ -27,12 +27,10 @@
         <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="serialColumn" prefWidth="42.00000190734863" text="STT" />
-            <TableColumn fx:id="auctionIdColumn" prefWidth="81.33334732055664" text="Id sản phẩm" />
-                <TableColumn fx:id="itemNameColumn" prefWidth="176.00003051757812" text="Tên" />
-                <TableColumn fx:id="createAtColumn" prefWidth="160.0" text="Ngày tạo" />
-                <TableColumn fx:id="userIdColumn" prefWidth="146.00003051757812" text="Id người đăng" />
+            <TableColumn fx:id="auctionIdColumn" prefWidth="124.0" text="Id phiên đấu giá" />
+                <TableColumn fx:id="itemNameColumn" prefWidth="134.66668701171875" text="Tên" />
+                <TableColumn fx:id="startTimeColumn" prefWidth="160.0" text="Thời gian bắt đầu" />
             <TableColumn fx:id="currentHighestPriceColumn" prefWidth="115.33331298828125" text="Giá hiện tại" />
-            <TableColumn fx:id="currentHighestBidderColumn" prefWidth="146.0" text="Người đặt giá cao nhất" />
             <TableColumn fx:id="endTimeColumn" prefWidth="116.6666259765625" text="Thời gian kết thúc" />
             <TableColumn fx:id="statusColumn" prefWidth="74.00002034505201" text="Trạng thái" />
             </columns>

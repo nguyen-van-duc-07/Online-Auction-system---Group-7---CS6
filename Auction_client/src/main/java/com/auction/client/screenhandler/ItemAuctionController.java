@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
@@ -37,8 +38,8 @@ public class ItemAuctionController implements Initializable {
   private TextField bidAmountField;
   @FXML
   private Label itemNameLabel;
-  @FXML
-  private Label descriptionField;
+//  @FXML
+//  private Label descriptionField;
   @FXML
   private Label currentPriceField;
   @FXML
@@ -51,39 +52,44 @@ public class ItemAuctionController implements Initializable {
   private Button placeBidButton;
   @FXML
   private Label highestBidderLabel;
+  @FXML
+  private Label minStepPriceLabel;
 
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
-  private HomeController homeController = new HomeController();
+
+  @FXML
+  public void gotoHome() {
+    stopCountdownTimer();
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
+    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+  }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this; // Gán màn hình hiện tại vào biến static
-    this.currentAuction = SessionManager.getCurrentAuction();
-    ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
-    itemNameLabel.setText(SessionManager.getCurrentAuction().getItem().getName());
-    descriptionField.setText(SessionManager.getCurrentAuction().getItem().getDescription());
-    updateHighestBidderUI(SessionManager.getCurrentAuction().getHighestBidderName());
-    DecimalFormat formatter = new DecimalFormat("#,###");
-    String formattedPrice = formatter.format(SessionManager.getCurrentAuction().getCurrentHighestPrice()) + " VNĐ";
-    currentPriceField.setText("Giá hiện tại: " +
-        formattedPrice);
-    priceChart.setAnimated(false);
-    loadChartData();
-    startCountdownTimer();
+    ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuctionId()));
+  }
 
+  private void updateBidControlState(boolean isAuctionActive) {
     String currentUserId = SessionManager.getCurrentUser().getId();
+    String auctionUserId = currentAuction.getUserId();
+    boolean isSeller = currentUserId.equals(auctionUserId);
 
-    String auctionUserId = SessionManager.getCurrentAuction().getUserId();
-
-    if (currentUserId.equals(auctionUserId)) {
+    if (isSeller) {
+      // Chủ sản phẩm: Chế độ xem, tuyệt đối không được đấu giá
       bidAmountField.setDisable(true);
       placeBidButton.setDisable(true);
-
-      // Đổi giao diện chữ để báo cho Seller biết họ đang ở chế độ xem
       bidAmountField.setPromptText("Chế độ xem (Phiên của bạn)");
-      placeBidButton.setText("Không thể tự đặt giá");
+      placeBidButton.setText("Không thể tự đấu giá");
+    } else if (!isAuctionActive) {
+      // Người mua: Nhưng phiên đấu giá Chưa bắt đầu hoặc Đã kết thúc
+      bidAmountField.setDisable(true);
+      placeBidButton.setDisable(true);
+      bidAmountField.setPromptText("Chưa thể đặt giá lúc này...");
+      placeBidButton.setText("Đấu giá (Khóa)");
     } else {
+      // Người mua: Phiên đấu giá Đang diễn ra
       bidAmountField.setDisable(false);
       placeBidButton.setDisable(false);
       bidAmountField.setPromptText("Nhập mức giá...");
@@ -93,30 +99,50 @@ public class ItemAuctionController implements Initializable {
 
   private void updateHighestBidderUI(String name) {
     if (name == null || name.isEmpty()) {
-      highestBidderLabel.setText("Người ra giá: Chưa có");
+      highestBidderLabel.setText("Chưa có");
     } else {
-      highestBidderLabel.setText("Người ra giá: " + name);
+      highestBidderLabel.setText(name);
     }
   }
 
   private void startCountdownTimer() {
-    LocalDateTime endTime = currentAuction.getEndTime();
+    countdownTimer = new Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime startTime = currentAuction.getStartTime();
+      LocalDateTime endTime = currentAuction.getEndTime();
 
-    // Gọi Helper. Nếu hết giờ thì truyền lệnh ẩn nút "Đấu giá" vào (Chuẩn UX)
-    countdownTimer = CountdownHelper.setupCountdown(timeRemainingLabel, endTime, () -> {
-      Platform.runLater(() -> {
-        placeBidButton.setDisable(true);
+      if (startTime != null && now.isBefore(startTime)) {
+        // TRƯỜNG HỢP 1: CHƯA BẮT ĐẦU (WAITING)
+        timeRemainingLabel.setText("Bắt đầu sau: " + formatTimeLeft(now, startTime));
+        timeRemainingLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;"); // Màu cam
+        updateBidControlState(false); // Khóa form đặt giá
 
-        // RESET BIỂU ĐỒ KHI HẾT PHIÊN
-        priceChart.getData().clear();
+      } else if (startTime == null || now.isAfter(startTime) && now.isBefore(endTime)) {
+        // TRƯỜNG HỢP 2: ĐANG DIỄN RA (ACTIVE)
+        timeRemainingLabel.setText("Kết thúc sau: " + formatTimeLeft(now, endTime));
+        timeRemainingLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;"); // Màu xanh lá
+        updateBidControlState(true); // Mở form đặt giá
 
-        if (highestBidderLabel != null) {
+      } else {
+        // TRƯỜNG HỢP 3: ĐÃ KẾT THÚC (CLOSED)
+        timeRemainingLabel.setText("Đã kết thúc");
+        timeRemainingLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); // Màu đỏ
+        updateBidControlState(false); // Khóa form đặt giá
+
+        // Clear biểu đồ (Giữ lại logic gốc của bạn)
+        if (!priceChart.getData().isEmpty()) {
+          priceChart.getData().clear();
+        }
+
+        if (highestBidderLabel != null && !highestBidderLabel.getText().equals("Phiên đấu giá đã kết thúc")) {
           highestBidderLabel.setText("Phiên đấu giá đã kết thúc");
         }
-      });
-      countdownTimer.stop();
-    });
 
+        countdownTimer.stop(); // Dừng đồng hồ
+      }
+    }));
+
+    countdownTimer.setCycleCount(Timeline.INDEFINITE);
     countdownTimer.play();
   }
 
@@ -125,10 +151,17 @@ public class ItemAuctionController implements Initializable {
     if (countdownTimer != null) {
       countdownTimer.stop();
     }
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
+    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 
   private void loadChartData() {
+    javafx.scene.chart.NumberAxis yAxis = (javafx.scene.chart.NumberAxis) priceChart.getYAxis();
+    yAxis.setForceZeroInRange(false);
+    javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) priceChart.getXAxis();
+    xAxis.setAnimated(false);
+    xAxis.getCategories().clear();
+    xAxis.setTickLabelRotation(-90);
+    xAxis.setTickLabelsVisible(true);
     priceSeries = new XYChart.Series<>();
     priceSeries.setName("Lịch sử giá");
     priceChart.getData().clear();
@@ -160,6 +193,20 @@ public class ItemAuctionController implements Initializable {
     priceChart.getData().add(priceSeries);
   }
 
+  // Hàm hỗ trợ format text thời gian
+  private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
+    long days = java.time.temporal.ChronoUnit.DAYS.between(from, to);
+    long hours = java.time.temporal.ChronoUnit.HOURS.between(from, to) % 24;
+    long minutes = java.time.temporal.ChronoUnit.MINUTES.between(from, to) % 60;
+    long seconds = java.time.temporal.ChronoUnit.SECONDS.between(from, to) % 60;
+
+    if (days > 0) {
+      return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
+    } else {
+      return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+  }
+
   private void showError(String message) {
     errorLabel.setText(message);
     // Đổi viền ô nhập thành màu đỏ
@@ -170,42 +217,6 @@ public class ItemAuctionController implements Initializable {
     errorLabel.setText("");
     // Đổi viền ô nhập thành màu xanh ngọc đồng bộ hệ thống để báo hiệu thành công
     bidAmountField.setStyle("-fx-border-color: #27ae60; -fx-border-width: 2px; -fx-border-radius: 8px; -fx-background-radius: 8px;");
-  }
-
-  @FXML
-  public void gotoResult() {
-    leaveAuctionRoom();
-    homeController.gotoResult();
-  }
-
-  @FXML
-  public void gotoProfile() {
-    leaveAuctionRoom();
-    homeController.gotoProfile();
-  }
-
-  @FXML
-  public void gotoLogin() {
-    leaveAuctionRoom();
-    homeController.gotoLogin();
-  }
-
-  @FXML
-  public void gotoWallet() {
-    leaveAuctionRoom();
-    homeController.gotoWallet();
-  }
-
-  @FXML
-  public void gotoHomeWithHyperLink() {
-    leaveAuctionRoom();
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
-  }
-
-  @FXML
-  public void gotoSellerHome() {
-    leaveAuctionRoom();
-    homeController.gotoSellerHome();
   }
 
   @FXML
@@ -230,7 +241,7 @@ public class ItemAuctionController implements Initializable {
       }
       clearError();
       PlaceBidRequestDTO req =
-              new PlaceBidRequestDTO(SessionManager.getCurrentAuction().getId(),
+              new PlaceBidRequestDTO(SessionManager.getCurrentAuctionId(),
                       SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getRealName(),
                       bidAmount);
       ServerConnection.sendData(req);
@@ -314,12 +325,10 @@ public class ItemAuctionController implements Initializable {
                 .showInformation(); // Hoặc .showWarning() nếu bạn muốn đổi icon
       } else {
           // Trường hợp 2: LÀ MÌNH vừa đặt giá thành công
-          // Phòng thủ: Cố gắng lấy tên từ currentAuction, nếu null thì lấy từ Session backup ra
+          // Phòng thủ: Cố gắng lấy tên từ currentAuction
           String itemName = "sản phẩm này"; // Tên mặc định nếu mọi cách đều thất bại
           if (currentAuction.getItem() != null) {
               itemName = currentAuction.getItem().getName();
-          } else if (SessionManager.getCurrentAuction().getItem() != null) {
-              itemName = SessionManager.getCurrentAuction().getItem().getName();
           }
           showBidSuccess(itemName, newBid.getBidAmount());
       }
@@ -346,7 +355,8 @@ public class ItemAuctionController implements Initializable {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
-      SessionManager.setCurrentAuction(auctionData);
+      itemNameLabel.setText(auctionData.getItem().getName());
+      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + auctionData.getMinStepPrice().toString() + " VNĐ");
 
       // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
@@ -355,21 +365,15 @@ public class ItemAuctionController implements Initializable {
       String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
       currentPriceField.setText("Giá hiện tại: " + formattedPrice);
 
-      // 3. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
+      // 3. Bắt đầu khởi động bộ đếm thời gian
+      startCountdownTimer();
+
+      // 4. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
       loadChartData();
 
       // In log ra để dễ debug
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
     });
-  }
-
-  /**
-   * Phương thức gửi một yêu cầu thoát khỏi phiên đấu giá hiện tại.
-   * Được gọi khi người dùng ấn vào bất kì buttion nào để chuyển sang trang khác.
-   */
-  public void leaveAuctionRoom() {
-    stopCountdownTimer();
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuction().getId()));
   }
 }

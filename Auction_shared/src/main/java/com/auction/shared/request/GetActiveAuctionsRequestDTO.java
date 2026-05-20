@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
  * chứa thêm bất kỳ trường dữ liệu (parameter) nào bên trong.</p>
  */
 @NoArgsConstructor
-public class GetActiveAuctionRequestDTO implements RequestDTO {
+public class GetActiveAuctionsRequestDTO implements RequestDTO {
   // Không cần trường dữ liệu nào vì đây chỉ là tín hiệu báo Server hãy lấy toàn bộ danh sách
 }

@@ -65,7 +65,8 @@ public class SellerRegisterForBidderController implements Initializable {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Chưa điền đầy đủ thông tin!",
           "Bạn chắc chắn muốn trở về chứ?").ifPresent(Response -> {
             if (Response == ButtonType.OK) {
-              ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+              HomeController homeController = HomeController.getInstance();
+              homeController.gotoHomeFeed();
             }
       });
     }

@@ -2,8 +2,6 @@ package servercontroller;
 
 import com.auction.shared.request.*;
 import com.auction.shared.response.LoginResponseDTO;
-import com.auction.shared.response.UploadItemResponseDTO;
-import lombok.Getter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -24,8 +22,7 @@ public class ClientHandler implements Runnable {
   private Socket clientSocket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
-  @Getter
-  private String authenticatedUserId = null;
+  private String userId;
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
   }
@@ -51,24 +48,50 @@ public class ClientHandler implements Runnable {
               }
 
               case LoginRequestDTO loginReq -> {
-                LoginResponseDTO loginRes = RequestHandler.login(loginReq);
-                if (loginRes.isSuccess()) {
-                  this.authenticatedUserId = loginRes.getUser().getId();
-                  Server.registerClient(this.authenticatedUserId, this);
-                  System.out.println("Đăng nhập thành công, đã lưu phiên cho user: " + this.authenticatedUserId);
+                LoginResponseDTO response = RequestHandler.login(loginReq);
+
+                if (response.isSuccess()) {
+                  String checkUserId = response.getUser().getId();
+
+                  // Kiểm tra xem user này đã có trong danh sách online của Server chưa
+                  if (Server.isUserOnline(checkUserId)) {
+                    // Nếu đã online, từ chối đăng nhập và ghi đè lại kết quả Response
+                    response.setSuccess(false);
+                    response.setMessage("Tài khoản này đang được đăng nhập ở một thiết bị khác!");
+                    response.setUser(null); // Xóa dữ liệu user trả về để bảo mật
+                  } else {
+                    // Nếu chưa online, cho phép đăng nhập và lưu vào danh sách Server
+                    this.userId = checkUserId;
+                    Server.registerClient(this.userId, this);
+                  }
                 }
-                out.writeObject(RequestHandler.login(loginReq));
+
+                // Trả về đối tượng 'res' đã được xử lý thay vì gọi hàm login() thêm lần nữa
+                out.writeObject(response);
                 out.flush();
               }
 
+              case LogoutRequestDTO logoutReq -> {
+                RequestHandler.logout(logoutReq);
+              }
+
               case UploadItemRequestDTO uploadItemReq -> {
-                if (!isAuthenticated()) break;
                 out.writeObject(RequestHandler.uploadItem(uploadItemReq));
                 out.flush();
               }
 
-              case GetActiveAuctionRequestDTO getActiveAuctionReq -> {
+              case GetActiveAuctionsRequestDTO getActiveAuctionReq -> {
                 out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                out.flush();
+              }
+
+              case GetWaitingAuctionsRequestDTO getWaitingAuctionsReq -> {
+                out.writeObject(RequestHandler.getWaitingAuctions(getWaitingAuctionsReq));
+                out.flush();
+              }
+
+              case GetClosedAuctionsRequestDTO getClosedAuctionsReq -> {
+                out.writeObject(RequestHandler.getClosedAuctions(getClosedAuctionsReq));
                 out.flush();
               }
 
@@ -78,14 +101,12 @@ public class ClientHandler implements Runnable {
               }
 
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
-                if (!isAuthenticated()) break;
                 out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
                 out.flush();
               }
 
               case UpdateProfileRequestDTO updateProfileReq -> {
-                if (!isAuthenticated()) break;
-                out.writeObject(RequestHandler.updateProfile(updateProfileReq, this.authenticatedUserId));
+                out.writeObject(RequestHandler.updateProfile(updateProfileReq));
                 out.flush();
               }
 
@@ -138,6 +159,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetBalanceRequestDTO getBalanceReq -> {
+                out.writeObject(RequestHandler.getBalance(this.userId));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }
@@ -152,16 +178,8 @@ public class ClientHandler implements Runnable {
       e.printStackTrace();
     } finally {
       Server.removeClientFromAllRooms(this);
-      Server.unregisterClient(this.authenticatedUserId);
+      Server.unregisterClient(this.userId);
     }
-  }
-
-  private boolean isAuthenticated() {
-    if (this.authenticatedUserId == null) {
-      System.out.println("Từ chối truy cập: Client chưa đăng nhập!");
-      return false;
-    }
-    return true;
   }
 
   public void closeConnection() {

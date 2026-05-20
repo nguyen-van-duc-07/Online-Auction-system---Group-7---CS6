@@ -58,6 +58,7 @@ public class AdminScreenController implements Initializable {
           if  (Response == ButtonType.OK) {
             SessionManager.clearSession();
             ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+            ScreenController.primaryStage.setMaximized(false);
           }
     });
   }

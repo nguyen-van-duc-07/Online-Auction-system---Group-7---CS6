@@ -1,43 +1,29 @@
 package com.auction.shared.model.core;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
+import java.util.UUID;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class Entity implements Serializable {
-
+abstract public class Entity implements Serializable {
   private static final long serialVersionUID = 1L;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID) // Uỷ quyền cho JPA tự sinh UUID
-  @Column(length = 36, updatable = false, nullable = false)
+  @Id // Đánh dấu đây là Khóa chính (BẮT BUỘC)
+  @Column(length = 36, updatable = false, nullable = false) // Chỉ định độ dài chuỗi UUID
   protected String id;
-
-  @Column(updatable = false) // Đảm bảo thời gian tạo không bị update nhầm sau này
   protected LocalDateTime createdAt;
-
-  protected Entity() {
+  // Chỉ cho phép JPA và các lớp con sử dụng (không dùng public)
+  protected Entity(){
+    this.id = UUID.randomUUID().toString();
+    this.createdAt = LocalDateTime.now();
   }
-
-  public Entity(String id, LocalDateTime createdAt) {
+  public Entity(String id, LocalDateTime createdAt){
     this.id = id;
-    this.createdAt = createdAt;
-  }
-
-  /**
-   * Hàm này được JPA tự động gọi (callback) NGAY TRƯỚC KHI thực hiện lệnh INSERT vào Database.
-   * Đây là thời điểm hoàn hảo để gán ngày tạo.
-   */
-  @PrePersist
-  protected void onPrePersist() {
-    if (this.createdAt == null) {
-      this.createdAt = LocalDateTime.now();
-    }
+    this.createdAt = (createdAt != null) ? createdAt : LocalDateTime.now();
   }
 }

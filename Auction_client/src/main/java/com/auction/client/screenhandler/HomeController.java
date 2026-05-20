@@ -2,26 +2,21 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.Auction;
+import com.auction.shared.model.auction.AuctionDTO;
+import com.auction.shared.request.*;
 import com.auction.shared.response.AuctionResponseDTO;
-import com.auction.shared.request.GetActiveAuctionRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -35,12 +30,16 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
 
-
+  /**
+   * Phương thức dùng để lấy ra instance của HomeController.
+   * @return đối tượng kiểu HomeController
+   */
   public static HomeController getInstance() {
     return instance;
   }
+
   // THÊM field này
-  private List<AuctionResponseDTO> currentAuctions = new ArrayList<>();
+  private List<AuctionDTO> currentAuctions = new ArrayList<>();
 
   @FXML
   private ScrollPane mainContent;
@@ -48,21 +47,45 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   private FlowPane feedContainer;
 
-  /** Thanh tìm kiếm ở Header */
   @FXML
-  private TextField searchField;
+  private Node homeFeedNode;
 
-  private double mouseAnchorX;
-  private double mouseAnchorY;
+  @FXML
+  private Label realNameLabel;
 
-
+  /**
+   * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
+   *
+   * <p>Được tự động gọi ngay sau khi file FXML của màn hình Home được tải lên thành công
+   * và các thành phần giao diện (UI components) đã được ánh xạ.
+   * Tại đây, hệ thống sẽ tự động gửi một {@link GetActiveAuctionsRequestDTO}
+   * qua Socket lên Server để xin danh sách sản phẩm hiển thị lên bảng tin (Feed)
+   * mà không cần người dùng phải bấm nút tải lại.</p>
+   *
+   * @param location  Đường dẫn tương đối (URL) tới file FXML.
+   * @param resources Các tài nguyên bản địa hóa (nếu có).
+   */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     // Ghi nhận bản thân (this) làm instance hiện tại ngay khi màn hình vừa mở lên
     instance = this;
 
+    // Lưu lại giao diện Node gốc của trang chủ
+    homeFeedNode = mainContent.getContent();
+
+    // Hiện Label chào user
+    String phoneNumber = SessionManager.currentUser.getPhoneNumber();
+    String realName = SessionManager.currentUser.getRealName();
+    if (realName != null) {
+      realNameLabel.setText("Chào, " + realName);
+    } else if (phoneNumber != null) {
+      realNameLabel.setText("Chào, " + phoneNumber);
+    } else {
+      realNameLabel.setText("N/A");
+    }
+
     // Gửi yêu cầu lấy danh sách ngay khi load UI
-    ServerConnection.sendData(new GetActiveAuctionRequestDTO());
+    ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
   }
 
   /**
@@ -70,14 +93,14 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
    * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
    */
-  public void loadFeedToUI(List<AuctionResponseDTO> auctions) {
+  public void loadFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
     // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
     Platform.runLater(() -> {
       // Xóa các card cũ (nếu có) trước khi nạp mới
       feedContainer.getChildren().clear();
 
-      for (AuctionResponseDTO auction : auctions) {
+      for (AuctionDTO auction : auctions) {
         try {
           // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
           FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
@@ -104,9 +127,9 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     // Tìm auction trong danh sách hiện tại và cập nhật giá
-    for (AuctionResponseDTO auction : currentAuctions) {
-      if (auction.getId().equals(auctionId)) {
-        auction.setCurrentHighestPrice(newPrice);
+    for (AuctionDTO auction : currentAuctions) {
+      if (auction.getAuctionId().equals(auctionId)) {
+        auction.setCurrentPrice(newPrice);
         // Cập nhật UI của card tương ứng
         refreshAuctionCard(auctionId, newPrice);
         break;
@@ -131,11 +154,11 @@ public class HomeController implements Initializable, ProductDetailNavigator {
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
   @Override
-  public void gotoProductDetail(AuctionResponseDTO selectedAuction) {
+  public void gotoProductDetail(AuctionDTO selectedAuction) {
     // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuction(selectedAuction);
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItem().getName());
+    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
+    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
+    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
   }
 
   @FXML
@@ -143,31 +166,66 @@ public class HomeController implements Initializable, ProductDetailNavigator {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
         "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
       if (Response == ButtonType.OK) {
+        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+        logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
+        ServerConnection.sendData(logoutRequestDTO);
         SessionManager.clearSession();
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+        ScreenController.primaryStage.setMaximized(false);
       }
     });
   }
 
   @FXML
   public void gotoSellerHome() {
-    ScreenController.navigateToSellerChannel();
+    // Gửi yêu cầu kiểm tra hồ sơ người bán lên Server
+    String userId = SessionManager.currentUser.getId();
+    CheckingSellerProfileRequestDTO request = new CheckingSellerProfileRequestDTO(userId);
+    ServerConnection.sendData(request);
   }
 
   @FXML
   public void gotoProfile() {
-    ScreenController.switchScreen("User/Profile.fxml", "Thông tin tài khoản");
+    loadComponent("/com/auction/client/User/Profile.fxml");
   }
 
   @FXML
   public void gotoWallet() {
-    ScreenController.switchScreen("User/Wallet/Wallet.fxml", "Ví người dùng");
+    loadComponent(("/com/auction/client/User/Wallet/Wallet.fxml"));
   }
 
   @FXML
   public void gotoResult() {
     ScreenController.switchScreen("Bidder/Result.fxml", "Kết quả đấu giá");
   }
+
+  @FXML
+  public void gotoHomeFeed() {
+    // Nếu đã lưu giao diện Feed, chỉ cần set lại nó vào phần mainContent
+    if (homeFeedNode != null) {
+      mainContent.setContent(homeFeedNode);
+
+      /* Gửi lại request lên Server để cập nhật danh sách đấu giá mới nhất
+         mỗi khi người dùng bấm về trang chủ*/
+      ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+    }
+  }
+
+  @FXML
+  public void handleGetActiveAuctions() {
+    ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
+  }
+
+  @FXML
+  public void handleGetWaitingAuctions() {
+    ServerConnection.sendData(new GetWaitingAuctionsRequestDTO());
+  }
+
+  @FXML
+  public void handleGetClosedAuctions() {
+    ServerConnection.sendData(new GetClosedAuctionsRequestDTO());
+  }
+
   /**
    * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của ScrollPane.
    */

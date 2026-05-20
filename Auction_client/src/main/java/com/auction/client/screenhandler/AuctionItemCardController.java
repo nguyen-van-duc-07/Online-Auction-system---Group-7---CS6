@@ -1,5 +1,7 @@
 package com.auction.client.screenhandler;
+import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.AuctionStatusUI;
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.animation.Animation;
 import javafx.application.Platform;
@@ -28,43 +30,52 @@ public class AuctionItemCardController {
      * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
      * Controller cha phải implement ProductDetailNavigator.
      */
-    public void setData(AuctionResponseDTO auction, ProductDetailNavigator navigator) {
-        this.auctionId = auction.getId();
+    public void setData(AuctionDTO auction, ProductDetailNavigator navigator) {
+        this.auctionId = auction.getAuctionId();
         // 1. Đổ dữ liệu text
-        nameLabel.setText(auction.getItem().getName());
+        nameLabel.setText(auction.getItemName());
 
         AuctionStatusUI status = AuctionStatusUI.fromShared(auction.getStatus());
         statusLabel.setText(status.getDisplayName());
         statusLabel.setStyle("-fx-text-fill: " + status.getColor() + "; -fx-font-weight: bold;");
 
-        String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentHighestPrice());
+        String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
         priceLabel.setText(formattedPrice);
 
         // Tạo bộ đếm thời gian chạy mỗi 1 giây
         countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startTime = auction.getStartTime();
             LocalDateTime endTime = auction.getEndTime();
 
-            if (now.isAfter(endTime)) {
-                timeLabel.setText("Đã kết thúc");
-                timeLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                countdownTimer.stop();
-            } else {
-                // Tính toán khoảng cách giữa hiện tại và lúc kết thúc
-                long days = ChronoUnit.DAYS.between(now, endTime);
-                long hours = ChronoUnit.HOURS.between(now, endTime) % 24;
-                long minutes = ChronoUnit.MINUTES.between(now, endTime) % 60;
-                long seconds = ChronoUnit.SECONDS.between(now, endTime) % 60;
-
-                // Định dạng hiển thị: ví dụ "02d 14:05:30" hoặc "14:05:30"
-                String timeLeft;
-                if (days > 0) {
-                    timeLeft = String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
-                } else {
-                    timeLeft = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-                }
-
+            if (startTime != null && now.isBefore(startTime)) {
+                // TRƯỜNG HỢP 1: Phiên đấu giá chưa bắt đầu (WAITING)
+                String timeLeft = formatTimeLeft(now, startTime);
                 timeLabel.setText(timeLeft);
+                timeLabel.setStyle("-fx-text-fill: #f39c12;"); // Màu cam nhắc nhở
+
+                // Có thể update luôn Label trạng thái nếu trước đó server gửi về WAITING
+                statusLabel.setText("SẮP DIỄN RA");
+                statusLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+
+            } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+                // TRƯỜNG HỢP 2: Phiên đấu giá đang diễn ra (ACTIVE)
+                String timeLeft = formatTimeLeft(now, endTime);
+                timeLabel.setText(timeLeft);
+                timeLabel.setStyle("-fx-text-fill: #2ecc71;"); // Màu xanh lá tích cực
+
+                statusLabel.setText("ĐANG DIỄN RA");
+                statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+
+            } else {
+                // TRƯỜNG HỢP 3: Phiên đấu giá đã kết thúc (CLOSED)
+                timeLabel.setText("Đã kết thúc");
+                timeLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); // Màu đỏ
+
+                statusLabel.setText("ĐÃ KẾT THÚC");
+                statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+
+                countdownTimer.stop(); // Dừng bộ đếm
             }
         }));
 
@@ -75,6 +86,23 @@ public class AuctionItemCardController {
         // Gọi ngược lại hàm chuyển trang của navigator
         bidButton.setOnAction(e -> navigator.gotoProductDetail(auction));
     }
+
+    /**
+     * Hàm tính toán và định dạng khoảng thời gian còn lại
+     */
+    private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
+        long days = ChronoUnit.DAYS.between(from, to);
+        long hours = ChronoUnit.HOURS.between(from, to) % 24;
+        long minutes = ChronoUnit.MINUTES.between(from, to) % 60;
+        long seconds = ChronoUnit.SECONDS.between(from, to) % 60;
+
+        if (days > 0) {
+            return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
+        } else {
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+    }
+
     public String getAuctionId() {
         return auctionId;
     }

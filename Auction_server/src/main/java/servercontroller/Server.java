@@ -130,4 +130,13 @@ public class Server {
       client.sendData(responseDTO);
     }
   }
+
+  /**
+   * Kiểm tra xem tài khoản đã được đăng nhập ở một nơi khác hay chưa.
+   * @param userId ID của người dùng
+   * @return true nếu đang online, false nếu chưa
+   */
+  public static boolean isUserOnline(String userId) {
+    return connectedClients.containsKey(userId);
+  }
 }

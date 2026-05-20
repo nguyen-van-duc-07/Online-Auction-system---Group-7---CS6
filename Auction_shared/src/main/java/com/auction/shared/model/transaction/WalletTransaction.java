@@ -12,7 +12,6 @@ import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
-
 public class WalletTransaction extends Entity {
     private String walletId;
     private WalletTransactionType type;
@@ -26,10 +25,10 @@ public class WalletTransaction extends Entity {
 
     @Builder
     public WalletTransaction(String walletId, WalletTransactionType type, BigDecimal amount, BigDecimal balanceBefore, BigDecimal balanceAfter, BigDecimal frozenBefore, BigDecimal frozenAfter, String referenceId, WalletTransactionStatus status) {
-        Objects.requireNonNull(walletId, "WalletId must not be null");
-        Objects.requireNonNull(type, "Transaction type must not be null");
+        Objects.requireNonNull(walletId, "Mã ví (Wallet ID) không được để trống.");
+        Objects.requireNonNull(type, "Loại giao dịch không được để trống.");
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Transaction amount must be greater than zero");
+            throw new IllegalArgumentException("Số tiền giao dịch phải lớn hơn 0.");
         }
 
         this.walletId = walletId;

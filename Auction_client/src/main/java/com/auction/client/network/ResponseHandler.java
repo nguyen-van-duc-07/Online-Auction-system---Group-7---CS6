@@ -11,15 +11,10 @@ import com.auction.shared.request.GetOrderRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Stage;
-import org.controlsfx.control.Notifications;
 
-import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ResourceBundle;
 
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
@@ -109,7 +104,7 @@ public class ResponseHandler {
     }
   }
 
-  public static void handleGetActiveAuctions(GetActiveAuctionResponseDTO getActiveAuctionRes) {
+  public static void handleGetActiveAuctions(GetActiveAuctionsResponseDTO getActiveAuctionRes) {
     if (getActiveAuctionRes.isSuccess()) {
       Platform.runLater(() -> {
         // Lấy controller của trang Home hiện tại đang mở trên màn hình
@@ -124,6 +119,40 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi tải bảng tin", getActiveAuctionRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleGetWaitingAuctions(GetWaitingAuctionsResponseDTO getWaitingAuctionsRes) {
+    if (getWaitingAuctionsRes.isSuccess()) {
+      Platform.runLater(() -> {
+        HomeController homeController = HomeController.getInstance();
+
+        if (homeController != null) {
+          homeController.loadFeedToUI(getWaitingAuctionsRes.getWaitingAuctions());
+        }
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi tải bảng tin", getWaitingAuctionsRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleGetClosedAuctions(GetClosedAuctionsResponseDTO getClosedAuctionsRes) {
+    if (getClosedAuctionsRes.isSuccess()) {
+      Platform.runLater(() -> {
+        HomeController homeController = HomeController.getInstance();
+
+        if (homeController != null) {
+          homeController.loadFeedToUI(getClosedAuctionsRes.getClosedAuctions());
+        }
+      });
+    } else {
+      Platform.runLater(() -> {
+        ScreenController.showAlert(Alert.AlertType.ERROR,
+            "Lỗi tải bảng tin", getClosedAuctionsRes.getMessage());
       });
     }
   }
@@ -150,7 +179,9 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+                SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
+                HomeController homeController = HomeController.getInstance();
+                homeController.gotoHomeFeed();
               }
         });
       });
@@ -161,6 +192,7 @@ public class ResponseHandler {
       });
     }
   }
+
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
     Platform.runLater(() -> {
       DecimalFormat formatter = new DecimalFormat("#,###");
@@ -228,10 +260,11 @@ public class ResponseHandler {
   }
 
   public static void checkingSellerProfile(CheckingSellerProfileResponseDTO checkingSellerProfileRes) {
+    HomeController homeController = HomeController.getInstance();
     String message = checkingSellerProfileRes.getMessage();
     Platform.runLater(() -> {
       if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
-        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm đăng bán");
+        homeController.loadComponent("/com/auction/client/Seller/SellerHome.fxml");
       } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
@@ -240,11 +273,15 @@ public class ResponseHandler {
             "Hồ sơ bán hàng của bạn đã bị từ chối!\nBạn không thể sử dụng tính năng này");
       } else {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
-            "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.");
-        ScreenController.switchScreen("Bidder/SellerRegisterForBidder.fxml", "Đăng ký người bán");
+            "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.").ifPresent(Response -> {
+              if  (Response == ButtonType.OK) {
+                homeController.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
+              }
+        });
       }
     });
   }
+
   public static void handleOrderAction(OrderActionResponseDTO dto) {
     Platform.runLater(() -> {
       Alert alert = new Alert(
@@ -301,12 +338,21 @@ public class ResponseHandler {
       GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes) {
     if (getActiveAndWaitingAuctionsRes.isSuccess()) {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.INFORMATION,
-            "Thông báo", getActiveAndWaitingAuctionsRes.getMessage());
-        AuctionManagerController controller = AuctionManagerController.getInstance();
+        // Lấy role của user hiện tại từ SessionManager
+        UserRole currentRole = SessionManager.getCurrentUser().getRole();
 
-        if (controller != null) {
-          controller.loadDataToTable(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
+        if (currentRole == UserRole.ADMIN) {
+          // NẾU LÀ ADMIN -> Đẩy dữ liệu vào bảng quản lý của Admin
+          AuctionManagerController controller = AuctionManagerController.getInstance();
+          if (controller != null) {
+            controller.loadDataToTable(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
+          }
+        } else {
+          // NẾU LÀ USER (BIDDER/SELLER) -> Xử lý hiển thị cho User
+          HomeController homeController = HomeController.getInstance();
+          if (homeController != null) {
+            homeController.loadFeedToUI(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
+          }
         }
       });
     }
