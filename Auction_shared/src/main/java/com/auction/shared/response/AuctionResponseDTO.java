@@ -31,6 +31,11 @@ public class AuctionResponseDTO implements ResponseDTO {
   private String id;
 
   /**
+   * Mã id seller của người dùng tạo phiên đấu giá.
+   */
+  private String sellerId;
+
+  /**
    * Id của người dùng tạo phiên đấu giá này.
    */
   private String userId;
@@ -50,6 +55,10 @@ public class AuctionResponseDTO implements ResponseDTO {
    */
   private String highestBidderName;
 
+  /**
+   * Id của người ra giá cao nhất hiện tại của phiên đấu giá.
+   */
+  private String highestBidderId;
   /**
    * Bước giá tối thiểu cho mỗi lần ra giá.
    */

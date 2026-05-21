@@ -148,6 +148,14 @@ public class ServerConnection {
             case NotificationDTO dto ->
                 ResponseHandler.handleNewNotification(dto);
 
+            case GetPendingOrdersOfSellerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetPendingOrdersOfSeller(responseDTO);
+            }
+
+            case GetPendingOrdersOfBuyerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetPendingOrdersOfBuyer(responseDTO);
+            }
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

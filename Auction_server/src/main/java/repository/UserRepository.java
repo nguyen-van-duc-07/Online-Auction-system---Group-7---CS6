@@ -221,4 +221,30 @@ public class UserRepository {
       throw new RuntimeException();
     }
   }
+
+  /**
+   * Lấy tên thật (real_name) của người dùng dựa trên mã định danh (userId).
+   * * @param userId Mã định danh của người dùng cần tra cứu.
+   * @return Tên thật của người dùng nếu tìm thấy, ngược lại trả về null.
+   */
+  public String getRealNameByUserId(String userId) {
+    String query = "SELECT real_name FROM users WHERE id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+      pstmt.setString(1, userId);
+
+      try (ResultSet rs = pstmt.executeQuery()) {
+        if (rs.next()) {
+          return rs.getString("real_name");
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Lỗi khi lấy real_name của userId: " + userId);
+      e.printStackTrace();
+    }
+
+    return null;
+  }
 }

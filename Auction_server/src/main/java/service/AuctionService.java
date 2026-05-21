@@ -135,6 +135,14 @@ public class AuctionService {
       return false;
     }
 
+    // Ngăn chặn người bán tự đấu giá sản phẩm của chính mình
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String bidderSellerProfileId = sellerRepo.findProfileIdByUserId(bidderId);
+    if (bidderSellerProfileId != null && bidderSellerProfileId.equals(auction.getSellerId())) {
+      System.out.println(">>> Lỗi: Người bán không thể tự đấu giá sản phẩm của chính mình!");
+      return false;
+    }
+
     // 2. NGƯỜI THẬT ĐẶT GIÁ
     boolean isSuccess = auction.applyBid(bidderId, amount);
 
@@ -305,9 +313,9 @@ public class AuctionService {
     return auctionRepo.restoreCanceledAuctionsBySellerId(sellerId, LocalDateTime.now());
   }
 
-  public static Auction getAuctionHistory(String auctionId) {
+  public static AuctionResponseDTO getAuctionHistory(String auctionId) {
     // 1. Lấy thông tin cơ bản của phiên đấu giá từ AuctionRepository
-    Auction auction = auctionRepo.findAuctionById(auctionId);
+    AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(auctionId);
 
     if (auction != null) {
       // 2. Lấy 20 giao dịch gần nhất từ BidTransactionRepository
