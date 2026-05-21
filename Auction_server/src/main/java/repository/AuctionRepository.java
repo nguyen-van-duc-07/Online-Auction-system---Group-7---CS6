@@ -265,7 +265,7 @@ public class AuctionRepository {
 
     UserRepository userRepo = new  UserRepository();
     String highestBidderId = rs.getString("highest_bidder_id");
-    String highestBidderName = rs.getString("highest_bidder_name");
+    String highestBidderName = userRepo.getRealNameByUserId(rs.getString("highest_bidder_id"));
 
     SellerProfileRepository sellerRepo = new  SellerProfileRepository();
     String sellerId = rs.getString("seller_id");

@@ -68,6 +68,7 @@ public class MainLayoutController implements Initializable, Controller {
   @FXML private Button btnQuanLy;
   @FXML private Button btnKetQua;
   @FXML private VBox floatingIcon;
+  @FXML private Label remainingLabel;
 
   // ========================== STYLE CONSTANTS ==========================
 
@@ -115,6 +116,22 @@ public class MainLayoutController implements Initializable, Controller {
     } else {
       realNameLabel.setText("N/A");
     }
+
+    // Hiển thị số dư lần đầu tiên khi vừa load màn hình (Tránh việc nhãn bị trống)
+    if (SessionManager.getCurrentBalance() != null) {
+      java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+      remainingLabel.setText("Số dư: " + format.format(SessionManager.getCurrentBalance()) + " VNĐ");
+    }
+
+    //  Đăng ký Listener: Từ nay về sau, hễ SessionManager có số mới là UI tự update
+    SessionManager.balanceProperty().addListener((observable, oldBalance, newBalance) -> {
+      Platform.runLater(() -> {
+        if (remainingLabel != null && newBalance != null) {
+          java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+          remainingLabel.setText("Số dư: " + format.format(newBalance) + " VNĐ");
+        }
+      });
+    });
 
     // Load sidebar dạng "home" (Đang diễn ra, Sắp diễn ra, Đã kết thúc)
     loadHomeSidebar();

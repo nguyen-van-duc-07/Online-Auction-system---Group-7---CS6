@@ -13,6 +13,7 @@ import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -417,6 +418,58 @@ public class ItemAuctionController implements Initializable {
     }
   }
 
+  /**
+   * Tự động cộng thêm lượng tiền chọn nhanh vào giá hiện tại
+   * và điền kết quả vào ô nhập giá (bidAmountField).
+   */
+  @FXML
+  public void handleQuickAdd(ActionEvent event) {
+    // Phòng thủ: Nếu thông tin đấu giá chưa được tải
+    if (currentAuction == null) {
+      return;
+    }
+    // Nếu ô nhập giá đang bị khóa (ví dụ: phiên đã kết thúc hoặc đang bật auto-bid) thì không cho chọn nhanh
+    if (bidAmountField.isDisabled() || !bidAmountField.isEditable()) {
+      return;
+    }
+    if (event.getSource() instanceof Button) {
+      Button clickedButton = (Button) event.getSource();
+      String text = clickedButton.getText().trim().toLowerCase();
+
+      // Loại bỏ ký tự "+" ở đầu nếu có (ví dụ: "+100k" -> "100k")
+      if (text.startsWith("+")) {
+        text = text.substring(1);
+      }
+      BigDecimal addAmount = BigDecimal.ZERO;
+      try {
+        // Xử lý hậu tố đơn vị tiền tệ "k" (nghìn) hoặc "m" (triệu)
+        if (text.endsWith("k")) {
+          String numStr = text.substring(0, text.length() - 1);
+          addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000"));
+        } else if (text.endsWith("m")) {
+          String numStr = text.substring(0, text.length() - 1);
+          addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000000"));
+        } else {
+          // Trường hợp nút có text dạng số thuần túy
+          addAmount = new BigDecimal(text);
+        }
+        // Lấy giá hiện tại và tính toán giá mới
+        BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
+        if (currentPrice != null) {
+          BigDecimal newBidAmount = currentPrice.add(addAmount);
+
+          // Điền giá trị mới vào ô nhập liệu dưới dạng số thuần túy để hàm placeBid() có thể parse được
+          bidAmountField.setText(newBidAmount.toPlainString());
+
+          // Xóa các thông báo lỗi cũ và hiển thị viền xanh lá đồng bộ hệ thống
+          clearError();
+        }
+      } catch (NumberFormatException e) {
+        showError("Lượng tiền cộng thêm không hợp lệ!");
+      }
+    }
+  }
+
   public void showBidSuccess(String itemName, BigDecimal amount) {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
     alert.setTitle("Đấu giá thành công");
@@ -539,5 +592,10 @@ public class ItemAuctionController implements Initializable {
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
     });
+  }
+
+  @FXML
+  public void handleBack() {
+    ScreenController.goBack();
   }
 }

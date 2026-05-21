@@ -39,7 +39,7 @@
                             <VBox alignment="CENTER_RIGHT" spacing="2.0">
                                 <children>
                                     <Label fx:id="realNameLabel" style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
-                                    <Label fx:id="lblSoDu" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
+                                    <Label fx:id="remainingLabel" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
                                 </children>
                             </VBox>
                             <MenuButton mnemonicParsing="false" style="-fx-background-color: #f8f9fa; -fx-border-color: #ddd; -fx-border-radius: 20; -fx-background-radius: 20;" text="Tài khoản">
