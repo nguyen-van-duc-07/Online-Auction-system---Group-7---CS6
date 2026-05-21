@@ -204,9 +204,25 @@ public class RequestHandler {
     OrderService orderService = new OrderService();
     Order order = orderService.getOrderById(req.getOrderId());
     if (order != null) {
-      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
+      String itemName = "Sản phẩm";
+      String itemId = "";
+      try {
+        repository.AuctionRepository auctionRepo = new repository.AuctionRepository();
+        String fetchedItemId = auctionRepo.getItemIdByAuctionId(order.getAuctionId());
+        if (fetchedItemId != null) {
+          repository.ItemRepository itemRepo = new repository.ItemRepository();
+          com.auction.shared.model.item.ItemDTO itemDTO = itemRepo.findById(fetchedItemId);
+          if (itemDTO != null) {
+            itemName = itemDTO.getName();
+            itemId = itemDTO.getId();
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order, itemName, itemId);
     }
-    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
+    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null, null, null);
   }
 
   public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {

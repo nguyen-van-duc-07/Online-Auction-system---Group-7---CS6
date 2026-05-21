@@ -2,6 +2,8 @@ package com.auction.client.screenhandler;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Stack;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -15,20 +17,60 @@ import javafx.stage.Stage;
 public class ScreenController {
   public static Stage primaryStage;
 
+  private static final Stack<ScreenState> history = new Stack<ScreenState>();
+  private static ScreenState currentScreen = null;
+
   // Dùng để chuyển sang trang bất kì hiệu quả hơn
   public static void switchScreen(String fxmlFile, String title) {
     try {
+      // Nếu có màn hình hiện tại, lưu lại chính Node hiện tại vào lịch sử.
+      if (primaryStage.getScene() != null && currentScreen != null) {
+        Parent currentRoot = primaryStage.getScene().getRoot();
+        history.push(new ScreenState(currentRoot, currentScreen.getTitle(),
+            currentScreen.getFxmlFile()));
+      }
+
+      // Load màn hình mới từ FXML
+      Parent root = FXMLLoader.load(ScreenController.class.getResource(
+          "/com/auction/client/" + fxmlFile));
+      currentScreen = new ScreenState(root, title, fxmlFile);
+
+      // Hiển thị lên màn hình
       primaryStage.setMaximized(true);
       primaryStage.setResizable(false);
-      Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
       primaryStage.getScene().setRoot(root);
       primaryStage.setTitle(title);
       primaryStage.show();
 
     } catch (Exception e) {
       e.printStackTrace();
-      showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
+      showAlert(Alert.AlertType.ERROR,
+          "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
     }
+  }
+
+  // Phương thức Quay lại tối ưu
+  public static void goBack() {
+    if (!history.isEmpty()) {
+      // Lấy trạng thái màn hình cũ ra
+      ScreenState previous = history.pop();
+      currentScreen = previous;
+      // KHÔNG CẦN LOAD FXML: Gắn lại trực tiếp Root cũ vào Scene
+      primaryStage.getScene().setRoot(previous.getRoot());
+      primaryStage.setTitle(previous.getTitle());
+      primaryStage.show();
+
+      System.out.println("Quay lại màn hình trước đó thành công (Trạng thái và cuộn trang được giữ nguyên!)");
+    } else {
+      // Fallback về trang chủ nếu không có lịch sử
+      switchScreen("Bidder/Home.fxml", "Trang chủ");
+    }
+  }
+
+  // Sử dụng khi đăng xuất
+  public static void clearHistory() {
+    history.clear();
+    currentScreen = null;
   }
 
   // Dùng để tạo ra cảnh báo

@@ -36,7 +36,10 @@ public class OrderCardController {
     SessionManager.setCurrentOrderId(currentOrder.getOrderId());
     SessionManager.setPreviousScreen(currentScreen);
     System.out.println("Đang mở chi tiết phiên đơn hàng: " + currentOrder.getAuctionId());
-    ScreenController.switchScreen("Bidder/Payment.fxml", "Đơn hàng " + currentOrder.getItemName());
+    ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Đơn hàng " + currentOrder.getItemName());
+    if (PaymentScreenController.instance != null) {
+      PaymentScreenController.instance.setOrderData(currentOrder);
+    }
   }
 
   @FXML

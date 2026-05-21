@@ -20,7 +20,7 @@
                     <font><Font name="System" size="14.0" /></font>
                 </Button>
 
-                <Label alignment="CENTER" layoutY="18.0" text="THANH TOÁN ĐƠN HÀNG" textFill="#28a745" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                <Label alignment="CENTER" layoutY="18.0" onMouseClicked="#handleBack" text="THANH TOÁN ĐƠN HÀNG" textFill="#28a745" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                     <font><Font name="System Bold" size="24.0" /></font>
                 </Label>
 
@@ -87,7 +87,7 @@
                                         <Label fx:id="lblItemId" text="Mã SP: SP002" textFill="#adb5bd" />
                                     </children>
                                 </VBox>
-                                <Label fx:id="lblItemPrice" text="40.000.000đ" textFill="#28a745">
+                                <Label fx:id="lblItemPrice" prefHeight="20.0" prefWidth="131.0" text="40.000.000đ" textFill="#28a745">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
                             </children>

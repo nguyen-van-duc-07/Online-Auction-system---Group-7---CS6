@@ -2,6 +2,7 @@ package repository;
 
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.item.Item;
+import com.auction.shared.model.item.ItemDTO;
 import config.DatabaseConnection;
 
 import java.sql.*;
@@ -25,9 +26,9 @@ public class ItemRepository {
   }
 
   // 2. Tìm thông tin chi tiết của một món hàng dựa vào ID
-  public Item findById(String id) {
+  public ItemDTO findById(String id) {
     String sql = "SELECT * FROM items WHERE id = ?";
-    Item item = null;
+    ItemDTO item = null;
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -46,7 +47,7 @@ public class ItemRepository {
   }
 
   // Hàm phụ trợ để mapping dữ liệu (đọc từ ResultSet ra Object)
-  private Item mapResultSetToItem(ResultSet rs) throws SQLException {
+  private ItemDTO mapResultSetToItem(ResultSet rs) throws SQLException {
     // Xử lý Enum an toàn
     String typeStr = rs.getString("type");
     ItemType itemType;
@@ -56,13 +57,11 @@ public class ItemRepository {
       itemType = ItemType.OTHER;
     }
 
-    // Gọi Constructor 5 tham số của Item (đã kế thừa Entity)
-    return new Item(
-        rs.getString("id"),
-        rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null,
-        rs.getString("name"),
-        itemType,
-        rs.getString("description")
-    );
+    ItemDTO itemDTO = new ItemDTO();
+    itemDTO.setId(rs.getString("id"));
+    itemDTO.setName(rs.getString("name"));
+    itemDTO.setDescription(rs.getString("description"));
+    itemDTO.setType(itemType);
+    return itemDTO;
   }
 }

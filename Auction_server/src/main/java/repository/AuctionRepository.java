@@ -265,7 +265,7 @@ public class AuctionRepository {
 
     UserRepository userRepo = new  UserRepository();
     String highestBidderId = rs.getString("highest_bidder_id");
-    String highestBidderName = rs.getString("highest_bidder_name");
+    String highestBidderName = userRepo.getRealNameByUserId(rs.getString("highest_bidder_id"));
 
     SellerProfileRepository sellerRepo = new  SellerProfileRepository();
     String sellerId = rs.getString("seller_id");
@@ -505,4 +505,21 @@ public class AuctionRepository {
       return null;
     }
   }
+
+  public String getItemIdByAuctionId(String auctionId) {
+    String sql = "SELECT item_id FROM auctions WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return rs.getString("item_id");
+      }
+      return null;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
 }
+

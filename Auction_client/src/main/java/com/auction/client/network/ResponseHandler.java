@@ -45,7 +45,7 @@ public class ResponseHandler {
 
       if (user.getRole() == UserRole.BIDDER) {
         Platform.runLater(() -> {
-          ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+          ScreenController.switchScreen("MainLayout.fxml", "Trang chủ");
         });
       } else {
         Platform.runLater(() -> {
@@ -93,7 +93,10 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", uploadItemRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý sản phẩm");
+                MainLayoutController controller = MainLayoutController.getInstance();
+                if (controller != null) {
+                  controller.showSellerHome();
+                }
               }
         });
       });
@@ -108,12 +111,9 @@ public class ResponseHandler {
   public static void handleGetActiveAuctions(GetActiveAuctionsResponseDTO getActiveAuctionRes) {
     if (getActiveAuctionRes.isSuccess()) {
       Platform.runLater(() -> {
-        // Lấy controller của trang Home hiện tại đang mở trên màn hình
-        HomeController homeController = HomeController.getInstance();
-
-        if (homeController != null) {
-          // Gọi hàm vẽ UI và truyền danh sách sản phẩm vào
-          homeController.loadFeedToUI(getActiveAuctionRes.getActiveAuctions());
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadFeedToUI(getActiveAuctionRes.getActiveAuctions());
         }
       });
     } else {
@@ -127,10 +127,9 @@ public class ResponseHandler {
   public static void handleGetWaitingAuctions(GetWaitingAuctionsResponseDTO getWaitingAuctionsRes) {
     if (getWaitingAuctionsRes.isSuccess()) {
       Platform.runLater(() -> {
-        HomeController homeController = HomeController.getInstance();
-
-        if (homeController != null) {
-          homeController.loadFeedToUI(getWaitingAuctionsRes.getWaitingAuctions());
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadFeedToUI(getWaitingAuctionsRes.getWaitingAuctions());
         }
       });
     } else {
@@ -144,10 +143,9 @@ public class ResponseHandler {
   public static void handleGetClosedAuctions(GetClosedAuctionsResponseDTO getClosedAuctionsRes) {
     if (getClosedAuctionsRes.isSuccess()) {
       Platform.runLater(() -> {
-        HomeController homeController = HomeController.getInstance();
-
-        if (homeController != null) {
-          homeController.loadFeedToUI(getClosedAuctionsRes.getClosedAuctions());
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadFeedToUI(getClosedAuctionsRes.getClosedAuctions());
         }
       });
     } else {
@@ -161,13 +159,9 @@ public class ResponseHandler {
   public static void handleGetActiveAuctionsBySelelr(GetActiveAuctionsBySellerResponseDTO response) {
     if (response.isSuccess()) {
       Platform.runLater(() -> {
-        SellerHomeController sellerHomeController = SellerHomeController.getInstance();
-        if (sellerHomeController != null) {
-          sellerHomeController.loadFeedToUI(response.getActiveAuctionsBelongToSeller());
-        } else {
-          Platform.runLater(() -> {
-            ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi tải bảng tin", response.getMessage());
-          });
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadSellerFeedToUI(response.getActiveAuctionsBelongToSeller());
         }
       });
     }
@@ -176,9 +170,9 @@ public class ResponseHandler {
   public static void handleGetAuctionsBySeller(GetAuctionsBySellerResponseDTO getAuctionsBySellerRes) {
     if (getAuctionsBySellerRes.isSuccess()) {
       Platform.runLater(() -> {
-        SellerHomeController sellerHomeController = SellerHomeController.getInstance();
-        if (sellerHomeController != null) {
-          sellerHomeController.loadFeedToUI(getAuctionsBySellerRes.getActiveAuctions());
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadSellerFeedToUI(getAuctionsBySellerRes.getActiveAuctions());
         }
       });
     } else {
@@ -196,8 +190,10 @@ public class ResponseHandler {
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
               if (Response == ButtonType.OK) {
                 SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
-                HomeController homeController = HomeController.getInstance();
-                homeController.gotoHomeFeed();
+                MainLayoutController controller = MainLayoutController.getInstance();
+                if (controller != null) {
+                  controller.gotoHomeFeed();
+                }
               }
         });
       });
@@ -264,7 +260,10 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
             sellerRegisterRes.getMessage()).ifPresent(Response -> {
            if (Response == ButtonType.OK) {
-             ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
+              MainLayoutController controller = MainLayoutController.getInstance();
+              if (controller != null) {
+                controller.gotoHomeFeed();
+              }
            }
         });
       });
@@ -276,11 +275,13 @@ public class ResponseHandler {
   }
 
   public static void checkingSellerProfile(CheckingSellerProfileResponseDTO checkingSellerProfileRes) {
-    HomeController homeController = HomeController.getInstance();
+    MainLayoutController controller = MainLayoutController.getInstance();
     String message = checkingSellerProfileRes.getMessage();
     Platform.runLater(() -> {
       if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
-        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý hàng giao bán");
+        if (controller != null) {
+          controller.showSellerHome();
+        }
       } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
@@ -291,7 +292,9 @@ public class ResponseHandler {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
             "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.").ifPresent(Response -> {
               if  (Response == ButtonType.OK) {
-                homeController.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
+                if (controller != null) {
+                  controller.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
+                }
               }
         });
       }
@@ -300,12 +303,28 @@ public class ResponseHandler {
 
   public static void handleOrderAction(OrderActionResponseDTO dto) {
     Platform.runLater(() -> {
-      Alert alert = new Alert(
-          dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR
-      );
-      alert.setTitle(dto.isSuccess() ? "Thành công" : "Thất bại");
-      alert.setHeaderText(dto.getMessage());
-      alert.showAndWait();
+      if (PaymentScreenController.instance != null) {
+        if (dto.isSuccess()) {
+          Alert alert = new Alert(Alert.AlertType.INFORMATION);
+          alert.setTitle("Thành công");
+          alert.setHeaderText(dto.getMessage());
+          alert.showAndWait();
+          PaymentScreenController.instance.onOrderActionSuccess(dto.getMessage());
+        } else {
+          Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setTitle("Thất bại");
+          alert.setHeaderText(dto.getMessage());
+          alert.showAndWait();
+          PaymentScreenController.instance.onOrderActionFailed(dto.getMessage());
+        }
+      } else {
+        Alert alert = new Alert(
+            dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR
+        );
+        alert.setTitle(dto.isSuccess() ? "Thành công" : "Thất bại");
+        alert.setHeaderText(dto.getMessage());
+        alert.showAndWait();
+      }
     });
   }
 
@@ -314,6 +333,9 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         SessionManager.setCurrentOrderId(dto.getOrder().getId());
         ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
+        if (PaymentScreenController.instance != null) {
+          PaymentScreenController.instance.setOrderData(dto.getOrder(), dto.getItemName(), dto.getItemId());
+        }
       });
     } else {
       Platform.runLater(() -> {
@@ -365,9 +387,9 @@ public class ResponseHandler {
           }
         } else {
           // NẾU LÀ USER (BIDDER/SELLER) -> Xử lý hiển thị cho User
-          HomeController homeController = HomeController.getInstance();
-          if (homeController != null) {
-            homeController.loadFeedToUI(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
+          MainLayoutController controller = MainLayoutController.getInstance();
+          if (controller != null) {
+            controller.loadFeedToUI(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
           }
         }
       });
@@ -411,9 +433,9 @@ public class ResponseHandler {
 
   public static void handleAuctionPriceUpdate(AuctionPriceUpdateDTO dto) {
     Platform.runLater(() -> {
-      HomeController homeController = HomeController.getInstance();
-      if (homeController != null) {
-        homeController.updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
+      MainLayoutController controller = MainLayoutController.getInstance();
+      if (controller != null) {
+        controller.updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
       }
     });
   }
@@ -458,10 +480,10 @@ public class ResponseHandler {
 
   public static void handleGetNotifications(GetNotificationsResponseDTO dto) {
     Platform.runLater(() -> {
-      // Cập nhật badge trên Home
-      HomeController homeController = HomeController.getInstance();
-      if (homeController != null) {
-        homeController.updateNotificationBadge(dto.getUnreadCount());
+      // Cập nhật badge trên MainLayout
+      MainLayoutController controller = MainLayoutController.getInstance();
+      if (controller != null) {
+        controller.updateNotificationBadge(dto.getUnreadCount());
       }
 
       // Load danh sách nếu đang ở màn hình thông báo
@@ -477,13 +499,9 @@ public class ResponseHandler {
   public static void handleNewNotification(NotificationDTO dto) {
     Platform.runLater(() -> {
       // Cập nhật badge
-      HomeController homeController = HomeController.getInstance();
-      if (homeController != null) {
-        homeController.incrementNotificationBadge();
-      }
-      SellerHomeController sellerHomeController = SellerHomeController.getInstance();
-      if (sellerHomeController != null) {
-        sellerHomeController.incrementNotificationBadge();
+      MainLayoutController controller = MainLayoutController.getInstance();
+      if (controller != null) {
+        controller.incrementNotificationBadge();
       }
       System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
     });
@@ -508,11 +526,10 @@ public class ResponseHandler {
   public static void handleGetPendingOrdersOfBuyer(GetPendingOrdersOfBuyerResponseDTO response) {
     Platform.runLater(() -> {
       if (response.isSuccess()) {
-        HomeController homeController = HomeController.getInstance();
-        homeController.loadComponent("/com/auction/client/Bidder/Result.fxml");
-
-        ResultController resultController = ResultController.getInstance();
-        resultController.loadFeedToUI(response.getPendingOrders());
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null) {
+          controller.loadOrdersToUI(response.getPendingOrders());
+        }
       }
     });
   }
