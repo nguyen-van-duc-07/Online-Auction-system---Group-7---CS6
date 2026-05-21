@@ -9,6 +9,7 @@ import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.UpdateProfileRequestDTO;
+import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import org.mindrot.jbcrypt.BCrypt;
@@ -111,13 +112,7 @@ public class AuthService {
 
       conn.commit(); // OK
       NotificationService notifService = new NotificationService();
-      notifService.send(
-          newUser.getId(),
-          NotificationType.SYSTEM,
-          "🎉 Chào mừng bạn đến với Đấu Giá 88!",
-          "Tài khoản của bạn đã được tạo thành công. Khám phá ngay các phiên đấu giá hấp dẫn đang diễn ra!",
-          null
-      );
+      notifService.sendFromNotification(NotificationTemplate.welcome(newUser.getId()));
       return true;
 
     } catch (Exception e) {
