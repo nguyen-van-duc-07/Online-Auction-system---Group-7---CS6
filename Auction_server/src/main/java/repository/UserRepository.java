@@ -147,6 +147,52 @@ public class UserRepository {
     }
     return null;
   }
+
+  /**
+   * Lấy tên hiển thị của người dùng dựa trên ID.
+   * Ưu tiên lấy tên thật (real_name), nếu chưa cập nhật hồ sơ thì dùng tên tài khoản (account_name).
+   * Phục vụ cho việc hiển thị tên người chiến thắng trên giao diện đấu giá.
+   *
+   * @param userId mã định danh (id) của người dùng
+   * @return Tên hiển thị của người dùng, hoặc "Người dùng ẩn danh" nếu có lỗi/không tìm thấy
+   */
+  public static String getUserFullName(String userId) {
+    if (userId == null || userId.trim().isEmpty()) {
+      return "Người dùng ẩn danh";
+    }
+
+    // Chỉ Select đúng 2 cột cần thiết để tối ưu tốc độ, thay vì Select *
+    String sql = "SELECT real_name, account_name FROM users WHERE id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, userId);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          String realName = rs.getString("real_name");
+          String accountName = rs.getString("account_name");
+
+          // Nếu có tên thật và không bị rỗng thì dùng tên thật
+          if (realName != null && !realName.trim().isEmpty()) {
+            return realName;
+          }
+          // Nếu không, trả về tên tài khoản
+          else if (accountName != null) {
+            return accountName;
+          }
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.err.println(">>> Lỗi khi truy vấn tên người dùng: " + e.getMessage());
+    }
+
+    // Trả về mặc định nếu Database lỗi để tránh làm sập luồng hiển thị (NullPointerException)
+    return "Người dùng ẩn danh";
+  }
+
   public boolean updateProfile(User user) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "UPDATE users "

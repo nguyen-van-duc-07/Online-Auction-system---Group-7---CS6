@@ -56,7 +56,7 @@ public class AdminScreenController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION,
         "Đăng xuất", "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
           if  (Response == ButtonType.OK) {
-            SessionManager.clearSession();
+            SessionManager.setCurrentUser(null);
             ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
             ScreenController.primaryStage.setMaximized(false);
           }

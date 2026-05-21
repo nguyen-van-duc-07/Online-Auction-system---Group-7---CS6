@@ -5,7 +5,9 @@ import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.model.item.Item;
+import com.auction.shared.request.CancelSellerAuctionsRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
+import com.auction.shared.request.RestoreSellerAuctionsRequestDTO;
 import com.auction.shared.request.SellerRegisterRequestDTO;
 import com.auction.shared.request.UpdateSellerProfileStatusRequestDTO;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -160,13 +162,19 @@ public class SellerAccountManagerController implements Initializable {
     SellerRegisterRequestDTO selected = sellerProfileTable.getSelectionModel().getSelectedItem();
     if (selected == null) {
       ScreenController.showAlert(Alert.AlertType.WARNING,
-          "Cảnh báo", "Vui lòng chọn một đơn để duyệt.");
+          "Cảnh báo", "Vui lòng chọn một đơn để duyệt!");
+      return;
+    }
+    if (selected.getStatus().equals(SellerRegisterStatus.REGISTERED.toString())) {
+      ScreenController.showAlert(Alert.AlertType.WARNING,
+          "Cảnh báo", "Hồ sơ đã được duyệt trước đó!");
       return;
     }
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.REGISTERED);
     ServerConnection.sendData(request);
+    ServerConnection.sendData(new RestoreSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**
@@ -177,13 +185,19 @@ public class SellerAccountManagerController implements Initializable {
     SellerRegisterRequestDTO selected = sellerProfileTable.getSelectionModel().getSelectedItem();
     if (selected == null) {
       ScreenController.showAlert(Alert.AlertType.WARNING,
-          "Cảnh báo", "Vui lòng chọn một đơn để từ chối.");
+          "Cảnh báo", "Vui lòng chọn một đơn để từ chối!");
+      return;
+    }
+    if (selected.getStatus().equals(SellerRegisterStatus.DENIED.toString())) {
+      ScreenController.showAlert(Alert.AlertType.WARNING,
+          "Cảnh báo", "Hồ sơ đã bị từ chối trước đó!");
       return;
     }
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.DENIED);
     ServerConnection.sendData(request);
+    ServerConnection.sendData(new CancelSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**

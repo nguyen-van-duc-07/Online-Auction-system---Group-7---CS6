@@ -14,18 +14,18 @@
    <children>
       <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
          <children>
-            <Label fx:id="nameLabel" text="SP001 - Vinfast VF8 Plus" textFill="#333333">
+            <Label fx:id="nameLabel" textFill="#333333">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <Label fx:id="statusLabel" text="Trạng thái: Đang diễn ra" textFill="#27ae60" />
+            <Label fx:id="statusLabel" textFill="#27ae60" />
          </children>
       </VBox>
       <VBox alignment="CENTER" prefWidth="200.0">
          <children>
             <Label text="Giá hiện tại:" textFill="#7f8c8d" />
-            <Label fx:id="priceLabel" style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" text="2.000.000.000 VNĐ" textFill="#2980b9">
+            <Label fx:id="priceLabel" style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" textFill="#2980b9">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -35,13 +35,13 @@
       <VBox alignment="CENTER" prefWidth="150.0">
          <children>
             <Label text="Thời gian còn lại:" textFill="#7f8c8d" />
-            <Label fx:id="timeLabel" alignment="CENTER" text="73:13:28" textFill="#e67e22">
+            <Label fx:id="timeLabel" alignment="CENTER" textFill="#e67e22">
                <font>
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
          </children>
       </VBox>
-      <Button fx:id="bidButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
+      <Button fx:id="bidButton" mnemonicParsing="false" onAction="#gotoAuctionDetail" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
    </children>
 </HBox>

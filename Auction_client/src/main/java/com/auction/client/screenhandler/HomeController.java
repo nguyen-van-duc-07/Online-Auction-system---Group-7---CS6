@@ -4,7 +4,6 @@ import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
-import com.auction.shared.response.AuctionResponseDTO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
  * Controller xử lý logic cho màn hình trang chủ.
  * Chịu trách nhiệm hiển thị danh sách sản phâ đấu giá động từ Server.
  */
-public class HomeController implements Initializable, ProductDetailNavigator {
+public class HomeController implements Initializable, Controller {
 
   /** Biến static lưu trữ Controller hiện tại của Home. */
   private static HomeController instance;
@@ -54,6 +54,9 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   @FXML
   private Label realNameLabel;
 
+  @FXML private Label notificationBadge;
+
+
   /**
    * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
    *
@@ -73,6 +76,8 @@ public class HomeController implements Initializable, ProductDetailNavigator {
 
     // Lưu lại giao diện Node gốc của trang chủ
     homeFeedNode = mainContent.getContent();
+
+    loadUnreadCount();
 
     // Hiện Label chào user
     String phoneNumber = SessionManager.currentUser.getPhoneNumber();
@@ -112,8 +117,8 @@ public class HomeController implements Initializable, ProductDetailNavigator {
           // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          // Truyền object auction và 'this' (HomeController) sang để thẻ con biết đường gọi chuyển trang
-          cardController.setData(auction, this);
+          // Truyền object auction
+          cardController.setData(auction, instance);
 
           // 4. Nhét thẻ đã hoàn thiện vào FlowPane
           feedContainer.getChildren().add(cardNode);
@@ -154,12 +159,34 @@ public class HomeController implements Initializable, ProductDetailNavigator {
   /**
    * Chuyển hướng sang màn hình chi tiết sản phẩm.
    */
-  @Override
-  public void gotoProductDetail(AuctionDTO selectedAuction) {
-    // Lưu sản phẩm vừa chọn vào SessionManager
-    SessionManager.setCurrentAuctionId(selectedAuction.getAuctionId());
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + selectedAuction.getAuctionId());
-    ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + selectedAuction.getItemName());
+
+  private void loadUnreadCount() {
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
+  }
+
+  public void updateNotificationBadge(int unreadCount) {
+    Platform.runLater(() -> {
+      if (unreadCount > 0) {
+        notificationBadge.setVisible(true);
+        // Chỉ hiện chấm đỏ, không hiện số
+        notificationBadge.setText("");
+      } else {
+        notificationBadge.setVisible(false);
+      }
+    });
+  }
+
+  public void incrementNotificationBadge() {
+    Platform.runLater(() -> notificationBadge.setVisible(true));
+  }
+
+  @FXML
+  public void gotoNotifications() {
+    ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
+    // Load danh sách khi mở
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
   }
 
   @FXML
@@ -170,7 +197,7 @@ public class HomeController implements Initializable, ProductDetailNavigator {
         LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
         logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
         ServerConnection.sendData(logoutRequestDTO);
-        SessionManager.clearSession();
+        SessionManager.setCurrentUser(null);
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
         ScreenController.primaryStage.setMaximized(false);
       }

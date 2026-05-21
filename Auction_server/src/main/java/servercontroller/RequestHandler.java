@@ -4,6 +4,7 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
@@ -114,6 +115,12 @@ public class RequestHandler {
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
+  public static GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
+      GetActiveAuctionsBySellerRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getActiveAuctionsBySeller(request.getUserId());
+    return new GetActiveAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
     List<AuctionDTO> list = AuctionService.getAuctionsBySeller(request.getUserId());
     return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
@@ -139,8 +146,18 @@ public class RequestHandler {
   }
 
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
-    BidService bidService = new BidService();
-    return bidService.placeBid(req);
+    // Chuyển hướng gọi từ BidService sang AuctionService - nơi chứa thuật toán Jump Calculation
+    boolean isSuccess = AuctionService.getInstance().placeBid(
+            req.getAuctionId(),
+            req.getBidderId(),
+            req.getBidAmount()
+    );
+
+    if (isSuccess) {
+      return new PlaceBidResponseDTO(true, "Đặt giá thành công!");
+    } else {
+      return new PlaceBidResponseDTO(false, "Đặt giá thất bại, vui lòng kiểm tra lại mức giá!");
+    }
   }
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
@@ -163,13 +180,12 @@ public class RequestHandler {
     response.setBidHistory(auction.getBidHistory());
     Item itemEntity = auction.getItem();
     if (itemEntity != null) {
-      ItemDTO itemDTO = ItemDTO.builder()
-              .id(itemEntity.getId())
-              .name(itemEntity.getName())
-              .description(itemEntity.getDescription())
-              .type(itemEntity.getType())
-              .CreatedAt(itemEntity.getCreatedAt())
-              .build();
+      ItemDTO itemDTO = new ItemDTO();
+      itemDTO.setId(itemEntity.getId());
+      itemDTO.setName(itemEntity.getName());
+      itemDTO.setDescription(itemEntity.getDescription());
+      itemDTO.setType(itemEntity.getType());
+      itemDTO.setCreatedAt(itemEntity.getCreatedAt());
 
       response.setItem(itemDTO); // Bây giờ kiểu dữ liệu đã khớp (ItemDTO)
     }
@@ -242,13 +258,37 @@ public class RequestHandler {
     return response;
   }
 
+  public static CancelSellerAuctionsResponseDTO cancelSellerAuctions(CancelSellerAuctionsRequestDTO request) {
+    boolean success = AuctionService.cancelActiveAndWaitingAuctionsBySellerUserId(request.getUserId());
+    String message = success
+        ? "Đã hủy các phiên đấu giá đang/sắp diễn ra của seller!"
+        : "Không thể hủy các phiên đấu giá của seller!";
+    return new CancelSellerAuctionsResponseDTO(success, message);
+  }
+
+  public static RestoreSellerAuctionsResponseDTO restoreSellerAuctions(RestoreSellerAuctionsRequestDTO request) {
+    boolean success = AuctionService.restoreCanceledAuctionsBySellerUserId(request.getUserId());
+    String message = success
+        ? "Đã mở lại các phiên đấu giá bị hủy của seller!"
+        : "Không thể mở lại các phiên đấu giá của seller!";
+    return new RestoreSellerAuctionsResponseDTO(success, message);
+  }
+
   private static final AutoBidService autoBidService = new AutoBidService();
 
   public static AutoBidResponseDTO setAutoBid(SetAutoBidRequestDTO req) {
+    // Lưu cấu hình Bot xuống DB như cũ
     boolean success = autoBidService.setAutoBid(req);
-    return success
-            ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
-            : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+
+    if (success) {
+      // --- KÍCH HOẠT THUẬT TOÁN ĐỤNG ĐỘ BOT VS BOT TẠI ĐÂY ---
+      if (req.isActive()) {
+        AuctionService.resolveAutoBidFight(req.getAuctionId());
+      }
+      return new AutoBidResponseDTO(true, "Đã cập nhật tự động đấu giá!");
+    } else {
+      return new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+    }
   }
 
   public static AutoBidResponseDTO cancelAutoBid(CancelAutoBidRequestDTO req) {
@@ -267,6 +307,22 @@ public class RequestHandler {
     } catch (Exception e) {
       System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
       return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
+    }
+  }
+
+  public static GetNotificationsResponseDTO getNotifications(GetNotificationsRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    List<Notification> notifications = notifService.getNotifications(req.getUserId());
+    // Dem so thong bao chua doc ( isRead = false)
+    int unreadCount = (int) notifications.stream().filter(n -> !n.isRead()).count();
+    return new GetNotificationsResponseDTO(true, notifications, unreadCount);
+  }
+  public static void markNotificationRead(MarkNotificationReadRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    if (req.isMarkAll()) {
+      notifService.markAllAsRead(req.getUserId());
+    } else {
+      notifService.markAsRead(req.getNotificationId());
     }
   }
 }

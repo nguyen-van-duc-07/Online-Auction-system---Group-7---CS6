@@ -157,6 +157,21 @@ public class ResponseHandler {
     }
   }
 
+  public static void handleGetActiveAuctionsBySelelr(GetActiveAuctionsBySellerResponseDTO response) {
+    if (response.isSuccess()) {
+      Platform.runLater(() -> {
+        SellerHomeController sellerHomeController = SellerHomeController.getInstance();
+        if (sellerHomeController != null) {
+          sellerHomeController.loadFeedToUI(response.getActiveAuctionsBelongToSeller());
+        } else {
+          Platform.runLater(() -> {
+            ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi tải bảng tin", response.getMessage());
+          });
+        }
+      });
+    }
+  }
+
   public static void handleGetAuctionsBySeller(GetAuctionsBySellerResponseDTO getAuctionsBySellerRes) {
     if (getAuctionsBySellerRes.isSuccess()) {
       Platform.runLater(() -> {
@@ -264,7 +279,7 @@ public class ResponseHandler {
     String message = checkingSellerProfileRes.getMessage();
     Platform.runLater(() -> {
       if (SellerRegisterStatus.REGISTERED.toString().equals(message)) {
-        homeController.loadComponent("/com/auction/client/Seller/SellerHome.fxml");
+        ScreenController.switchScreen("Seller/SellerHome.fxml", "Quản lý hàng giao bán");
       } else if (SellerRegisterStatus.UNREGISTERED.toString().equals(message)) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", "Hồ sơ của bạn đang được hệ thống phê duyệt. Vui lòng quay lại sau!");
@@ -373,6 +388,26 @@ public class ResponseHandler {
     }
   }
 
+  public static void handleCancelSellerAuctions(CancelSellerAuctionsResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thông báo" : "Lỗi",
+          response.getMessage()
+      );
+    });
+  }
+
+  public static void handleRestoreSellerAuctions(RestoreSellerAuctionsResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thông báo" : "Lỗi",
+          response.getMessage()
+      );
+    });
+  }
+
   public static void handleAuctionPriceUpdate(AuctionPriceUpdateDTO dto) {
     Platform.runLater(() -> {
       HomeController homeController = HomeController.getInstance();
@@ -417,6 +452,47 @@ public class ResponseHandler {
               responseDTO.getMessage(),
               responseDTO.getTransaction()
       );
+    }
+  }
+
+  public static void handleGetNotifications(GetNotificationsResponseDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge trên Home
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.updateNotificationBadge(dto.getUnreadCount());
+      }
+
+      // Load danh sách nếu đang ở màn hình thông báo
+      if (NotificationController.instance != null) {
+        NotificationController.instance.loadNotifications(
+            dto.getNotifications(),
+            dto.getUnreadCount()
+        );
+      }
+    });
+  }
+
+  public static void handleNewNotification(NotificationDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.incrementNotificationBadge();
+      }
+      System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
+    });
+  }
+
+  public static void handleAutoBidDefeated(AutoBidDefeatedDTO dto) {
+    // Đảm bảo chỉ giật giao diện nếu người dùng đang ở đúng phòng đấu giá đó
+    if (SessionManager.getCurrentAuctionId() != null &&
+            SessionManager.getCurrentAuctionId().equals(dto.getAuctionId())) {
+
+      if (ItemAuctionController.instance != null) {
+        // Gọi hàm điều khiển HMI (tắt check box, hiện cảnh báo đỏ) mà chúng ta đã viết lúc nãy
+        ItemAuctionController.instance.onAutoBidDefeated(dto.getMessage());
+      }
     }
   }
 }

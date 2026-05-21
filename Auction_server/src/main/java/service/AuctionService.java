@@ -114,26 +114,90 @@ public class AuctionService {
 
   /**
    * Thực hiện đặt giá (bid) cho một phiên đấu giá.
-   *
-   * <p>Hệ thống sẽ kiểm tra:
-   * - Phiên đấu giá có tồn tại hay không
-   * - Sau đó chuyển yêu cầu đặt giá cho đối tượng Auction xử lý</p>
+   * Đồng thời áp dụng Jump Calculation để xử lý phản đòn của Bot ngay lập tức trong O(1),
+   * triệt tiêu hoàn toàn tình trạng bão thông báo khi Người đấu với Bot.
    *
    * @param auctionId mã phiên đấu giá
    * @param bidderId  mã người đặt giá
    * @param amount    số tiền đặt giá
    * @return true nếu đặt giá thành công, false nếu thất bại
    */
-  public boolean placeBid(String auctionId,
-                          String bidderId,
-                          BigDecimal amount) {
+  /**
+   * Thực hiện đặt giá (bid) cho một phiên đấu giá.
+   * Lấy dữ liệu chuẩn từ DB, lưu lịch sử người thật, và kích hoạt Bot phản đòn O(1).
+   */
+  public boolean placeBid(String auctionId, String bidderId, BigDecimal amount) {
 
-    Auction auction = auctions.get(auctionId);
+    // 1. LẤY TỪ DATABASE: Tránh lỗi RAM bị trắng khi restart Server
+    Auction auction = auctionRepo.findAuctionById(auctionId);
     if (auction == null) {
+      System.out.println(">>> Lỗi: Không tìm thấy Auction trong DB!");
       return false;
     }
 
-    return auction.applyBid(bidderId, amount);
+    // 2. NGƯỜI THẬT ĐẶT GIÁ
+    boolean isSuccess = auction.applyBid(bidderId, amount);
+
+    if (isSuccess) {
+      // LUÔN LUÔN lưu giao dịch của người thật vào DB trước
+      auctionRepo.updatePrice(auctionId, bidderId, amount);
+      bidRepo.saveBid(new BidTransaction(auctionId, bidderId, amount));
+
+      String humanName = repository.UserRepository.getUserFullName(bidderId);
+
+      // 3. KIỂM TRA BOT PHẢN ĐÒN
+      repository.AutoBidConfigRepository autoBidRepo = new repository.AutoBidConfigRepository();
+      List<com.auction.shared.model.auction.AutoBidConfig> activeBots = autoBidRepo.findActiveBotsOrderedByMaxPrice(auctionId);
+
+      // NẾU CÓ BOT VÀ CHỦ BOT KHÔNG PHẢI LÀ NGƯỜI VỪA ĐẶT GIÁ
+      if (!activeBots.isEmpty() && !activeBots.get(0).getUserId().equals(bidderId)) {
+        com.auction.shared.model.auction.AutoBidConfig bot = activeBots.get(0);
+        BigDecimal stepAmount = auction.getMinStepPrice();
+
+        // KỊCH BẢN A: BOT CÒN TIỀN -> PHẢN ĐÒN (JUMP CALCULATION)
+        if (bot.getMaxPrice().compareTo(amount) > 0) {
+
+          BigDecimal priceToBeat = amount.add(stepAmount);
+          BigDecimal newBotPrice = priceToBeat.min(bot.getMaxPrice());
+
+          repository.WalletRepository walletRepo = new repository.WalletRepository();
+          com.auction.shared.model.user.Wallet wallet = walletRepo.getWalletByUserId(bot.getUserId());
+          BigDecimal requiredFreeze = newBotPrice.multiply(new BigDecimal("0.1")); // Cần 10% để đóng băng
+
+          // Nếu ví Bot đủ tiền
+          if (wallet != null && wallet.getBalance().compareTo(requiredFreeze) >= 0) {
+            // Lưu Bot vào DB (O(1) Jump)
+            auctionRepo.updatePrice(auctionId, bot.getUserId(), newBotPrice);
+            bidRepo.saveBid(new BidTransaction(auctionId, bot.getUserId(), newBotPrice));
+
+            // Phát sóng cho phòng
+            servercontroller.Server.broadcastToAuctionRoom(
+                    new com.auction.shared.response.NewBidDTO(auctionId, bidderId, humanName, amount));
+
+            String botName = repository.UserRepository.getUserFullName(bot.getUserId());
+            servercontroller.Server.broadcastToAuctionRoom(
+                    new com.auction.shared.response.NewBidDTO(auctionId, bot.getUserId(), "[Auto] " + botName, newBotPrice));
+          }
+          // Nếu ví Bot KHÔNG đủ tiền (Dù cấu hình Max Price vẫn còn)
+          else {
+            autoBidRepo.deactivate(bot.getId(), auctionId);
+            String fomoMessage = "Bot của bạn đã bị tắt do số dư ví không đủ 10% (" + requiredFreeze + " VNĐ) để tiếp tục đè giá!";
+            servercontroller.Server.sendToUser(bot.getUserId(),
+                    new com.auction.shared.response.AutoBidDefeatedDTO(auctionId, fomoMessage));
+
+            // Chỉ gửi thông báo người thật chiến thắng
+            servercontroller.Server.broadcastToAuctionRoom(
+                    new com.auction.shared.response.NewBidDTO(auctionId, bidderId, humanName, amount));
+          }
+        }
+        // 4. KHÔNG CÓ BOT -> ĐẤU GIÁ THỦ CÔNG BÌNH THƯỜNG
+        else {
+          servercontroller.Server.broadcastToAuctionRoom(
+                  new com.auction.shared.response.NewBidDTO(auctionId, bidderId, humanName, amount));
+        }
+      }
+    }
+    return isSuccess;
   }
 
   /**
@@ -205,8 +269,15 @@ public class AuctionService {
    * của các sản phẩm đang được đấu giá trên sàn.
    */
   public static List<AuctionDTO> getActiveAndWaitingAuctions() {
-    List<AuctionDTO> activeAuctions = auctionRepo.findActiveAndWaitingAuctions();
-    return activeAuctions;
+    List<AuctionDTO> activeAndWaitingAuctions = auctionRepo.findActiveAndWaitingAuctions();
+    return activeAndWaitingAuctions;
+  }
+
+  public static List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    List<AuctionDTO> activeAuctionsBelongsToSeller = auctionRepo.findActiveAuctionsBySellerId(sellerId);
+    return activeAuctionsBelongsToSeller;
   }
 
   public static List<AuctionDTO> getAuctionsBySeller(String userId) {
@@ -214,6 +285,24 @@ public class AuctionService {
     String sellerId = sellerRepo.findProfileIdByUserId(userId);
     List<AuctionDTO> auctionsBelongsToSeller = auctionRepo.findAuctionsBySellerId(sellerId);
     return auctionsBelongsToSeller;
+  }
+
+  public static boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    if (sellerId == null) {
+      return false;
+    }
+    return auctionRepo.cancelActiveAndWaitingAuctionsBySellerId(sellerId);
+  }
+
+  public static boolean restoreCanceledAuctionsBySellerUserId(String userId) {
+    SellerProfileRepository sellerRepo = new SellerProfileRepository();
+    String sellerId = sellerRepo.findProfileIdByUserId(userId);
+    if (sellerId == null) {
+      return false;
+    }
+    return auctionRepo.restoreCanceledAuctionsBySellerId(sellerId, LocalDateTime.now());
   }
 
   public static Auction getAuctionHistory(String auctionId) {
@@ -247,5 +336,75 @@ public class AuctionService {
         auction.close();
       }
     }
+  }
+  /**
+   * Giải quyết đụng độ khi có nhiều người dùng cùng bật Auto-bid trong một phòng.
+   * Sử dụng thuật toán Jump Calculation (Đấu giá giá lớn thứ hai) để chốt giá cuối cùng
+   * bằng công thức O(1), tránh việc tạo vòng lặp đè giá gây quá tải server.
+   *
+   * @param auctionId ID của phiên đấu giá cần kiểm tra và phân định Auto-bid
+   */
+  public static void resolveAutoBidFight(String auctionId) {
+    repository.AutoBidConfigRepository autoBidRepo = new repository.AutoBidConfigRepository();
+
+    // 1. Lấy danh sách các Bot đang BẬT trong phòng này, SẮP XẾP GIÁ TỐI ĐA GIẢM DẦN
+    List<com.auction.shared.model.auction.AutoBidConfig> activeBots = autoBidRepo.findActiveBotsOrderedByMaxPrice(auctionId);
+
+    if (activeBots.size() < 2) {
+      return; // Chưa có đối thủ, Bot đang độc tôn, không cần đánh nhau
+    }
+
+    com.auction.shared.model.auction.AutoBidConfig winnerBot = activeBots.get(0); // Top 1 (Đại gia nhiều tiền nhất)
+    com.auction.shared.model.auction.AutoBidConfig loserBot = activeBots.get(1);  // Top 2 (Người thua cuộc)
+
+    // Lấy thông tin phiên đấu giá hiện tại để tính toán
+    Auction currentAuction = auctionRepo.findAuctionById(auctionId);
+    if (currentAuction == null) return;
+
+    // Nếu giá hiện tại đã cao hơn cả Top 1 rồi thì bỏ qua (Phòng hờ lỗi logic)
+    if (currentAuction.getCurrentHighestPrice().compareTo(winnerBot.getMaxPrice()) >= 0) {
+      return;
+    }
+
+    // 2. THUẬT TOÁN JUMP CALCULATION: Mức giá để thắng = M2 + S
+    BigDecimal stepAmount = currentAuction.getMinStepPrice();
+    BigDecimal priceToBeat = loserBot.getMaxPrice().add(stepAmount);
+
+    // Nếu giá để thắng vô tình vượt quá ngân sách M1 của Winner, thì Winner chỉ chốt ở giới hạn M1
+    BigDecimal newHighestPrice = priceToBeat.min(winnerBot.getMaxPrice());
+
+    // 3. CẬP NHẬT TRẠNG THÁI DATABASE VÀ OBJECT
+    currentAuction.setCurrentHighestPrice(newHighestPrice);
+    currentAuction.setHighestBidderId(winnerBot.getUserId());
+
+    // Cập nhật giá mới vào bảng Auctions
+    auctionRepo.updatePrice(auctionId, winnerBot.getUserId(), newHighestPrice);
+
+    // Lưu lịch sử giao dịch để vẽ biểu đồ cho Bot 1
+    bidRepo.saveBid(new BidTransaction(auctionId, winnerBot.getUserId(), newHighestPrice));
+
+    // 4. "GIẾT" BOT CỦA NGƯỜI THUA VÀ GỬI THÔNG BÁO FOMO
+    for (int i = 1; i < activeBots.size(); i++) {
+      com.auction.shared.model.auction.AutoBidConfig defeatedBot = activeBots.get(i);
+
+      // Tắt trạng thái active trong DB
+      autoBidRepo.deactivate(defeatedBot.getId(), auctionId);
+
+      // Bắn tín hiệu "Báo tử" (AutoBidDefeatedDTO) về riêng cho Client của người thua
+      String fomoMessage = "Tài phiệt khác đã dùng Bot đè bẹp ngân sách của bạn! Kéo xuống nâng giá ngay để giành lại top 1!";
+
+      // Bắn gói tin về thông qua hàm sendToClient (bạn cần đảm bảo hàm này có tồn tại trong lớp Server)
+      servercontroller.Server.sendToUser(defeatedBot.getUserId(),
+              new com.auction.shared.response.AutoBidDefeatedDTO(auctionId, fomoMessage));
+    }
+
+    // 5. BROADCAST MỨC GIÁ MỚI CHO TOÀN BỘ PHÒNG
+    // Lấy thêm tên user để hiển thị lên UI người dẫn đầu
+    String winnerName = repository.UserRepository.getUserFullName(winnerBot.getUserId());
+
+    com.auction.shared.response.NewBidDTO finalBidResult =
+            new com.auction.shared.response.NewBidDTO(auctionId, winnerBot.getUserId(), winnerName, newHighestPrice);
+
+    servercontroller.Server.broadcastToAuctionRoom(finalBidResult);
   }
 }

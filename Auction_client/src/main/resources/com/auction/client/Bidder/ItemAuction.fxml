@@ -180,19 +180,19 @@
                         <VBox spacing="12.0" style="-fx-background-color: #F4F6F7; -fx-background-radius: 12; -fx-padding: 15;">
                             <VBox.margin><Insets top="20.0" /></VBox.margin>
                             <children>
-                                <CheckBox fx:id="chkAutoBid" mnemonicParsing="false" text="Kích hoạt tính năng Đấu giá tự động" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></CheckBox>
+                                <CheckBox fx:id="autoBidCheckBox" mnemonicParsing="false" text="Kích hoạt tính năng Đấu giá tự động" textFill="#2C3E50"><font><Font name="System Bold" size="13.0" /></font></CheckBox>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
                                         <VBox HBox.hgrow="ALWAYS">
                                             <children>
                                                 <Label text="Giá tối đa sẵn sàng trả:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
-                                                <TextField fx:id="txtAutoBidLimit" prefHeight="35.0" promptText="Ví dụ: 1.200.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
+                                                <TextField fx:id="maxAutoPriceField" prefHeight="35.0" promptText="Ví dụ: 1.200.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
                                             </children>
                                         </VBox>
                                         <VBox HBox.hgrow="ALWAYS">
                                             <children>
                                                 <Label text="Bước giá tăng tự động:" textFill="#5D6D7E"><VBox.margin><Insets bottom="4.0" /></VBox.margin></Label>
-                                                <TextField fx:id="txtAutoBidStep" prefHeight="35.0" promptText="Ví dụ: 5.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
+                                                <TextField fx:id="autoStepPriceField" prefHeight="35.0" promptText="Ví dụ: 5.000.000" style="-fx-background-radius: 6; -fx-border-color: #BDC3C7; -fx-border-radius: 6;" />
                                             </children>
                                         </VBox>
                                     </children>

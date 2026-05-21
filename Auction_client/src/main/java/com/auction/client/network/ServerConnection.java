@@ -64,6 +64,9 @@ public class ServerConnection {
             case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
               ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
 
+            case GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySellerRes ->
+              ResponseHandler.handleGetActiveAuctionsBySelelr(getActiveAuctionsBySellerRes);
+
             case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
               ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
 
@@ -107,6 +110,12 @@ public class ServerConnection {
             case UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes ->
                 ResponseHandler.handleUpdateSellerProfileStatus(updateSellerProfileStatusRes);
 
+            case CancelSellerAuctionsResponseDTO cancelSellerAuctionsRes ->
+                ResponseHandler.handleCancelSellerAuctions(cancelSellerAuctionsRes);
+
+            case RestoreSellerAuctionsResponseDTO restoreSellerAuctionsRes ->
+                ResponseHandler.handleRestoreSellerAuctions(restoreSellerAuctionsRes);
+
             case OrderActionResponseDTO dto ->
                 ResponseHandler.handleOrderAction(dto);
 
@@ -122,10 +131,21 @@ public class ServerConnection {
             case AutoBidResponseDTO dto ->
                 ResponseHandler.handleAutoBidResponse(dto);
 
+            case AutoBidDefeatedDTO dto -> {
+              System.out.println("[CLIENT] Nhận thông báo Bot bị đè giá: " + dto.getMessage());
+              ResponseHandler.handleAutoBidDefeated(dto);
+            }
+
             case GetBalanceResponseDTO balanceRes -> {
               System.out.println("Nhận phản hồi lấy số dư từ Server.");
               ResponseHandler.handleGetBalance(balanceRes);
             }
+
+            case GetNotificationsResponseDTO dto ->
+                ResponseHandler.handleGetNotifications(dto);
+
+            case NotificationDTO dto ->
+                ResponseHandler.handleNewNotification(dto);
 
             default -> System.out.println("Phản hồi không hợp lệ");
           }

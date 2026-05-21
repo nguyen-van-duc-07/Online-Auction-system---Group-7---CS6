@@ -100,6 +100,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetActiveAuctionsBySellerRequestDTO getActiveAuctionsBySellerReq -> {
+                out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));
+                out.flush();
+              }
+
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
                 out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
                 out.flush();
@@ -145,6 +150,16 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case CancelSellerAuctionsRequestDTO cancelSellerAuctionsReq -> {
+                out.writeObject(RequestHandler.cancelSellerAuctions(cancelSellerAuctionsReq));
+                out.flush();
+              }
+
+              case RestoreSellerAuctionsRequestDTO restoreSellerAuctionsReq -> {
+                out.writeObject(RequestHandler.restoreSellerAuctions(restoreSellerAuctionsReq));
+                out.flush();
+              }
+
               case GetOrderRequestDTO getOrderReq -> {
                 out.writeObject(RequestHandler.getOrder(getOrderReq));
                 out.flush();
@@ -162,6 +177,16 @@ public class ClientHandler implements Runnable {
               case GetBalanceRequestDTO getBalanceReq -> {
                 out.writeObject(RequestHandler.getBalance(this.userId));
                 out.flush();
+              }
+
+              case GetNotificationsRequestDTO getNotifReq -> {
+                out.writeObject(RequestHandler.getNotifications(getNotifReq));
+                out.flush();
+              }
+
+              case MarkNotificationReadRequestDTO markReadReq -> {
+                RequestHandler.markNotificationRead(markReadReq);
+                // Không cần trả về response
               }
 
               default -> {
