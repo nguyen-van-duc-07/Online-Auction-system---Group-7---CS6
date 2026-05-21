@@ -61,7 +61,7 @@
 
             <!-- Icon + Title -->
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label fx:id="detailIcon" style="-fx-font-size: 28px;" text="🔔"/>
+                <HBox fx:id="detailIconContainer" alignment="CENTER"/>
                 <Label fx:id="detailTitle"
                        style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e7d32;"
                        wrapText="true" HBox.hgrow="ALWAYS"/>

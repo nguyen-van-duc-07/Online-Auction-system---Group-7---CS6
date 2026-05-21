@@ -1,16 +1,16 @@
 package com.auction.shared.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
+@AllArgsConstructor
+
 public class AutoBidResponseDTO implements ResponseDTO {
+  private static final long serialVersionUID = 1L;
   private boolean success;
   private String message;
 
-  public AutoBidResponseDTO(boolean success, String message) {
-    this.success = success;
-    this.message = message;
-  }
-
-  public boolean isSuccess() { return success; }
-  public String getMessage() { return message; }
 }

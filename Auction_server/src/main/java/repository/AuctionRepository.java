@@ -239,7 +239,7 @@ public class AuctionRepository {
   }
 
   // Hàm phụ trợ để mapping dữ liệu (tránh viết lặp code)
-  private AuctionResponseDTO mapResultSetToAuction(ResultSet rs) throws SQLException {
+  private AuctionResponseDTO mapResultSetToAuctionResponseDTO(ResultSet rs) throws SQLException {
     String typeStr = rs.getString("item_type");
     ItemType itemType;
     try {
@@ -277,6 +277,44 @@ public class AuctionRepository {
 
     return auction;
   }
+
+  private Auction mapResultSetToAuction(ResultSet rs) throws SQLException {
+    String typeStr = rs.getString("item_type");
+    ItemType itemType;
+    try {
+      itemType = (typeStr != null) ? ItemType.valueOf(typeStr.toUpperCase()) : ItemType.OTHER;
+    } catch (IllegalArgumentException e) {
+      // Mặc định là OTHER nếu dưới Database lỡ nhập sai chữ
+      itemType = ItemType.OTHER;
+    }
+    Item item = new Item();
+    item.setId(rs.getString("item_id"));
+    item.setName(rs.getString("item_name"));
+    item.setType(itemType);
+    item.setDescription(rs.getString("item_description"));
+    Auction auction = new Auction();
+    auction.setId(rs.getString("id"));
+    auction.setSellerId(rs.getString("seller_id"));
+    auction.setItem(item);
+    auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
+    auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
+    auction.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+    auction.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+    auction.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+    UserRepository userRepo = new  UserRepository();
+    String highestBidderId = rs.getString("highest_bidder_id");
+    String highestBidderName = rs.getString("highest_bidder_name");
+
+    SellerProfileRepository sellerRepo = new  SellerProfileRepository();
+    String sellerId = rs.getString("seller_id");
+
+    auction.setHighestBidderId(highestBidderId);
+    auction.setHighestBidderName(highestBidderName);
+
+    return auction;
+  }
+
   public boolean saveAuction(Auction auction, String sellerProfileId) {
     String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -388,7 +426,7 @@ public class AuctionRepository {
       e.printStackTrace();
     }
   }
-  public AuctionResponseDTO findAuctionById(String auctionId) {
+  public Auction findAuctionById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
     String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
             + "FROM auctions a "
@@ -407,6 +445,27 @@ public class AuctionRepository {
       throw new RuntimeException(e);
     }
   }
+
+  public AuctionResponseDTO findAuctionResponseDTOById(String auctionId) {
+    // Cập nhật câu SQL tương tự như trên
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+        + "WHERE a.id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return mapResultSetToAuctionResponseDTO(rs);
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   // Trả về Map<auctionId, Auction> thay vì chỉ List<String>
   public Map<String, AuctionResponseDTO> findAuctionsToCloseWithDetails(LocalDateTime now) {
     Map<String, AuctionResponseDTO> result = new LinkedHashMap<>();
@@ -422,7 +481,7 @@ public class AuctionRepository {
       ps.setTimestamp(1, Timestamp.valueOf(now));
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
-        AuctionResponseDTO auction = mapResultSetToAuction(rs);
+        AuctionResponseDTO auction = mapResultSetToAuctionResponseDTO(rs);
         result.put(auction.getId(), auction);
       }
     } catch (Exception e) {

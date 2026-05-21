@@ -21,6 +21,7 @@ public class AutoBidConfig extends Entity {
                        String auctionId,
                        BigDecimal maxPrice,
                        BigDecimal stepAmount) {
+    super();
     this.userId    = userId;
     this.auctionId = auctionId;
     this.maxPrice  = maxPrice;

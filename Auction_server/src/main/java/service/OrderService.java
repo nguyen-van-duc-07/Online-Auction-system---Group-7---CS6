@@ -1,16 +1,18 @@
 package service;
 
+import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.OrderStatus;
+import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.User;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
+import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.OrderRepository;
 import repository.SellerProfileRepository;
 import repository.UserRepository;
-import repository.debug.Format;
 import servercontroller.Server;
 
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class OrderService {
   private final UserRepository userRepo = new UserRepository();
   private final WalletService walletService = new WalletService();
   private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
+  private final NotificationService notifService = new NotificationService();
 
   /**
    * Tạo order mới khi phiên đấu giá kết thúc.
@@ -56,8 +59,8 @@ public class OrderService {
 
         System.out.println("[ORDER] Tạo order thành công: " + order.getId()
             + " | Buyer: " + buyerId
-            + " | Giá: " + Format.fmt(finalPrice)
-            + " | Cọc: " + Format.fmt(depositAmount));
+            + " | Giá: " + com.auction.shared.util.FormatUtil.fmt(finalPrice)
+            + " | Cọc: " + com.auction.shared.util.FormatUtil.fmt(depositAmount));
         return order;
 
       } catch (Exception e) {
@@ -92,6 +95,30 @@ public class OrderService {
 
         conn.commit();
         System.out.println("[ORDER] Xác nhận thanh toán thành công: " + orderId);
+
+        // Lấy itemName từ auction
+        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
+
+// Thông báo cho seller
+        notifService.sendFromNotification(
+            NotificationTemplate.orderConfirmedForSeller(
+                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
+                itemName,
+                order.getFinalPrice(),
+                order.getId()
+            )
+        );
+
+// Thông báo cho buyer
+        notifService.sendFromNotification(
+            NotificationTemplate.orderConfirmedForBuyer(
+                order.getBuyerId(),
+                itemName,
+                order.getFinalPrice(),
+                order.getId()
+            )
+        );
         notifyToSeller(order);
         return true;
 
@@ -127,6 +154,28 @@ public class OrderService {
 
         conn.commit();
         System.out.println("[ORDER] Hủy đơn thành công: " + orderId);
+        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
+
+        // Thông báo cho seller
+        notifService.sendFromNotification(
+            NotificationTemplate.orderCancelledForSeller(
+                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
+                itemName,
+                order.getDepositAmount(),
+                order.getId()
+            )
+        );
+
+        // Thông báo cho buyer
+        notifService.sendFromNotification(
+            NotificationTemplate.orderCancelledForBuyer(
+                order.getBuyerId(),
+                itemName,
+                order.getDepositAmount(),
+                order.getId()
+            )
+        );
         notifyToSeller(order);
         return true;
 
@@ -152,7 +201,30 @@ public class OrderService {
     List<Order> expiredOrders = orderRepo.findExpiredPendingOrders(LocalDateTime.now());
     for (Order order : expiredOrders) {
       System.out.println("[ORDER] Tự động hủy order hết hạn: " + order.getId());
-      cancelOrder(order.getId());
+      boolean success = cancelOrder(order.getId());
+
+      if (success) {
+        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
+
+        notifService.sendFromNotification(
+            NotificationTemplate.orderExpiredForBuyer(
+                order.getBuyerId(),
+                itemName,
+                order.getDepositAmount(),
+                order.getId()
+            )
+        );
+
+        notifService.sendFromNotification(
+            NotificationTemplate.orderExpiredForSeller(
+                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
+                itemName,
+                order.getDepositAmount(),
+                order.getId()
+            )
+        );
+      }
     }
   }
   public Order getOrderById(String orderId) {

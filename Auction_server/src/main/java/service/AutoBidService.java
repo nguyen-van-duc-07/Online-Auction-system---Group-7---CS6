@@ -17,7 +17,7 @@ public class AutoBidService {
 
   public boolean setAutoBid(SetAutoBidRequestDTO req) {
     // Validate
-    AuctionResponseDTO auction = auctionRepo.findAuctionById(req.getAuctionId());
+    AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(req.getAuctionId());
     if (auction == null) return false;
 
     // stepAmount không được nhỏ hơn minStepPrice

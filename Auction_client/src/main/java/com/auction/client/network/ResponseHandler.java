@@ -480,8 +480,24 @@ public class ResponseHandler {
       if (homeController != null) {
         homeController.incrementNotificationBadge();
       }
+      SellerHomeController sellerHomeController = SellerHomeController.getInstance();
+      if (sellerHomeController != null) {
+        sellerHomeController.incrementNotificationBadge();
+      }
       System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
     });
+  }
+
+  public static void handleAutoBidDefeated(AutoBidDefeatedDTO dto) {
+    // Đảm bảo chỉ giật giao diện nếu người dùng đang ở đúng phòng đấu giá đó
+    if (SessionManager.getCurrentAuctionId() != null &&
+            SessionManager.getCurrentAuctionId().equals(dto.getAuctionId())) {
+
+      if (ItemAuctionController.instance != null) {
+        // Gọi hàm điều khiển HMI (tắt check box, hiện cảnh báo đỏ) mà chúng ta đã viết lúc nãy
+        ItemAuctionController.instance.onAutoBidDefeated(dto.getMessage());
+      }
+    }
   }
 
   public static void handleGetPendingOrdersOfSeller(GetPendingOrdersOfSellerResponseDTO response) {
