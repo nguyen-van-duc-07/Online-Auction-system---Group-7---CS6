@@ -1,9 +1,7 @@
 package com.auction.client.screenhandler;
 
 import javafx.scene.Parent;
-import lombok.Getter;
 
-@Getter
 public class ScreenState {
   private final Parent root;
   private final String title;
@@ -13,5 +11,17 @@ public class ScreenState {
     this.root = root;
     this.title = title;
     this.fxmlFile = fxmlFile;
+  }
+
+  public Parent getRoot() {
+    return root;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public String getFxmlFile() {
+    return fxmlFile;
   }
 }

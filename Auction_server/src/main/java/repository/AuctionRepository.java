@@ -505,4 +505,21 @@ public class AuctionRepository {
       return null;
     }
   }
+
+  public String getItemIdByAuctionId(String auctionId) {
+    String sql = "SELECT item_id FROM auctions WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return rs.getString("item_id");
+      }
+      return null;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
 }
+

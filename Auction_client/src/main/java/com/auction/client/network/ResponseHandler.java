@@ -302,12 +302,28 @@ public class ResponseHandler {
 
   public static void handleOrderAction(OrderActionResponseDTO dto) {
     Platform.runLater(() -> {
-      Alert alert = new Alert(
-          dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR
-      );
-      alert.setTitle(dto.isSuccess() ? "Thành công" : "Thất bại");
-      alert.setHeaderText(dto.getMessage());
-      alert.showAndWait();
+      if (PaymentScreenController.instance != null) {
+        if (dto.isSuccess()) {
+          Alert alert = new Alert(Alert.AlertType.INFORMATION);
+          alert.setTitle("Thành công");
+          alert.setHeaderText(dto.getMessage());
+          alert.showAndWait();
+          PaymentScreenController.instance.onOrderActionSuccess(dto.getMessage());
+        } else {
+          Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setTitle("Thất bại");
+          alert.setHeaderText(dto.getMessage());
+          alert.showAndWait();
+          PaymentScreenController.instance.onOrderActionFailed(dto.getMessage());
+        }
+      } else {
+        Alert alert = new Alert(
+            dto.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR
+        );
+        alert.setTitle(dto.isSuccess() ? "Thành công" : "Thất bại");
+        alert.setHeaderText(dto.getMessage());
+        alert.showAndWait();
+      }
     });
   }
 
@@ -316,6 +332,9 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         SessionManager.setCurrentOrderId(dto.getOrder().getId());
         ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
+        if (PaymentScreenController.instance != null) {
+          PaymentScreenController.instance.setOrderData(dto.getOrder(), dto.getItemName(), dto.getItemId());
+        }
       });
     } else {
       Platform.runLater(() -> {

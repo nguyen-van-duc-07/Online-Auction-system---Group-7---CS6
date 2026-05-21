@@ -1,9 +1,14 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
-import com.auction.shared.request.PaymentRequestDTO;
+import com.auction.shared.model.order.Order;
+import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.ConfirmOrderRequestDTO;
+import com.auction.shared.request.CancelOrderRequestDTO;
 import com.auction.shared.response.AuctionResultDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import java.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +24,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class PaymentScreenController implements Initializable {
@@ -67,8 +72,23 @@ public class PaymentScreenController implements Initializable {
         btnCompletePayment.setOnAction(event -> handlePayment());
         btnCancelOrder.setOnAction(event -> handleCancel());
         btnBack.setOnAction(event -> handleBack());
+
+        // Tự động điền (Pre-populate) thông tin giao hàng của người dùng hiện tại từ Profile
+        UserDTO currentUser = SessionManager.getCurrentUser();
+        if (currentUser != null) {
+            if (currentUser.getRealName() != null && !currentUser.getRealName().trim().isEmpty()) {
+                txtFullName.setText(currentUser.getRealName());
+            }
+            if (currentUser.getPhoneNumber() != null && !currentUser.getPhoneNumber().trim().isEmpty()) {
+                txtPhoneNumber.setText(currentUser.getPhoneNumber());
+            }
+            if (currentUser.getAddress() != null && !currentUser.getAddress().trim().isEmpty()) {
+                txtAddress.setText(currentUser.getAddress());
+            }
+        }
     }
 
+    // Nạp dữ liệu khi kết thúc phiên trực tiếp
     public void setOrderData(AuctionResultDTO resultDTO) {
         this.currentUserId = resultDTO.getWinnerId();
         this.currentAuctionId = resultDTO.getAuctionId();
@@ -90,6 +110,61 @@ public class PaymentScreenController implements Initializable {
         lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
     }
 
+    // Nạp dữ liệu khi mở từ thông báo (chứa đối tượng Order và item name phong phú từ Server)
+    public void setOrderData(Order order, String itemName, String itemId) {
+        this.currentUserId = order.getBuyerId();
+        this.currentAuctionId = order.getAuctionId();
+        this.currentItemId = itemId != null ? itemId : order.getAuctionId();
+
+        BigDecimal shippingFee = new BigDecimal("30000.00");
+        this.totalAmountToPay = order.getFinalPrice().add(shippingFee);
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
+        symbols.setGroupingSeparator('.');
+        DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
+
+        lblItemName.setText(itemName != null ? itemName : "Sản phẩm");
+        lblItemId.setText("Mã đơn hàng: " + order.getId());
+        lblItemPrice.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
+        lblSubTotal.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
+        lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
+        lblDiscount.setText("-0đ");
+        lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
+
+        // Sử dụng thông tin giao hàng lưu trong Order nếu có
+        if (order.getConsigneeName() != null && !order.getConsigneeName().trim().isEmpty()) {
+            txtFullName.setText(order.getConsigneeName());
+        }
+        if (order.getPhoneNumber() != null && !order.getPhoneNumber().trim().isEmpty()) {
+            txtPhoneNumber.setText(order.getPhoneNumber());
+        }
+        if (order.getAddress() != null && !order.getAddress().trim().isEmpty()) {
+            txtAddress.setText(order.getAddress());
+        }
+    }
+
+    // Nạp dữ liệu khi mở từ thẻ Đơn hàng (Order Card)
+    public void setOrderData(OrderDTO orderDTO) {
+        this.currentUserId = SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown";
+        this.currentAuctionId = orderDTO.getAuctionId();
+        this.currentItemId = orderDTO.getAuctionId(); // fallback
+
+        BigDecimal shippingFee = new BigDecimal("30000.00");
+        this.totalAmountToPay = orderDTO.getFinalPrice().add(shippingFee);
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
+        symbols.setGroupingSeparator('.');
+        DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
+
+        lblItemName.setText(orderDTO.getItemName());
+        lblItemId.setText("Mã đơn hàng: " + orderDTO.getOrderId());
+        lblItemPrice.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
+        lblSubTotal.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
+        lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
+        lblDiscount.setText("-0đ");
+        lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
+    }
+
     private void handlePayment() {
         if (txtFullName.getText().trim().isEmpty() ||
                 txtPhoneNumber.getText().trim().isEmpty() ||
@@ -98,77 +173,86 @@ public class PaymentScreenController implements Initializable {
             return;
         }
 
-        RadioButton selectedMethod = (RadioButton) paymentMethodGroup.getSelectedToggle();
-        String paymentMethodName = selectedMethod.getText();
-
-        // Khóa nút bấm trên UI
+        // Khóa nút bấm trên UI để tránh click nhiều lần
         btnCompletePayment.setDisable(true);
         btnCompletePayment.setText("Đang xử lý...");
+        btnCancelOrder.setDisable(true);
 
-        // Đóng gói RequestDTO và gửi đi qua Socket
-        PaymentRequestDTO requestDTO = PaymentRequestDTO.builder()
-                .userId(currentUserId)
-                .auctionId(currentAuctionId)
-                .itemId(currentItemId)
-                .amount(totalAmountToPay)
-                .paymentMethod(paymentMethodName)
-                .build();
+        // Lấy mã đơn hàng từ SessionManager
+        String orderId = SessionManager.getCurrentOrderId();
+        if (orderId == null || orderId.isEmpty()) {
+            orderId = currentAuctionId;
+        }
 
+        // Gửi ConfirmOrderRequestDTO lên Server
+        ConfirmOrderRequestDTO requestDTO = new ConfirmOrderRequestDTO(orderId);
         ServerConnection.sendData(requestDTO);
-    }
-
-    public void processPaymentResponse(boolean isSuccess, String message, PrizedTransaction transaction) {
-        Platform.runLater(() -> {
-            if (isSuccess) {
-                showAlert(Alert.AlertType.INFORMATION, "Thành công",
-                        "Thanh toán thành công!\nHệ thống sẽ xuất hóa đơn cho bạn.");
-
-                exportAndOpenInvoice(transaction);
-                handleBack();
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Thanh toán thất bại", message);
-
-                // Mở khóa lại nút bấm cho người dùng thử lại
-                btnCompletePayment.setDisable(false);
-                btnCompletePayment.setText("HOÀN TẤT THANH TOÁN");
-            }
-        });
     }
 
     @FXML
     private void handleCancel() {
-        // 1. Tạo hộp thoại xác nhận (Confirmation Dialog)
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Xác nhận hủy đơn");
         confirmAlert.setHeaderText(null);
         confirmAlert.setContentText("Bạn có chắc chắn muốn hủy thanh toán cho đơn hàng này không?");
 
-        // Thay đổi text của 2 nút mặc định (OK / Cancel) sang tiếng Việt cho thân thiện
         ButtonType btnYes = new ButtonType("Có, hủy đơn", ButtonBar.ButtonData.YES);
         ButtonType btnNo = new ButtonType("Không, quay lại", ButtonBar.ButtonData.NO);
         confirmAlert.getButtonTypes().setAll(btnYes, btnNo);
 
-        // 2. Hiển thị hộp thoại và chờ người dùng click (showAndWait)
         Optional<ButtonType> result = confirmAlert.showAndWait();
 
-        // 3. Xử lý logic dựa trên nút người dùng chọn
         if (result.isPresent() && result.get() == btnYes) {
-            // Nếu người dùng chọn "Có"
-            System.out.println("Đã ghi nhận hủy đơn hàng lên hệ thống!");
+            btnCancelOrder.setDisable(true);
+            btnCancelOrder.setText("Đang hủy...");
+            btnCompletePayment.setDisable(true);
 
-            // Hiện thông báo hoàn tất hủy và quay về màn hình trước
-            showAlert(Alert.AlertType.INFORMATION, "Đã hủy", "Đơn hàng của bạn đã được hủy thành công!");
-            handleBack();
-        } else {
-            // Nếu người dùng chọn "Không" hoặc bấm dấu X đóng cửa sổ
-            // Không làm gì cả, giữ nguyên họ ở lại màn hình thanh toán
-            System.out.println("Người dùng đã hủy thao tác, tiếp tục thanh toán.");
+            String orderId = SessionManager.getCurrentOrderId();
+            if (orderId == null || orderId.isEmpty()) {
+                orderId = currentAuctionId;
+            }
+
+            // Gửi CancelOrderRequestDTO lên Server
+            CancelOrderRequestDTO requestDTO = new CancelOrderRequestDTO(orderId);
+            ServerConnection.sendData(requestDTO);
         }
     }
 
+    // Callback khi Server xác nhận thanh toán/hủy đơn hàng thành công
+    public void onOrderActionSuccess(String message) {
+        Platform.runLater(() -> {
+            try {
+                // Tự động khởi tạo PrizedTransaction từ thông tin đang hiển thị để in hóa đơn PDF
+                PrizedTransaction transaction = new PrizedTransaction(
+                        currentUserId != null ? currentUserId : (SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown"),
+                        "Hệ thống",
+                        currentAuctionId != null ? currentAuctionId : "Mã đơn hàng",
+                        currentItemId != null ? currentItemId : "Mã SP",
+                        totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO
+                );
+                exportAndOpenInvoice(transaction);
+            } catch (Exception e) {
+                System.err.println("Không thể xuất hóa đơn: " + e.getMessage());
+            }
+            handleBack();
+        });
+    }
+
+    // Callback khi Server báo thất bại
+    public void onOrderActionFailed(String message) {
+        Platform.runLater(() -> {
+            btnCompletePayment.setDisable(false);
+            btnCompletePayment.setText("HOÀN TẤT THANH TOÁN");
+            btnCancelOrder.setDisable(false);
+            btnCancelOrder.setText("Hủy đơn hàng");
+        });
+    }
+
+    // Quay lại trang trước đó
+    @FXML
     private void handleBack() {
         System.out.println("Quay lại màn hình trước...");
-        ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Đấu giá sản phẩm");
+        ScreenController.goBack();
     }
 
     // --- HÀM TIỆN ÍCH ---
@@ -203,5 +287,20 @@ public class PaymentScreenController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    public void processPaymentResponse(boolean isSuccess, String message, PrizedTransaction transaction) {
+        Platform.runLater(() -> {
+            if (isSuccess) {
+                showAlert(Alert.AlertType.INFORMATION, "Thành công",
+                        "Thanh toán thành công!\nHệ thống sẽ xuất hóa đơn cho bạn.");
+                exportAndOpenInvoice(transaction);
+                handleBack();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Thanh toán thất bại", message);
+                btnCompletePayment.setDisable(false);
+                btnCompletePayment.setText("HOÀN TẤT THANH TOÁN");
+            }
+        });
     }
 }
