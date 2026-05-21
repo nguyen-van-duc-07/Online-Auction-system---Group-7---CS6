@@ -1,9 +1,12 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
+import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.LoginRequestDTO;
+import com.auction.shared.response.LoginResponseDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -66,7 +69,6 @@ public class LoginController {
     // Tạo tài khoản mới, mặc định là Bidder
     LoginRequestDTO loginReq = new LoginRequestDTO(accountName, password);
     ServerConnection.sendData(loginReq);
-
   }
 
   @FXML
