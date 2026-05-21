@@ -16,6 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +30,7 @@ public class NotificationController implements Initializable {
   @FXML private VBox notificationList;
   @FXML private VBox emptyDetail;
   @FXML private VBox detailContent;
-  @FXML private Label detailIcon;
+  @FXML private HBox detailIconContainer;
   @FXML private Label detailTitle;
   @FXML private Label detailTime;
   @FXML private Label detailContent_;
@@ -70,8 +72,7 @@ public class NotificationController implements Initializable {
     dot.setStyle("-fx-text-fill: " + (n.isRead() ? "transparent" : "red") + "; -fx-font-size: 8px;");
 
     // Icon
-    Label icon = new Label(getIcon(n.getType()));
-    icon.setStyle("-fx-font-size: 16px;");
+    FontIcon icon = getIcon(n.getType());
 
     // Title + time
     VBox textBox = new VBox(3);
@@ -126,7 +127,10 @@ public class NotificationController implements Initializable {
     detailContent.setManaged(true);
 
     // Fill data
-    detailIcon.setText(getIcon(n.getType()));
+    detailIconContainer.getChildren().clear();
+    FontIcon icon = getIcon(n.getType());
+    icon.setIconSize(28);
+    detailIconContainer.getChildren().add(icon);
     detailTitle.setText(n.getTitle());
     detailTime.setText(n.getCreatedAt()
         .format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
@@ -171,18 +175,32 @@ public class NotificationController implements Initializable {
     }
   }
 
-  private String getIcon(NotificationType type) {
-    return switch (type) {
-      case AUCTION_WON               -> "🏆";
-      case OUTBID                    -> "🔥";
-      case ORDER_CONFIRMED           -> "✅";
+  private FontIcon getIcon(NotificationType type) {
+    FontIcon icon = switch (type) {
+      case AUCTION_WON               -> new FontIcon("fas-trophy");
+      case OUTBID                    -> new FontIcon("fas-fire");
+      case ORDER_CONFIRMED           -> new FontIcon("fas-check-circle");
       case ORDER_CANCELLED,
-           ORDER_CANCELLED_BY_BUYER  -> "❌";
-      case AUCTION_ENDED             -> "🔔";
-      case SELLER_APPROVED           -> "✅";
-      case SELLER_REJECTED           -> "❌";
-      case AUCTION_CANCELLED         -> "🚫";
-      case SYSTEM                    -> "ℹ️";
+           ORDER_CANCELLED_BY_BUYER  -> new FontIcon("fas-times-circle");
+      case AUCTION_ENDED             -> new FontIcon("fas-bell");
+      case SELLER_APPROVED           -> new FontIcon("fas-check-circle");
+      case SELLER_REJECTED           -> new FontIcon("fas-ban");
+      case AUCTION_CANCELLED         -> new FontIcon("fas-ban");
+      case SYSTEM                    -> new FontIcon("fas-bullhorn");
     };
+
+    // Màu theo type
+    Color color = switch (type) {
+      case AUCTION_WON, SELLER_APPROVED, ORDER_CONFIRMED -> Color.web("#27ae60");
+      case ORDER_CANCELLED, ORDER_CANCELLED_BY_BUYER,
+           SELLER_REJECTED, AUCTION_CANCELLED            -> Color.web("#e74c3c");
+      case OUTBID                                        -> Color.web("#e67e22");
+      case AUCTION_ENDED                                 -> Color.web("#3498db");
+      case SYSTEM                                        -> Color.web("#9b59b6");
+    };
+
+    icon.setIconColor(color);
+    icon.setIconSize(20);
+    return icon;
   }
 }
