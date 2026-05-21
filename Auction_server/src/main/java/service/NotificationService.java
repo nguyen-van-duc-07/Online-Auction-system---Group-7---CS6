@@ -14,19 +14,11 @@ public class NotificationService {
   /**
    * Tạo và lưu thông báo, sau đó gửi realtime cho user nếu đang online.
    */
-  public void send(String userId, NotificationType type,
-                   String title, String content, String referenceId) {
-    // 1. Lưu vào DB
-    Notification notification = new Notification(userId, type, title, content, referenceId);
+  public void sendFromNotification(Notification notification) {
     boolean saved = notifRepo.save(notification);
+    if (!saved) return;
 
-    if (!saved) {
-      System.out.println("[NOTIFICATION] Lưu thông báo thất bại cho user: " + userId);
-      return;
-    }
-
-    // 2. Gửi realtime nếu user đang online
-    Server.sendToUser(userId, new NotificationDTO(
+    Server.sendToUser(notification.getUserId(), new NotificationDTO(
         notification.getId(),
         notification.getType(),
         notification.getTitle(),
@@ -35,10 +27,6 @@ public class NotificationService {
         notification.isRead(),
         notification.getCreatedAt()
     ));
-
-    System.out.println("[NOTIFICATION] Đã gửi thông báo cho user: " + userId
-        + " | Type: " + type
-        + " | Title: " + title);
   }
 
   public List<Notification> getNotifications(String userId) {

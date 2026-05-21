@@ -1,5 +1,6 @@
 package service;
 
+import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.model.user.SellerProfile;
 import com.auction.shared.request.CheckingSellerProfileRequestDTO;
@@ -7,6 +8,7 @@ import com.auction.shared.request.SellerRegisterRequestDTO;
 import com.auction.shared.request.UpdateSellerProfileStatusRequestDTO;
 import com.auction.shared.response.ResponseDTO;
 import com.auction.shared.response.UpdateSellerProfileStatusResponseDTO;
+import com.auction.shared.util.NotificationTemplate;
 import repository.SellerProfileRepository;
 
 import java.util.ArrayList;
@@ -67,6 +69,19 @@ public class SellerService {
     String userId = request.getUserId();
     SellerRegisterStatus status = request.getNewStatus();
     boolean success = sellerRepo.updateStatus(userId, status);
+    if (success) {
+      NotificationService notifService = new NotificationService();
+
+      switch (status) {
+        case REGISTERED -> notifService.sendFromNotification(
+            NotificationTemplate.sellerApproved(userId)
+        );
+        case DENIED -> notifService.sendFromNotification(
+            NotificationTemplate.sellerRejected(userId)
+        );
+        default -> {}// UNREGISTERED không cần thông báo
+      }
+    }
     return success;
   }
 }

@@ -480,6 +480,10 @@ public class ResponseHandler {
       if (homeController != null) {
         homeController.incrementNotificationBadge();
       }
+      SellerHomeController sellerHomeController = SellerHomeController.getInstance();
+      if (sellerHomeController != null) {
+        sellerHomeController.incrementNotificationBadge();
+      }
       System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
     });
   }

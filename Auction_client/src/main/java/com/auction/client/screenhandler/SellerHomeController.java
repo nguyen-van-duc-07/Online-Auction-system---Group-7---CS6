@@ -49,6 +49,9 @@ public class SellerHomeController implements Initializable, Controller {
   @FXML
   private Label realNameLabel;
 
+  @FXML
+  private Label notificationBadge;
+
   HomeController homecontroller = HomeController.getInstance();
 
 
@@ -74,6 +77,10 @@ public class SellerHomeController implements Initializable, Controller {
     // Gửi yêu cầu lấy danh sách ngay khi load UI
     String sellerId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(sellerId));
+
+    ServerConnection.sendData(
+        new GetNotificationsRequestDTO(SessionManager.getCurrentUser().getId())
+    );
   }
 
   /**
@@ -164,6 +171,14 @@ public class SellerHomeController implements Initializable, Controller {
   }
 
   @FXML
+  public void gotoNotifications() {
+    ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
+    ServerConnection.sendData(
+        new GetNotificationsRequestDTO(SessionManager.getCurrentUser().getId())
+    );
+  }
+
+  @FXML
   public void gotoProfile() {
     loadComponent("/com/auction/client/User/Profile.fxml");
   }
@@ -230,5 +245,15 @@ public class SellerHomeController implements Initializable, Controller {
     if (homeFeedNode != null) {
       mainContent.setContent(homeFeedNode);
     }
+  }
+
+  public void updateNotificationBadge(int unreadCount) {
+    Platform.runLater(() ->
+        notificationBadge.setVisible(unreadCount > 0)
+    );
+  }
+
+  public void incrementNotificationBadge() {
+    Platform.runLater(() -> notificationBadge.setVisible(true));
   }
 }

@@ -13,7 +13,6 @@ import com.auction.shared.model.user.Wallet;
 import repository.SellerProfileRepository;
 import repository.WalletRepository;
 import repository.WalletTransactionRepository;
-import repository.debug.Format;
 
 import java.sql.Connection;
 
@@ -103,8 +102,8 @@ public class WalletService {
     );
     txRepo.saveWalletTransaction(conn, tx);
     System.out.println("[WALLET - RELEASE] Thành công! User: " + userId
-        + " | Số dư: " + Format.fmt(balBefore) + " -> " + Format.fmt(wallet.getBalance())
-        + " | Đóng băng: " + Format.fmt(frozBefore) + " -> " + Format.fmt(wallet.getFrozenBalance()));
+        + " | Số dư: " + com.auction.shared.util.FormatUtil.fmt(balBefore) + " -> " + com.auction.shared.util.FormatUtil.fmt(wallet.getBalance())
+        + " | Đóng băng: " + com.auction.shared.util.FormatUtil.fmt(frozBefore) + " -> " + com.auction.shared.util.FormatUtil.fmt(wallet.getFrozenBalance()));
   }
 
   /**
@@ -177,7 +176,7 @@ public class WalletService {
     );
     // Luu lai lich su giao dich
     txRepo.saveWalletTransaction(conn, buyerTx);
-    System.out.println(">>>DA TRU TIEN CUA WINNER " + Format.fmt(buyerTx.getAmount()));
+    System.out.println(">>>DA TRU TIEN CUA WINNER " + com.auction.shared.util.FormatUtil.fmt(buyerTx.getAmount()));
     buyerBalBefore = buyerWallet.getBalance();
     buyerFrozBefore = buyerWallet.getFrozenBalance();
     buyerWallet.unfreeze(order.getDepositAmount());
@@ -196,7 +195,7 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, buyerTx);
-    System.out.println(">>>DA HOAN TIEN COC CHO WINNER " + Format.fmt(buyerTx.getAmount()));
+    System.out.println(">>>DA HOAN TIEN COC CHO WINNER " + com.auction.shared.util.FormatUtil.fmt(buyerTx.getAmount()));
     // 2. Xử lý ví seller
     String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
     Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, sellerId);
@@ -217,7 +216,7 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, sellerTx);
-    System.out.println(">>>DA CONG TIEN LAI CHO NGUOI BAN " + Format.fmt(sellerTx.getAmount()));
+    System.out.println(">>>DA CONG TIEN LAI CHO NGUOI BAN " + com.auction.shared.util.FormatUtil.fmt(sellerTx.getAmount()));
   }
   public void processCancelPenalty(Connection conn, Order order) {
     // 1. Xử lý ví buyer — mất cọc
@@ -263,7 +262,7 @@ public class WalletService {
     );
     txRepo.saveWalletTransaction(conn, sellerTx);
 
-    System.out.println("[CANCEL] Buyer mất cọc: " + Format.fmt(order.getDepositAmount())
-        + " | Seller nhận: " + Format.fmt(order.getDepositAmount()));
+    System.out.println("[CANCEL] Buyer mất cọc: " + com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount())
+        + " | Seller nhận: " + com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()));
   }
 }
