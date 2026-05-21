@@ -7,6 +7,7 @@ import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
+import com.auction.shared.request.SetAutoBidRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
@@ -17,10 +18,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -55,6 +54,16 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private Label minStepPriceLabel;
 
+  // --- AUTO-BID UI COMPONENTS ---
+  @FXML
+  private CheckBox autoBidCheckBox;
+  @FXML
+  private TextField maxAutoPriceField;
+  @FXML
+  private TextField autoStepPriceField;
+
+
+
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
 
@@ -72,34 +81,140 @@ public class ItemAuctionController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this; // Gán màn hình hiện tại vào biến static
+
+    // Khóa mặc định 2 ô nhập cấu hình auto-bid khi vừa vào phòng
+    if (maxAutoPriceField != null && autoStepPriceField != null) {
+      maxAutoPriceField.setDisable(true);
+      autoStepPriceField.setDisable(true);
+    }
+
+      // Lắng nghe sự kiện bật/tắt checkbox Auto-bid
+      if (autoBidCheckBox != null) {
+          autoBidCheckBox.setOnAction(event -> {
+
+              if (autoBidCheckBox.isSelected()) {
+                  maxAutoPriceField.setDisable(false);
+                  autoStepPriceField.setDisable(false);
+
+                  if (currentAuction != null && autoStepPriceField.getText().isEmpty()) {
+                      autoStepPriceField.setText(currentAuction.getMinStepPrice().toString());
+                  }
+                  bidAmountField.clear();
+                  clearError();
+                  // --- CẢI TIẾN TRẢI NGHIỆM TẬP TRUNG (FOCUS UX) ---
+                  // Giật focus ra khỏi ô nhập tay chính (1 lần duy nhất lúc tích)
+                  bidAmountField.getParent().requestFocus();
+                  // Tự động đưa con trỏ chuột vào ô "Giá tối đa" để người dùng nhập luôn, đỡ phải click
+                  Platform.runLater(() -> maxAutoPriceField.requestFocus());
+              } else {
+                  maxAutoPriceField.setDisable(true);
+                  autoStepPriceField.setDisable(true);
+                  clearError();
+
+                  // Gửi request hủy Bot lên Server
+                  SetAutoBidRequestDTO req = new SetAutoBidRequestDTO(
+                          SessionManager.getCurrentUser().getId(),
+                          SessionManager.getCurrentAuctionId(),
+                          BigDecimal.ZERO,
+                          BigDecimal.ZERO,
+                          false
+                  );
+                  ServerConnection.sendData(req);
+
+                  Notifications.create()
+                          .title("Đấu giá tự động")
+                          .text("Đã tắt chế độ canh giá.")
+                          .showWarning();
+              }
+
+              // GỌI HÀM REFRESH UI CỦA CHÚNG TA Ở ĐÂY
+              boolean isActive = currentAuction != null && (currentAuction.getStartTime() == null ||
+                      (LocalDateTime.now().isAfter(currentAuction.getStartTime()) && LocalDateTime.now().isBefore(currentAuction.getEndTime())));
+              updateBidControlState(isActive);
+
+          });
+      }
     ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 
   private void updateBidControlState(boolean isAuctionActive) {
-    String currentUserId = SessionManager.getCurrentUser().getId();
-    String auctionUserId = currentAuction.getUserId();
-    boolean isSeller = currentUserId.equals(auctionUserId);
+    if (currentAuction == null) return;
 
-    if (isSeller) {
-      // Chủ sản phẩm: Chế độ xem, tuyệt đối không được đấu giá
-      bidAmountField.setDisable(true);
-      placeBidButton.setDisable(true);
-      bidAmountField.setPromptText("Chế độ xem (Phiên của bạn)");
-      placeBidButton.setText("Không thể tự đấu giá");
-    } else if (!isAuctionActive) {
-      // Người mua: Nhưng phiên đấu giá Chưa bắt đầu hoặc Đã kết thúc
-      bidAmountField.setDisable(true);
-      placeBidButton.setDisable(true);
-      bidAmountField.setPromptText("Chưa thể đặt giá lúc này...");
-      placeBidButton.setText("Đấu giá (Khóa)");
-    } else {
-      // Người mua: Phiên đấu giá Đang diễn ra
-      bidAmountField.setDisable(false);
-      placeBidButton.setDisable(false);
-      bidAmountField.setPromptText("Nhập mức giá...");
-      placeBidButton.setText("Đấu giá");
-    }
+    // ÉP JAVAFX REFRESH UI NGAY LẬP TỨC
+    Platform.runLater(() -> {
+        String currentUserId = SessionManager.getCurrentUser().getId();
+        String auctionUserId = currentAuction.getUserId();
+        boolean isSeller = currentUserId.equals(auctionUserId);
+
+        if (isSeller || !isAuctionActive) {
+            // CHỦ SẢN PHẨM HOẶC PHIÊN ĐÃ ĐÓNG: KHÓA TOÀN TẬP
+            bidAmountField.setDisable(true);
+            bidAmountField.setEditable(false); // Khóa cấm gõ vật lý
+            placeBidButton.setDisable(true);
+            if (autoBidCheckBox != null) autoBidCheckBox.setDisable(true);
+
+            bidAmountField.setPromptText(isSeller ? "Chế độ xem (Phiên của bạn)" : "Chưa thể đặt giá lúc này...");
+            placeBidButton.setText(isSeller ? "Không thể tự đấu giá" : "Đấu giá (Khóa)");
+
+        } else {
+            // NGƯỜI MUA: PHIÊN ĐANG DIỄN RA
+            if (autoBidCheckBox != null && autoBidCheckBox.isSelected()) {
+
+                // ================= LỚP KHÓA 3 LỚP =================
+                bidAmountField.setDisable(true);      // 1. Làm mờ UI
+                bidAmountField.setEditable(false);    // 2. Rút cáp bàn phím (Cấm gõ)
+                // ==================================================
+
+                if (maxAutoPriceField.isDisabled()) {
+                    bidAmountField.setPromptText("Đang chạy tự động...");
+                    placeBidButton.setDisable(true);
+                    placeBidButton.setText("Đang chạy Auto-bid");
+                } else {
+                    bidAmountField.setPromptText("Nhập giá tối đa ở dưới...");
+                    placeBidButton.setDisable(false);
+                    placeBidButton.setText("Xác nhận Auto-bid");
+                }
+
+            } else {
+                // KHÔNG TÍCH AUTO-BID -> XẢ KHÓA
+                bidAmountField.setDisable(false);
+                bidAmountField.setEditable(true); // Cắm lại cáp bàn phím
+                placeBidButton.setDisable(false);
+                if (autoBidCheckBox != null) autoBidCheckBox.setDisable(false);
+
+                bidAmountField.setPromptText("Nhập mức giá...");
+                placeBidButton.setText("Đấu giá");
+            }
+        }
+    });
   }
+
+    public void onAutoBidDefeated(String fomoMessage) {
+        Platform.runLater(() -> {
+            // 1. Tự động gỡ dấu tích khỏi ô Checkbox
+            if (autoBidCheckBox != null) {
+                autoBidCheckBox.setSelected(false);
+            }
+
+            // 2. Mở khóa lại 2 ô nhập số để người dùng sẵn sàng tăng ngân sách ("khô máu")
+            if (maxAutoPriceField != null) maxAutoPriceField.setDisable(false);
+            if (autoStepPriceField != null) autoStepPriceField.setDisable(false);
+
+            // 3. Gọi hàm làm mới cụm nút bấm bên dưới (trả về trạng thái nhập thủ công)
+            updateBidControlState(true);
+
+            // 4. KÍCH THÍCH TÂM LÝ: Bắn thông báo cảnh báo màu đỏ (Warning/Error)
+            Notifications.create()
+                    .title("⚠️ Cảnh báo mất vị trí!")
+                    .text(fomoMessage)
+                    .hideAfter(javafx.util.Duration.seconds(8)) // Để lâu một chút cho người dùng đọc kịp
+                    .position(Pos.TOP_RIGHT) // Bắn ở góc trên cùng để đập thẳng vào mắt
+                    .showError(); // Dùng style Error để tạo cảm giác nguy cấp
+
+            // (Tùy chọn) Focus con trỏ chuột vào ô ngân sách để mời gọi họ nhập số lớn hơn
+            maxAutoPriceField.requestFocus();
+        });
+    }
 
   private void updateHighestBidderUI(String name) {
     if (name == null || name.isEmpty()) {
@@ -225,6 +340,53 @@ public class ItemAuctionController implements Initializable {
 
   @FXML
   public void placeBid() {
+    // ================= LUỒNG 1: XÁC NHẬN AUTO-BID =================
+    if (autoBidCheckBox != null && autoBidCheckBox.isSelected()) {
+      String maxText = maxAutoPriceField.getText().trim();
+      String stepText = autoStepPriceField.getText().trim();
+
+      if (maxText.isEmpty() || stepText.isEmpty()) {
+        showError("Vui lòng nhập giá tối đa và bước giá!");
+        return;
+      }
+      try {
+        BigDecimal maxPrice = new BigDecimal(maxText);
+        BigDecimal stepAmount = new BigDecimal(stepText);
+
+        if (maxPrice.compareTo(currentAuction.getCurrentHighestPrice()) <= 0) {
+          showError("Giá tối đa phải lớn hơn giá hiện tại!");
+          return;
+        }
+
+        // Dữ liệu chuẩn -> Gửi Bot lên Server
+        SetAutoBidRequestDTO req = new SetAutoBidRequestDTO(
+                SessionManager.getCurrentUser().getId(),
+                SessionManager.getCurrentAuctionId(),
+                maxPrice,
+                stepAmount,
+                true
+        );
+        ServerConnection.sendData(req);
+
+        // Khóa ô cấu hình để bot an tâm chạy
+        maxAutoPriceField.setDisable(true);
+        autoStepPriceField.setDisable(true);
+        clearError();
+
+        // Cập nhật lại Text của nút thành "Đang chạy..."
+        updateBidControlState(true);
+
+        Notifications.create()
+                .title("Đấu giá tự động")
+                .text("Hệ thống đang tự động canh giá giúp bạn!")
+                .showInformation();
+
+      } catch (NumberFormatException e) {
+        showError("Số tiền không hợp lệ. Vui lòng chỉ nhập số!");
+      }
+      return; // CHẶN LẠI TẠI ĐÂY, KHÔNG CHẠY XUỐNG DƯỚI
+    }
+    // ================= LUỒNG 2: ĐẤU GIÁ THỦ CÔNG =================
     String bidText = bidAmountField.getText().trim();
     if (bidText.isEmpty()) {
       showError("Vui lòng nhập mức giá bạn muốn đấu!");

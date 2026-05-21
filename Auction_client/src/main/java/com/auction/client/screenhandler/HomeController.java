@@ -5,6 +5,7 @@ import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -240,6 +241,7 @@ public class HomeController implements Initializable, Controller {
 
   @FXML
   public void handleGetActiveAuctions() {
+    System.out.println(">>> Đã bấm nút Đang diễn ra");
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
   }
 
@@ -269,4 +271,17 @@ public class HomeController implements Initializable, Controller {
       e.printStackTrace();
     }
   }
+
+  public void handleGetMyActiveAuctions(ActionEvent actionEvent) {
+  }
+
+  public void handleGetPendingOrders(ActionEvent actionEvent) {
+  }
+
+  public void handleGetCompletedOrders(ActionEvent actionEvent) {
+  }
+
+    public void handleGetCanceledOrders(ActionEvent actionEvent) {
+
+    }
 }

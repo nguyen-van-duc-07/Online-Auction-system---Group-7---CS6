@@ -86,4 +86,39 @@ public class AutoBidConfigRepository {
     config.setActive(rs.getBoolean("is_active"));
     return config;
   }
+
+  public List<AutoBidConfig> findActiveBotsOrderedByMaxPrice(String auctionId) {
+    List<AutoBidConfig> activeBots = new ArrayList<>();
+
+    String sql = "SELECT * FROM auto_bid_configs WHERE auction_id = ? AND is_active = 1 ORDER BY max_price DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+      pstmt.setString(1, auctionId);
+
+      try (ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+          AutoBidConfig bot = new AutoBidConfig();
+
+          // LƯU Ý: id của bạn là chuỗi UUID (như trong ảnh), nên dùng getString thay vì getInt
+          bot.setId(rs.getString("id"));
+          bot.setUserId(rs.getString("user_id"));
+          bot.setAuctionId(rs.getString("auction_id"));
+          bot.setMaxPrice(rs.getBigDecimal("max_price"));
+
+          // Map đúng tên cột step_amount trong DB vào biến của Object
+          bot.setStepAmount(rs.getBigDecimal("step_amount"));
+
+          bot.setActive(rs.getBoolean("is_active"));
+
+          activeBots.add(bot);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.err.println("Lỗi khi truy vấn danh sách Bot: " + e.getMessage());
+    }
+    return activeBots;
+  }
 }

@@ -1,21 +1,15 @@
 package com.auction.shared.request;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 @Getter
+@AllArgsConstructor
 public class SetAutoBidRequestDTO implements RequestDTO {
+  private static final long serialVersionUID = 1L;
   private String userId;
   private String auctionId;
   private BigDecimal maxPrice;
   private BigDecimal stepAmount;
-
-  public SetAutoBidRequestDTO(String userId, String auctionId,
-                              BigDecimal maxPrice, BigDecimal stepAmount) {
-    this.userId    = userId;
-    this.auctionId = auctionId;
-    this.maxPrice  = maxPrice;
-    this.stepAmount = stepAmount;
-  }
-
-
+  private boolean isActive;
 }

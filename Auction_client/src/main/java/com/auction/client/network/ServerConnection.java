@@ -131,6 +131,11 @@ public class ServerConnection {
             case AutoBidResponseDTO dto ->
                 ResponseHandler.handleAutoBidResponse(dto);
 
+            case AutoBidDefeatedDTO dto -> {
+              System.out.println("[CLIENT] Nhận thông báo Bot bị đè giá: " + dto.getMessage());
+              ResponseHandler.handleAutoBidDefeated(dto);
+            }
+
             case GetBalanceResponseDTO balanceRes -> {
               System.out.println("Nhận phản hồi lấy số dư từ Server.");
               ResponseHandler.handleGetBalance(balanceRes);

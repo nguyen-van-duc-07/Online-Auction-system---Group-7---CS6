@@ -487,4 +487,16 @@ public class ResponseHandler {
       System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
     });
   }
+
+  public static void handleAutoBidDefeated(AutoBidDefeatedDTO dto) {
+    // Đảm bảo chỉ giật giao diện nếu người dùng đang ở đúng phòng đấu giá đó
+    if (SessionManager.getCurrentAuctionId() != null &&
+            SessionManager.getCurrentAuctionId().equals(dto.getAuctionId())) {
+
+      if (ItemAuctionController.instance != null) {
+        // Gọi hàm điều khiển HMI (tắt check box, hiện cảnh báo đỏ) mà chúng ta đã viết lúc nãy
+        ItemAuctionController.instance.onAutoBidDefeated(dto.getMessage());
+      }
+    }
+  }
 }

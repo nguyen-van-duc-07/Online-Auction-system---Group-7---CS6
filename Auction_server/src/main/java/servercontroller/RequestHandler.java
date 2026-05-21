@@ -146,8 +146,18 @@ public class RequestHandler {
   }
 
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
-    BidService bidService = new BidService();
-    return bidService.placeBid(req);
+    // Chuyển hướng gọi từ BidService sang AuctionService - nơi chứa thuật toán Jump Calculation
+    boolean isSuccess = AuctionService.getInstance().placeBid(
+            req.getAuctionId(),
+            req.getBidderId(),
+            req.getBidAmount()
+    );
+
+    if (isSuccess) {
+      return new PlaceBidResponseDTO(true, "Đặt giá thành công!");
+    } else {
+      return new PlaceBidResponseDTO(false, "Đặt giá thất bại, vui lòng kiểm tra lại mức giá!");
+    }
   }
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
@@ -267,10 +277,18 @@ public class RequestHandler {
   private static final AutoBidService autoBidService = new AutoBidService();
 
   public static AutoBidResponseDTO setAutoBid(SetAutoBidRequestDTO req) {
+    // Lưu cấu hình Bot xuống DB như cũ
     boolean success = autoBidService.setAutoBid(req);
-    return success
-            ? new AutoBidResponseDTO(true, "Đã bật tự động đấu giá!")
-            : new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+
+    if (success) {
+      // --- KÍCH HOẠT THUẬT TOÁN ĐỤNG ĐỘ BOT VS BOT TẠI ĐÂY ---
+      if (req.isActive()) {
+        AuctionService.resolveAutoBidFight(req.getAuctionId());
+      }
+      return new AutoBidResponseDTO(true, "Đã cập nhật tự động đấu giá!");
+    } else {
+      return new AutoBidResponseDTO(false, "Không thể cài đặt tự động đấu giá. Kiểm tra lại giá trị!");
+    }
   }
 
   public static AutoBidResponseDTO cancelAutoBid(CancelAutoBidRequestDTO req) {
