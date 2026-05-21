@@ -1,10 +1,9 @@
 package servercontroller;
 
-import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.item.Item;
-import com.auction.shared.model.item.ItemDTO;
+import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
+import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
@@ -264,5 +263,35 @@ public class RequestHandler {
       System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
       return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
     }
+  }
+
+  public static GetNotificationsResponseDTO getNotifications(GetNotificationsRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    List<Notification> notifications = notifService.getNotifications(req.getUserId());
+    // Dem so thong bao chua doc ( isRead = false)
+    int unreadCount = (int) notifications.stream().filter(n -> !n.isRead()).count();
+    return new GetNotificationsResponseDTO(true, notifications, unreadCount);
+  }
+  public static void markNotificationRead(MarkNotificationReadRequestDTO req) {
+    NotificationService notifService = new NotificationService();
+    if (req.isMarkAll()) {
+      notifService.markAllAsRead(req.getUserId());
+    } else {
+      notifService.markAsRead(req.getNotificationId());
+    }
+  }
+
+  public static GetPendingOrdersOfSellerResponseDTO handleGetPendingOrdersOfSeller(
+      GetPendingOrdersOfSellerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersBySellerId(req.getSellerId());
+    return new GetPendingOrdersOfSellerResponseDTO("Tải danh sách thành công", true, pendingOrders);
+  }
+
+  public static GetPendingOrdersOfBuyerResponseDTO handleGetPendingOrdersOfBuyer(
+      GetPendingOrdersOfBuyerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersByBuyerId(req.getBuyerId());
+    return new GetPendingOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, pendingOrders);
   }
 }

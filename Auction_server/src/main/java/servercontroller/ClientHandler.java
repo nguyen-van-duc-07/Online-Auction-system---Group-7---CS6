@@ -179,6 +179,26 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetNotificationsRequestDTO getNotifReq -> {
+                out.writeObject(RequestHandler.getNotifications(getNotifReq));
+                out.flush();
+              }
+
+              case MarkNotificationReadRequestDTO markReadReq -> {
+                RequestHandler.markNotificationRead(markReadReq);
+                // Không cần trả về response
+              }
+
+              case GetPendingOrdersOfSellerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetPendingOrdersOfSeller(request));
+                out.flush();
+              }
+
+              case GetPendingOrdersOfBuyerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetPendingOrdersOfBuyer(request));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }

@@ -255,7 +255,7 @@ public class AuctionRepository {
     item.setDescription(rs.getString("item_description"));
     AuctionResponseDTO auction = new AuctionResponseDTO();
     auction.setId(rs.getString("id"));
-    auction.setUserId(rs.getString("seller_id"));
+    auction.setSellerId(rs.getString("seller_id"));
     auction.setItem(item);
     auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
     auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
@@ -266,6 +266,11 @@ public class AuctionRepository {
     UserRepository userRepo = new  UserRepository();
     String highestBidderId = rs.getString("highest_bidder_id");
     String highestBidderName = rs.getString("highest_bidder_name");
+
+    SellerProfileRepository sellerRepo = new  SellerProfileRepository();
+    String sellerId = rs.getString("seller_id");
+    String userId = sellerRepo.getUserIdBySellerId(sellerId);
+    auction.setUserId(userId);
 
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);

@@ -311,7 +311,7 @@ public class ResponseHandler {
   public static void handleGetOrder(GetOrderResponseDTO dto) {
     if (dto.isSuccess()) {
       Platform.runLater(() -> {
-        SessionManager.setCurrentOrder(dto.getOrder());
+        SessionManager.setCurrentOrderId(dto.getOrder().getId());
         ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
       });
     } else {
@@ -453,5 +453,50 @@ public class ResponseHandler {
               responseDTO.getTransaction()
       );
     }
+  }
+
+  public static void handleGetNotifications(GetNotificationsResponseDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge trên Home
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.updateNotificationBadge(dto.getUnreadCount());
+      }
+
+      // Load danh sách nếu đang ở màn hình thông báo
+      if (NotificationController.instance != null) {
+        NotificationController.instance.loadNotifications(
+            dto.getNotifications(),
+            dto.getUnreadCount()
+        );
+      }
+    });
+  }
+
+  public static void handleNewNotification(NotificationDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật badge
+      HomeController homeController = HomeController.getInstance();
+      if (homeController != null) {
+        homeController.incrementNotificationBadge();
+      }
+      System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
+    });
+  }
+
+  public static void handleGetPendingOrdersOfSeller(GetPendingOrdersOfSellerResponseDTO response) {
+
+  }
+
+  public static void handleGetPendingOrdersOfBuyer(GetPendingOrdersOfBuyerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        HomeController homeController = HomeController.getInstance();
+        homeController.loadComponent("/com/auction/client/Bidder/Result.fxml");
+
+        ResultController resultController = ResultController.getInstance();
+        resultController.loadFeedToUI(response.getPendingOrders());
+      }
+    });
   }
 }

@@ -360,12 +360,14 @@ public class ItemAuctionController implements Initializable {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
       itemNameLabel.setText(auctionData.getItem().getName());
-      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + auctionData.getMinStepPrice().toString() + " VNĐ");
+
+      DecimalFormat formatter = new DecimalFormat("#,###");
+      String formattedMinStepPrice = formatter.format(auctionData.getMinStepPrice());
+      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + formattedMinStepPrice + " VNĐ");
 
       // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
 
-      DecimalFormat formatter = new DecimalFormat("#,###");
       String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
       currentPriceField.setText("Giá hiện tại: " + formattedPrice);
 

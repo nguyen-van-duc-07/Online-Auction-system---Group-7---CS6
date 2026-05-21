@@ -136,6 +136,20 @@ public class ServerConnection {
               ResponseHandler.handleGetBalance(balanceRes);
             }
 
+            case GetNotificationsResponseDTO dto ->
+                ResponseHandler.handleGetNotifications(dto);
+
+            case NotificationDTO dto ->
+                ResponseHandler.handleNewNotification(dto);
+
+            case GetPendingOrdersOfSellerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetPendingOrdersOfSeller(responseDTO);
+            }
+
+            case GetPendingOrdersOfBuyerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetPendingOrdersOfBuyer(responseDTO);
+            }
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

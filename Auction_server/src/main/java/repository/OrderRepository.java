@@ -75,6 +75,7 @@ public class OrderRepository {
   }
 
   public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
+    List<OrderDTO> orders = new ArrayList<>();
     String sql = "SELECT * FROM orders WHERE seller_id = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();
@@ -83,15 +84,32 @@ public class OrderRepository {
       ps.setString(1, sellerId);
       ResultSet rs = ps.executeQuery();
 
-      if (rs.next()) {
-//        return mapRow(rs);
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
       }
-      return null;
-
     } catch (SQLException e) {
       e.printStackTrace();
-      return null;
     }
+    return orders;
+  }
+
+  public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
+    List<OrderDTO> orders = new ArrayList<>();
+    String sql = "SELECT * FROM orders WHERE buyer_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, buyerId);
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return orders;
   }
 
   // Tìm các order PENDING quá 7 ngày để tự động hủy
@@ -133,11 +151,18 @@ public class OrderRepository {
     }
   }
 
-//  private OrderDTO mapResultSetToOrderDTO(ResultSet rs) throws SQLException {
-//    OrderDTO orderDTO = new OrderDTO();
-//    orderDTO.setOrderId(rs.getString("id"));
-//    orderDTO.setBrandName(rs.getString("brand_name"));
-//  }
+  private OrderDTO mapResultSetToOrderDTO(ResultSet rs) throws SQLException {
+    OrderDTO orderDTO = new OrderDTO();
+    orderDTO.setOrderId(rs.getString("id"));
+    orderDTO.setAuctionId(rs.getString("auction_id"));
+    orderDTO.setBrandName(rs.getString("brand_name"));
+    orderDTO.setItemName(rs.getString("item_name"));
+    orderDTO.setFinalPrice(rs.getBigDecimal("final_price"));
+    orderDTO.setStatus(OrderStatus.valueOf(rs.getString("status")));
+    orderDTO.setWinnerName(rs.getString("consignee_name"));
+
+    return orderDTO;
+  }
 
   private Order mapRow(ResultSet rs) throws SQLException {
     Order order = new Order();

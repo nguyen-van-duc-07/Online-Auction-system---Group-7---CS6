@@ -1,5 +1,8 @@
 package config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -12,6 +15,32 @@ public class DatabaseConnection {
       + "auction_db?useSSL=true";
   private static final String USER = "2vF9fvUA1e6SkrG.root";
   private static final String PASS = "KsAN75FtZIeOrn6t";
+
+  private static final  HikariDataSource dataSource;
+
+  // Hieu co ban la khoi khoi tao ra connect pool
+  static {
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(URL);
+    config.setUsername(USER);
+    config.setPassword(PASS);
+
+    // Pool size
+    config.setMinimumIdle(5);        // luôn duy trì 5 connection sẵn sàng
+    config.setMaximumPoolSize(20);   // tối đa 20 connection đồng thời
+
+    // Timeout
+    config.setConnectionTimeout(3000);   // chờ lấy connection tối đa 3s
+    config.setIdleTimeout(300000);        // connection idle 5 phút thì đóng
+    config.setMaxLifetime(600000);        // connection sống tối đa 10 phút
+
+    // Keepalive — tránh TiDB đóng connection do idle
+    config.setKeepaliveTime(60000);       // ping mỗi 1 phút
+    config.setConnectionTestQuery("SELECT 1");
+
+    dataSource = new HikariDataSource(config);
+    System.out.println("[DB] Connection pool đã khởi tạo thành công.");
+  }
 
 
   /**
@@ -26,7 +55,7 @@ public class DatabaseConnection {
    **/
   public static Connection getConnection() {
     try {
-      return DriverManager.getConnection(URL, USER, PASS);
+      return dataSource.getConnection();
     } catch (Exception e) {
       e.printStackTrace();
       return null;

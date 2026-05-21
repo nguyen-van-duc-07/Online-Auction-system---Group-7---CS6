@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -52,6 +53,9 @@ public class HomeController implements Initializable, Controller {
   @FXML
   private Label realNameLabel;
 
+  @FXML private Label notificationBadge;
+
+
   /**
    * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
    *
@@ -71,6 +75,8 @@ public class HomeController implements Initializable, Controller {
 
     // Lưu lại giao diện Node gốc của trang chủ
     homeFeedNode = mainContent.getContent();
+
+    loadUnreadCount();
 
     // Hiện Label chào user
     String phoneNumber = SessionManager.currentUser.getPhoneNumber();
@@ -147,6 +153,39 @@ public class HomeController implements Initializable, Controller {
         }
       }
     });
+  }
+
+  /**
+   * Chuyển hướng sang màn hình chi tiết sản phẩm.
+   */
+
+  private void loadUnreadCount() {
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
+  }
+
+  public void updateNotificationBadge(int unreadCount) {
+    Platform.runLater(() -> {
+      if (unreadCount > 0) {
+        notificationBadge.setVisible(true);
+        // Chỉ hiện chấm đỏ, không hiện số
+        notificationBadge.setText("");
+      } else {
+        notificationBadge.setVisible(false);
+      }
+    });
+  }
+
+  public void incrementNotificationBadge() {
+    Platform.runLater(() -> notificationBadge.setVisible(true));
+  }
+
+  @FXML
+  public void gotoNotifications() {
+    ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
+    // Load danh sách khi mở
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
   }
 
   @FXML
