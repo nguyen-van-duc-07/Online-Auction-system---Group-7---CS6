@@ -7,6 +7,7 @@ import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.response.AuctionPriceUpdateDTO;
+import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.AutoBidDefeatedDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
@@ -32,8 +33,8 @@ public class BidService {
 
   private static final BigDecimal FREEZE_RATE = new BigDecimal("0.1");
 
-  public PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
-    Auction auction = auctionRepo.findAuctionById(req.getAuctionId());
+  public  PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
+    AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(req.getAuctionId());
     if (auction == null) {
       return new PlaceBidResponseDTO(false, "Auction không tồn tại");
     }

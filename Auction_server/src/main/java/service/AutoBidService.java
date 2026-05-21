@@ -1,8 +1,10 @@
 package service;
 
+import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.request.CancelAutoBidRequestDTO;
 import com.auction.shared.request.SetAutoBidRequestDTO;
+import com.auction.shared.response.AuctionResponseDTO;
 import repository.AuctionRepository;
 import repository.AutoBidConfigRepository;
 import com.auction.shared.model.auction.Auction;
@@ -15,7 +17,7 @@ public class AutoBidService {
 
   public boolean setAutoBid(SetAutoBidRequestDTO req) {
     // Validate
-    Auction auction = auctionRepo.findAuctionById(req.getAuctionId());
+    AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(req.getAuctionId());
     if (auction == null) return false;
 
     // stepAmount không được nhỏ hơn minStepPrice

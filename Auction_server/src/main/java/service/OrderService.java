@@ -4,6 +4,7 @@ import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
+import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.User;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
 import com.auction.shared.util.NotificationTemplate;
@@ -234,5 +235,15 @@ public class OrderService {
     OrderUpdateNotificationDTO update = new OrderUpdateNotificationDTO(order.getId(), order.getStatus());
     String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
     Server.sendToUser(sellerId, update);
+  }
+
+  public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
+    List<OrderDTO> pendingOrders = orderRepo.getPendingOrdersBySellerId(sellerId);
+    return pendingOrders;
+  }
+
+  public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
+    List<OrderDTO> pendingOrders = orderRepo.getPendingOrdersByBuyerId(buyerId);
+    return pendingOrders;
   }
 }

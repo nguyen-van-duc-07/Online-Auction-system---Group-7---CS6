@@ -311,7 +311,7 @@ public class ResponseHandler {
   public static void handleGetOrder(GetOrderResponseDTO dto) {
     if (dto.isSuccess()) {
       Platform.runLater(() -> {
-        SessionManager.setCurrentOrder(dto.getOrder());
+        SessionManager.setCurrentOrderId(dto.getOrder().getId());
         ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
       });
     } else {
@@ -498,5 +498,21 @@ public class ResponseHandler {
         ItemAuctionController.instance.onAutoBidDefeated(dto.getMessage());
       }
     }
+  }
+
+  public static void handleGetPendingOrdersOfSeller(GetPendingOrdersOfSellerResponseDTO response) {
+
+  }
+
+  public static void handleGetPendingOrdersOfBuyer(GetPendingOrdersOfBuyerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        HomeController homeController = HomeController.getInstance();
+        homeController.loadComponent("/com/auction/client/Bidder/Result.fxml");
+
+        ResultController resultController = ResultController.getInstance();
+        resultController.loadFeedToUI(response.getPendingOrders());
+      }
+    });
   }
 }

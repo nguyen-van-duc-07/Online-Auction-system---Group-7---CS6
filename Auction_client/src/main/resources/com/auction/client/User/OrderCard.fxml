@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<HBox alignment="CENTER_LEFT" minHeight="120.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(148,163,184,0.12), 16, 0, 0, 4);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.OrderCardController">
+    <children>
+        <!-- Thanh màu chỉ thị bên trái -->
+        <Rectangle fill="#009900" height="120.0" style="-fx-arc-height: 16; -fx-arc-width: 16;" width="6.0" />
+
+        <HBox alignment="CENTER_LEFT" spacing="24.0" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+            </padding>
+            <children>
+
+                <!-- CỘT 1: THÔNG TIN SẢN PHẨM & NGƯỜI BÁN -->
+                <VBox alignment="CENTER_LEFT" prefHeight="88.0" prefWidth="415.0" spacing="8.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <children>
+                                <Label fx:id="itemNameLabel" prefHeight="27.0" prefWidth="306.0" text="Xe máy Honda Vision 2024" textFill="#1E293B">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <!-- Nút xem chi tiết nhỏ gọn bên cạnh tên -->
+                                <Button onAction="#gotoItemDetail" prefHeight="24.0" prefWidth="216.0" style="-fx-background-color: #EDF2F7; -fx-background-radius: 20; -fx-padding: 4 12 4 12; -fx-cursor: hand;" text="👁 Xem chi tiết" textFill="#4A5568">
+                                    <font>
+                                        <Font name="System Bold" size="11.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+                        <HBox prefHeight="26.0" prefWidth="382.0" spacing="8.0">
+                            <children>
+                                <Label fx:id="brandNameLabel" style="-fx-background-color: #FFEAE6; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Người bán: DatGB" textFill="#C53030">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- CỘT 2: THÔNG TIN GIÁ & NGƯỜI THẮNG -->
+                <HBox alignment="CENTER" prefHeight="88.0" prefWidth="418.0" spacing="40.0">
+                    <children>
+                        <VBox alignment="CENTER" prefHeight="88.0" prefWidth="238.0" spacing="6.0">
+                            <children>
+                                <Label text="Giá chung cuộc" textFill="#64748B">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="finalPriceLabel" prefHeight="30.0" prefWidth="171.0" text="32,500,000 VNĐ" textFill="#009900">
+                                    <font>
+                                        <Font name="System Bold" size="20.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="88.0" prefWidth="197.0" spacing="6.0">
+                            <children>
+                                <Label text="Người thắng" textFill="#64748B">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="winnerNameLabel" prefHeight="27.0" prefWidth="127.0" style="-fx-background-color: #DEF7EC; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Nguyễn Văn Đức" textFill="#03543F">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- CỘT 3: THỜI GIAN & NÚT THANH TOÁN -->
+                <VBox alignment="CENTER_RIGHT" prefWidth="240.0" spacing="12.0">
+                    <children>
+                        <VBox alignment="CENTER_RIGHT" spacing="4.0">
+                            <children>
+                                <HBox alignment="CENTER_RIGHT" spacing="6.0" />
+                                <HBox alignment="CENTER_RIGHT" spacing="6.0" />
+                            </children>
+                        </VBox>
+                        <!-- Nút thanh toán nổi bật, bo tròn hiện đại -->
+                        <Button onAction="#gotoPayment" prefHeight="36.0" prefWidth="130.0" style="-fx-background-color: #009900; -fx-background-radius: 20; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,153,0,0.2), 8, 0, 0, 2);" text="Thanh toán 🛒" textFill="#FFFFFF">
+                            <font>
+                                <Font name="System Bold" size="13.0" />
+                            </font>
+                        </Button>
+                    </children>
+                </VBox>
+
+            </children>
+        </HBox>
+    </children>
+</HBox>

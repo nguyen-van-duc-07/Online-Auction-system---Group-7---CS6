@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class GetPendingOrdersOfSellerRequestDTO implements RequestDTO {
-  private String userId;
+  private String sellerId;
 
-  public GetPendingOrdersOfSellerRequestDTO(String userId) {
-    this.userId = userId;
+  public GetPendingOrdersOfSellerRequestDTO(String sellerId) {
+    this.sellerId = sellerId;
   }
 }

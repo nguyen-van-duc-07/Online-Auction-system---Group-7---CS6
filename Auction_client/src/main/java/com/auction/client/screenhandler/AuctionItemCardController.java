@@ -67,7 +67,7 @@ public class AuctionItemCardController {
   }
 
   /**
-   * Hàm tính toán và định dạng khoảng thời gian còn lại
+   * Hàm tính toán và định dạng khoảng thời gian còn lại.
    */
   private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
     long days = ChronoUnit.DAYS.between(from, to);
