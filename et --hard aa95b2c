@@ -1,0 +1,73 @@
+[33m69e7365[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTienHoi[m[33m, [m[1;31morigin/develop[m[33m)[m HEAD@{0}: pull origin develop: Fast-forward
+[33m960080f[m HEAD@{1}: reset: moving to HEAD~1
+[33maa95b2c[m HEAD@{2}: commit: temp
+[33m960080f[m HEAD@{3}: pull origin develop: Fast-forward
+[33m805eed1[m HEAD@{4}: pull origin develop: Fast-forward
+[33mf946b3c[m[33m ([m[1;31morigin/TienHoi[m[33m)[m HEAD@{5}: commit: refactor: use NotificationTemplate to notify
+[33mc1a1e9f[m HEAD@{6}: pull origin develop: Fast-forward
+[33m16271b4[m HEAD@{7}: commit (merge): refactor: merge with develop
+[33m1ed2c9e[m HEAD@{8}: commit: feat: add Notification as mail from server
+[33mc11499f[m HEAD@{9}: pull origin develop: Fast-forward
+[33m3ad1ec7[m HEAD@{10}: pull origin develop: Fast-forward
+[33mb88cabe[m HEAD@{11}: pull origin develop: Fast-forward
+[33mad555e4[m HEAD@{12}: pull origin develop: Fast-forward
+[33mbaecd54[m HEAD@{13}: reset: moving to HEAD~1
+[33m0db990d[m HEAD@{14}: reset: moving to HEAD~1
+[33m1bf86cb[m HEAD@{15}: pull origin develop: Merge made by the 'ort' strategy.
+[33m0db990d[m HEAD@{16}: reset: moving to HEAD
+[33m0db990d[m HEAD@{17}: reset: moving to HEAD
+[33m0db990d[m HEAD@{18}: commit: temp
+[33mbaecd54[m HEAD@{19}: pull origin develop: Fast-forward
+[33m0720471[m HEAD@{20}: commit: feat: add AutoBidConfig to process autoBid from bidder
+[33m8493b5f[m HEAD@{21}: pull origin develop: Fast-forward
+[33ma0c2187[m HEAD@{22}: commit: feat: add Notification demo to switch into PaymentScreen
+[33m64dde5e[m HEAD@{23}: commit: fix: synchronize data between HomeScreen and AuctionItemScreen
+[33mc292ec4[m HEAD@{24}: pull origin develop: Fast-forward
+[33me302bae[m HEAD@{25}: commit (merge): fix: merge with develop
+[33mf87f84c[m HEAD@{26}: commit: feat: add Order to bidder payment for auction and send to seller when bidder confirmed or canceled
+[33mbc059f8[m HEAD@{27}: pull origin develop: Fast-forward
+[33mc81f0ef[m HEAD@{28}: commit: feat: send Result to all clients in auction and Payment to winner
+[33m485ecef[m HEAD@{29}: pull origin develop: Fast-forward
+[33m34c33d8[m HEAD@{30}: pull origin develop: Fast-forward
+[33m5b33478[m HEAD@{31}: pull origin develop: Fast-forward
+[33m616f5a4[m HEAD@{32}: commit: fix: apply 10% for frozen_balance
+[33m026d149[m HEAD@{33}: reset: moving to HEAD
+[33m026d149[m HEAD@{34}: reset: moving to HEAD
+[33m026d149[m HEAD@{35}: reset: moving to HEAD
+[33m026d149[m HEAD@{36}: commit: feat: add WalletTransactionRepository.java and freeze, unfeeze amount when auction has a new bid
+[33mfef50dc[m HEAD@{37}: pull origin develop: Fast-forward
+[33m5dc3893[m HEAD@{38}: commit: feat: add BidTransactionRepository.java to connect with bid_transaction DB
+[33m581e2f8[m HEAD@{39}: commit: feat: add AuctionStatusUpdateDTO to reponse to user when an auction is updated status
+[33m65b2f19[m HEAD@{40}: commit: feat: add AuctionStatusScheduler to update status in Database when Server is turned on
+[33ma885439[m HEAD@{41}: reset: moving to origin/develop
+[33ma885439[m HEAD@{42}: pull origin develop: Fast-forward
+[33m1d3a47e[m HEAD@{43}: pull origin develop: Fast-forward
+[33m437cf1f[m HEAD@{44}: reset: moving to origin/develop
+[33m227f66a[m HEAD@{45}: pull origin develop: Fast-forward
+[33med939a8[m HEAD@{46}: commit: test: add test for signUpRequest from client
+[33m2a46f71[m HEAD@{47}: commit: feat: add SellerProfileRepository to open new SellerProfile
+[33m314d43b[m HEAD@{48}: commit: feat: add updateProfile in UserRepository.java and add some classes to show table of DB
+[33m52f9d38[m HEAD@{49}: pull origin develop: Fast-forward
+[33mcc61f08[m HEAD@{50}: commit: feat: add AuctionRepository and ItemRepository
+[33m4ed1256[m HEAD@{51}: pull origin develop: Fast-forward
+[33maa015a4[m HEAD@{52}: reset: moving to HEAD
+[33maa015a4[m HEAD@{53}: pull origin develop: Fast-forward
+[33m917abd8[m HEAD@{54}: commit: refactor: Apply DTO for Signup method in AuthService.java and Singleton for DatabaseConnection.java
+[33mcab4588[m HEAD@{55}: pull origin develop: Fast-forward
+[33m7e8961b[m HEAD@{56}: pull origin develop: Fast-forward
+[33m9d89613[m HEAD@{57}: reset: moving to HEAD
+[33m9d89613[m HEAD@{58}: commit: refactor: simplify AuctionService,.. query logic
+[33mc2d34ad[m HEAD@{59}: commit: fix: fix Checkstyle issues
+[33ma76510f[m HEAD@{60}: pull origin develop: Fast-forward
+[33m5dcf8eb[m HEAD@{61}: commit: feat: add registration constructor to Bidder class
+[33m82925e7[m HEAD@{62}: commit: test: Kiểm tra thử login
+[33m4869671[m HEAD@{63}: commit: feat: Kết nối với Database
+[33m554c524[m HEAD@{64}: commit: feat: implement core domain models
+[33m2dce533[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{65}: reset: moving to origin/develop
+[33ma7d4ac5[m HEAD@{66}: checkout: moving from develop to TienHoi
+[33m2dce533[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{67}: checkout: moving from TienHoi to develop
+[33ma7d4ac5[m HEAD@{68}: checkout: moving from develop to TienHoi
+[33m2dce533[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{69}: checkout: moving from TienHoi to develop
+[33ma7d4ac5[m HEAD@{70}: checkout: moving from TienHoi to TienHoi
+[33ma7d4ac5[m HEAD@{71}: merge origin/TienHoi: Fast-forward
+[33m2470524[m HEAD@{72}: commit (initial): Demo thu client - server - voi ItemFactory va AuctionService (Auction Manager)

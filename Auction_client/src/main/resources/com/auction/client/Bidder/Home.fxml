@@ -108,7 +108,7 @@
         </center>
     </BorderPane>
 
-    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" onMouseClicked="#gotoNotifications" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: move;" StackPane.alignment="BOTTOM_LEFT">
+    <VBox fx:id="floatingIcon" onMouseClicked="#gotoNotifications" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: hand;" StackPane.alignment="BOTTOM_LEFT">
         <StackPane.margin>
             <Insets bottom="30.0" left="30.0" />
         </StackPane.margin>

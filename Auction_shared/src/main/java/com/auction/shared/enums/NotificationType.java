@@ -3,7 +3,6 @@ package com.auction.shared.enums;
 public enum NotificationType {
   // Buyer
   AUCTION_WON,           // Thắng phiên → navigate sang OrderDetail
-  OUTBID,                // Bị vượt giá → navigate sang ItemAuction
   ORDER_CANCELLED,       // Đơn hàng bị hủy tự động
 
   // Seller

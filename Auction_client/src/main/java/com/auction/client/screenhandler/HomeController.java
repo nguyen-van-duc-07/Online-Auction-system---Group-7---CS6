@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -28,11 +29,14 @@ import java.util.ResourceBundle;
  */
 public class HomeController implements Initializable, Controller {
 
-  /** Biến static lưu trữ Controller hiện tại của Home. */
+  /**
+   * Biến static lưu trữ Controller hiện tại của Home.
+   */
   private static HomeController instance;
 
   /**
    * Phương thức dùng để lấy ra instance của HomeController.
+   *
    * @return đối tượng kiểu HomeController
    */
   public static HomeController getInstance() {
@@ -56,6 +60,9 @@ public class HomeController implements Initializable, Controller {
 
   @FXML
   private Label notificationBadge;
+
+  @FXML
+  private TextField searchField;
 
   @FXML
   private Label remainingLabel;
@@ -111,6 +118,31 @@ public class HomeController implements Initializable, Controller {
 
     // Gửi yêu cầu lấy danh sách ngay khi load UI
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+    searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+      filterAuctions(newValue.trim().toLowerCase());
+    });
+  }
+  private void loadCards(List<AuctionDTO> auctions) {
+    feedContainer.getChildren().clear();
+    for (AuctionDTO auction : auctions) {
+      try {
+        // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
+        FXMLLoader loader = new FXMLLoader(
+            getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml")
+        );
+        // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
+        Node cardNode = loader.load();
+        // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
+        AuctionItemCardController cardController = loader.getController();
+        cardNode.setUserData(cardController);
+        // Truyền object auction
+        cardController.setData(auction, instance);
+        // 4. Nhét thẻ đã hoàn thiện vào FlowPane
+        feedContainer.getChildren().add(cardNode);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
@@ -120,35 +152,9 @@ public class HomeController implements Initializable, Controller {
    */
   public void loadFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
-    // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
-    Platform.runLater(() -> {
-      // Xóa các card cũ (nếu có) trước khi nạp mới
-      feedContainer.getChildren().clear();
-
-      for (AuctionDTO auction : auctions) {
-        try {
-          // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
-          FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
-
-          // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
-          Node cardNode = loader.load();
-
-          // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
-          AuctionItemCardController cardController = loader.getController();
-          cardNode.setUserData(cardController);
-          // Truyền object auction
-          cardController.setData(auction, instance);
-
-          // 4. Nhét thẻ đã hoàn thiện vào FlowPane
-          feedContainer.getChildren().add(cardNode);
-
-        } catch (IOException e) {
-          System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
-          e.printStackTrace();
-        }
-      }
-    });
+    Platform.runLater(() -> loadCards(auctions));
   }
+
 
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     // Tìm auction trong danh sách hiện tại và cập nhật giá
@@ -300,7 +306,23 @@ public class HomeController implements Initializable, Controller {
   public void handleGetCompletedOrders(ActionEvent actionEvent) {
   }
 
-    public void handleGetCanceledOrders(ActionEvent actionEvent) {
+  public void handleGetCanceledOrders(ActionEvent actionEvent) {
 
-    }
+  }
+  private void filterAuctions(String keyword) {
+    List<AuctionDTO> filtered = keyword.isEmpty()
+        ? currentAuctions
+        : currentAuctions.stream()
+        .filter(a -> a.getItemName().toLowerCase().contains(keyword))
+        .toList();
+
+    Platform.runLater(() -> {
+      loadCards(filtered);
+      if (filtered.isEmpty()) {
+        Label noResult = new Label("Không tìm thấy sản phẩm nào!");
+        noResult.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-padding: 20;");
+        feedContainer.getChildren().add(noResult);
+      }
+    });
+  }
 }
