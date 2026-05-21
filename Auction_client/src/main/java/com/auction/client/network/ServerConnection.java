@@ -138,6 +138,7 @@ public class ServerConnection {
 
             case GetBalanceResponseDTO balanceRes -> {
               System.out.println("Nhận phản hồi lấy số dư từ Server.");
+              com.auction.client.network.SessionManager.updateBalance(balanceRes);
               ResponseHandler.handleGetBalance(balanceRes);
             }
 

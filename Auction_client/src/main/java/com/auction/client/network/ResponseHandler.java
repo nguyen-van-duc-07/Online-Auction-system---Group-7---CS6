@@ -36,10 +36,12 @@ public class ResponseHandler {
    * @param loginRes Gói tin nhắn phản hồi đăng nhập
    */
   public static void login(LoginResponseDTO loginRes) {
-    // Nếu xử lý đăng nhập thành công
     if (loginRes.isSuccess()) {
       UserDTO user = loginRes.getUser();
       SessionManager.setCurrentUser(user);
+
+      // Bắn Request xin số dư ngay khi lưu user thành công
+      com.auction.client.network.ServerConnection.sendData(new com.auction.shared.request.GetBalanceRequestDTO());
 
       if (user.getRole() == UserRole.BIDDER) {
         Platform.runLater(() -> {
@@ -51,7 +53,6 @@ public class ResponseHandler {
         });
       }
 
-      // Nếu xử lý đăng nhập thất bại
     } else {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập",  loginRes.getMessage());

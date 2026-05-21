@@ -54,8 +54,11 @@ public class HomeController implements Initializable, Controller {
   @FXML
   private Label realNameLabel;
 
-  @FXML private Label notificationBadge;
+  @FXML
+  private Label notificationBadge;
 
+  @FXML
+  private Label remainingLabel;
 
   /**
    * Phương thức khởi tạo mặc định của JavaFX (thuộc interface Initializable).
@@ -89,6 +92,22 @@ public class HomeController implements Initializable, Controller {
     } else {
       realNameLabel.setText("N/A");
     }
+
+    // Hiển thị số dư lần đầu tiên khi vừa load màn hình (Tránh việc nhãn bị trống)
+    if (SessionManager.getCurrentBalance() != null) {
+      java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+      remainingLabel.setText("Số dư: " + format.format(SessionManager.getCurrentBalance()) + " VNĐ");
+    }
+
+    //  Đăng ký Listener: Từ nay về sau, hễ SessionManager có số mới là UI tự update
+    SessionManager.balanceProperty().addListener((observable, oldBalance, newBalance) -> {
+      Platform.runLater(() -> {
+        if (remainingLabel != null && newBalance != null) {
+          java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+          remainingLabel.setText("Số dư: " + format.format(newBalance) + " VNĐ");
+        }
+      });
+    });
 
     // Gửi yêu cầu lấy danh sách ngay khi load UI
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
