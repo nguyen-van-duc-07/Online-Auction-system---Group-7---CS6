@@ -1,6 +1,7 @@
 package service;
 
 import com.auction.shared.model.order.Order;
+import com.auction.shared.util.FormatUtil;
 import config.DatabaseConnection;
 
 import java.math.BigDecimal;
@@ -157,16 +158,18 @@ public class WalletService {
   public void processPayment(Connection conn, Order order) {
     System.out.println("BAT DAU QUA TRINH THANH TOAN CHO ORDER: " + order.getId());
     // 1. Xử lý ví buyer
+    BigDecimal remaining = order.getFinalPrice().subtract(order.getDepositAmount()); // 90%
     Wallet buyerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getBuyerId());
     BigDecimal buyerBalBefore = buyerWallet.getBalance();
     BigDecimal buyerFrozBefore = buyerWallet.getFrozenBalance();
-    buyerWallet.withdraw(order.getFinalPrice()); // tru 100% trong balance
+    buyerWallet.unfreeze(order.getDepositAmount());
+    buyerWallet.withdraw(remaining);
     walletRepo.updateWallet(conn, buyerWallet); // cap nhat lai trong database
     // Tao lich su tru tien thanh toan
     WalletTransaction buyerTx = new WalletTransaction(
         buyerWallet.getId(),
         WalletTransactionType.AUCTION_PAYMENT,
-        order.getFinalPrice(),
+        remaining,
         buyerBalBefore,
         buyerWallet.getBalance(),
         buyerFrozBefore,
@@ -176,26 +179,7 @@ public class WalletService {
     );
     // Luu lai lich su giao dich
     txRepo.saveWalletTransaction(conn, buyerTx);
-    System.out.println(">>>DA TRU TIEN CUA WINNER " + com.auction.shared.util.FormatUtil.fmt(buyerTx.getAmount()));
-    buyerBalBefore = buyerWallet.getBalance();
-    buyerFrozBefore = buyerWallet.getFrozenBalance();
-    buyerWallet.unfreeze(order.getDepositAmount());
-    // Cap nhat lai du lieu vi sau khi hoan tien
-    walletRepo.updateWallet(conn, buyerWallet);
-    // Tao lich su giao dich khi hoan tien (tam dung chung object voi giao dich tru tien)
-    buyerTx = new WalletTransaction(
-        buyerWallet.getId(),
-        WalletTransactionType.BID_RELEASE,
-        order.getDepositAmount(),
-        buyerBalBefore,
-        buyerWallet.getBalance(),
-        buyerFrozBefore,
-        buyerWallet.getFrozenBalance(),
-        order.getId(),
-        WalletTransactionStatus.SUCCESS
-    );
-    txRepo.saveWalletTransaction(conn, buyerTx);
-    System.out.println(">>>DA HOAN TIEN COC CHO WINNER " + com.auction.shared.util.FormatUtil.fmt(buyerTx.getAmount()));
+
     // 2. Xử lý ví seller
     String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
     Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, sellerId);

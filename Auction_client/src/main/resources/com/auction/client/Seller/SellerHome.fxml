@@ -99,7 +99,7 @@
         </left>
 
         <center>
-            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: #f0f2f5;" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
+            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" focusTraversable="false" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" BorderPane.alignment="CENTER">
                 <content>
                     <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
                         <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>

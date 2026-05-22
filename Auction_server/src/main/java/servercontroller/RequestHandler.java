@@ -144,18 +144,8 @@ public class RequestHandler {
   }
 
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
-    // Chuyển hướng gọi từ BidService sang AuctionService - nơi chứa thuật toán Jump Calculation
-    boolean isSuccess = AuctionService.getInstance().placeBid(
-            req.getAuctionId(),
-            req.getBidderId(),
-            req.getBidAmount()
-    );
-
-    if (isSuccess) {
-      return new PlaceBidResponseDTO(true, "Đặt giá thành công!");
-    } else {
-      return new PlaceBidResponseDTO(false, "Đặt giá thất bại, vui lòng kiểm tra lại mức giá!");
-    }
+    BidService bidService = new BidService();
+    return bidService.placeBid(req);
   }
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
