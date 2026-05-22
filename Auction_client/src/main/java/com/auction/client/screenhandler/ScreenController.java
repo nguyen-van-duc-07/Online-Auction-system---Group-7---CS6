@@ -55,12 +55,12 @@ public class ScreenController {
       // Lấy trạng thái màn hình cũ ra
       ScreenState previous = history.pop();
       currentScreen = previous;
-      // KHÔNG CẦN LOAD FXML: Gắn lại trực tiếp Root cũ vào Scene
+      // Không cần load FXML: Gắn lại trực tiếp Root cũ vào Scene
       primaryStage.getScene().setRoot(previous.getRoot());
       primaryStage.setTitle(previous.getTitle());
       primaryStage.show();
 
-      System.out.println("Quay lại màn hình trước đó thành công (Trạng thái và cuộn trang được giữ nguyên!)");
+      System.out.println("Quay lại màn hình trước đó thành công");
     } else {
       // Fallback về trang chủ nếu không có lịch sử
       switchScreen("Bidder/Home.fxml", "Trang chủ");

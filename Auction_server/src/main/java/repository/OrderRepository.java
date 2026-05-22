@@ -76,7 +76,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_id = ?";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'PENDING'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -95,7 +95,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE buyer_id = ?";
+    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'PENDING'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {

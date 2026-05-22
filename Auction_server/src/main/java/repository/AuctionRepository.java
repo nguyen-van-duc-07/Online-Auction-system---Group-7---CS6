@@ -91,12 +91,16 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở hoặc sắp diễn ra
   public List<AuctionDTO> findActiveAndWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thời gian bắt đầu
+    // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thứ tự ACTIVE -> WAITING
     String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
             + "FROM auctions a "
             + "JOIN items i ON a.item_id = i.id "
             + "WHERE a.status IN ('WAITING', 'ACTIVE') "
-            + "ORDER BY a.start_time ASC";
+            + "ORDER BY CASE a.status "
+            + "  WHEN 'ACTIVE' THEN 1 "
+            + "  WHEN 'WAITING' THEN 2 "
+            + "  ELSE 3 "
+            + "END, a.start_time ASC";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
@@ -116,7 +120,13 @@ public class AuctionRepository {
     String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
             + "FROM auctions a "
             + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.seller_id = ?";
+            + "WHERE a.seller_id = ? "
+            + "ORDER BY CASE a.status "
+            + "  WHEN 'ACTIVE' THEN 1 "
+            + "  WHEN 'WAITING' THEN 2 "
+            + "  WHEN 'CLOSED' THEN 3 "
+            + "  ELSE 4 "
+            + "END, a.start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -275,6 +285,9 @@ public class AuctionRepository {
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);
 
+    // Đọc đường dẫn ảnh sản phẩm
+    auction.setImagePath(rs.getString("image_path"));
+
     return auction;
   }
 
@@ -315,9 +328,9 @@ public class AuctionRepository {
     return auction;
   }
 
-  public boolean saveAuction(Auction auction, String sellerProfileId) {
-    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  public boolean saveAuction(Auction auction, String sellerProfileId, String imagePath) {
+    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -332,6 +345,7 @@ public class AuctionRepository {
       ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getStartTime()));
       ps.setTimestamp(9, java.sql.Timestamp.valueOf(auction.getEndTime()));
       ps.setString(10, auction.getStatus().name());
+      ps.setString(11, imagePath);
 
       return ps.executeUpdate() > 0;
 

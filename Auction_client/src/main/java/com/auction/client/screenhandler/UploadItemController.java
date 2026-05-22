@@ -149,6 +149,15 @@ public class UploadItemController {
       // Xử lý Danh mục (Ánh xạ từ text giao diện sang Enum)
       ItemType type = mapCategoryToEnum(categoryField.getValue());
 
+      // Đọc dữ liệu ảnh (nếu người dùng đã chọn ảnh)
+      byte[] imageBytes = null;
+      String imageExtension = null;
+      if (selectedImageFile != null) {
+        imageBytes = java.nio.file.Files.readAllBytes(selectedImageFile.toPath());
+        String fileName = selectedImageFile.getName();
+        imageExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+      }
+
       UploadItemRequestDTO uploadItemRequestDTO = new UploadItemRequestDTO(sellerId,
                                                                           nameItem,
                                                                           type,
@@ -156,7 +165,9 @@ public class UploadItemController {
                                                                           startPrice,
                                                                           minStepPrice,
                                                                           startTime,
-                                                                          endTime);
+                                                                          endTime,
+                                                                          imageBytes,
+                                                                          imageExtension);
 
       ServerConnection.sendData(uploadItemRequestDTO);
 
@@ -204,6 +215,13 @@ public class UploadItemController {
     File file = fileChooser.showOpenDialog(ScreenController.primaryStage);
 
     if (file != null) {
+      // Kiểm tra dung lượng file <= 5MB (5 * 1024 * 1024 bytes)
+      if (file.length() > 5 * 1024 * 1024) {
+        ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo",
+            "Kích thước ảnh quá lớn. Vui lòng chọn ảnh có dung lượng từ 5MB trở xuống!");
+        return;
+      }
+
       // Lưu trữ ảnh vừa chọn vào trong selectedImageFile để tí nữa upload lên khi người dùng ấn upload
       selectedImageFile = file;
 

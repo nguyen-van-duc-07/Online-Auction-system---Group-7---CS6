@@ -1,6 +1,7 @@
 module com.auction.server {
     // Yêu cầu (requires) quyền truy cập vào module dùng chung
     requires com.auction.shared;
+    requires jdk.httpserver;
     requires org.controlsfx.controls;
     requires javafx.controls;
     // Nếu bạn dùng các thư viện như BCrypt hay JDBC trong server, bạn cũng phải requires chúng ở đây

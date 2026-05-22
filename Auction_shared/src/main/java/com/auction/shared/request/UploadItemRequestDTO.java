@@ -34,4 +34,10 @@ public class UploadItemRequestDTO implements RequestDTO {
   private LocalDateTime startTime;
   /** Thời gian kết thúc phiên đấu giá. */
   private LocalDateTime endTime;
+
+  /** Dữ liệu nhị phân của ảnh sản phẩm (đọc từ file bằng Files.readAllBytes). */
+  private byte[] imageBytes;
+
+  /** Đuôi mở rộng của file ảnh (ví dụ: "jpg", "png"). */
+  private String imageExtension;
 }
