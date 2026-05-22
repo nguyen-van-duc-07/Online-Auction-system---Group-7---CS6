@@ -151,14 +151,14 @@ public class BidService {
       }
       // Ví KHÔNG ĐỦ 10% -> Giết Bot
       else {
-        autoBidRepo.deactivate(bot.getId(), auctionId);
+        autoBidRepo.deactivate(bot.getUserId(), auctionId);
         String fomoMessage = "Bot đã tự tắt do số dư ví không đủ 10% (" + requiredFreeze + " VNĐ) để tiếp tục đấu giá!";
         Server.sendToUser(bot.getUserId(), new AutoBidDefeatedDTO(auctionId, fomoMessage));
       }
     }
     // KỊCH BẢN B: BOT HẾT NGÂN SÁCH (Người thật trả giá vượt quá Max Price của Bot)
     else {
-      autoBidRepo.deactivate(bot.getId(), auctionId);
+      autoBidRepo.deactivate(bot.getUserId(), auctionId);
       String fomoMessage = "Một tài phiệt khác vừa trả giá đè bẹp ngân sách Bot của bạn!";
       Server.sendToUser(bot.getUserId(), new AutoBidDefeatedDTO(auctionId, fomoMessage));
     }

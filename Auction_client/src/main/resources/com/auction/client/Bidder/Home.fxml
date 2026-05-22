@@ -69,10 +69,11 @@
             <VBox fx:id="sidebar" prefHeight="580.0" prefWidth="235.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom, #1e7d32, #009900);" BorderPane.alignment="CENTER">
                 <padding><Insets left="15.0" right="15.0" top="30.0" /></padding>
                 <children>
-                    <Button fx:id="btnQuanLy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🛒 Quản lý hàng giao bán">
+                    <Button fx:id="btnQuanLy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🛒 Cửa hàng của tôi">
                         <effect><DropShadow blurType="GAUSSIAN" height="10.0" radius="4.5" width="10.0"><color><Color opacity="0.3" /></color></DropShadow></effect>
                     </Button>
 
+                    <Button fx:id="btnKetQua" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoResult" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🔍 Các phiên đấu giá" />
                     <Button fx:id="btnKetQua" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoResult" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🏆 Kết quả đấu giá" />
 
                     <Label fx:id="lblStatusHeader" text="TRẠNG THÁI PHIÊN" textFill="#c8e6c9">
@@ -98,7 +99,7 @@
         </left>
 
         <center>
-            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: #f0f2f5;" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
+            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" focusTraversable="false" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" BorderPane.alignment="CENTER">
                 <content>
                     <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
                         <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>
@@ -108,7 +109,7 @@
         </center>
     </BorderPane>
 
-    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" onMouseClicked="#gotoNotifications" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: move;" StackPane.alignment="BOTTOM_LEFT">
+    <VBox fx:id="floatingIcon" onMouseClicked="#gotoNotifications" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: hand;" StackPane.alignment="BOTTOM_LEFT">
         <StackPane.margin>
             <Insets bottom="30.0" left="30.0" />
         </StackPane.margin>
