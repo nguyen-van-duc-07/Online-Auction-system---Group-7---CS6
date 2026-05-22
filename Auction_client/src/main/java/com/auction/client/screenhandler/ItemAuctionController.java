@@ -68,13 +68,6 @@ public class ItemAuctionController implements Initializable {
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
 
-  @FXML
-  public void gotoHome() {
-    stopCountdownTimer();
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
-    ScreenController.goBack();
-  }
-
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this; // Gán màn hình hiện tại vào biến static
