@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.text.DecimalFormat;
 import org.controlsfx.control.Notifications;
+import com.auction.shared.network.NetworkConfig;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class ItemAuctionController implements Initializable {
   public static ItemAuctionController instance;
@@ -62,6 +65,10 @@ public class ItemAuctionController implements Initializable {
   private TextField maxAutoPriceField;
   @FXML
   private TextField autoStepPriceField;
+
+  /** Khung hiển thị ảnh sản phẩm đấu giá (load bất đồng bộ qua HTTP). */
+  @FXML
+  private ImageView itemImageView;
 
 
 
@@ -580,6 +587,15 @@ public class ItemAuctionController implements Initializable {
 
       // 4. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
       loadChartData();
+
+      // 5. Load ảnh sản phẩm bất đồng bộ qua HTTP
+      if (auctionData.getImagePath() != null && !auctionData.getImagePath().isEmpty()
+          && itemImageView != null) {
+        String imageUrl = "http://" + NetworkConfig.DEFAULT_HOST + ":"
+            + NetworkConfig.IMAGE_SERVER_PORT + "/images/" + auctionData.getImagePath();
+        Image image = new Image(imageUrl, true); // true = background loading
+        itemImageView.setImage(image);
+      }
 
       // In log ra để dễ debug
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;

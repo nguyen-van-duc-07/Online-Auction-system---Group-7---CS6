@@ -58,6 +58,9 @@ public class Server {
 
   public static void main(String[] args) {
     try {
+      // Khởi chạy HTTP Static File Server cho ảnh sản phẩm
+      service.ImageHttpServer.start();
+
       AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
       scheduler.start();
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);

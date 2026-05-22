@@ -285,6 +285,9 @@ public class AuctionRepository {
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);
 
+    // Đọc đường dẫn ảnh sản phẩm
+    auction.setImagePath(rs.getString("image_path"));
+
     return auction;
   }
 
@@ -325,9 +328,9 @@ public class AuctionRepository {
     return auction;
   }
 
-  public boolean saveAuction(Auction auction, String sellerProfileId) {
-    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  public boolean saveAuction(Auction auction, String sellerProfileId, String imagePath) {
+    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -342,6 +345,7 @@ public class AuctionRepository {
       ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getStartTime()));
       ps.setTimestamp(9, java.sql.Timestamp.valueOf(auction.getEndTime()));
       ps.setString(10, auction.getStatus().name());
+      ps.setString(11, imagePath);
 
       return ps.executeUpdate() > 0;
 

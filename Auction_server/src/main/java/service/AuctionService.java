@@ -58,12 +58,24 @@ public class AuctionService {
       System.out.println("Unable to save item");
       return false; // Nếu lưu Item thất bại thì dừng quy trình
     }
+
+    // Lưu ảnh sản phẩm lên đĩa cứng (nếu có)
+    String imagePath = null;
+    if (request.getImageBytes() != null && request.getImageBytes().length > 0) {
+      try {
+        imagePath = ImageStorageService.saveImage(request.getImageBytes(), request.getImageExtension());
+      } catch (Exception e) {
+        System.err.println("Lỗi lưu ảnh, tiếp tục tạo auction không có ảnh: " + e.getMessage());
+      }
+    }
+
     return getInstance().createAuction(item,
         sellerProfileId,
         request.getStartPrice(),
         request.getMinStepPrice(),
         request.getStartTime(),
-        request.getEndTime());
+        request.getEndTime(),
+        imagePath);
   }
 
   /**
@@ -80,11 +92,12 @@ public class AuctionService {
                                BigDecimal startPrice,
                                BigDecimal minStepPrice,
                                LocalDateTime startTime,
-                               LocalDateTime endTime) {
+                               LocalDateTime endTime,
+                               String imagePath) {
 
     Auction auction = new Auction(item, startPrice, minStepPrice, startTime, endTime);
 
-    boolean isAuctionSaved = auctionRepo.saveAuction(auction, sellerId);
+    boolean isAuctionSaved = auctionRepo.saveAuction(auction, sellerId, imagePath);
 
     if (isAuctionSaved) {
       auctions.put(auction.getId(), auction);
