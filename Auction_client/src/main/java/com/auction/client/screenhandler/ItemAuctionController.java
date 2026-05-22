@@ -64,6 +64,17 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private TextField autoStepPriceField;
 
+  // Quick Add buttons
+  @FXML
+  private Button btnQuickAdd100;
+  @FXML
+  private Button btnQuickAdd200;
+  @FXML
+  private Button btnQuickAdd500;
+  @FXML
+  private Button btnQuickAdd1m;
+  @FXML
+  private Button btnQuickAdd2m;
 
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
@@ -422,8 +433,55 @@ public class ItemAuctionController implements Initializable {
   }
 
   /**
-   * Tự động cộng thêm lượng tiền chọn nhanh vào giá hiện tại
-   * và điền kết quả vào ô nhập giá (bidAmountField).
+   * Cập nhật text các nút Quick Add dựa vào minStep.
+   * - Nút 1: minStep × 1
+   * - Nút 2: minStep × 1.25
+   * - Nút 3: minStep × 1.5
+   * - Nút 4: minStep × 1.75
+   * - Nút 5: minStep × 2
+   */
+  private void updateQuickAddButtonTexts() {
+    if (currentAuction == null || currentAuction.getMinStepPrice() == null) {
+      return;
+    }
+
+    BigDecimal minStep = currentAuction.getMinStepPrice();
+    DecimalFormat formatter = new DecimalFormat("#,###");
+
+    // Định nghĩa các hệ số nhân
+    double[] multipliers = {1.0, 1.25, 1.5, 1.75, 2.0};
+    Button[] buttons = {btnQuickAdd100, btnQuickAdd200, btnQuickAdd500, btnQuickAdd1m, btnQuickAdd2m};
+
+    for (int i = 0; i < buttons.length && i < multipliers.length; i++) {
+      BigDecimal amount = minStep.multiply(new BigDecimal(multipliers[i]));
+      String formattedAmount = formatAmountForButton(amount);
+      buttons[i].setText(formattedAmount);
+    }
+  }
+
+  /**
+   * Format lượng tiền để hiển thị trên nút (ví dụ: 100k, 1.5M, v.v.)
+   */
+  private String formatAmountForButton(BigDecimal amount) {
+    if (amount.compareTo(new BigDecimal("1000000")) >= 0) {
+      // Triệu (M)
+      BigDecimal millions = amount.divide(new BigDecimal("1000000"), 2, java.math.RoundingMode.HALF_UP);
+      String result = millions.stripTrailingZeros().toPlainString();
+      return result + "M";
+    } else if (amount.compareTo(new BigDecimal("1000")) >= 0) {
+      // Nghìn (k)
+      BigDecimal thousands = amount.divide(new BigDecimal("1000"), 1, java.math.RoundingMode.HALF_UP);
+      String result = thousands.stripTrailingZeros().toPlainString();
+      return result + "k";
+    } else {
+      return amount.stripTrailingZeros().toPlainString();
+    }
+  }
+
+  /**
+   * Xử lý nút Quick Add: tính toán giá mới dựa trên Min Step hoặc phần trăm.
+   * - "Min Step": cộng minStepPrice
+   * - "+125%", "+150%", "+175%", "+200%": cộng % của giá hiện tại
    */
   @FXML
   public void handleQuickAdd(ActionEvent event) {
@@ -439,36 +497,57 @@ public class ItemAuctionController implements Initializable {
       Button clickedButton = (Button) event.getSource();
       String text = clickedButton.getText().trim().toLowerCase();
 
-      // Loại bỏ ký tự "+" ở đầu nếu có (ví dụ: "+100k" -> "100k")
-      if (text.startsWith("+")) {
-        text = text.substring(1);
+      BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
+      if (currentPrice == null) {
+        showError("Không thể lấy giá hiện tại!");
+        return;
       }
+
       BigDecimal addAmount = BigDecimal.ZERO;
       try {
-        // Xử lý hậu tố đơn vị tiền tệ "k" (nghìn) hoặc "m" (triệu)
-        if (text.endsWith("k")) {
-          String numStr = text.substring(0, text.length() - 1);
-          addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000"));
-        } else if (text.endsWith("m")) {
-          String numStr = text.substring(0, text.length() - 1);
-          addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000000"));
+        // Kiểm tra loại nút
+        if (text.equals("min step")) {
+          // Nút Min Step: cộng minStepPrice
+          BigDecimal minStep = currentAuction.getMinStepPrice();
+          if (minStep == null || minStep.compareTo(BigDecimal.ZERO) <= 0) {
+            showError("Bước giá tối thiểu không hợp lệ!");
+            return;
+          }
+          addAmount = minStep;
+        } else if (text.contains("%")) {
+          // Nút phần trăm (ví dụ: "+125%")
+          String numStr = text.replace("+", "").replace("%", "").trim();
+          BigDecimal percentage = new BigDecimal(numStr);
+          // Cộng giá hiện tại với (currentPrice * percentage%)
+          addAmount = currentPrice.multiply(percentage).divide(new BigDecimal("100"));
         } else {
-          // Trường hợp nút có text dạng số thuần túy
-          addAmount = new BigDecimal(text);
+          // Trường hợp cũ: xử lý hậu tố "k" hoặc "m"
+          if (text.startsWith("+")) {
+            text = text.substring(1);
+          }
+          if (text.endsWith("k")) {
+            String numStr = text.substring(0, text.length() - 1);
+            addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000"));
+          } else if (text.endsWith("m")) {
+            String numStr = text.substring(0, text.length() - 1);
+            addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000000"));
+          } else {
+            addAmount = new BigDecimal(text);
+          }
         }
-        // Lấy giá hiện tại và tính toán giá mới
-        BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
-        if (currentPrice != null) {
-          BigDecimal newBidAmount = currentPrice.add(addAmount);
 
-          // Điền giá trị mới vào ô nhập liệu dưới dạng số thuần túy để hàm placeBid() có thể parse được
-          bidAmountField.setText(newBidAmount.toPlainString());
+        // Tính toán giá mới
+        BigDecimal newBidAmount = currentPrice.add(addAmount);
 
-          // Xóa các thông báo lỗi cũ và hiển thị viền xanh lá đồng bộ hệ thống
-          clearError();
-        }
+        // Điền giá trị mới vào ô nhập liệu
+        bidAmountField.setText(newBidAmount.toPlainString());
+
+        // Xóa các thông báo lỗi cũ
+        clearError();
       } catch (NumberFormatException e) {
-        showError("Lượng tiền cộng thêm không hợp lệ!");
+        showError("Tính toán giá không hợp lệ!");
+      } catch (Exception e) {
+        showError("Lỗi: " + e.getMessage());
       }
     }
   }
@@ -574,6 +653,9 @@ public class ItemAuctionController implements Initializable {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
+      // Cập nhật text các nút Quick Add dựa vào minStep
+      updateQuickAddButtonTexts();
+      
       itemNameLabel.setText(auctionData.getItem().getName());
 
       DecimalFormat formatter = new DecimalFormat("#,###");
