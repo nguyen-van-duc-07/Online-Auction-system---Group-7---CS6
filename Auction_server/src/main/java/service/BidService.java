@@ -6,11 +6,7 @@ import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.PlaceBidRequestDTO;
-import com.auction.shared.response.AuctionPriceUpdateDTO;
-import com.auction.shared.response.AuctionResponseDTO;
-import com.auction.shared.response.AutoBidDefeatedDTO;
-import com.auction.shared.response.NewBidDTO;
-import com.auction.shared.response.PlaceBidResponseDTO;
+import com.auction.shared.response.*;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.AutoBidConfigRepository;
@@ -22,6 +18,7 @@ import servercontroller.Server;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class BidService {
@@ -80,6 +77,22 @@ public class BidService {
       }
     } catch (SQLException e) {
       return new PlaceBidResponseDTO(false, "Lỗi kết nối cơ sở dữ liệu");
+    }
+    // Sau khi commit thành công, trước broadcastToAuctionRoom
+// Kiểm tra anti-sniping
+    LocalDateTime endTime = auction.getEndTime();
+    LocalDateTime now = LocalDateTime.now();
+    long minutesLeft = java.time.temporal.ChronoUnit.MINUTES.between(now, endTime);
+
+    if (minutesLeft < 3) {
+      LocalDateTime newEndTime = endTime.plusMinutes(3);
+      auctionRepo.updateEndTime(req.getAuctionId(), newEndTime);
+      // Broadcast endTime mới cho tất cả trong phòng
+      AuctionExtendedDTO auctionExtended = new AuctionExtendedDTO(req.getAuctionId(), newEndTime);
+      Server.broadcastToAuctionRoom(auctionExtended);
+      Server.broadcastToAll(auctionExtended);
+      System.out.println("[ANTI-SNIPING] Gia hạn phiên " + req.getAuctionId()
+          + " đến " + newEndTime);
     }
 
     // Phát sóng giao dịch thủ công thành công

@@ -698,4 +698,17 @@ public class ItemAuctionController implements Initializable {
       System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
     });
   }
+
+  public void onAuctionExtended(LocalDateTime newEndTime) {
+    Platform.runLater(() -> {
+      currentAuction.setEndTime(newEndTime);
+
+      Notifications.create()
+          .title("⏰ Phiên đấu giá được gia hạn!")
+          .text("Có bid mới trong 3 phút cuối!\nPhiên được gia hạn thêm 3 phút.")
+          .hideAfter(javafx.util.Duration.seconds(5))
+          .position(Pos.TOP_RIGHT)
+          .showWarning();
+    });
+  }
 }

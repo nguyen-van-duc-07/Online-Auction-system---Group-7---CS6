@@ -535,5 +535,16 @@ public class AuctionRepository {
       return null;
     }
   }
+  public void updateEndTime(String auctionId, LocalDateTime newEndTime) {
+    String sql = "UPDATE auctions SET end_time = ? WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setTimestamp(1, Timestamp.valueOf(newEndTime));
+      ps.setString(2, auctionId);
+      ps.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
 }
 

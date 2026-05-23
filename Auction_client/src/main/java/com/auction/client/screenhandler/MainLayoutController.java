@@ -23,6 +23,7 @@ import javafx.scene.text.Font;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -467,6 +468,48 @@ public class MainLayoutController implements Initializable, Controller {
         }
       }
     });
+  }
+
+  // Thêm vào bên trong class MainLayoutController
+
+  /**
+   * Cập nhật thời gian kết thúc của một phiên đấu giá do Anti-Sniping
+   */
+  public void updateAuctionEndTime(String auctionId, LocalDateTime newEndTime) {
+    if (currentAuctions == null || currentAuctions.isEmpty() || feedContainer == null) {
+      return;
+    }
+
+    // 1. Cập nhật dữ liệu gốc
+    for (AuctionDTO auction : currentAuctions) {
+      if (auction.getAuctionId().equals(auctionId)) {
+        auction.setEndTime(newEndTime);
+        break;
+      }
+    }
+
+    // 2. Tìm và cập nhật UI (Card trong FlowPane)
+    for (Node node : feedContainer.getChildren()) {
+      if (node instanceof VBox) {
+        VBox card = (VBox) node;
+        // Trong Feed của bạn, bạn có thể cần tìm cách xác định Card này thuộc về AuctionID nào.
+        // Nếu bạn có setUserData(auction) lúc tạo Card, ta có thể dùng cách này:
+        if (card.getUserData() instanceof AuctionDTO) {
+          AuctionDTO cardAuction = (AuctionDTO) card.getUserData();
+          if (cardAuction.getAuctionId().equals(auctionId)) {
+            // Thay vì tìm label thời gian cụ thể (hơi phức tạp nếu chưa chuẩn hóa UI),
+            // Bạn có thể reload lại toàn bộ feed (đơn giản nhất)
+            // loadFeedToUI(this.currentAuctions);
+
+            // HOẶC NẾU CÓ THỂ, RENDER LẠI RIÊNG CARD ĐÓ (khuyến nghị để tránh giật UI):
+            Platform.runLater(() -> {
+              loadFeedToUI(new ArrayList<>(this.currentAuctions));
+            });
+            break;
+          }
+        }
+      }
+    }
   }
 
   // ====================================================================

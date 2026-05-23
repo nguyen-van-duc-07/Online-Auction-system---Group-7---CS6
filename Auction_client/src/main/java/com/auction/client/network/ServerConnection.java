@@ -155,6 +155,9 @@ public class ServerConnection {
             case GetPendingOrdersOfBuyerResponseDTO responseDTO -> {
               ResponseHandler.handleGetPendingOrdersOfBuyer(responseDTO);
             }
+            case AuctionExtendedDTO dto ->
+                ResponseHandler.handleAuctionExtended(dto);
+
 
             default -> System.out.println("Phản hồi không hợp lệ");
           }

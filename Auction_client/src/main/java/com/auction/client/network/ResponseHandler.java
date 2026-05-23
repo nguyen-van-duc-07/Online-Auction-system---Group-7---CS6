@@ -533,4 +533,18 @@ public class ResponseHandler {
       }
     });
   }
+
+  public static void handleAuctionExtended(AuctionExtendedDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật endTime trong ItemAuctionController
+      if (ItemAuctionController.instance != null) {
+        ItemAuctionController.instance.onAuctionExtended(dto.getNewEndTime());
+      }
+      // 2. BỔ SUNG: Cập nhật endTime cho MainLayoutController (cho người đang ở NGOÀI sảnh/Home)
+      MainLayoutController mainController = MainLayoutController.getInstance();
+      if (mainController != null) {
+        mainController.updateAuctionEndTime(dto.getAuctionId(), dto.getNewEndTime());
+      }
+    });
+  }
 }
