@@ -3,6 +3,7 @@ package repository;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.Admin;
 import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
 
@@ -92,7 +93,7 @@ public class UserRepository {
    * Nếu accountName là null, sẽ tìm theo id.
    *
    * @param accountName tên tài khoản người dùng (có thể null)
-   * @param id mã định danh người dùng (có thể null)
+   * @param id          mã định danh người dùng (có thể null)
    * @return đối tượng User nếu tìm thấy, ngược lại trả về null
    */
   public User getUserByAccountNameOrId(String accountName, String id) {
@@ -210,6 +211,7 @@ public class UserRepository {
       throw new RuntimeException(e);
     }
   }
+
   public static boolean deleteAccount(User user) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "DELETE FROM users "
@@ -225,6 +227,7 @@ public class UserRepository {
   /**
    * Lấy tên thật (real_name) của người dùng dựa trên mã định danh (userId).
    * * @param userId Mã định danh của người dùng cần tra cứu.
+   *
    * @return Tên thật của người dùng nếu tìm thấy, ngược lại trả về null.
    */
   public String getRealNameByUserId(String userId) {
@@ -245,6 +248,32 @@ public class UserRepository {
       e.printStackTrace();
     }
 
+    return null;
+  }
+
+  public InfoDTO getInfoByUserId(String userId) {
+    String query = "SELECT real_name, phone_number, address"
+        + "FROM users"
+        + "WHERE id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+      pstmt.setString(1, userId);
+
+      try (ResultSet rs = pstmt.executeQuery()) {
+        if (rs.next()) {
+          InfoDTO infoDTO = new InfoDTO();
+          infoDTO.setConsigneeName(rs.getString("real_name"));
+          infoDTO.setPhoneNumber(rs.getString("phone_number"));
+          infoDTO.setAddress(rs.getString("address"));
+          return infoDTO;
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Lỗi khi lấy thông tin của userId: " + userId);
+      e.printStackTrace();
+    }
     return null;
   }
 }

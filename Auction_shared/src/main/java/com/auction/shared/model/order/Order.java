@@ -15,19 +15,39 @@ import java.time.LocalDateTime;
 public class Order extends Entity {
   private String auctionId;
   private String buyerId;
-  private String sellerProfileId;
+  private String sellerId;
   private BigDecimal finalPrice;
   private BigDecimal depositAmount;
+  private BigDecimal remainingAmount;
   private OrderStatus status;
   private LocalDateTime resolvedAt;
   private String consigneeName;
   private String phoneNumber;
   private String address;
+  private String brandName;
+  private String location;
+  private String itemName;
 
-  public Order(String auctionId, String buyerId, String sellerProfileId, BigDecimal finalPrice, BigDecimal depositAmount, OrderStatus status, LocalDateTime resolvedAt, String consigneeName, String phoneNumber, String address) {
+  public Order(String auctionId, String buyerId, String sellerId, BigDecimal finalPrice, BigDecimal depositAmount, BigDecimal remainingAmount, OrderStatus status, String consigneeName, String phoneNumber, String address, String brandName, String location, String itemName) {
     this.auctionId = auctionId;
     this.buyerId = buyerId;
-    this.sellerProfileId = sellerProfileId;
+    this.sellerId = sellerId;
+    this.finalPrice = finalPrice;
+    this.depositAmount = depositAmount;
+    this.remainingAmount = remainingAmount;
+    this.status = status;
+    this.consigneeName = consigneeName;
+    this.phoneNumber = phoneNumber;
+    this.address = address;
+    this.brandName = brandName;
+    this.location = location;
+    this.itemName = itemName;
+  }
+
+  public Order(String auctionId, String buyerId, String sellerId, BigDecimal finalPrice, BigDecimal depositAmount, OrderStatus status, LocalDateTime resolvedAt, String consigneeName, String phoneNumber, String address) {
+    this.auctionId = auctionId;
+    this.buyerId = buyerId;
+    this.sellerId = sellerId;
     this.finalPrice = finalPrice;
     this.depositAmount = depositAmount;
     this.status = status;
@@ -37,12 +57,13 @@ public class Order extends Entity {
     this.address = address;
   }
 
-  public Order(String auctionId, String buyerId, String sellerProfileId, BigDecimal finalPrice, BigDecimal depositAmount, OrderStatus status, String consigneeName, String phoneNumber, String address) {
+  public Order(String auctionId, String buyerId, String sellerProfileId, BigDecimal finalPrice, BigDecimal depositAmount, BigDecimal remainingAmount, OrderStatus status, String consigneeName, String phoneNumber, String address) {
     this.auctionId = auctionId;
     this.buyerId = buyerId;
-    this.sellerProfileId = sellerProfileId;
+    this.sellerId = sellerProfileId;
     this.finalPrice = finalPrice;
     this.depositAmount = depositAmount;
+    this.remainingAmount = remainingAmount;
     this.status = status;
     this.consigneeName = consigneeName;
     this.phoneNumber = phoneNumber;

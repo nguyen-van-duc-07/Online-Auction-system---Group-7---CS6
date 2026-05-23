@@ -56,55 +56,34 @@ public class WalletService {
     if (wallet.getBalance().compareTo(amount) < 0) {
       throw new RuntimeException("Số dư không đủ để đặt giá");
     }
-    // Lưu lại trạng thái trước khi thay đổi
-    BigDecimal balBefore = wallet.getBalance();
-    BigDecimal frozBefore = wallet.getFrozenBalance();
+
     // 1. Cập nhật ví
-    wallet.setBalance(balBefore.subtract(amount));
-    wallet.setFrozenBalance(frozBefore.add(amount));
+    wallet.freeze(amount);
     walletRepo.updateWallet(conn, wallet);
     // 2. Ghi nhận giao dịch
     WalletTransaction tx = new WalletTransaction(
         wallet.getId(),
         WalletTransactionType.BID_FREEZE,
         amount,
-        balBefore,
-        wallet.getBalance(),
-        frozBefore,
-        wallet.getFrozenBalance(),
         auctionId,
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, tx);
-    System.out.println("[WALLET - FREEZE] Thành công! User: " + userId + " | Số dư khả dụng: " + balBefore + " -> " + wallet.getBalance() + " | Đang đóng băng: " + frozBefore + " -> " + wallet.getFrozenBalance());
   }
 
   public void releaseFrozen(Connection conn, String userId, BigDecimal amount, String auctionId) {
-    System.out.println("[WALLET - RELEASE] Yêu cầu hoàn trả " + amount + " cho User: " + userId + " (Auction: " + auctionId + ")");
     Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
-
-    BigDecimal balBefore = wallet.getBalance();
-    BigDecimal frozBefore = wallet.getFrozenBalance();
-
-    wallet.setFrozenBalance(frozBefore.subtract(amount));
-    wallet.setBalance(balBefore.add(amount));
+    wallet.unfreeze(amount);
     walletRepo.updateWallet(conn, wallet);
 
     WalletTransaction tx = new WalletTransaction(
         wallet.getId(),
         WalletTransactionType.BID_RELEASE,
         amount,
-        balBefore,
-        wallet.getBalance(),
-        frozBefore,
-        wallet.getFrozenBalance(),
         auctionId,
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, tx);
-    System.out.println("[WALLET - RELEASE] Thành công! User: " + userId
-        + " | Số dư: " + com.auction.shared.util.FormatUtil.fmt(balBefore) + " -> " + com.auction.shared.util.FormatUtil.fmt(wallet.getBalance())
-        + " | Đóng băng: " + com.auction.shared.util.FormatUtil.fmt(frozBefore) + " -> " + com.auction.shared.util.FormatUtil.fmt(wallet.getFrozenBalance()));
   }
 
   /**
@@ -158,31 +137,20 @@ public class WalletService {
   public void processPayment(Connection conn, Order order) {
     System.out.println("BAT DAU QUA TRINH THANH TOAN CHO ORDER: " + order.getId());
     // 1. Xử lý ví buyer
-    BigDecimal remaining = order.getFinalPrice().subtract(order.getDepositAmount()); // 90%
     Wallet buyerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getBuyerId());
-    BigDecimal buyerBalBefore = buyerWallet.getBalance();
-    BigDecimal buyerFrozBefore = buyerWallet.getFrozenBalance();
-    buyerWallet.unfreeze(order.getDepositAmount());
-    buyerWallet.withdraw(remaining);
+    buyerWallet.payWinningAuction(order.getDepositAmount(), order.getRemainingAmount());
     walletRepo.updateWallet(conn, buyerWallet); // cap nhat lai trong database
-    // Tao lich su tru tien thanh toan
     WalletTransaction buyerTx = new WalletTransaction(
         buyerWallet.getId(),
         WalletTransactionType.AUCTION_PAYMENT,
-        remaining,
-        buyerBalBefore,
-        buyerWallet.getBalance(),
-        buyerFrozBefore,
-        buyerWallet.getFrozenBalance(),
+        order.getRemainingAmount(),
         order.getId(),
         WalletTransactionStatus.SUCCESS
     );
     // Luu lai lich su giao dich
     txRepo.saveWalletTransaction(conn, buyerTx);
-
     // 2. Xử lý ví seller
-    String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
-    Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, sellerId);
+    Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getSellerId());
     BigDecimal sellerBalBefore = sellerWallet.getBalance();
 
     sellerWallet.deposit(order.getFinalPrice());  // nhận 100%
@@ -192,10 +160,6 @@ public class WalletService {
         sellerWallet.getId(),
         WalletTransactionType.SELLER_PAYOUT,
         order.getFinalPrice(),
-        sellerBalBefore,
-        sellerWallet.getBalance(),
-        sellerWallet.getFrozenBalance(),
-        sellerWallet.getFrozenBalance(),
         order.getId(),
         WalletTransactionStatus.SUCCESS
     );
@@ -205,30 +169,11 @@ public class WalletService {
   public void processCancelPenalty(Connection conn, Order order) {
     // 1. Xử lý ví buyer — mất cọc
     Wallet buyerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getBuyerId());
-    BigDecimal buyerBalBefore  = buyerWallet.getBalance();
-    BigDecimal buyerFrozBefore = buyerWallet.getFrozenBalance();
-
-    buyerWallet.unfreeze(order.getDepositAmount());   // giải phóng khỏi frozen
-    buyerWallet.withdraw(order.getDepositAmount());   // trừ khỏi balance (mất cọc)
+    buyerWallet.penaltyDeposit(order.getDepositAmount());
     walletRepo.updateWallet(conn, buyerWallet);
 
-    WalletTransaction buyerTx = new WalletTransaction(
-        buyerWallet.getId(),
-        WalletTransactionType.REFUND,
-        order.getDepositAmount(),
-        buyerBalBefore,
-        buyerWallet.getBalance(),
-        buyerFrozBefore,
-        buyerWallet.getFrozenBalance(),
-        order.getId(),
-        WalletTransactionStatus.SUCCESS
-    );
-    txRepo.saveWalletTransaction(conn, buyerTx);
-
     // 2. Xử lý ví seller — nhận cọc phạt
-    String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
-    Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, sellerId);
-    BigDecimal sellerBalBefore = sellerWallet.getBalance();
+    Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getSellerId());
 
     sellerWallet.deposit(order.getDepositAmount());
     walletRepo.updateWallet(conn, sellerWallet);
@@ -237,10 +182,6 @@ public class WalletService {
         sellerWallet.getId(),
         WalletTransactionType.SELLER_PAYOUT,
         order.getDepositAmount(),
-        sellerBalBefore,
-        sellerWallet.getBalance(),
-        sellerWallet.getFrozenBalance(),
-        sellerWallet.getFrozenBalance(),
         order.getId(),
         WalletTransactionStatus.SUCCESS
     );

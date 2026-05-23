@@ -63,17 +63,11 @@ public class RequestHandler {
   public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
     // Kiểm tra xem User đã có hồ sơ người bán chưa
     SellerProfileRepository profileRepo = new SellerProfileRepository();
-    String sellerProfileId = profileRepo.findProfileIdByUserId(uploadItemReq.getSellerId());
-
-    // Nếu chưa có, chặn lại và báo lỗi về Client
-    if (sellerProfileId == null) {
+    if (!profileRepo.haveSellerProfile(uploadItemReq.getSellerId()))
       return new UploadItemResponseDTO(false,
-              "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
-    }
-
+          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
     // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
-    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq, sellerProfileId);
-
+    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq);
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
             "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);

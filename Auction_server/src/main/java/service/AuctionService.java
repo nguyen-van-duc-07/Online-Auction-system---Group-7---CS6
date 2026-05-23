@@ -49,7 +49,7 @@ public class AuctionService {
    *
    * @return {@code true} nếu cả Item và Auction đều được lưu thành công, ngược lại là {@code false}
    */
-  public static boolean uploadNewItem(UploadItemRequestDTO request, String sellerProfileId) {
+  public static boolean uploadNewItem(UploadItemRequestDTO request) {
     // Tạo và lưu Item
     Item item = new Item(request.getItemName(), request.getItemType(), request.getDescription());
 
@@ -70,7 +70,7 @@ public class AuctionService {
     }
 
     return getInstance().createAuction(item,
-        sellerProfileId,
+        request.getSellerId(),
         request.getStartPrice(),
         request.getMinStepPrice(),
         request.getStartTime(),
@@ -95,9 +95,9 @@ public class AuctionService {
                                LocalDateTime endTime,
                                String imagePath) {
 
-    Auction auction = new Auction(item, startPrice, minStepPrice, startTime, endTime);
+    Auction auction = new Auction(item, sellerId, startPrice, minStepPrice, startTime, endTime);
 
-    boolean isAuctionSaved = auctionRepo.saveAuction(auction, sellerId, imagePath);
+    boolean isAuctionSaved = auctionRepo.saveAuction(auction, imagePath);
 
     if (isAuctionSaved) {
       auctions.put(auction.getId(), auction);

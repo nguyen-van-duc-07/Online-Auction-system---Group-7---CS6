@@ -1,7 +1,9 @@
 package repository;
 
 import com.auction.shared.enums.SellerRegisterStatus;
+import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.SellerProfile;
+import com.auction.shared.model.user.ShopInfoDTO;
 import config.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -168,6 +170,43 @@ public class SellerProfileRepository {
       e.printStackTrace();
       return false;
     }
+  }
+  public boolean haveSellerProfile(String userId) {
+    String sql = "SELECT 1 FROM seller_profiles WHERE user_id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        return rs.next();
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+  public ShopInfoDTO getShopInfo(String sellerId) {
+    String query = "SELECT brand_name, location "
+        + "FROM seller_profiles "
+        + "WHERE user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+      pstmt.setString(1, sellerId);
+
+      try (ResultSet rs = pstmt.executeQuery()) {
+        if (rs.next()) {
+          ShopInfoDTO shopInfo = new ShopInfoDTO();
+          shopInfo.setBrandName(rs.getString("brand_name"));
+          shopInfo.setLocation(rs.getString("location"));
+          return shopInfo;
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Lỗi khi lấy thông tin của sellerProfile cua: " + sellerId);
+      e.printStackTrace();
+    }
+    return null;
   }
 }
 

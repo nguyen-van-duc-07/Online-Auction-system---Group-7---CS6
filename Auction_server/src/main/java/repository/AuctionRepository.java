@@ -6,7 +6,6 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
-import com.auction.shared.model.user.User;
 import com.auction.shared.response.AuctionResponseDTO;
 import config.DatabaseConnection;
 
@@ -325,7 +324,7 @@ public class AuctionRepository {
     return auction;
   }
 
-  public boolean saveAuction(Auction auction, String sellerProfileId, String imagePath) {
+  public boolean saveAuction(Auction auction, String imagePath) {
     String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -333,7 +332,7 @@ public class AuctionRepository {
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, auction.getId());
-      ps.setString(2, sellerProfileId);
+      ps.setString(2, auction.getSellerId());
       ps.setString(3, auction.getItem().getId());
       ps.setBigDecimal(4, auction.getStartPrice());
       ps.setBigDecimal(5, auction.getMinStepPrice());
@@ -521,7 +520,7 @@ public class AuctionRepository {
 
     return result;
   }
-  public String getSellerProfileIdByAuctionId(String auctionId) {
+  public String getSellerIdByAuctionId(String auctionId) {
     String sql = "SELECT seller_id FROM auctions WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
