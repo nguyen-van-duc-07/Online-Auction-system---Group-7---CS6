@@ -259,7 +259,7 @@ public class RequestHandler {
     if (success) {
       // --- KÍCH HOẠT THUẬT TOÁN ĐỤNG ĐỘ BOT VS BOT TẠI ĐÂY ---
       if (req.isActive()) {
-        AuctionService.resolveAutoBidFight(req.getAuctionId());
+        new BidService().resolveAutoBidFight(req.getAuctionId());
       }
       return new AutoBidResponseDTO(true, "Đã cập nhật tự động đấu giá!");
     } else {

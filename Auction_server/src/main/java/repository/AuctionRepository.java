@@ -222,16 +222,13 @@ public class AuctionRepository {
     }
   }
 
-  public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
+  public void updatePrice(Connection conn, String auctionId, String bidderId, java.math.BigDecimal newPrice) throws SQLException {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setBigDecimal(1, newPrice);
       ps.setString(2, bidderId);
       ps.setString(3, auctionId);
       ps.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
   }
 
@@ -370,6 +367,26 @@ public class AuctionRepository {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Đóng phiên chỉ khi vẫn ACTIVE và end_time đã qua — tránh đóng nhầm sau anti-sniping.
+   *
+   * @return true nếu vừa chuyển sang CLOSED
+   */
+  public boolean tryCloseExpiredAuction(String auctionId, LocalDateTime now) {
+    String sql = "UPDATE auctions SET status = ? WHERE id = ? AND status = ? AND end_time <= ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, AuctionStatus.CLOSED.name());
+      ps.setString(2, auctionId);
+      ps.setString(3, AuctionStatus.ACTIVE.name());
+      ps.setTimestamp(4, Timestamp.valueOf(now));
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
     }
   }
   public List<String> findAuctionsToActivate(LocalDateTime now) {
@@ -535,16 +552,30 @@ public class AuctionRepository {
       return null;
     }
   }
-  public void updateEndTime(String auctionId, LocalDateTime newEndTime) {
+  public void updateEndTime(Connection conn, String auctionId, LocalDateTime newEndTime) throws SQLException {
     String sql = "UPDATE auctions SET end_time = ? WHERE id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setTimestamp(1, Timestamp.valueOf(newEndTime));
       ps.setString(2, auctionId);
       ps.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
+  }
+  public AuctionResponseDTO findAuctionForUpdate(Connection conn, String auctionId) throws SQLException {
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+        + "WHERE a.id = ? FOR UPDATE"; // Khóa dòng này lại cho đến khi commit
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return mapResultSetToAuctionResponseDTO(rs);
+        }
+      }
+    }
+    return null;
   }
 }
 

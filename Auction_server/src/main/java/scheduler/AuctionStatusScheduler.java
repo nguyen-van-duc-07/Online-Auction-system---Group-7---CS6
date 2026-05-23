@@ -54,10 +54,16 @@ public class AuctionStatusScheduler {
       }
       Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
       if (!auctionsToClose.isEmpty()) {
-        auctionRepo.closeExpiredAuctions(new ArrayList<>(auctionsToClose.keySet()));
         for (Map.Entry<String, AuctionResponseDTO> entry : auctionsToClose.entrySet()) {
-          String id      = entry.getKey();
-          AuctionResponseDTO auction = entry.getValue();
+          String id = entry.getKey();
+          // Chỉ xử lý nếu UPDATE có điều kiện thành công (tránh race với bid gia hạn end_time)
+          if (!auctionRepo.tryCloseExpiredAuction(id, now)) {
+            continue;
+          }
+          AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+          if (auction == null) {
+            continue;
+          }
 
           System.out.println("BROADCAST CLOSED: " + id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));

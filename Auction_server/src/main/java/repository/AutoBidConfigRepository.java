@@ -58,24 +58,6 @@ public class AutoBidConfigRepository {
     }
     return configs;
   }
-
-  // Tắt autobid khi user thắng hoặc auction kết thúc
-  public void deactivate(String userId, String auctionId) {
-    String sql = "UPDATE auto_bid_configs SET is_active = FALSE "
-        + "WHERE user_id = ? AND auction_id = ?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, userId);
-      ps.setString(2, auctionId);
-      ps.executeUpdate();
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
   private AutoBidConfig mapRow(ResultSet rs) throws SQLException {
     AutoBidConfig config = new AutoBidConfig();
     config.setId(rs.getString("id"));
@@ -87,38 +69,47 @@ public class AutoBidConfigRepository {
     return config;
   }
 
-  public List<AutoBidConfig> findActiveBotsOrderedByMaxPrice(String auctionId) {
+  public List<AutoBidConfig> findActiveBotsOrderedByMaxPrice(Connection conn, String auctionId) throws SQLException {
     List<AutoBidConfig> activeBots = new ArrayList<>();
-
     String sql = "SELECT * FROM auto_bid_configs WHERE auction_id = ? AND is_active = 1 ORDER BY max_price DESC";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setString(1, auctionId);
-
       try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
           AutoBidConfig bot = new AutoBidConfig();
-
-          // LƯU Ý: id của bạn là chuỗi UUID (như trong ảnh), nên dùng getString thay vì getInt
           bot.setId(rs.getString("id"));
           bot.setUserId(rs.getString("user_id"));
           bot.setAuctionId(rs.getString("auction_id"));
           bot.setMaxPrice(rs.getBigDecimal("max_price"));
-
-          // Map đúng tên cột step_amount trong DB vào biến của Object
           bot.setStepAmount(rs.getBigDecimal("step_amount"));
-
           bot.setActive(rs.getBoolean("is_active"));
-
           activeBots.add(bot);
         }
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println("Lỗi khi truy vấn danh sách Bot: " + e.getMessage());
     }
     return activeBots;
+  }
+  // Tắt Bot và dùng chung Connection
+  public void deactivate(Connection conn, String userId, String auctionId) throws SQLException {
+    String sql = "UPDATE auto_bid_configs SET is_active = FALSE WHERE user_id = ? AND auction_id = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      ps.setString(2, auctionId);
+      ps.executeUpdate();
+    }
+  }
+
+  public boolean deactivate(String userId, String auctionId) {
+    String sql = "UPDATE auto_bid_configs SET is_active = FALSE WHERE user_id = ? AND auction_id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      ps.setString(2, auctionId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 }
