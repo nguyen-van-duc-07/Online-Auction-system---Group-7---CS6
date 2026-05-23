@@ -56,7 +56,6 @@ public class ProfileController implements Initializable {
 
     @FXML
     public void gotoEditProfile() {
-        HomeController homeController = HomeController.getInstance();
-        homeController.loadComponent("/com/auction/client/User/EditProfile.fxml");
+        MainLayoutController.getInstance().loadComponent("/com/auction/client/User/EditProfile.fxml");
     }
 }

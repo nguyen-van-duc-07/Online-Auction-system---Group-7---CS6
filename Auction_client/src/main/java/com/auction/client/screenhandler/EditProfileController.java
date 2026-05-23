@@ -134,16 +134,16 @@ public class EditProfileController implements Initializable {
 
   @FXML
   public void handleCancel() {
-    HomeController homeController = HomeController.getInstance();
+    MainLayoutController mainLayoutController = MainLayoutController.getInstance();
     if (isInformationChanged()) {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
               "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
         if (Response == ButtonType.OK) {
-          homeController.loadComponent("/com/auction/client/User/Profile.fxml");
+          mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
         }
       });
     } else {
-      homeController.loadComponent("/com/auction/client/User/Profile.fxml");
+      mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
     }
   }
 }

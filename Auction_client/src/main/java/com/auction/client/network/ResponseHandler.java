@@ -112,8 +112,8 @@ public class ResponseHandler {
     if (getActiveAuctionRes.isSuccess()) {
       Platform.runLater(() -> {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadFeedToUI(getActiveAuctionRes.getActiveAuctions());
+        if (controller != null && controller.getHomeController() != null) {
+          controller.getHomeController().loadFeedToUI(getActiveAuctionRes.getActiveAuctions());
         }
       });
     } else {
@@ -128,8 +128,8 @@ public class ResponseHandler {
     if (getWaitingAuctionsRes.isSuccess()) {
       Platform.runLater(() -> {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadFeedToUI(getWaitingAuctionsRes.getWaitingAuctions());
+        if (controller != null && controller.getHomeController() != null) {
+          controller.getHomeController().loadFeedToUI(getWaitingAuctionsRes.getWaitingAuctions());
         }
       });
     } else {
@@ -144,8 +144,8 @@ public class ResponseHandler {
     if (getClosedAuctionsRes.isSuccess()) {
       Platform.runLater(() -> {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadFeedToUI(getClosedAuctionsRes.getClosedAuctions());
+        if (controller != null && controller.getHomeController() != null) {
+          controller.getHomeController().loadFeedToUI(getClosedAuctionsRes.getClosedAuctions());
         }
       });
     } else {
@@ -160,8 +160,8 @@ public class ResponseHandler {
     if (response.isSuccess()) {
       Platform.runLater(() -> {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadSellerFeedToUI(response.getActiveAuctionsBelongToSeller());
+        if (controller != null && controller.getSellerHomeController() != null) {
+          controller.getSellerHomeController().loadSellerFeedToUI(response.getActiveAuctionsBelongToSeller());
         }
       });
     }
@@ -171,8 +171,8 @@ public class ResponseHandler {
     if (getAuctionsBySellerRes.isSuccess()) {
       Platform.runLater(() -> {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadSellerFeedToUI(getAuctionsBySellerRes.getActiveAuctions());
+        if (controller != null && controller.getSellerHomeController() != null) {
+          controller.getSellerHomeController().loadSellerFeedToUI(getAuctionsBySellerRes.getActiveAuctions());
         }
       });
     } else {
@@ -388,8 +388,8 @@ public class ResponseHandler {
         } else {
           // NẾU LÀ USER (BIDDER/SELLER) -> Xử lý hiển thị cho User
           MainLayoutController controller = MainLayoutController.getInstance();
-          if (controller != null) {
-            controller.loadFeedToUI(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
+          if (controller != null && controller.getHomeController() != null) {
+            controller.getHomeController().loadFeedToUI(getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
           }
         }
       });
@@ -435,7 +435,11 @@ public class ResponseHandler {
     Platform.runLater(() -> {
       MainLayoutController controller = MainLayoutController.getInstance();
       if (controller != null) {
-        controller.updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
+        if ("home".equals(controller.getCurrentContext()) && controller.getHomeController() != null) {
+          controller.getHomeController().updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
+        } else if ("seller".equals(controller.getCurrentContext()) && controller.getSellerHomeController() != null) {
+          controller.getSellerHomeController().updateAuctionPrice(dto.getAuctionId(), dto.getNewPrice());
+        }
       }
     });
   }
@@ -520,15 +524,66 @@ public class ResponseHandler {
   }
 
   public static void handleGetPendingOrdersOfSeller(GetPendingOrdersOfSellerResponseDTO response) {
-
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getPendingOrders());
+        }
+      }
+    });
   }
 
   public static void handleGetPendingOrdersOfBuyer(GetPendingOrdersOfBuyerResponseDTO response) {
     Platform.runLater(() -> {
       if (response.isSuccess()) {
         MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null) {
-          controller.loadOrdersToUI(response.getPendingOrders());
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getPendingOrders());
+        }
+      }
+    });
+  }
+
+  public static void handleGetCompletedOrdersOfBuyer(GetCompletedOrdersOfBuyerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getCompletedOrders());
+        }
+      }
+    });
+  }
+
+  public static void handleGetCancelledOrdersOfBuyer(GetCancelledOrdersOfBuyerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getCancelledOrders());
+        }
+      }
+    });
+  }
+
+  public static void handleGetCompletedOrdersOfSeller(GetCompletedOrdersOfSellerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getCompletedOrders());
+        }
+      }
+    });
+  }
+
+  public static void handleGetCancelledOrdersOfSeller(GetCancelledOrdersOfSellerResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        MainLayoutController controller = MainLayoutController.getInstance();
+        if (controller != null && controller.getResultController() != null) {
+          controller.getResultController().loadOrdersToUI(response.getCancelledOrders());
         }
       }
     });
