@@ -246,4 +246,20 @@ public class OrderService {
     List<OrderDTO> pendingOrders = orderRepo.getPendingOrdersByBuyerId(buyerId);
     return pendingOrders;
   }
+
+  public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
+    return orderRepo.getCompletedOrdersBySellerId(sellerId);
+  }
+
+  public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
+    return orderRepo.getCancelledOrdersBySellerId(sellerId);
+  }
+
+  public List<OrderDTO> getCompletedOrdersByBuyerId(String buyerId) {
+    return orderRepo.getCompletedOrdersByBuyerId(buyerId);
+  }
+
+  public List<OrderDTO> getCancelledOrdersByBuyerId(String buyerId) {
+    return orderRepo.getCancelledOrdersByBuyerId(buyerId);
+  }
 }

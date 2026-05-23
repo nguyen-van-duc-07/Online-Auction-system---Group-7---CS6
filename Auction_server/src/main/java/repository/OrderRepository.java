@@ -112,6 +112,82 @@ public class OrderRepository {
     return orders;
   }
 
+  public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
+    List<OrderDTO> orders = new ArrayList<>();
+    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CONFIRMED'";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, sellerId);
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return orders;
+  }
+
+  public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
+    List<OrderDTO> orders = new ArrayList<>();
+    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CANCELLED'";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, sellerId);
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return orders;
+  }
+
+  public List<OrderDTO> getCompletedOrdersByBuyerId(String buyerId) {
+    List<OrderDTO> orders = new ArrayList<>();
+    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'CONFIRMED'";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, buyerId);
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return orders;
+  }
+
+  public List<OrderDTO> getCancelledOrdersByBuyerId(String buyerId) {
+    List<OrderDTO> orders = new ArrayList<>();
+    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'CANCELLED'";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+      ps.setString(1, buyerId);
+      ResultSet rs = ps.executeQuery();
+
+      while (rs.next()) {
+        orders.add(mapResultSetToOrderDTO(rs));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return orders;
+  }
+
   // Tìm các order PENDING quá 7 ngày để tự động hủy
   public List<Order> findExpiredPendingOrders(LocalDateTime now) {
     List<Order> orders = new ArrayList<>();
