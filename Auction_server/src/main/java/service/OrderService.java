@@ -42,7 +42,7 @@ public class OrderService {
       try {
         String sellerId = auctionRepo.getSellerIdByAuctionId(auctionId);
         ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(sellerId);
-        InfoDTO buyerInfo = userRepo.getInfoByUserId(buyerId);
+        String consigneeName = userRepo.getAccountNameByUserId(buyerId);
         String itemName = auctionRepo.findAuctionById(auctionId).getItem().getName();
         BigDecimal depositAmount = finalPrice.multiply(new BigDecimal("0.1"));
         BigDecimal remainingAmount = finalPrice.subtract(depositAmount);
@@ -54,9 +54,7 @@ public class OrderService {
             depositAmount,
             remainingAmount,
             OrderStatus.PENDING,
-            buyerInfo.getConsigneeName(),
-            buyerInfo.getPhoneNumber(),
-            buyerInfo.getAddress(),
+            consigneeName,
             shopInfo.getBrandName(),
             shopInfo.getLocation(),
             itemName
@@ -88,7 +86,7 @@ public class OrderService {
   /**
    * Buyer xác nhận thanh toán.
    */
-  public boolean confirmOrder(String orderId) {
+  public boolean confirmOrder(String orderId, InfoDTO buyerInfo) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
       try {
@@ -96,6 +94,9 @@ public class OrderService {
         if (order == null) {
           return false;
         }
+        order.setConsigneeName(buyerInfo.getConsigneeName());
+        order.setPhoneNumber(buyerInfo.getPhoneNumber());
+        order.setAddress(buyerInfo.getAddress());
         walletService.processPayment(conn, order);
         order.confirm();
         orderRepo.updateOrder(conn, order);
