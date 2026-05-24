@@ -64,6 +64,9 @@ public class Wallet extends Entity {
   }
 
   public void payWinningAuction(BigDecimal depositAmount, BigDecimal remainingAmount) {
+    if (remainingAmount == null) {
+      throw new IllegalArgumentException("Lỗi hệ thống: Số tiền thanh toán không được để trống!");
+    }
     if (this.balance.compareTo(remainingAmount) < 0) {
       throw new IllegalStateException("Lỗi hệ thống: Tiền không đủ để thanh toán!");
     }
