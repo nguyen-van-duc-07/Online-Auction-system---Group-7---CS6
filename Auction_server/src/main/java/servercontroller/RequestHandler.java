@@ -169,7 +169,7 @@ public class RequestHandler {
 
   public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
     OrderService orderService = new OrderService();
-    boolean success = orderService.confirmOrder(req.getOrderId());
+    boolean success = orderService.confirmOrder(req.getOrderId(), req.getBuyerInfo());
     if (success) {
       return new OrderActionResponseDTO(true, "Xác nhận thanh toán thành công!");
     }

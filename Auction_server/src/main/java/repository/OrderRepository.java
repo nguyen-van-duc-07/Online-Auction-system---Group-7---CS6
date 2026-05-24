@@ -215,13 +215,16 @@ public class OrderRepository {
   }
 
   public boolean updateOrder(Connection conn, Order order) {
-    String sql = "UPDATE orders SET status = ?, resolved_at = ? WHERE id = ?";
+    String sql = "UPDATE orders SET consignee_name= ?, phone_number = ?, address = ?, status = ?, resolved_at = ? WHERE id = ?";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setString(1, order.getStatus().name());
-      ps.setTimestamp(2, order.getResolvedAt() != null
+      ps.setString(1, order.getConsigneeName());
+      ps.setString(2, order.getPhoneNumber());
+      ps.setString(3, order.getAddress());
+      ps.setString(4, order.getStatus().name());
+      ps.setTimestamp(5, order.getResolvedAt() != null
           ? Timestamp.valueOf(order.getResolvedAt()) : null);
-      ps.setString(3, order.getId());
+      ps.setString(6, order.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       e.printStackTrace();

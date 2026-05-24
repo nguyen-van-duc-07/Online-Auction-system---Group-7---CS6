@@ -6,6 +6,7 @@ import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.ConfirmOrderRequestDTO;
 import com.auction.shared.request.CancelOrderRequestDTO;
@@ -182,12 +183,16 @@ public class PaymentScreenController implements Initializable {
   }
 
   private void handlePayment() {
-    if (txtFullName.getText().trim().isEmpty() ||
-        txtPhoneNumber.getText().trim().isEmpty() ||
-        txtAddress.getText().trim().isEmpty()) {
+    String consigneeName = txtFullName.getText().trim();
+    String phoneNumber = txtPhoneNumber.getText().trim();
+    String address = txtAddress.getText().trim();
+    if (consigneeName.isEmpty() ||
+        phoneNumber.isEmpty() ||
+        address.isEmpty()) {
       showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin giao hàng!");
       return;
     }
+    InfoDTO buyerInfo = new InfoDTO(consigneeName, phoneNumber, address);
 
     // Khóa nút bấm trên UI để tránh click nhiều lần
     btnCompletePayment.setDisable(true);
@@ -201,7 +206,7 @@ public class PaymentScreenController implements Initializable {
     }
 
     // Gửi ConfirmOrderRequestDTO lên Server
-    ConfirmOrderRequestDTO requestDTO = new ConfirmOrderRequestDTO(orderId);
+    ConfirmOrderRequestDTO requestDTO = new ConfirmOrderRequestDTO(orderId, buyerInfo);
     ServerConnection.sendData(requestDTO);
   }
 
