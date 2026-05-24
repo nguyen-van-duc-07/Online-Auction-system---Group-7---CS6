@@ -1,8 +1,10 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.request.AuctionRequestDTO;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -44,7 +46,10 @@ public class OrderCardController {
 
   @FXML
   public void gotoItemDetail() {
-
+    String auctionId = currentOrder.getAuctionId();
+    AuctionRequestDTO auctionRequestDTO = new AuctionRequestDTO();
+    auctionRequestDTO.setAuctionId(auctionId);
+    ServerConnection.sendData(auctionRequestDTO);
   }
 
   /**

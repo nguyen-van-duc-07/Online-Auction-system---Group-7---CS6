@@ -52,6 +52,8 @@ public class ServerConnection {
 
             case UploadItemResponseDTO uploadItemRes -> ResponseHandler.handleUploadItem(uploadItemRes);
 
+            case AuctionResponseDTO auctionRes -> ResponseHandler.handleFindAuctionById(auctionRes);
+
             case GetActiveAuctionsResponseDTO getActiveAuctionRes ->
                 ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
 
@@ -87,8 +89,8 @@ public class ServerConnection {
               ResponseHandler.handlePlaceBidResponse(dto); // THÊM DÒNG NÀY
             }
 
-            case AuctionResponseDTO auctionRes ->
-                ResponseHandler.handleAuctionRoomJoined(auctionRes); // THÊM CASE NÀY
+            case JoinRoomResponseDTO joinRoomRes ->
+                ResponseHandler.handleAuctionRoomJoined(joinRoomRes); // THÊM CASE NÀY
 
             case PaymentNotificationDTO dto -> {
               System.out.println("[CLIENT] Nhận PaymentNotification: " + dto.getItemName());

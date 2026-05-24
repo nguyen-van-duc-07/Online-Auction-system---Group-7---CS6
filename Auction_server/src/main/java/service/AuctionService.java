@@ -101,6 +101,11 @@ public class AuctionService {
     }
   }
 
+  public static AuctionResponseDTO findAuctionById(String id) {
+    AuctionResponseDTO auction = auctionRepo.findAuctionById(id);
+    return auction;
+  }
+
   /**
    * Bắt đầu một phiên đấu giá nếu hợp lệ.
    *
