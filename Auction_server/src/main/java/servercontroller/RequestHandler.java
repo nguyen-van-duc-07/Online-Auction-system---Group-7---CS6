@@ -74,6 +74,12 @@ public class RequestHandler {
     return new UploadItemResponseDTO(isSuccess, msg);
   }
 
+  public static AuctionResponseDTO handleFindAuctionById(AuctionRequestDTO request) {
+    String auctionId = request.getAuctionId();
+    AuctionResponseDTO auction = AuctionService.findAuctionById(auctionId);
+    return auction;
+  }
+
   /**
    * Xử lý yêu cầu lấy danh sách các phiên đấu giá đang hoạt động từ Client.
    *
@@ -143,12 +149,23 @@ public class RequestHandler {
     return bidService.placeBid(req);
   }
 
-  public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
+  public static JoinRoomResponseDTO joinRoom(JoinRoomRequestDTO request) {
     String auctionId = request.getSelectedAuctionId();
     AuctionResponseDTO auction = AuctionService.getAuctionHistory(auctionId);
+    JoinRoomResponseDTO response = new JoinRoomResponseDTO();
 
-    if (auction == null) return null;
-    return auction;
+    if (auction != null) {
+      boolean success = true;
+      String message = "Tải thông tin thành công!";
+      response.setSuccess(success);
+      response.setMessage(message);
+      response.setAuction(auction);
+      return response;
+    } else {
+      response.setSuccess(false);
+      response.setMessage("Tải thông tin thất bại!");
+      return response;
+    }
   }
 
   public static SellerRegisterResponseDTO sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {

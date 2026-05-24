@@ -8,6 +8,7 @@ import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
 import com.auction.shared.model.user.User;
+import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
 import com.auction.shared.util.FormatUtil;
 import com.auction.shared.util.NotificationTemplate;
@@ -104,7 +105,7 @@ public class OrderService {
         System.out.println("[ORDER] Xác nhận thanh toán thành công: " + orderId);
 
         // Lấy itemName từ auction
-        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
         String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
         // Thông báo cho seller
@@ -163,7 +164,7 @@ public class OrderService {
         cancelOrderInternal(conn, order);
         conn.commit();
         System.out.println("[ORDER] Hủy đơn thành công: " + orderId);
-        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
         String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
         // Thông báo cho seller
@@ -215,7 +216,7 @@ public class OrderService {
         try {
           cancelOrderInternal(conn, order);
           conn.commit();
-          Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+          AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
           String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
           notifService.sendFromNotification(

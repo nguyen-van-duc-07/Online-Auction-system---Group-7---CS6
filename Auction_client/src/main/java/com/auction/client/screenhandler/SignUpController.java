@@ -75,14 +75,14 @@ public class SignUpController {
 
     // Ô nhập thông tin rỗng
     if (phoneNumber.trim().isEmpty() || password.trim().isEmpty() || confirm.trim().isEmpty()) {
-      ScreenController.showAlert(Alert.AlertType.WARNING, null,
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo",
           "Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
     // Nếu sai mật khẩu xác nhận
     if (!password.equals(confirm)) {
-      ScreenController.showAlert(Alert.AlertType.WARNING, null,
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo",
           "Mật khẩu xác nhận không khớp!");
       return;
     }

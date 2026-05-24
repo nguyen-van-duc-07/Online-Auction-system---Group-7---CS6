@@ -1,19 +1,13 @@
 package com.auction.shared.request;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-public class AuctionRequestDTO {
-    @NotBlank
-    private String itemId;
-    @Positive
-    private BigDecimal startPrice;
-    @Future
-    private LocalDateTime startTime;
-    @Future
-    private LocalDateTime endTime;
+@Getter
+@Setter
+@NoArgsConstructor
+public class AuctionRequestDTO implements RequestDTO{
+    private String auctionId;
 }

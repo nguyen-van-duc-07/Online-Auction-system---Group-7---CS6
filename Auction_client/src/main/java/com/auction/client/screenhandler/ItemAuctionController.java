@@ -2,7 +2,6 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
@@ -41,8 +40,6 @@ public class ItemAuctionController implements Initializable {
   private TextField bidAmountField;
   @FXML
   private Label itemNameLabel;
-//  @FXML
-//  private Label descriptionField;
   @FXML
   private Label currentPriceField;
   @FXML
@@ -710,5 +707,11 @@ public class ItemAuctionController implements Initializable {
           .position(Pos.TOP_RIGHT)
           .showWarning();
     });
+  }
+
+  public void handleViewItemProperties() {
+    String title = "Chi tiết sản phẩm " + currentAuction.getItem().getName();
+    ItemViewController productViewController = ScreenController.createSubWindowAndGetController("Seller/ItemView.fxml", title);
+    productViewController.initData(currentAuction);
   }
 }

@@ -111,6 +111,16 @@ public class ResponseHandler {
     }
   }
 
+  public static void handleFindAuctionById(AuctionResponseDTO response) {
+    if (response != null) {
+      Platform.runLater(() -> {
+        String title = "Chi tiết sản phẩm " + response.getItem().getName();
+        ItemViewController itemViewController = ScreenController.createSubWindowAndGetController("Seller/ItemView.fxml", title);
+        itemViewController.initData(response);
+      });
+    }
+  }
+
   public static void handleGetActiveAuctions(GetActiveAuctionsResponseDTO getActiveAuctionRes) {
     if (getActiveAuctionRes.isSuccess()) {
       Platform.runLater(() -> {
@@ -253,9 +263,11 @@ public class ResponseHandler {
   }
 
   // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
-  public static void handleAuctionRoomJoined(AuctionResponseDTO response) {
-    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
-      com.auction.client.screenhandler.ItemAuctionController.instance.onAuctionRoomJoined(response);
+  public static void handleAuctionRoomJoined(JoinRoomResponseDTO response) {
+    if (response.isSuccess()) {
+      if (ItemAuctionController.instance != null) {
+        ItemAuctionController.instance.onAuctionRoomJoined(response.getAuction());
+      }
     }
   }
 

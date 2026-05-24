@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F4FBF4;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.ItemViewController">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="25.0" style="-fx-padding: 40 30 40 30;">
+            <children>
+
+                <VBox alignment="TOP_CENTER" prefHeight="45.0" prefWidth="930.0" spacing="8.0">
+                    <children>
+                        <Label style="-fx-text-fill: #009900;" text="Chi Tiết Sản Phẩm Đấu Giá" textAlignment="CENTER" textFill="#009900">
+                            <font>
+                                <Font name="System Bold" size="36.0" />
+                            </font>
+                        </Label>
+                        <Label textAlignment="CENTER" textFill="#64748B">
+                            <font>
+                                <Font size="13.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <GridPane hgap="30.0" maxWidth="1000.0" vgap="25.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="280.0" prefWidth="300.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" prefWidth="600.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+
+                        <VBox spacing="20.0" GridPane.columnIndex="0" GridPane.valignment="TOP">
+                            <children>
+                                <VBox alignment="TOP_CENTER" spacing="15.0" style="-fx-background-color: #FFFFFF; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;">
+                                    <children>
+                                        <Label maxWidth="1.1796493E7" text="Hình ảnh sản phẩm">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+
+                                        <StackPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #A3D9A5; -fx-border-style: solid; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-color: #F8FAFC;">
+                                            <children>
+                                                <ImageView fx:id="imageField" fitHeight="196.0" fitWidth="251.0" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@placeholder_icon.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </StackPane>
+
+                                        <Label alignment="CENTER" prefHeight="32.0" prefWidth="130.0" style="-fx-background-color: #E8F5E9; -fx-background-radius: 20; -fx-border-color: #A3D9A5; -fx-border-radius: 20;" text="Đang diễn ra" textFill="#2E7D32">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="22.0" style="-fx-background-color: #FFFFFF; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 30;" GridPane.columnIndex="1">
+                            <children>
+                                <Label text="Thông tin cơ bản">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <HBox spacing="4.0">
+                                            <children>
+                                                <Label text="Tên sản phẩm" />
+                                            </children>
+                                        </HBox>
+                                        <TextField fx:id="nameItemField" editable="false" style="-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #F8FAFC;" />
+                                    </children>
+                                </VBox>
+
+                                <HBox spacing="15.0">
+                                    <children>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="Thời gian bắt đầu" />
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <DatePicker fx:id="startDateField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                                            <ComboBox fx:id="startHourField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <Label text=":" />
+                                                            <ComboBox fx:id="startMinuteField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                        </HBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="Thời gian kết thúc" />
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <DatePicker fx:id="finishDateField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                                            <ComboBox fx:id="finishHourField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <Label text=":" />
+                                                            <ComboBox fx:id="finishMinuteField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                        </HBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Thời lượng của phiên đấu giá (Tính bằng giờ)" />
+                                        <TextField fx:id="durationField" editable="false" style="-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #F8FAFC;" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Danh mục" />
+                                        <ComboBox fx:id="categoryField" focusTraversable="false" maxWidth="1.1796493E7" mouseTransparent="true" style="-fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-padding: 6;" />
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="dynamicAttributesBox" spacing="15.0">
+                                </VBox>
+
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Mô tả sản phẩm" />
+                                        <TextArea fx:id="descriptionField" editable="false" prefHeight="160.0" style="-fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #F8FAFC;" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

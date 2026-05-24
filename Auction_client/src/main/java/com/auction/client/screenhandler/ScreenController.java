@@ -36,10 +36,19 @@ public class ScreenController {
       currentScreen = new ScreenState(root, title, fxmlFile);
 
       // Hiển thị lên màn hình
-      primaryStage.setMaximized(true);
-      primaryStage.setResizable(false);
       primaryStage.getScene().setRoot(root);
       primaryStage.setTitle(title);
+      
+      if (fxmlFile.contains("Login.fxml") || fxmlFile.contains("SignUp.fxml")) {
+        primaryStage.setMaximized(false);
+        primaryStage.setResizable(false);
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
+      } else {
+        primaryStage.setMaximized(true);
+        primaryStage.setResizable(false);
+      }
+      
       primaryStage.show();
 
     } catch (Exception e) {
@@ -58,6 +67,17 @@ public class ScreenController {
       // Không cần load FXML: Gắn lại trực tiếp Root cũ vào Scene
       primaryStage.getScene().setRoot(previous.getRoot());
       primaryStage.setTitle(previous.getTitle());
+      
+      if (previous.getFxmlFile().contains("Login.fxml") || previous.getFxmlFile().contains("SignUp.fxml")) {
+        primaryStage.setMaximized(false);
+        primaryStage.setResizable(false);
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
+      } else {
+        primaryStage.setMaximized(true);
+        primaryStage.setResizable(false);
+      }
+      
       primaryStage.show();
 
       System.out.println("Quay lại màn hình trước đó thành công");

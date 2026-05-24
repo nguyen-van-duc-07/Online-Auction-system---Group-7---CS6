@@ -396,7 +396,6 @@ public class MainLayoutController implements Initializable, Controller {
         ServerConnection.sendData(logoutRequestDTO);
         SessionManager.setCurrentUser(null);
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
-        ScreenController.primaryStage.setMaximized(false);
       }
     });
   }
