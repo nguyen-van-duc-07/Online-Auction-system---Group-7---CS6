@@ -117,7 +117,6 @@ public class EditProfileController implements Initializable {
       UpdateProfileRequestDTO updateProfileReq = new UpdateProfileRequestDTO(userId,
                                                                              realName,
                                                                              email,
-                                                                             phoneNumber,
                                                                              birthDate,
                                                                              address);
       ServerConnection.sendData(updateProfileReq);

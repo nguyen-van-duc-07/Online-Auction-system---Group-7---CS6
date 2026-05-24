@@ -34,7 +34,7 @@ public class AuthService {
    * @return Đối tượng {@link User} nếu đăng nhập thành công, {@code null} nếu sai thông tin
    */
   public static User login(LoginRequestDTO loginUser) {
-    String hashedPassword = userRepo.getPasswordByAccountName(loginUser.getAccountName());
+    String hashedPassword = userRepo.getPasswordByPhoneNumber(loginUser.getPhoneNumber());
 
     if (hashedPassword == null) {
       return null;
@@ -42,7 +42,7 @@ public class AuthService {
 
     // Kiểm tra mật khẩu và mật khẩu đã mã hoá bằng thư viện BCrypt xem có giống nhau không
     if (BCrypt.checkpw(loginUser.getPassword(), hashedPassword)) {
-      User user = userRepo.getUserByAccountNameOrId(loginUser.getAccountName(), null);
+      User user = userRepo.getUserByPhoneNumberNameOrId(loginUser.getPhoneNumber(), null);
       if (user.getRole() == UserRole.BIDDER) {
         Bidder bidder = (Bidder) user;
         bidder.setWallet(walletRepo.getWalletByUserId(bidder.getId()));
@@ -70,7 +70,7 @@ public class AuthService {
    */
   public static boolean signUp(SignUpRequestDTO signUpUser) {
 
-    if (userRepo.isAccountExist(signUpUser.getAccountName())) {
+    if (userRepo.isAccountExist(signUpUser.getPhoneNumber())) {
       return false;
     }
 
@@ -80,7 +80,8 @@ public class AuthService {
     );
 
     User newUser = new Bidder();
-    newUser.setAccountName(signUpUser.getAccountName());
+    newUser.setAccountName(newUser.getDefaultAccountName());
+    newUser.setPhoneNumber(signUpUser.getPhoneNumber());
     newUser.setPassword(hashedPassword);
     Connection conn = null;
 
@@ -141,12 +142,11 @@ public class AuthService {
     user.setRealName(updateProfileReq.getRealName());
     user.setEmail(updateProfileReq.getEmail());
     user.setAddress(updateProfileReq.getAddress());
-    user.setPhoneNumber(updateProfileReq.getPhoneNumber());
     user.setDob(updateProfileReq.getBirthDate());
 
     boolean isSuccess = userRepo.updateProfile(user);
     if (isSuccess) {
-      return userRepo.getUserByAccountNameOrId(null, user.getId());
+      return userRepo.getUserByPhoneNumberNameOrId(null, user.getId());
     }
     return null;
   }

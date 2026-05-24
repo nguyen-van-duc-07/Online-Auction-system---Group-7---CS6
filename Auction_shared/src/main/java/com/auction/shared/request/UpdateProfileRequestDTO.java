@@ -26,10 +26,6 @@ public class UpdateProfileRequestDTO implements RequestDTO {
    */
   private String email;
   /**
-   * Lưu thông tin số điện thoại của chủ tài khoản.
-   */
-  private String phoneNumber;
-  /**
    * Lưu thông tin ngày sinh của chủ tài khoản.
    */
   private LocalDate birthDate;

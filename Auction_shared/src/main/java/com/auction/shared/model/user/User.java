@@ -35,4 +35,5 @@ abstract public class User extends Entity {
   public boolean isAdmin() {
     return UserRole.ADMIN.equals(this.role);
   }
+  public abstract String getDefaultAccountName();
 }

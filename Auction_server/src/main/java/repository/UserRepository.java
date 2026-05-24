@@ -18,15 +18,15 @@ public class UserRepository {
   /**
    * Lấy mật khẩu của người dùng theo tên tài khoản.
    *
-   * @param accountName tên tài khoản người dùng
+   * @param phoneNumber so dien thoai nguoi dung
    * @return mật khẩu tương ứng nếu tìm thấy, ngược lại trả về null
    */
-  public static String getPasswordByAccountName(String accountName) {
+  public static String getPasswordByPhoneNumber(String phoneNumber) {
     try (Connection conn = DatabaseConnection.getConnection()) {
 
-      String sql = "SELECT password FROM users WHERE account_name = ?";
+      String sql = "SELECT password FROM users WHERE phone_number = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
-      ps.setString(1, accountName);
+      ps.setString(1, phoneNumber);
 
       ResultSet rs = ps.executeQuery();
 
@@ -41,15 +41,15 @@ public class UserRepository {
     return null;
   }
 
-  public static boolean isAccountExist(String accountName) {
+  public static boolean isAccountExist(String phoneNumber) {
     // Dùng SELECT 1 cho tốc độ truy vấn tối đa
-    String sql = "SELECT 1 FROM users WHERE account_name = ?";
+    String sql = "SELECT 1 FROM users WHERE phone_number = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setString(1, accountName);
+      ps.setString(1, phoneNumber);
 
       try (ResultSet rs = ps.executeQuery()) {
-        // rs.next() sẽ trả về true nếu Database tìm thấy ít nhất 1 dòng khớp tên
+        // rs.next() sẽ trả về true nếu Database tìm thấy ít nhất 1 dòng khớp sdt
         return rs.next();
       }
     } catch (Exception e) {
@@ -70,13 +70,14 @@ public class UserRepository {
    */
   public boolean createUser(Connection conn, User user) {
 
-    String sql = "INSERT INTO users (id, account_name, password) VALUES (?, ?, ?)";
+    String sql = "INSERT INTO users (id, account_name, password, phone_number) VALUES (?, ?, ?, ?)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, user.getId());
       ps.setString(2, user.getAccountName());
       ps.setString(3, user.getPassword());
+      ps.setString(4, user.getPhoneNumber());
 
       return ps.executeUpdate() > 0;
 
@@ -92,29 +93,29 @@ public class UserRepository {
    * Nếu accountName khác null, sẽ ưu tiên tìm theo account_name.
    * Nếu accountName là null, sẽ tìm theo id.
    *
-   * @param accountName tên tài khoản người dùng (có thể null)
+   * @param phoneNumber sdt người dùng (có thể null)
    * @param id          mã định danh người dùng (có thể null)
    * @return đối tượng User nếu tìm thấy, ngược lại trả về null
    */
-  public User getUserByAccountNameOrId(String accountName, String id) {
+  public User getUserByPhoneNumberNameOrId(String phoneNumber, String id) {
     // Nếu cả hai đều null thì không cần thực hiện truy vấn
-    if (accountName == null && id == null) {
+    if (phoneNumber == null && id == null) {
       return null;
     }
 
     try (Connection conn = DatabaseConnection.getConnection()) {
       // Cập nhật câu lệnh SQL để tìm kiếm theo account_name hoặc id
       String sql;
-      if (accountName != null) {
-        sql = "SELECT * FROM users WHERE account_name = ?";
+      if (phoneNumber != null) {
+        sql = "SELECT * FROM users WHERE phone_number = ?";
       } else {
         sql = "SELECT * FROM users WHERE id = ?";
       }
 
       PreparedStatement ps = conn.prepareStatement(sql);
 
-      if (accountName != null) {
-        ps.setString(1, accountName);
+      if (phoneNumber != null) {
+        ps.setString(1, phoneNumber);
       } else {
         ps.setString(1, id);
       }
@@ -197,15 +198,14 @@ public class UserRepository {
   public boolean updateProfile(User user) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "UPDATE users "
-          + "SET real_name = ?, dob = ?, email = ?, phone_number = ?, address = ? "
+          + "SET real_name = ?, dob = ?, email = ?, address = ? "
           + " WHERE id = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, user.getRealName());
       ps.setDate(2, Date.valueOf(user.getDob()));
       ps.setString(3, user.getEmail());
-      ps.setString(4, user.getPhoneNumber());
-      ps.setString(5, user.getAddress());
-      ps.setString(6, user.getId());
+      ps.setString(4, user.getAddress());
+      ps.setString(5, user.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
