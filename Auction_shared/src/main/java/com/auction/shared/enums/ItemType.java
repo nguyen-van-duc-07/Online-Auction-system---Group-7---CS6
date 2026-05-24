@@ -6,6 +6,7 @@ public enum ItemType {
   COLLECTIBLES("Đồ sưu tầm"),
   FASHION("Thời trang"),
   SPORTS("Thể thao"),
+  ARTS("Nghệ thuật"),
   OTHER("Khác");
 
   private final String value;

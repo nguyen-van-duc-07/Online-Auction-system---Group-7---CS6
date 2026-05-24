@@ -16,4 +16,5 @@ public class ItemDTO implements Serializable {
     private String name;
     private ItemType type;
     private String description;
+    private java.util.Map<String, String> additionalAttributes;
 }

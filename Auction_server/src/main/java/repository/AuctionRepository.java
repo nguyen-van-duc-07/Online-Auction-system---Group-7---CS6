@@ -21,11 +21,10 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-            + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.status = 'ACTIVE'"
-            + "ORDER BY a.start_time ASC";
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+            + "FROM auctions "
+            + "WHERE status = 'ACTIVE'"
+            + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
@@ -44,11 +43,10 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang chờ bắt đầu
   public List<AuctionDTO> findWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-            + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.status = 'WAITING' "
-            + "ORDER BY a.start_time ASC";
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+            + "FROM auctions "
+            + "WHERE status = 'WAITING' "
+            + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
@@ -67,11 +65,10 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đã kết thúc
   public List<AuctionDTO> findClosedAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-            + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.status = 'CLOSED' "
-            + "ORDER BY a.end_time DESC";
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+            + "FROM auctions "
+            + "WHERE status = 'CLOSED' "
+            + "ORDER BY end_time DESC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
@@ -91,15 +88,14 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAndWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thứ tự ACTIVE -> WAITING
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-            + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.status IN ('WAITING', 'ACTIVE') "
-            + "ORDER BY CASE a.status "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+            + "FROM auctions "
+            + "WHERE status IN ('WAITING', 'ACTIVE') "
+            + "ORDER BY CASE status "
             + "  WHEN 'ACTIVE' THEN 1 "
             + "  WHEN 'WAITING' THEN 2 "
             + "  ELSE 3 "
-            + "END, a.start_time ASC";
+            + "END, start_time ASC";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
@@ -116,16 +112,15 @@ public class AuctionRepository {
 
   public List<AuctionDTO> findAuctionsBySellerId(String sellerId) {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-            + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.seller_id = ? "
-            + "ORDER BY CASE a.status "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+            + "FROM auctions "
+            + "WHERE seller_id = ? "
+            + "ORDER BY CASE status "
             + "  WHEN 'ACTIVE' THEN 1 "
             + "  WHEN 'WAITING' THEN 2 "
             + "  WHEN 'CLOSED' THEN 3 "
             + "  ELSE 4 "
-            + "END, a.start_time ASC";
+            + "END, start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -149,11 +144,10 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAuctionsBySellerId(String sellerId) {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
-    String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
-        + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
-        + "WHERE a.status = 'ACTIVE' AND a.seller_id = ?"
-        + "ORDER BY a.start_time ASC";
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+        + "FROM auctions "
+        + "WHERE status = 'ACTIVE' AND seller_id = ?"
+        + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -255,10 +249,17 @@ public class AuctionRepository {
       itemType = ItemType.OTHER;
     }
     ItemDTO item = new ItemDTO();
-    item.setId(rs.getString("item_id"));
+    item.setId(rs.getString("id"));
     item.setName(rs.getString("item_name"));
     item.setType(itemType);
     item.setDescription(rs.getString("item_description"));
+
+    String attributesJson = rs.getString("attributes");
+    if (attributesJson != null && !attributesJson.isEmpty()) {
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, String>>(){}.getType();
+        item.setAdditionalAttributes(new com.google.gson.Gson().fromJson(attributesJson, type));
+    }
+
     AuctionResponseDTO auction = new AuctionResponseDTO();
     auction.setId(rs.getString("id"));
     auction.setSellerId(rs.getString("seller_id"));
@@ -295,10 +296,17 @@ public class AuctionRepository {
       itemType = ItemType.OTHER;
     }
     Item item = new Item();
-    item.setId(rs.getString("item_id"));
+    item.setId(rs.getString("id"));
     item.setName(rs.getString("item_name"));
     item.setType(itemType);
     item.setDescription(rs.getString("item_description"));
+
+    String attributesJson = rs.getString("attributes");
+    if (attributesJson != null && !attributesJson.isEmpty()) {
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, String>>(){}.getType();
+        item.setAdditionalAttributes(new com.google.gson.Gson().fromJson(attributesJson, type));
+    }
+
     Auction auction = new Auction();
     auction.setId(rs.getString("id"));
     auction.setSellerId(rs.getString("seller_id"));
@@ -322,23 +330,31 @@ public class AuctionRepository {
   }
 
   public boolean saveAuction(Auction auction, String imagePath) {
-    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO auctions (id, seller_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path, item_name, item_type, item_description, attributes) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, auction.getId());
       ps.setString(2, auction.getSellerId());
-      ps.setString(3, auction.getItem().getId());
-      ps.setBigDecimal(4, auction.getStartPrice());
-      ps.setBigDecimal(5, auction.getMinStepPrice());
-      ps.setBigDecimal(6, auction.getCurrentHighestPrice());
-      ps.setString(7, auction.getHighestBidderId());
-      ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getStartTime()));
-      ps.setTimestamp(9, java.sql.Timestamp.valueOf(auction.getEndTime()));
-      ps.setString(10, auction.getStatus().name());
-      ps.setString(11, imagePath);
+      ps.setBigDecimal(3, auction.getStartPrice());
+      ps.setBigDecimal(4, auction.getMinStepPrice());
+      ps.setBigDecimal(5, auction.getCurrentHighestPrice());
+      ps.setString(6, auction.getHighestBidderId());
+      ps.setTimestamp(7, java.sql.Timestamp.valueOf(auction.getStartTime()));
+      ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getEndTime()));
+      ps.setString(9, auction.getStatus().name());
+      ps.setString(10, imagePath);
+      ps.setString(11, auction.getItem().getName());
+      ps.setString(12, auction.getItem().getType().name());
+      ps.setString(13, auction.getItem().getDescription());
+      
+      String attributesJson = null;
+      if (auction.getItem().getAdditionalAttributes() != null) {
+          attributesJson = new com.google.gson.Gson().toJson(auction.getItem().getAdditionalAttributes());
+      }
+      ps.setString(14, attributesJson);
 
       return ps.executeUpdate() > 0;
 
@@ -455,9 +471,8 @@ public class AuctionRepository {
   }
   public Auction findAuctionById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
             + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
             + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
             + "WHERE a.id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
@@ -475,9 +490,8 @@ public class AuctionRepository {
 
   public AuctionResponseDTO findAuctionResponseDTOById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
         + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
         + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
         + "WHERE a.id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
@@ -498,9 +512,8 @@ public class AuctionRepository {
     Map<String, AuctionResponseDTO> result = new LinkedHashMap<>();
 
     String sql =
-        "SELECT a.*, i.id AS item_id, i.name AS item_name, i.type AS item_type, i.description AS item_desc "
+        "SELECT a.* "
             + "FROM auctions a "
-            + "JOIN items i ON a.item_id = i.id "
             + "WHERE a.status = 'ACTIVE' AND a.end_time <= ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -557,9 +570,8 @@ public class AuctionRepository {
     }
   }
   public AuctionResponseDTO findAuctionForUpdate(Connection conn, String auctionId) throws SQLException {
-    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
         + "FROM auctions a "
-        + "JOIN items i ON a.item_id = i.id "
         + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
         + "WHERE a.id = ? FOR UPDATE"; // Khóa dòng này lại cho đến khi commit
 
