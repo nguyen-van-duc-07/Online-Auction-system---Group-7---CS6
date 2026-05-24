@@ -18,7 +18,7 @@
                     </padding>
                     <children>
                         <Circle fx:id="avatarCircle" fill="WHITE" radius="70.0" stroke="#FFFFFF" strokeWidth="5.0" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);" />
-                        <Label fx:id="realNameLabel" text="Nguyễn Văn Đức" textFill="#2C3E50">
+                        <Label fx:id="accountNameLabel" text="Nguyễn Văn Đức" textFill="#2C3E50">
                             <font><Font name="System Bold" size="28.0" /></font>
                         </Label>
                         <Label text="QUẢN TRỊ VIÊN" textFill="#2BA659">

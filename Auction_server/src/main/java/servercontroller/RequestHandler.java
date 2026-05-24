@@ -34,7 +34,7 @@ public class RequestHandler {
       UserDTO userDTO = UserDTO.builder()
               .role(loggedInUser.getRole())
               .id(loggedInUser.getId())
-              .realName(loggedInUser.getRealName())
+              .accountName(loggedInUser.getAccountName())
               .accountName(loggedInUser.getAccountName())
               .email(loggedInUser.getEmail())
               .phoneNumber(loggedInUser.getPhoneNumber())
@@ -124,7 +124,7 @@ public class RequestHandler {
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
               .id(userAfterUpdatingProfile.getId())
-              .realName(userAfterUpdatingProfile.getRealName())
+              .accountName(userAfterUpdatingProfile.getAccountName())
               .accountName(userAfterUpdatingProfile.getAccountName())
               .email(userAfterUpdatingProfile.getEmail())
               .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())

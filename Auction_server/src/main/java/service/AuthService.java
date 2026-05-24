@@ -139,7 +139,7 @@ public class AuthService {
   public static User updateProfile(UpdateProfileRequestDTO updateProfileReq) {
     User user = new Bidder();
     user.setId(updateProfileReq.getUserId());
-    user.setRealName(updateProfileReq.getRealName());
+    user.setAccountName(updateProfileReq.getAccountName());
     user.setEmail(updateProfileReq.getEmail());
     user.setAddress(updateProfileReq.getAddress());
     user.setDob(updateProfileReq.getBirthDate());

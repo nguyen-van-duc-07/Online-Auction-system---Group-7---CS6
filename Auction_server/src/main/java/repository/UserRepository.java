@@ -133,7 +133,6 @@ public class UserRepository {
         user.setRole(userRole);
         user.setId(rs.getString("id"));
         user.setAccountName(rs.getString("account_name"));
-        user.setRealName(rs.getString("real_name"));
         user.setEmail(rs.getString("email"));
         user.setPhoneNumber(rs.getString("phone_number"));
         user.setAddress(rs.getString("address"));
@@ -150,58 +149,13 @@ public class UserRepository {
     return null;
   }
 
-  /**
-   * Lấy tên hiển thị của người dùng dựa trên ID.
-   * Ưu tiên lấy tên thật (real_name), nếu chưa cập nhật hồ sơ thì dùng tên tài khoản (account_name).
-   * Phục vụ cho việc hiển thị tên người chiến thắng trên giao diện đấu giá.
-   *
-   * @param userId mã định danh (id) của người dùng
-   * @return Tên hiển thị của người dùng, hoặc "Người dùng ẩn danh" nếu có lỗi/không tìm thấy
-   */
-  public static String getUserFullName(String userId) {
-    if (userId == null || userId.trim().isEmpty()) {
-      return "Người dùng ẩn danh";
-    }
-
-    // Chỉ Select đúng 2 cột cần thiết để tối ưu tốc độ, thay vì Select *
-    String sql = "SELECT real_name, account_name FROM users WHERE id = ?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, userId);
-
-      try (ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
-          String realName = rs.getString("real_name");
-          String accountName = rs.getString("account_name");
-
-          // Nếu có tên thật và không bị rỗng thì dùng tên thật
-          if (realName != null && !realName.trim().isEmpty()) {
-            return realName;
-          }
-          // Nếu không, trả về tên tài khoản
-          else if (accountName != null) {
-            return accountName;
-          }
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println(">>> Lỗi khi truy vấn tên người dùng: " + e.getMessage());
-    }
-
-    // Trả về mặc định nếu Database lỗi để tránh làm sập luồng hiển thị (NullPointerException)
-    return "Người dùng ẩn danh";
-  }
-
   public boolean updateProfile(User user) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "UPDATE users "
-          + "SET real_name = ?, dob = ?, email = ?, address = ? "
+          + "SET account_name = ?, dob = ?, email = ?, address = ? "
           + " WHERE id = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
-      ps.setString(1, user.getRealName());
+      ps.setString(1, user.getAccountName());
       ps.setDate(2, Date.valueOf(user.getDob()));
       ps.setString(3, user.getEmail());
       ps.setString(4, user.getAddress());
@@ -225,13 +179,13 @@ public class UserRepository {
   }
 
   /**
-   * Lấy tên thật (real_name) của người dùng dựa trên mã định danh (userId).
+   * Lấy tên của người dùng dựa trên mã định danh (userId).
    * * @param userId Mã định danh của người dùng cần tra cứu.
    *
-   * @return Tên thật của người dùng nếu tìm thấy, ngược lại trả về null.
+   * @return Tên của người dùng nếu tìm thấy, ngược lại trả về null.
    */
-  public String getRealNameByUserId(String userId) {
-    String query = "SELECT real_name FROM users WHERE id = ?";
+  public String getAccountNameByUserId(String userId) {
+    String query = "SELECT account_name FROM users WHERE id = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -240,11 +194,11 @@ public class UserRepository {
 
       try (ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {
-          return rs.getString("real_name");
+          return rs.getString("account_name");
         }
       }
     } catch (SQLException e) {
-      System.err.println("Lỗi khi lấy real_name của userId: " + userId);
+      System.err.println("Lỗi khi lấy account_name của userId: " + userId);
       e.printStackTrace();
     }
 
@@ -252,7 +206,7 @@ public class UserRepository {
   }
 
   public InfoDTO getInfoByUserId(String userId) {
-    String query = "SELECT real_name, phone_number, address "
+    String query = "SELECT account_name, phone_number, address "
         + "FROM users "
         + "WHERE id = ?";
 
@@ -264,7 +218,7 @@ public class UserRepository {
       try (ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {
           InfoDTO infoDTO = new InfoDTO();
-          infoDTO.setConsigneeName(rs.getString("real_name"));
+          infoDTO.setConsigneeName(rs.getString("account_name"));
           infoDTO.setPhoneNumber(rs.getString("phone_number"));
           infoDTO.setAddress(rs.getString("address"));
           return infoDTO;

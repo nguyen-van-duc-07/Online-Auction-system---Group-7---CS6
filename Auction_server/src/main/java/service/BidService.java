@@ -32,6 +32,7 @@ public class BidService {
   private final WalletService walletService = new WalletService();
   private final WalletRepository walletRepo = new WalletRepository();
   private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
+  private final UserRepository userRepo = new UserRepository();
 
   private static final BigDecimal FREEZE_RATE = new BigDecimal("0.1");
   private static final ConcurrentHashMap<String, Object> auctionLocks = new ConcurrentHashMap<>();
@@ -272,7 +273,7 @@ public class BidService {
               auction.setHighestBidderId(finalWinner.getUserId());
               applyAntiSniping(conn, auctionId, auction, events);
 
-              String winnerName = UserRepository.getUserFullName(finalWinner.getUserId());
+              String winnerName = userRepo.getAccountNameByUserId(finalWinner.getUserId());
               events.addNewBid(new NewBidDTO(auctionId, finalWinner.getUserId(), winnerName, finalPrice));
               events.addPriceUpdate(new AuctionPriceUpdateDTO(auctionId, finalPrice));
             }
@@ -331,7 +332,7 @@ public class BidService {
 
         applyAntiSniping(conn, auctionId, auction, events);
 
-        String botName = UserRepository.getUserFullName(bot.getUserId());
+        String botName = userRepo.getAccountNameByUserId(bot.getUserId());
         events.addNewBid(new NewBidDTO(auctionId, bot.getUserId(), "[Auto] " + botName, newBotPrice));
         events.addPriceUpdate(new AuctionPriceUpdateDTO(auctionId, newBotPrice));
       } else {

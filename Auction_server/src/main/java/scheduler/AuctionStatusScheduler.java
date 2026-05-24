@@ -71,8 +71,7 @@ public class AuctionStatusScheduler {
           String itemName = auction.getItem().getName();
           String winnerId = auction.getHighestBidderId();
 
-          String sellerProfileId = auction.getSellerId();
-          String sellerUserId = sellerProfileRepo.getUserIdByProfileId(sellerProfileId);
+          String sellerId = auction.getSellerId();
           if (winnerId != null && !winnerId.isBlank()) {
             System.out.println("SERVER GUI THONG BAO CHIEN THANG "
                 + " [AuctionId: " + id
@@ -101,7 +100,7 @@ public class AuctionStatusScheduler {
               // Thông báo cho seller
               notifService.sendFromNotification(
                   NotificationTemplate.auctionEndedWithWinner(
-                      sellerUserId,
+                      sellerId,
                       itemName,
                       auction.getCurrentHighestPrice(),
                       order.getId()
@@ -111,7 +110,7 @@ public class AuctionStatusScheduler {
               System.out.println("Phiên " + id + " không có người thắng.");
               notifService.sendFromNotification(
                   NotificationTemplate.auctionEndedNoWinner(
-                      sellerUserId,
+                      sellerId,
                       itemName,
                       id
                   )

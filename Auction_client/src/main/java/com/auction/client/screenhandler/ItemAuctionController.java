@@ -427,7 +427,7 @@ public class ItemAuctionController implements Initializable {
       clearError();
       PlaceBidRequestDTO req =
           new PlaceBidRequestDTO(SessionManager.getCurrentAuctionId(),
-              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getRealName(),
+              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getAccountName(),
               bidAmount);
       ServerConnection.sendData(req);
       // Xóa ô nhập để người dùng sẵn sàng nhập giá tiếp theo

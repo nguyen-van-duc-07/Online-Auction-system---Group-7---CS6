@@ -92,8 +92,8 @@ public class PaymentScreenController implements Initializable {
     // Tự động điền (Pre-populate) thông tin giao hàng của người dùng hiện tại từ Profile
     UserDTO currentUser = SessionManager.getCurrentUser();
     if (currentUser != null) {
-      if (currentUser.getRealName() != null && !currentUser.getRealName().trim().isEmpty()) {
-        txtFullName.setText(currentUser.getRealName());
+      if (currentUser.getAccountName() != null && !currentUser.getAccountName().trim().isEmpty()) {
+        txtFullName.setText(currentUser.getAccountName());
       }
       if (currentUser.getPhoneNumber() != null && !currentUser.getPhoneNumber().trim().isEmpty()) {
         txtPhoneNumber.setText(currentUser.getPhoneNumber());

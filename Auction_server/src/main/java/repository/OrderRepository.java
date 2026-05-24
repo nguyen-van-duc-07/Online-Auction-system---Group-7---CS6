@@ -116,7 +116,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CONFIRMED'";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CONFIRMED'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -135,7 +135,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CANCELLED'";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CANCELLED'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
