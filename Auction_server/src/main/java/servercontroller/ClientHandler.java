@@ -244,6 +244,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case CreateAdminRequestDTO request -> {
+                out.writeObject(RequestHandler.createAdmin(request));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }

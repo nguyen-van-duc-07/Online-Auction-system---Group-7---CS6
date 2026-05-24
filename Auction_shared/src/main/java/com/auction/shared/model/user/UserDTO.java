@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UserDTO implements Serializable {
     protected String id;
-    protected String realName;
     protected String accountName;
     protected String password;
     protected String email;

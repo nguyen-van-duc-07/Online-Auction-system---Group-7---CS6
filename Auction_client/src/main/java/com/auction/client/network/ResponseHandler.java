@@ -15,6 +15,7 @@ import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 
 import java.text.DecimalFormat;
 
@@ -193,6 +194,8 @@ public class ResponseHandler {
               if (Response == ButtonType.OK) {
                 SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
                 MainLayoutController controller = MainLayoutController.getInstance();
+                Label accountNameLabel = controller.getAccountNameLabel();
+                accountNameLabel.setText("Chào, " + updateProfileRes.getUserAfterUpdatingProfile().getAccountName());
                 if (controller != null) {
                   controller.gotoHomeFeed();
                 }
@@ -587,6 +590,19 @@ public class ResponseHandler {
         if (controller != null && controller.getResultController() != null) {
           controller.getResultController().loadOrdersToUI(response.getCancelledOrders());
         }
+      }
+    });
+  }
+
+  public static void handleAuctionExtended(AuctionExtendedDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật endTime trong ItemAuctionController
+      if (ItemAuctionController.instance != null) {
+        ItemAuctionController.instance.onAuctionExtended(dto.getNewEndTime());
+      }
+      HomeController home = HomeController.getInstance();
+      if (home != null) {
+        home.updateTimeExtend(dto.getAuctionId(), dto.getNewEndTime());
       }
     });
   }

@@ -2,29 +2,17 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -61,7 +49,7 @@ public class MainLayoutController implements Initializable, Controller {
   @FXML private ScrollPane mainContent;
   @FXML private FlowPane feedContainer;
   @FXML private VBox sideBar;
-  @FXML private Label realNameLabel;
+  @FXML private Label accountNameLabel;
   @FXML private Label notificationBadge;
   @FXML private TextField searchField;
   @FXML private Button homeButton;
@@ -69,7 +57,7 @@ public class MainLayoutController implements Initializable, Controller {
   @FXML private Button resultButton;
   @FXML private VBox floatingIcon;
   @FXML private Label remainingLabel;
-  
+
   @FXML private Button functionButton1;
   @FXML private Button functionButton2;
   @FXML private Button functionButton3;
@@ -123,14 +111,14 @@ public class MainLayoutController implements Initializable, Controller {
     loadUnreadCount();
 
     // Hiện Label chào user
-    String realName = SessionManager.currentUser.getRealName();
+    String realName = SessionManager.currentUser.getAccountName();
     String phoneNumber = SessionManager.currentUser.getPhoneNumber();
     if (realName != null) {
-      realNameLabel.setText("Chào, " + realName);
+      accountNameLabel.setText("Chào, " + realName);
     } else if (phoneNumber != null) {
-      realNameLabel.setText("Chào, " + phoneNumber);
+      accountNameLabel.setText("Chào, " + phoneNumber);
     } else {
-      realNameLabel.setText("N/A");
+      accountNameLabel.setText("N/A");
     }
 
     // Hiển thị số dư lần đầu tiên khi vừa load màn hình (Tránh việc nhãn bị trống)
@@ -450,8 +438,8 @@ public class MainLayoutController implements Initializable, Controller {
     return mainContent;
   }
 
-  public VBox getSideBar() {
-    return sideBar;
+  public Label getAccountNameLabel() {
+    return accountNameLabel;
   }
 
   public void setCurrentContext(String context) {

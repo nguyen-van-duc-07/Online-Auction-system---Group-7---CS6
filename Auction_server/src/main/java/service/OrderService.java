@@ -1,12 +1,15 @@
 package service;
 
-import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.model.user.Bidder;
+import com.auction.shared.model.user.InfoDTO;
+import com.auction.shared.model.user.ShopInfoDTO;
 import com.auction.shared.model.user.User;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
+import com.auction.shared.util.FormatUtil;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
@@ -37,30 +40,35 @@ public class OrderService {
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
       try {
-        String sellerProfileId = auctionRepo.getSellerProfileIdByAuctionId(auctionId);
-        User buyer = userRepo.getUserByAccountNameOrId(null, buyerId);
-        String consigneeName = buyer.getRealName();
-        String phoneNumber   = buyer.getPhoneNumber();
-        String address       = buyer.getAddress();
+        String sellerId = auctionRepo.getSellerIdByAuctionId(auctionId);
+        ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(sellerId);
+        InfoDTO buyerInfo = userRepo.getInfoByUserId(buyerId);
+        String itemName = auctionRepo.findAuctionById(auctionId).getItem().getName();
         BigDecimal depositAmount = finalPrice.multiply(new BigDecimal("0.1"));
+        BigDecimal remainingAmount = finalPrice.subtract(depositAmount);
         Order order = new Order(
             auctionId,
             buyerId,
-            sellerProfileId,
+            sellerId,
             finalPrice,
             depositAmount,
+            remainingAmount,
             OrderStatus.PENDING,
-            consigneeName,
-            phoneNumber,
-            address
+            buyerInfo.getConsigneeName(),
+            buyerInfo.getPhoneNumber(),
+            buyerInfo.getAddress(),
+            shopInfo.getBrandName(),
+            shopInfo.getLocation(),
+            itemName
         );
         orderRepo.saveOrder(conn, order);
         conn.commit();
 
         System.out.println("[ORDER] Tạo order thành công: " + order.getId()
             + " | Buyer: " + buyerId
-            + " | Giá: " + com.auction.shared.util.FormatUtil.fmt(finalPrice)
-            + " | Cọc: " + com.auction.shared.util.FormatUtil.fmt(depositAmount));
+            + " | Giá: " + FormatUtil.fmt(finalPrice)
+            + " | Cọc: " + FormatUtil.fmt(depositAmount)
+            + " | So tien can thanh toan " + FormatUtil.fmt(remainingAmount));
         return order;
 
       } catch (Exception e) {
@@ -88,11 +96,9 @@ public class OrderService {
         if (order == null) {
           return false;
         }
-
+        walletService.processPayment(conn, order);
         order.confirm();
         orderRepo.updateOrder(conn, order);
-        walletService.processPayment(conn, order);
-
         conn.commit();
         System.out.println("[ORDER] Xác nhận thanh toán thành công: " + orderId);
 
@@ -100,17 +106,17 @@ public class OrderService {
         Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
         String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
-// Thông báo cho seller
+        // Thông báo cho seller
         notifService.sendFromNotification(
             NotificationTemplate.orderConfirmedForSeller(
-                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
+                order.getSellerId(),
                 itemName,
                 order.getFinalPrice(),
                 order.getId()
             )
         );
 
-// Thông báo cho buyer
+        // Thông báo cho buyer
         notifService.sendFromNotification(
             NotificationTemplate.orderConfirmedForBuyer(
                 order.getBuyerId(),
@@ -135,6 +141,12 @@ public class OrderService {
       return false;
     }
   }
+  private boolean cancelOrderInternal(Connection conn, Order order) throws Exception {
+    order.cancel();
+    orderRepo.updateOrder(conn, order);
+    walletService.processCancelPenalty(conn, order);
+    return true;
+  }
 
   /**
    * Buyer hủy đơn hàng.
@@ -147,11 +159,7 @@ public class OrderService {
         if (order == null) {
           return false;
         }
-
-        order.cancel();
-        orderRepo.updateOrder(conn, order);
-        walletService.processCancelPenalty(conn, order);
-
+        cancelOrderInternal(conn, order);
         conn.commit();
         System.out.println("[ORDER] Hủy đơn thành công: " + orderId);
         Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
@@ -160,7 +168,7 @@ public class OrderService {
         // Thông báo cho seller
         notifService.sendFromNotification(
             NotificationTemplate.orderCancelledForSeller(
-                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
+                order.getSellerId(),
                 itemName,
                 order.getDepositAmount(),
                 order.getId()
@@ -201,29 +209,39 @@ public class OrderService {
     List<Order> expiredOrders = orderRepo.findExpiredPendingOrders(LocalDateTime.now());
     for (Order order : expiredOrders) {
       System.out.println("[ORDER] Tự động hủy order hết hạn: " + order.getId());
-      boolean success = cancelOrder(order.getId());
+      try (Connection conn = DatabaseConnection.getConnection()) {
+        conn.setAutoCommit(false);
+        try {
+          cancelOrderInternal(conn, order);
+          conn.commit();
+          Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+          String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
-      if (success) {
-        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
-        String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
+          notifService.sendFromNotification(
+              NotificationTemplate.orderExpiredForBuyer(
+                  order.getBuyerId(),
+                  itemName,
+                  order.getDepositAmount(),
+                  order.getId()
+              )
+          );
 
-        notifService.sendFromNotification(
-            NotificationTemplate.orderExpiredForBuyer(
-                order.getBuyerId(),
-                itemName,
-                order.getDepositAmount(),
-                order.getId()
-            )
-        );
-
-        notifService.sendFromNotification(
-            NotificationTemplate.orderExpiredForSeller(
-                sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId()),
-                itemName,
-                order.getDepositAmount(),
-                order.getId()
-            )
-        );
+          notifService.sendFromNotification(
+              NotificationTemplate.orderExpiredForSeller(
+                  order.getSellerId(),
+                  itemName,
+                  order.getDepositAmount(),
+                  order.getId()
+              )
+          );
+        } catch (Exception e) {
+          conn.rollback();
+          e.printStackTrace();
+        } finally {
+          conn.setAutoCommit(true);
+        }
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
       }
     }
   }
@@ -233,8 +251,7 @@ public class OrderService {
   public void notifyToSeller(Order order) {
     System.out.println("GUI THONG BAO CHO SELLER: " + order.getStatus());
     OrderUpdateNotificationDTO update = new OrderUpdateNotificationDTO(order.getId(), order.getStatus());
-    String sellerId = sellerProfileRepo.getUserIdByProfileId(order.getSellerProfileId());
-    Server.sendToUser(sellerId, update);
+    Server.sendToUser(order.getSellerId(), update);
   }
 
   public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {

@@ -46,6 +46,15 @@ public class Auction extends Entity implements Serializable {
   @JoinColumn(name = "auction_id")
   private List<BidTransaction> bidHistory = new ArrayList<>();
 
+  public Auction(Item item, String sellerId, BigDecimal startPrice, BigDecimal minStepPrice, LocalDateTime startTime, LocalDateTime endTime) {
+    this.item = item;
+    this.sellerId = sellerId;
+    this.startPrice = startPrice;
+    this.minStepPrice = minStepPrice;
+    this.startTime = startTime;
+    this.endTime = endTime;
+  }
+
   // Constructor chính
   public Auction(Item item, BigDecimal startPrice, LocalDateTime startTime, LocalDateTime endTime) {
     this.item = item;

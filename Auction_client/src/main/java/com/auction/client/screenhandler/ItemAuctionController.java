@@ -427,7 +427,7 @@ public class ItemAuctionController implements Initializable {
       clearError();
       PlaceBidRequestDTO req =
           new PlaceBidRequestDTO(SessionManager.getCurrentAuctionId(),
-              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getRealName(),
+              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getAccountName(),
               bidAmount);
       ServerConnection.sendData(req);
       // Xóa ô nhập để người dùng sẵn sàng nhập giá tiếp theo
@@ -696,6 +696,19 @@ public class ItemAuctionController implements Initializable {
       System.out.println("[DEBUG JOIN] currentHighestPrice=" + auctionData.getCurrentHighestPrice()
           + " | minStepPrice=" + auctionData.getMinStepPrice());
       System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
+    });
+  }
+
+  public void onAuctionExtended(LocalDateTime newEndTime) {
+    Platform.runLater(() -> {
+      currentAuction.setEndTime(newEndTime);
+
+      Notifications.create()
+          .title("⏰ Phiên đấu giá được gia hạn!")
+          .text("Có bid mới trong 3 phút cuối!\nPhiên được gia hạn thêm 3 phút.")
+          .hideAfter(javafx.util.Duration.seconds(5))
+          .position(Pos.TOP_RIGHT)
+          .showWarning();
     });
   }
 }

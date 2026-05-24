@@ -1,13 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
-import com.auction.client.network.SessionManager;
-import com.auction.shared.model.user.Bidder;
-import com.auction.shared.model.user.User;
-import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.LoginRequestDTO;
-import com.auction.shared.response.LoginResponseDTO;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -21,7 +15,7 @@ import javafx.scene.input.MouseEvent;
 public class LoginController {
 
   @FXML
-  private TextField accountNameField;
+  private TextField phoneNumberField;
   @FXML
   private PasswordField hiddenPasswordField;
   @FXML
@@ -56,18 +50,18 @@ public class LoginController {
   // Logic đăng nhập
   @FXML
   private void handleLogin() {
-    String accountName = accountNameField.getText();
+    String phoneNumber = phoneNumberField.getText();
     String password = isPasswordVisible ? visiblePasswordField.getText() : hiddenPasswordField.getText();
 
     // Kiểm tra xem người dùng đã nhập đủ thông tin chưa
-    if (accountName.trim().isEmpty() || password.trim().isEmpty()) {
+    if (phoneNumber.trim().isEmpty() || password.trim().isEmpty()) {
       ScreenController.showAlert(Alert.AlertType.INFORMATION, null,
           "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
       return;
     }
 
     // Tạo tài khoản mới, mặc định là Bidder
-    LoginRequestDTO loginReq = new LoginRequestDTO(accountName, password);
+    LoginRequestDTO loginReq = new LoginRequestDTO(phoneNumber, password);
     ServerConnection.sendData(loginReq);
   }
 

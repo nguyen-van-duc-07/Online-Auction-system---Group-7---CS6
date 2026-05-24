@@ -13,20 +13,22 @@ import java.util.List;
 public class OrderRepository {
 
   public boolean saveOrder(Connection conn, Order order) {
-    String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_profile_id, final_price, deposit_amount, consignee_name, phone_number, address, status) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_id, final_price, deposit_amount, remaining_amount, consignee_name, phone_number, address, status, item_name) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, order.getId());
       ps.setString(2, order.getAuctionId());
       ps.setString(3, order.getBuyerId());
-      ps.setString(4, order.getSellerProfileId());
+      ps.setString(4, order.getSellerId());
       ps.setBigDecimal(5, order.getFinalPrice());
       ps.setBigDecimal(6, order.getDepositAmount());
-      ps.setString(7, order.getConsigneeName());
-      ps.setString(8, order.getPhoneNumber());
-      ps.setString(9, order.getAddress());
-      ps.setString(10, order.getStatus().name());
+      ps.setBigDecimal(7, order.getRemainingAmount());
+      ps.setString(8, order.getConsigneeName());
+      ps.setString(9, order.getPhoneNumber());
+      ps.setString(10, order.getAddress());
+      ps.setString(11, order.getStatus().name());
+      ps.setString(12, order.getItemName());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -114,7 +116,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CONFIRMED'";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CONFIRMED'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -133,7 +135,7 @@ public class OrderRepository {
 
   public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_profile_id = ? AND status = 'CANCELLED'";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CANCELLED'";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -245,12 +247,14 @@ public class OrderRepository {
     order.setId(rs.getString("id"));
     order.setAuctionId(rs.getString("auction_id"));
     order.setBuyerId(rs.getString("buyer_id"));
-    order.setSellerProfileId(rs.getString("seller_profile_id"));
+    order.setSellerId(rs.getString("seller_id"));
     order.setFinalPrice(rs.getBigDecimal("final_price"));
     order.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+    order.setDepositAmount(rs.getBigDecimal("remaining_amount"));
     order.setConsigneeName(rs.getString("consignee_name"));
     order.setPhoneNumber(rs.getString("phone_number"));
     order.setAddress(rs.getString("address"));
+    order.setItemName(rs.getString("item_name"));
     order.setStatus(OrderStatus.valueOf(rs.getString("status")));
     Timestamp createdAt = rs.getTimestamp("created_at");
     if (createdAt != null) {

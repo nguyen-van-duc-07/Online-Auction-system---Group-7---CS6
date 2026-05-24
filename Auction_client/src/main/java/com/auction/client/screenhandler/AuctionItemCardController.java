@@ -114,4 +114,7 @@ public class AuctionItemCardController {
       if (countdownTimer != null) countdownTimer.stop();
     }
   }
+  public void updateEndTime(LocalDateTime newEndTime) {
+    this.auction.setEndTime(newEndTime);
+  }
 }
