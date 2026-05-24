@@ -82,4 +82,7 @@ public class AuctionResponseDTO implements ResponseDTO {
    * Danh sách lịch sử đấu giá (giới hạn 20 phần tử).
    */
   private List<BidTransaction> bidHistory;
+
+  /** Tên file ảnh trên Server (ví dụ: "a6e39bd0.jpg"). Client sẽ load qua HTTP. */
+  private String imagePath;
 }

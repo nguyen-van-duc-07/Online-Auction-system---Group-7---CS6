@@ -169,9 +169,9 @@ public class NotificationController implements Initializable {
     ServerConnection.sendData(new MarkNotificationReadRequestDTO(userId, true));
     ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
 
-    HomeController homeController = HomeController.getInstance();
-    if (homeController != null) {
-      homeController.updateNotificationBadge(0);
+    MainLayoutController mainLayoutController = MainLayoutController.getInstance();
+    if (mainLayoutController != null) {
+      mainLayoutController.updateNotificationBadge(0);
     }
   }
 

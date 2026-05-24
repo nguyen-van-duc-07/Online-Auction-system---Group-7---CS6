@@ -28,8 +28,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.text.DecimalFormat;
-
 import org.controlsfx.control.Notifications;
+import com.auction.shared.network.NetworkConfig;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class ItemAuctionController implements Initializable {
   public static ItemAuctionController instance;
@@ -39,7 +41,7 @@ public class ItemAuctionController implements Initializable {
   private TextField bidAmountField;
   @FXML
   private Label itemNameLabel;
-  //  @FXML
+//  @FXML
 //  private Label descriptionField;
   @FXML
   private Label currentPriceField;
@@ -64,6 +66,11 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private TextField autoStepPriceField;
 
+  /** Khung hiển thị ảnh sản phẩm đấu giá (load bất đồng bộ qua HTTP). */
+  @FXML
+  private ImageView itemImageView;
+
+
   // Quick Add buttons
   @FXML
   private Button btnQuickAdd100;
@@ -80,7 +87,7 @@ public class ItemAuctionController implements Initializable {
   private AuctionResponseDTO currentAuction;
 
   @FXML
-  public void gotoHome() {
+  public void handleBack() {
     stopCountdownTimer();
     ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
     ScreenController.goBack();
@@ -420,7 +427,7 @@ public class ItemAuctionController implements Initializable {
       clearError();
       PlaceBidRequestDTO req =
           new PlaceBidRequestDTO(SessionManager.getCurrentAuctionId(),
-              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getRealName(),
+              SessionManager.getCurrentUser().getId(), SessionManager.getCurrentUser().getAccountName(),
               bidAmount);
       ServerConnection.sendData(req);
       // Xóa ô nhập để người dùng sẵn sàng nhập giá tiếp theo
@@ -655,7 +662,7 @@ public class ItemAuctionController implements Initializable {
       this.currentAuction = auctionData;
       // Cập nhật text các nút Quick Add dựa vào minStep
       updateQuickAddButtonTexts();
-      
+
       itemNameLabel.setText(auctionData.getItem().getName());
 
       DecimalFormat formatter = new DecimalFormat("#,###");
@@ -675,6 +682,15 @@ public class ItemAuctionController implements Initializable {
       // 4. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
       loadChartData();
 
+      // 5. Load ảnh sản phẩm bất đồng bộ qua HTTP
+      if (auctionData.getImagePath() != null && !auctionData.getImagePath().isEmpty()
+          && itemImageView != null) {
+        String imageUrl = "http://" + NetworkConfig.DEFAULT_HOST + ":"
+            + NetworkConfig.IMAGE_SERVER_PORT + "/images/" + auctionData.getImagePath();
+        Image image = new Image(imageUrl, true); // true = background loading
+        itemImageView.setImage(image);
+      }
+
       // In log ra để dễ debug
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       // THÊM
@@ -684,8 +700,16 @@ public class ItemAuctionController implements Initializable {
     });
   }
 
-  @FXML
-  public void handleBack() {
-    ScreenController.goBack();
+  public void onAuctionExtended(LocalDateTime newEndTime) {
+    Platform.runLater(() -> {
+      currentAuction.setEndTime(newEndTime);
+
+      Notifications.create()
+          .title("⏰ Phiên đấu giá được gia hạn!")
+          .text("Có bid mới trong 3 phút cuối!\nPhiên được gia hạn thêm 3 phút.")
+          .hideAfter(javafx.util.Duration.seconds(5))
+          .position(Pos.TOP_RIGHT)
+          .showWarning();
+    });
   }
 }

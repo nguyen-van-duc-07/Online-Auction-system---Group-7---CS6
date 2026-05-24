@@ -34,7 +34,7 @@ public class RequestHandler {
       UserDTO userDTO = UserDTO.builder()
               .role(loggedInUser.getRole())
               .id(loggedInUser.getId())
-              .realName(loggedInUser.getRealName())
+              .accountName(loggedInUser.getAccountName())
               .accountName(loggedInUser.getAccountName())
               .email(loggedInUser.getEmail())
               .phoneNumber(loggedInUser.getPhoneNumber())
@@ -63,17 +63,11 @@ public class RequestHandler {
   public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
     // Kiểm tra xem User đã có hồ sơ người bán chưa
     SellerProfileRepository profileRepo = new SellerProfileRepository();
-    String sellerProfileId = profileRepo.findProfileIdByUserId(uploadItemReq.getSellerId());
-
-    // Nếu chưa có, chặn lại và báo lỗi về Client
-    if (sellerProfileId == null) {
+    if (!profileRepo.haveSellerProfile(uploadItemReq.getSellerId()))
       return new UploadItemResponseDTO(false,
-              "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
-    }
-
+          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
     // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
-    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq, sellerProfileId);
-
+    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq);
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
             "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);
@@ -130,7 +124,7 @@ public class RequestHandler {
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
               .id(userAfterUpdatingProfile.getId())
-              .realName(userAfterUpdatingProfile.getRealName())
+              .accountName(userAfterUpdatingProfile.getAccountName())
               .accountName(userAfterUpdatingProfile.getAccountName())
               .email(userAfterUpdatingProfile.getEmail())
               .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
@@ -259,7 +253,7 @@ public class RequestHandler {
     if (success) {
       // --- KÍCH HOẠT THUẬT TOÁN ĐỤNG ĐỘ BOT VS BOT TẠI ĐÂY ---
       if (req.isActive()) {
-        AuctionService.resolveAutoBidFight(req.getAuctionId());
+        new BidService().resolveAutoBidFight(req.getAuctionId());
       }
       return new AutoBidResponseDTO(true, "Đã cập nhật tự động đấu giá!");
     } else {
@@ -315,4 +309,40 @@ public class RequestHandler {
     List<OrderDTO> pendingOrders =  orderService.getPendingOrdersByBuyerId(req.getBuyerId());
     return new GetPendingOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, pendingOrders);
   }
+
+  public static GetCompletedOrdersOfSellerResponseDTO handleGetCompletedOrdersOfSeller(
+      GetCompletedOrdersOfSellerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersBySellerId(req.getSellerId());
+    return new GetCompletedOrdersOfSellerResponseDTO("Tải danh sách thành công", true, completedOrders);
+  }
+
+  public static GetCancelledOrdersOfSellerResponseDTO handleGetCancelledOrdersOfSeller(
+      GetCancelledOrdersOfSellerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersBySellerId(req.getSellerId());
+    return new GetCancelledOrdersOfSellerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
+  }
+
+  public static GetCompletedOrdersOfBuyerResponseDTO handleGetCompletedOrdersOfBuyer(
+      GetCompletedOrdersOfBuyerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersByBuyerId(req.getBuyerId());
+    return new GetCompletedOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, completedOrders);
+  }
+
+  public static GetCancelledOrdersOfBuyerResponseDTO handleGetCancelledOrdersOfBuyer(
+      GetCancelledOrdersOfBuyerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersByBuyerId(req.getBuyerId());
+    return new GetCancelledOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
+  }
+
+  public static CreateAdminResponseDTO createAdmin(CreateAdminRequestDTO req) {
+    boolean isSuccess = AuthService.createAdmin(req);
+    String msg = isSuccess ? "Đăng ký tài khoản admin thành công!" :
+        "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
+    return new CreateAdminResponseDTO(isSuccess, msg);
+  }
+
 }

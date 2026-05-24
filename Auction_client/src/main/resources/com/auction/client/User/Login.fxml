@@ -30,8 +30,8 @@
                 <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
             </rowConstraints>
 
-            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField fx:id="accountNameField" promptText="Nhập tên tài khoản" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Số điện thoại:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="phoneNumberField" promptText="Nhập số điện thoại đã đăng kí" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 

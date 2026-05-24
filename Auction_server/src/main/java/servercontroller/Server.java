@@ -1,6 +1,7 @@
 package servercontroller;
 
 import com.auction.shared.model.auction.Auction;
+import com.auction.shared.response.AuctionExtendedDTO;
 import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
@@ -58,6 +59,9 @@ public class Server {
 
   public static void main(String[] args) {
     try {
+      // Khởi chạy HTTP Static File Server cho ảnh sản phẩm
+      service.ImageHttpServer.start();
+
       AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
       scheduler.start();
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
@@ -91,6 +95,13 @@ public class Server {
       if (room != null) {
         for (ClientHandler client : room) {
           client.sendData(auctionResult);
+        }
+      }
+    } else if (responseDTO instanceof AuctionExtendedDTO auctionExtended) {
+      Set<ClientHandler> room = auctionRooms.get(auctionExtended.getAuctionId());
+      if (room != null) {
+        for (ClientHandler client : room) {
+          client.sendData(auctionExtended);
         }
       }
     }

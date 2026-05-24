@@ -50,7 +50,7 @@
                                 <Label text="HỌ VÀ TÊN" textFill="#718096">
                                     <font><Font name="System Bold" size="11.0" /></font>
                                 </Label>
-                                <TextField fx:id="realNameField" promptText="Nhập họ và tên" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
+                                <TextField fx:id="accountNameField" promptText="Nhập họ và tên" style="-fx-background-color: #F7FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;" />
                             </children>
                         </VBox>
 

@@ -6,7 +6,6 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
-import com.auction.shared.model.user.User;
 import com.auction.shared.response.AuctionResponseDTO;
 import config.DatabaseConnection;
 
@@ -91,12 +90,16 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở hoặc sắp diễn ra
   public List<AuctionDTO> findActiveAndWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thời gian bắt đầu
+    // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thứ tự ACTIVE -> WAITING
     String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
             + "FROM auctions a "
             + "JOIN items i ON a.item_id = i.id "
             + "WHERE a.status IN ('WAITING', 'ACTIVE') "
-            + "ORDER BY a.start_time ASC";
+            + "ORDER BY CASE a.status "
+            + "  WHEN 'ACTIVE' THEN 1 "
+            + "  WHEN 'WAITING' THEN 2 "
+            + "  ELSE 3 "
+            + "END, a.start_time ASC";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
@@ -116,7 +119,13 @@ public class AuctionRepository {
     String sql = "SELECT a.id, a.start_time, a.end_time, a.status, a.current_price, i.name AS item_name "
             + "FROM auctions a "
             + "JOIN items i ON a.item_id = i.id "
-            + "WHERE a.seller_id = ?";
+            + "WHERE a.seller_id = ? "
+            + "ORDER BY CASE a.status "
+            + "  WHEN 'ACTIVE' THEN 1 "
+            + "  WHEN 'WAITING' THEN 2 "
+            + "  WHEN 'CLOSED' THEN 3 "
+            + "  ELSE 4 "
+            + "END, a.start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -212,16 +221,13 @@ public class AuctionRepository {
     }
   }
 
-  public void updatePrice(String auctionId, String bidderId, java.math.BigDecimal newPrice) {
+  public void updatePrice(Connection conn, String auctionId, String bidderId, java.math.BigDecimal newPrice) throws SQLException {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setBigDecimal(1, newPrice);
       ps.setString(2, bidderId);
       ps.setString(3, auctionId);
       ps.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
   }
 
@@ -265,7 +271,7 @@ public class AuctionRepository {
 
     UserRepository userRepo = new  UserRepository();
     String highestBidderId = rs.getString("highest_bidder_id");
-    String highestBidderName = userRepo.getRealNameByUserId(rs.getString("highest_bidder_id"));
+    String highestBidderName = userRepo.getAccountNameByUserId(rs.getString("highest_bidder_id"));
 
     SellerProfileRepository sellerRepo = new  SellerProfileRepository();
     String sellerId = rs.getString("seller_id");
@@ -274,6 +280,9 @@ public class AuctionRepository {
 
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);
+
+    // Đọc đường dẫn ảnh sản phẩm
+    auction.setImagePath(rs.getString("image_path"));
 
     return auction;
   }
@@ -315,15 +324,15 @@ public class AuctionRepository {
     return auction;
   }
 
-  public boolean saveAuction(Auction auction, String sellerProfileId) {
-    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price,highest_bidder_id, start_time, end_time, status) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  public boolean saveAuction(Auction auction, String imagePath) {
+    String sql = "INSERT INTO auctions (id, seller_id, item_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, auction.getId());
-      ps.setString(2, sellerProfileId);
+      ps.setString(2, auction.getSellerId());
       ps.setString(3, auction.getItem().getId());
       ps.setBigDecimal(4, auction.getStartPrice());
       ps.setBigDecimal(5, auction.getMinStepPrice());
@@ -332,6 +341,7 @@ public class AuctionRepository {
       ps.setTimestamp(8, java.sql.Timestamp.valueOf(auction.getStartTime()));
       ps.setTimestamp(9, java.sql.Timestamp.valueOf(auction.getEndTime()));
       ps.setString(10, auction.getStatus().name());
+      ps.setString(11, imagePath);
 
       return ps.executeUpdate() > 0;
 
@@ -356,6 +366,26 @@ public class AuctionRepository {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Đóng phiên chỉ khi vẫn ACTIVE và end_time đã qua — tránh đóng nhầm sau anti-sniping.
+   *
+   * @return true nếu vừa chuyển sang CLOSED
+   */
+  public boolean tryCloseExpiredAuction(String auctionId, LocalDateTime now) {
+    String sql = "UPDATE auctions SET status = ? WHERE id = ? AND status = ? AND end_time <= ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, AuctionStatus.CLOSED.name());
+      ps.setString(2, auctionId);
+      ps.setString(3, AuctionStatus.ACTIVE.name());
+      ps.setTimestamp(4, Timestamp.valueOf(now));
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
     }
   }
   public List<String> findAuctionsToActivate(LocalDateTime now) {
@@ -490,7 +520,7 @@ public class AuctionRepository {
 
     return result;
   }
-  public String getSellerProfileIdByAuctionId(String auctionId) {
+  public String getSellerIdByAuctionId(String auctionId) {
     String sql = "SELECT seller_id FROM auctions WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -520,6 +550,31 @@ public class AuctionRepository {
       e.printStackTrace();
       return null;
     }
+  }
+  public void updateEndTime(Connection conn, String auctionId, LocalDateTime newEndTime) throws SQLException {
+    String sql = "UPDATE auctions SET end_time = ? WHERE id = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setTimestamp(1, Timestamp.valueOf(newEndTime));
+      ps.setString(2, auctionId);
+      ps.executeUpdate();
+    }
+  }
+  public AuctionResponseDTO findAuctionForUpdate(Connection conn, String auctionId) throws SQLException {
+    String sql = "SELECT a.*, i.name AS item_name, i.type AS item_type, i.description AS item_desc, u.real_name AS highest_bidder_name "
+        + "FROM auctions a "
+        + "JOIN items i ON a.item_id = i.id "
+        + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
+        + "WHERE a.id = ? FOR UPDATE"; // Khóa dòng này lại cho đến khi commit
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, auctionId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return mapResultSetToAuctionResponseDTO(rs);
+        }
+      }
+    }
+    return null;
   }
 }
 

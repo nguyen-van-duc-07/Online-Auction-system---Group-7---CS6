@@ -52,6 +52,7 @@ public class Wallet extends Entity {
       throw new IllegalStateException("Số dư khả dụng không đủ để đặt cược!");
     }
     this.frozenBalance = this.frozenBalance.add(amount);
+    this.balance = this.balance.subtract(amount);
   }
 
   public void unfreeze(BigDecimal amount) {
@@ -59,13 +60,17 @@ public class Wallet extends Entity {
       throw new IllegalStateException("Lỗi hệ thống: Tiền đóng băng không đủ để mở!");
     }
     this.frozenBalance = this.frozenBalance.subtract(amount);
+    this.balance = this.balance.add(amount);
   }
 
-  public void payWinningBid(BigDecimal amount) {
-    if (this.frozenBalance.compareTo(amount) < 0) {
-      throw new IllegalStateException("Lỗi hệ thống: Tiền đóng băng không đủ để thanh toán!");
+  public void payWinningAuction(BigDecimal depositAmount, BigDecimal remainingAmount) {
+    if (this.balance.compareTo(remainingAmount) < 0) {
+      throw new IllegalStateException("Lỗi hệ thống: Tiền không đủ để thanh toán!");
     }
-    this.frozenBalance = this.frozenBalance.subtract(amount);
-    this.balance = this.balance.subtract(amount);
+    this.frozenBalance = this.frozenBalance.subtract(depositAmount);
+    this.balance = this.balance.subtract(remainingAmount);
+  }
+  public void penaltyDeposit(BigDecimal depositAmount) {
+    this.frozenBalance = this.frozenBalance.subtract(depositAmount);
   }
 }

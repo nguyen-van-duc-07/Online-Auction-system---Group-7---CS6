@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="650.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.MainLayoutController">
+<StackPane prefHeight="650.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.MainLayoutController">
 
     <BorderPane>
         <!-- ==================== THANH NGANG TRÊN (TOP BAR) ==================== -->
@@ -38,7 +48,7 @@
                         <children>
                             <VBox alignment="CENTER_RIGHT" spacing="2.0">
                                 <children>
-                                    <Label fx:id="realNameLabel" style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
+                                    <Label fx:id="accountNameLabel" style="-fx-font-weight: bold;" text="Chào, Admin" textFill="#555555" />
                                     <Label fx:id="remainingLabel" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="Số dư: 0 đ" textFill="#ff9900" />
                                 </children>
                             </VBox>
@@ -57,23 +67,33 @@
 
         <!-- ==================== SIDEBAR TRÁI ==================== -->
         <left>
-            <VBox fx:id="sidebar" prefHeight="580.0" prefWidth="235.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom, #1e7d32, #009900);" BorderPane.alignment="CENTER">
+            <VBox fx:id="sideBar" prefHeight="580.0" prefWidth="235.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom, #1e7d32, #009900);" BorderPane.alignment="CENTER">
                 <padding><Insets left="15.0" right="15.0" top="30.0" /></padding>
                 <children>
-                    <!-- Button cố định 1: Quản lý hàng giao bán -->
-                    <Button fx:id="btnQuanLy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🛒 Quản lý hàng giao bán">
+                    <Button fx:id="homeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoHomeFeed" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🏠 Trang chủ">
                         <effect><DropShadow blurType="GAUSSIAN" height="10.0" radius="4.5" width="10.0"><color><Color opacity="0.3" /></color></DropShadow></effect>
                     </Button>
 
-                    <!-- Button cố định 2: Kết quả đấu giá -->
-                    <Button fx:id="btnKetQua" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoResult" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🏆 Kết quả đấu giá" />
+                    <Button fx:id="sellerHomeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoSellerHome" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🛒 Cửa hàng của tôi" />
+                    <Button fx:id="resultButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#gotoResult" style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand;" text="🏆 Kết quả đấu giá" />
 
-                    <!-- ===== VÙNG SIDEBAR ĐỘNG — load button theo ngữ cảnh ===== -->
-                    <VBox fx:id="sidebarDynamic" spacing="12.0">
-                        <VBox.margin><Insets top="5.0" /></VBox.margin>
-                    </VBox>
+                    <Label fx:id="lblStatusHeader" text="TRẠNG THÁI PHIÊN" textFill="#c8e6c9">
+                        <VBox.margin><Insets bottom="5.0" left="10.0" top="25.0" /></VBox.margin>
+                        <font><Font name="System Bold" size="11.0" /></font>
+                    </Label>
 
-                    <!-- Spacer đẩy nội dung lên trên -->
+                    <Button fx:id="functionButton1" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🟢 Đang diễn ra">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
+                    <Button fx:id="functionButton2" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🕒 Sắp diễn ra">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
+                    <Button fx:id="functionButton3" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 10; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 15; -fx-cursor: hand;" text="🔴 Đã kết thúc">
+                        <font><Font name="System Bold" size="12.0" /></font>
+                    </Button>
+
                     <Region VBox.vgrow="ALWAYS" />
                 </children>
             </VBox>
@@ -81,7 +101,7 @@
 
         <!-- ==================== NỘI DUNG CHÍNH (SCROLLPANE) ==================== -->
         <center>
-            <ScrollPane fx:id="mainContent" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" focusTraversable="false" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" BorderPane.alignment="CENTER">
+            <ScrollPane fx:id="mainContent" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
                 <content>
                     <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
                         <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>
@@ -92,18 +112,14 @@
     </BorderPane>
 
     <!-- ==================== NÚT THÔNG BÁO NỔI ==================== -->
-    <VBox fx:id="floatingIcon" onMouseClicked="#gotoNotifications" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: hand;" StackPane.alignment="BOTTOM_LEFT">
+    <VBox fx:id="floatingIcon" maxHeight="-Infinity" maxWidth="-Infinity" onMouseClicked="#gotoNotifications" style="-fx-background-color: #FFAD00; -fx-background-radius: 50; -fx-padding: 12; -fx-cursor: hand;" StackPane.alignment="BOTTOM_LEFT">
         <StackPane.margin>
             <Insets bottom="30.0" left="30.0" />
         </StackPane.margin>
         <children>
             <StackPane>
                 <Label style="-fx-font-size: 26px;" text="🔔" />
-                <Label fx:id="notificationBadge" alignment="CENTER"
-                       style="-fx-background-color: red; -fx-background-radius: 50;
-                       -fx-min-width: 12; -fx-min-height: 12;
-                       -fx-max-width: 12; -fx-max-height: 12;"
-                       text="" StackPane.alignment="TOP_RIGHT" visible="false">
+                <Label fx:id="notificationBadge" alignment="CENTER" style="-fx-background-color: red; -fx-background-radius: 50;                        -fx-min-width: 12; -fx-min-height: 12;                        -fx-max-width: 12; -fx-max-height: 12;" text="" visible="false" StackPane.alignment="TOP_RIGHT">
                     <StackPane.margin>
                         <Insets right="-3.0" top="-3.0" />
                     </StackPane.margin>
