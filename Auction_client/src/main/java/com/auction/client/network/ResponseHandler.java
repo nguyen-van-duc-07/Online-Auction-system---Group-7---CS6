@@ -2,12 +2,14 @@ package com.auction.client.network;
 
 import com.auction.client.screenhandler.*;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
+import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.GetOrderRequestDTO;
+import com.auction.shared.request.GetPendingTransactionsRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
@@ -585,6 +587,43 @@ public class ResponseHandler {
         if (controller != null && controller.getResultController() != null) {
           controller.getResultController().loadOrdersToUI(response.getCancelledOrders());
         }
+      }
+    });
+  }
+
+  public static void handleCreateTransactionResponse(CreateTransactionResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thành công" : "Lỗi",
+          response.getMessage()
+      );
+    });
+  }
+
+  public static void handleGetPendingTransactionsResponse(GetPendingTransactionsResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        PendingTransactionManagerController controller = PendingTransactionManagerController.getInstance();
+        if (controller != null) {
+          controller.loadDataToTable(response.getPendingTransactions());
+        }
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi", response.getMessage());
+      }
+    });
+  }
+
+  public static void handleProcessTransactionResponse(ProcessTransactionResponseDTO response) {
+    Platform.runLater(() -> {
+      ScreenController.showAlert(
+          response.isSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+          response.isSuccess() ? "Thành công" : "Lỗi",
+          response.getMessage()
+      );
+      // Reload danh sách pending
+      if (response.isSuccess()) {
+        ServerConnection.sendData(new GetPendingTransactionsRequestDTO());
       }
     });
   }

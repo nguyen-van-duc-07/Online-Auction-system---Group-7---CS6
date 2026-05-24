@@ -172,6 +172,18 @@ public class ServerConnection {
               ResponseHandler.handleGetCancelledOrdersOfSeller(responseDTO);
             }
 
+            case CreateTransactionResponseDTO responseDTO -> {
+              ResponseHandler.handleCreateTransactionResponse(responseDTO);
+            }
+
+            case GetPendingTransactionsResponseDTO responseDTO -> {
+              ResponseHandler.handleGetPendingTransactionsResponse(responseDTO);
+            }
+
+            case ProcessTransactionResponseDTO responseDTO -> {
+              ResponseHandler.handleProcessTransactionResponse(responseDTO);
+            }
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

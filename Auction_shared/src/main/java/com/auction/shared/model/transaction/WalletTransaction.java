@@ -6,25 +6,23 @@ import com.auction.shared.model.core.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
+@Setter
 public class WalletTransaction extends Entity {
     private String walletId;
     private WalletTransactionType type;
     private BigDecimal amount;
-    private BigDecimal balanceBefore;
-    private BigDecimal balanceAfter;
-    private BigDecimal frozenBefore;
-    private BigDecimal frozenAfter;
     private String referenceId;
     private WalletTransactionStatus status;
 
     @Builder
-    public WalletTransaction(String walletId, WalletTransactionType type, BigDecimal amount, BigDecimal balanceBefore, BigDecimal balanceAfter, BigDecimal frozenBefore, BigDecimal frozenAfter, String referenceId, WalletTransactionStatus status) {
+    public WalletTransaction(String walletId, WalletTransactionType type, BigDecimal amount, String referenceId, WalletTransactionStatus status) {
         Objects.requireNonNull(walletId, "Mã ví (Wallet ID) không được để trống!");
         Objects.requireNonNull(type, "Loại giao dịch không được để trống!");
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -34,10 +32,6 @@ public class WalletTransaction extends Entity {
         this.walletId = walletId;
         this.type = type;
         this.amount = amount;
-        this.balanceBefore = balanceBefore;
-        this.balanceAfter = balanceAfter;
-        this.frozenBefore = frozenBefore;
-        this.frozenAfter = frozenAfter;
         this.referenceId = referenceId;
         this.status = status;
     }

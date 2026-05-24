@@ -1,7 +1,6 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
-import service.WalletService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -17,8 +16,6 @@ import java.util.function.Consumer;
 public class WithdrawController {
 
   @FXML private TextField amountTextField;
-
-  private WalletService walletService = new WalletService();
   private Consumer<BigDecimal> onSuccessCallback;
 
   public void setOnSuccessCallback(Consumer<BigDecimal> callback) {
@@ -57,26 +54,15 @@ public class WithdrawController {
 
       String currentUserId = SessionManager.getCurrentUser().getId();
 
-      // Kiểm tra số dư thực tế từ Database trước khi thực hiện lệnh
-      BigDecimal currentBalance = walletService.getBalance(currentUserId);
-      if (amount.compareTo(currentBalance) > 0) {
-        showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Số dư không đủ!");
-        return;
-      }
+      com.auction.shared.request.CreateTransactionRequestDTO requestDTO = com.auction.shared.request.CreateTransactionRequestDTO.builder()
+          .userId(currentUserId)
+          .amount(amount)
+          .type(com.auction.shared.enums.WalletTransactionType.WITHDRAW)
+          .build();
+      
+      com.auction.client.network.ServerConnection.sendData(requestDTO);
 
-      // Thực hiện rút tiền
-      boolean isSuccess = walletService.withdraw(currentUserId, amount);
-
-      if (isSuccess) {
-        if (onSuccessCallback != null) {
-          onSuccessCallback.accept(amount);
-        }
-        String formatted = NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(amount);
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã rút thành công: " + formatted);
-        closeWindow(event);
-      } else {
-        showAlert(Alert.AlertType.ERROR, "Lỗi", "Giao dịch thất bại. Vui lòng kiểm tra lại!");
-      }
+      closeWindow(event);
 
     } catch (NumberFormatException e) {
       showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng không hợp lệ!");

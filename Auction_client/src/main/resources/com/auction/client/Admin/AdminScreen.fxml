@@ -60,6 +60,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#gotoUserManager" text="Quản lý Tài khoản" />
                         <MenuItem mnemonicParsing="false" onAction="#gotoAuctionManager" text="Quản lý Đấu giá" />
+                        <MenuItem mnemonicParsing="false" onAction="#gotoPendingTransactionManager" text="Quản lý Giao dịch" />
                     </items>
                     <font><Font name="System Bold" size="14.0" /></font>
                 </MenuButton>
