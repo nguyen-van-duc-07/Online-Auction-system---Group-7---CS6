@@ -178,7 +178,6 @@ public class NotificationController implements Initializable {
   private FontIcon getIcon(NotificationType type) {
     FontIcon icon = switch (type) {
       case AUCTION_WON               -> new FontIcon("fas-trophy");
-      case OUTBID                    -> new FontIcon("fas-fire");
       case ORDER_CONFIRMED           -> new FontIcon("fas-check-circle");
       case ORDER_CANCELLED,
            ORDER_CANCELLED_BY_BUYER  -> new FontIcon("fas-times-circle");
@@ -194,7 +193,6 @@ public class NotificationController implements Initializable {
       case AUCTION_WON, SELLER_APPROVED, ORDER_CONFIRMED -> Color.web("#27ae60");
       case ORDER_CANCELLED, ORDER_CANCELLED_BY_BUYER,
            SELLER_REJECTED, AUCTION_CANCELLED            -> Color.web("#e74c3c");
-      case OUTBID                                        -> Color.web("#e67e22");
       case AUCTION_ENDED                                 -> Color.web("#3498db");
       case SYSTEM                                        -> Color.web("#9b59b6");
     };

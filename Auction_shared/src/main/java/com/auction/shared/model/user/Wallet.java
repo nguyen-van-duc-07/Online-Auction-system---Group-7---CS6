@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Wallet extends Entity {
   private String bidderId;
-  private BigDecimal balance;
-  private BigDecimal frozenBalance;
+  private BigDecimal balance = BigDecimal.ZERO;
+  private BigDecimal frozenBalance = BigDecimal.ZERO;
 
 
   public Wallet(String bidderId) {

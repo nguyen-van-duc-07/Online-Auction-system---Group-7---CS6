@@ -145,7 +145,7 @@ public class RequestHandler {
 
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     BidService bidService = new BidService();
-      return bidService.placeBid(req);
+    return bidService.placeBid(req);
   }
 
   public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {

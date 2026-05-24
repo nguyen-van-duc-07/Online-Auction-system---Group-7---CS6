@@ -8,11 +8,6 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BidTransactionTest {
-
-    // ==========================================
-    // 1. TEST TRƯỜNG HỢP CHUẨN
-    // ==========================================
-
     @Test
     @DisplayName("Khởi tạo thành công khi các tham số đều hợp lệ")
     void testConstructor_ValidInputs_ShouldCreateSuccessfully() {
@@ -27,10 +22,6 @@ class BidTransactionTest {
         assertEquals(validBidderId, transaction.getBidderId());
         assertEquals(validAmount, transaction.getBidAmount());
     }
-
-    // ==========================================
-    // 2. TEST CÁC TRƯỜNG HỢP LỖI ID (EDGE CASES)
-    // ==========================================
 
     @Test
     @DisplayName("Ném lỗi IllegalArgumentException khi auctionId bị null")
@@ -53,20 +44,14 @@ class BidTransactionTest {
     @Test
     @DisplayName("Ném lỗi IllegalArgumentException khi bidderId bị null hoặc rỗng")
     void testConstructor_InvalidBidderId_ShouldThrowException() {
-        // Test null
         assertThrows(IllegalArgumentException.class, () -> {
             new BidTransaction("AUC-999", null, new BigDecimal("100000"));
         });
 
-        // Test chuỗi rỗng
         assertThrows(IllegalArgumentException.class, () -> {
             new BidTransaction("AUC-999", "", new BigDecimal("100000"));
         });
     }
-
-    // ==========================================
-    // 3. TEST CÁC TRƯỜNG HỢP LỖI SỐ TIỀN (MONEY VALIDATION)
-    // ==========================================
 
     @Test
     @DisplayName("Ném lỗi IllegalArgumentException khi số tiền bid bị null")

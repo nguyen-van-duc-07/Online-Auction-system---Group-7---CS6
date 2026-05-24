@@ -139,12 +139,52 @@ public class MainLayoutController implements Initializable, Controller {
 
     // Request danh sách đấu giá đang diễn ra + sắp diễn ra
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+    // Thêm search listener
+    searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+      filterAuctions(newValue.trim().toLowerCase());
+    });
   }
 
   // ====================================================================
   //                      SIDEBAR — LOAD BUTTON ĐỘNG
   // ====================================================================
 
+  private void filterAuctions(String keyword) {
+    // Chỉ filter khi đang ở context home
+    if (!"home".equals(currentContext)) return;
+
+    List<AuctionDTO> filtered = keyword.isEmpty()
+        ? currentAuctions
+        : currentAuctions.stream()
+        .filter(a -> a.getItemName().toLowerCase().contains(keyword))
+        .toList();
+
+    Platform.runLater(() -> {
+      loadCards(filtered);
+      if (filtered.isEmpty()) {
+        Label noResult = new Label("Không tìm thấy sản phẩm nào!");
+        noResult.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-padding: 20;");
+        feedContainer.getChildren().add(noResult);
+      }
+    });
+  }
+
+  private void loadCards(List<AuctionDTO> auctions) {
+    feedContainer.getChildren().clear();
+    for (AuctionDTO auction : auctions) {
+      try {
+        FXMLLoader loader = new FXMLLoader(
+            getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
+        Node cardNode = loader.load();
+        AuctionItemCardController cardController = loader.getController();
+        cardNode.setUserData(cardController);
+        cardController.setData(auction, instance);
+        feedContainer.getChildren().add(cardNode);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
   /**
    * Load sidebar cho ngữ cảnh "home" (Bidder).
    * Hiển thị: Label "TRẠNG THÁI PHIÊN" + 3 button trạng thái.
@@ -282,24 +322,7 @@ public class MainLayoutController implements Initializable, Controller {
       mainContent.setFitToWidth(true);
       mainContent.setFitToHeight(false);
 
-      feedContainer.getChildren().clear();
-
-      for (AuctionDTO auction : auctions) {
-        try {
-          FXMLLoader loader = new FXMLLoader(
-              getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
-          Node cardNode = loader.load();
-
-          AuctionItemCardController cardController = loader.getController();
-          cardNode.setUserData(cardController);
-          cardController.setData(auction, instance);
-
-          feedContainer.getChildren().add(cardNode);
-        } catch (IOException e) {
-          System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
-          e.printStackTrace();
-        }
-      }
+      loadCards(auctions);
     });
   }
 

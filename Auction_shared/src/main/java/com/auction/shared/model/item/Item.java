@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter // Tự động tạo Getter cho tất cả các trường
-@Setter // Tự động tạo Setter cho tất cả các trường
-@NoArgsConstructor // Tạo constructor không tham số (cần thiết cho một số Framework)
+@Getter
+@Setter
+@NoArgsConstructor
 public class Item extends Entity {
 
     private String name;
@@ -31,8 +31,6 @@ public class Item extends Entity {
     }
 
     public Item(ItemDTO dto) {
-        // Nếu là hàng mới: getId() và getCreatedAt() sẽ tự động là null.
-        // Nếu là hàng từ DB: getId() và getCreatedAt() sẽ mang giá trị thật.
         super(dto.getId(), dto.getCreatedAt());
         this.name = dto.getName();
         this.type = dto.getType();
