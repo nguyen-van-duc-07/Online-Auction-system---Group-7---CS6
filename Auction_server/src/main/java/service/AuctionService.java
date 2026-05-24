@@ -50,14 +50,8 @@ public class AuctionService {
    * @return {@code true} nếu cả Item và Auction đều được lưu thành công, ngược lại là {@code false}
    */
   public static boolean uploadNewItem(UploadItemRequestDTO request) {
-    // Tạo và lưu Item
-    Item item = new Item(request.getItemName(), request.getItemType(), request.getDescription());
-
-    boolean isItemSaved = itemRepo.saveItem(item);
-    if (!isItemSaved) {
-      System.out.println("Unable to save item");
-      return false; // Nếu lưu Item thất bại thì dừng quy trình
-    }
+    // Không sử dụng ItemRepository nữa, gộp chung thông tin item vào Auction
+    Item item = new Item(request.getItemName(), request.getItemType(), request.getDescription(), request.getAdditionalAttributes());
 
     // Lưu ảnh sản phẩm lên đĩa cứng (nếu có)
     String imagePath = null;

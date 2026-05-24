@@ -51,8 +51,15 @@ public class Auction extends Entity implements Serializable {
     this.sellerId = sellerId;
     this.startPrice = startPrice;
     this.minStepPrice = minStepPrice;
+    this.currentHighestPrice = startPrice;
     this.startTime = startTime;
     this.endTime = endTime;
+
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+      this.status = AuctionStatus.ACTIVE;
+    } else {
+      this.status = AuctionStatus.WAITING;
+    }
   }
 
   // Constructor chính

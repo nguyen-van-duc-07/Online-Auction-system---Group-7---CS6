@@ -40,4 +40,7 @@ public class UploadItemRequestDTO implements RequestDTO {
 
   /** Đuôi mở rộng của file ảnh (ví dụ: "jpg", "png"). */
   private String imageExtension;
+
+  /** Thuộc tính động theo từng danh mục. */
+  private java.util.Map<String, String> additionalAttributes;
 }

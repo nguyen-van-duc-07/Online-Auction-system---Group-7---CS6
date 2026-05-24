@@ -10,6 +10,7 @@ module com.auction.server {
     requires static lombok;
     requires openhtmltopdf.pdfbox;  // Cần cho AuthService (bạn có thể phải check lại tên chính xác của module jbcrypt)
     requires com.zaxxer.hikari;
+    requires com.google.gson;
     // Xuất các package của server nếu cần (tùy chọn)
     exports service;
     exports repository;
