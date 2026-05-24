@@ -16,6 +16,7 @@ public class Item extends Entity {
     private String name;
     private ItemType type;
     private String description;
+    private java.util.Map<String, String> additionalAttributes;
 
     public Item(String id, LocalDateTime createdAt, String name, ItemType type, String description) {
         super(id, createdAt);
@@ -24,10 +25,11 @@ public class Item extends Entity {
         this.description = description;
     }
 
-    public Item(String name, ItemType type, String description) {
+    public Item(String name, ItemType type, String description, java.util.Map<String, String> additionalAttributes) {
         this.name = name;
         this.type = type;
         this.description = description;
+        this.additionalAttributes = additionalAttributes;
     }
 
     public Item(ItemDTO dto) {
@@ -37,6 +39,6 @@ public class Item extends Entity {
         this.name = dto.getName();
         this.type = dto.getType();
         this.description = dto.getDescription();
-
+        this.additionalAttributes = dto.getAdditionalAttributes();
     }
 }

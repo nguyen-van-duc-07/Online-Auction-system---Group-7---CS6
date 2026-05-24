@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F4FBF4;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F4FBF4;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.UploadItemController">
     <content>
         <VBox alignment="TOP_CENTER" spacing="25.0" style="-fx-padding: 40 30 40 30;">
             <children>
@@ -48,34 +60,32 @@
                                             </font>
                                         </Label>
 
-                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #A3D9A5; -fx-border-style: dashed; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-color: #F8FAFC;">
+                                        <StackPane alignment="CENTER" onMouseClicked="#handleChooseImage" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #A3D9A5; -fx-border-style: dashed; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-color: #F8FAFC; -fx-cursor: hand;">
                                             <children>
-                                                <Label text="☁" textFill="#64748B">
-                                                    <font>
-                                                        <Font size="32.0" />
-                                                    </font>
-                                                </Label>
-                                                <Label text="Chọn ảnh từ máy tính" textFill="#334155">
-                                                    <font>
-                                                        <Font name="System Bold" size="13.0" />
-                                                    </font>
-                                                </Label>
-                                                <Label textFill="#64748B" />
+                                                <VBox alignment="CENTER" mouseTransparent="true">
+                                                    <children>
+                                                        <Label text="☁" textFill="#64748B">
+                                                            <font>
+                                                                <Font size="32.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Chọn ảnh từ máy tính" textFill="#334155">
+                                                            <font>
+                                                                <Font name="System Bold" size="13.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <ImageView fx:id="imageField" fitHeight="196.0" fitWidth="251.0" preserveRatio="true" />
                                             </children>
-                                        </VBox>
+                                        </StackPane>
 
                                         <Label alignment="CENTER" text="* Hỗ trợ định dạng: JPG, PNG&#10;(Tối đa 5MB)" textAlignment="CENTER" textFill="#64748B">
                                             <font>
                                                 <Font size="11.0" />
                                             </font></Label>
 
-                                        <HBox alignment="CENTER" spacing="12.0">
-                                            <children>
-                                                <Button prefHeight="45.0" prefWidth="45.0" style="-fx-background-color: #F4FBF4; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" text="📷" />
-                                                <Button prefHeight="45.0" prefWidth="45.0" style="-fx-background-color: #F4FBF4; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" text="📷" />
-                                                <Button prefHeight="45.0" prefWidth="45.0" style="-fx-background-color: #F4FBF4; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" text="📷" />
-                                            </children>
-                                        </HBox>
+                                        <HBox alignment="CENTER" spacing="12.0" />
                                     </children>
                                 </VBox>
 
@@ -92,6 +102,9 @@
                                             </font></Label>
                                     </children>
                                 </VBox>
+
+                                <Button maxWidth="1.1796493E7" mnemonicParsing="false" onAction="#uploadItem" prefHeight="45.0" style="-fx-background-color: #009900; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="ĐĂNG SẢN PHẨM LÊN SÀN" />
+
                             </children>
                         </VBox>
 
@@ -111,7 +124,7 @@
                                                 <Label text="*" textFill="RED" />
                                             </children>
                                         </HBox>
-                                        <TextField promptText="Nhập tên sản phẩm đấu giá" style="-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" />
+                                        <TextField fx:id="nameItemField" promptText="Nhập tên sản phẩm đấu giá" style="-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" />
                                     </children>
                                 </VBox>
 
@@ -122,7 +135,7 @@
                                                 <Label text="Giá khởi điểm (VNĐ)" />
                                                 <HBox alignment="CENTER_RIGHT" style="-fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF; -fx-background-radius: 6;">
                                                     <children>
-                                                        <TextField style="-fx-background-color: transparent; -fx-padding: 10;" text="0" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="iniPriceField" style="-fx-background-color: transparent; -fx-padding: 10;" HBox.hgrow="ALWAYS" />
                                                         <Label text="VNĐ" textFill="#64748B">
                                                             <padding>
                                                                 <Insets right="12.0" />
@@ -137,7 +150,7 @@
                                                 <Label text="Bước giá tối thiểu" />
                                                 <HBox alignment="CENTER_RIGHT" style="-fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF; -fx-background-radius: 6;">
                                                     <children>
-                                                        <TextField style="-fx-background-color: transparent; -fx-padding: 10;" text="10.000" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="minStepPriceField" style="-fx-background-color: transparent; -fx-padding: 10;" HBox.hgrow="ALWAYS" />
                                                         <Label text="VNĐ" textFill="#64748B">
                                                             <padding>
                                                                 <Insets right="12.0" />
@@ -157,8 +170,12 @@
                                                 <Label text="Thời gian bắt đầu" />
                                                 <HBox spacing="10.0">
                                                     <children>
-                                                        <DatePicker promptText="mm/dd/yyyy" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
-                                                        <TextField promptText="--:--" style="-fx-pref-height: 40; -fx-pref-width: 80; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" />
+                                                        <DatePicker fx:id="startDateField" promptText="mm/dd/yyyy" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                                            <ComboBox fx:id="startHourField" promptText="Giờ" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <Label text=":" />
+                                                            <ComboBox fx:id="startMinuteField" promptText="Phút" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                        </HBox>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -168,8 +185,12 @@
                                                 <Label text="Thời gian kết thúc" />
                                                 <HBox spacing="10.0">
                                                     <children>
-                                                        <DatePicker promptText="mm/dd/yyyy" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
-                                                        <TextField promptText="--:--" style="-fx-pref-height: 40; -fx-pref-width: 80; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" />
+                                                        <DatePicker fx:id="finishDateField" promptText="mm/dd/yyyy" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                                            <ComboBox fx:id="finishHourField" promptText="Giờ" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <Label text=":" />
+                                                            <ComboBox fx:id="finishMinuteField" promptText="Phút" style="-fx-pref-height: 40; -fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                        </HBox>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -179,15 +200,25 @@
 
                                 <VBox spacing="6.0">
                                     <children>
-                                        <Label text="Danh mục" />
-                                        <ComboBox maxWidth="1.1796493E7" promptText="Chọn danh mục" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-padding: 6;" />
+                                        <Label text="Thời lượng của phiên đấu giá (Tính bằng giờ - Nếu điền, bỏ qua thời gian kết thúc ở trên)" />
+                                        <TextField fx:id="durationField" promptText="Ví dụ: 24 (tương đương 24 giờ)" style="-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" />
                                     </children>
                                 </VBox>
 
                                 <VBox spacing="6.0">
                                     <children>
+                                        <Label text="Danh mục" />
+                                        <ComboBox fx:id="categoryField" maxWidth="1.1796493E7" promptText="Chọn danh mục" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-padding: 6;" />
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="dynamicAttributesBox" spacing="15.0">
+                                </VBox>
+
+                                <VBox spacing="6.0">
+                                    <children>
                                         <Label text="Mô tả sản phẩm" />
-                                        <TextArea prefHeight="160.0" promptText="Mô tả chi tiết tình trạng sản phẩm, xuất xứ, phụ kiện đi kèm..." style="-fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" wrapText="true" />
+                                        <TextArea fx:id="descriptionField" prefHeight="160.0" promptText="Mô tả chi tiết tình trạng sản phẩm, xuất xứ, phụ kiện đi kèm..." style="-fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;" wrapText="true" />
                                     </children>
                                 </VBox>
                             </children>

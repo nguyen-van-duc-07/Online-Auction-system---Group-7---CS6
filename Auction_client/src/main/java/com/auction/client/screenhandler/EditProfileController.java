@@ -53,6 +53,7 @@ public class EditProfileController implements Initializable {
         }
         if (currentUser.getPhoneNumber() != null) {
           phoneNumberField.setText(currentUser.getPhoneNumber());
+          phoneNumberField.setDisable(true);
         }
         if (currentUser.getDob() != null) {
           dateOfBirthField.setValue(currentUser.getDob());

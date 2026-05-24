@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -15,6 +16,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controller xử lý logic cho màn hình Đăng bán sản phẩm.
@@ -85,7 +90,77 @@ public class UploadItemController {
   @FXML
   private ComboBox<String> categoryField;
 
+  @FXML
+  private TextField durationField;
+
+  /**
+   * Khung chứa các trường nhập liệu động.
+   */
+  @FXML
+  private VBox dynamicAttributesBox;
+
+  private java.util.Map<String, TextField> dynamicTextFields = new java.util.HashMap<>();
+
   private File selectedImageFile;
+
+  @FXML
+  public void initialize() {
+    for (int i = 0; i < 24; i++) {
+        String h = String.format("%02d", i);
+        startHourField.getItems().add(h);
+        finishHourField.getItems().add(h);
+    }
+    for (int i = 0; i < 60; i++) {
+        String m = String.format("%02d", i);
+        startMinuteField.getItems().add(m);
+        finishMinuteField.getItems().add(m);
+    }
+
+    categoryField.getItems().addAll(
+        ItemType.ELECTRONICS.getValue(),
+        ItemType.VEHICLES.getValue(),
+        ItemType.COLLECTIBLES.getValue(),
+        ItemType.FASHION.getValue(),
+        ItemType.SPORTS.getValue(),
+        ItemType.ARTS.getValue(),
+        ItemType.OTHER.getValue()
+    );
+
+    categoryField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      updateDynamicFields(newValue);
+    });
+  }
+
+  private void updateDynamicFields(String category) {
+    if (dynamicAttributesBox == null) return;
+    dynamicAttributesBox.getChildren().clear();
+    dynamicTextFields.clear();
+
+    ItemType type = mapCategoryToEnum(category);
+    List<String> attributes = new ArrayList<>();
+
+    switch (type) {
+      case ELECTRONICS -> attributes.addAll(java.util.Arrays.asList("Mẫu", "Thương hiệu", "Bảo hành", "Tình trạng"));
+      case VEHICLES -> attributes.addAll(java.util.Arrays.asList("Thương hiệu", "Tình trạng", "Quãng đường đã đi", "Năm sản xuất", "Biển số xe", "Động cơ"));
+      case COLLECTIBLES -> attributes.addAll(java.util.Arrays.asList("Độ hiếm", "Giấy chứng nhận", "Tình trạng"));
+      case FASHION -> attributes.addAll(java.util.Arrays.asList("Thương hiệu", "Kiểu dáng", "Giới tính", "Kích cỡ", "Chất liệu"));
+      case SPORTS -> attributes.addAll(java.util.Arrays.asList("Môn thể thao", "Thương hiệu", "Cân nặng/ Kích cỡ"));
+      case ARTS -> attributes.addAll(java.util.Arrays.asList("Hoạ sĩ", "Giấy chứng nhận", "Năm xuất bản", "Kích cỡ"));
+      default -> {}
+    }
+
+    for (String attr : attributes) {
+      VBox vBox = new VBox(6.0);
+      Label label = new Label(attr);
+      TextField textField = new TextField();
+      textField.setPromptText("Nhập " + attr);
+      textField.setStyle("-fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6; -fx-background-color: #FFFFFF;");
+      
+      vBox.getChildren().addAll(label, textField);
+      dynamicAttributesBox.getChildren().add(vBox);
+      dynamicTextFields.put(attr, textField);
+    }
+  }
 
   /**
    * Xử lý sự kiện khi người dùng click vào nút "ĐĂNG SẢN PHẨM LÊN SÀN".
@@ -128,16 +203,30 @@ public class UploadItemController {
           ? LocalDateTime.of(startDate, LocalTime.of(startHour, startMinute))
           : LocalDateTime.now();
 
-      // Xử lý Thời gian kết thúc
-      LocalDate finishDate = finishDateField.getValue();
-      if (finishDate == null) {
-        ScreenController.showAlert(Alert.AlertType.WARNING,
-            "Cảnh báo", "Vui lòng chọn ngày kết thúc!");
-        return;
+      // Xử lý Thời lượng và Thời gian kết thúc
+      String durationStr = durationField != null ? durationField.getText().trim() : "";
+      LocalDateTime endTime;
+
+      if (!durationStr.isEmpty()) {
+          try {
+              double durationHours = Double.parseDouble(durationStr);
+              long minutesToAdd = (long) (durationHours * 60);
+              endTime = startTime.plusMinutes(minutesToAdd);
+          } catch (NumberFormatException e) {
+              ScreenController.showAlert(Alert.AlertType.WARNING, "Lỗi nhập liệu", "Thời lượng phải là một số (ví dụ: 24, 1.5)!");
+              return;
+          }
+      } else {
+          LocalDate finishDate = finishDateField.getValue();
+          if (finishDate == null) {
+            ScreenController.showAlert(Alert.AlertType.WARNING,
+                "Cảnh báo", "Vui lòng chọn ngày kết thúc hoặc nhập thời lượng!");
+            return;
+          }
+          int finishHour = finishHourField.getValue() != null ? Integer.parseInt(finishHourField.getValue()) : 23;
+          int finishMinute = finishMinuteField.getValue() != null ? Integer.parseInt(finishMinuteField.getValue()) : 59;
+          endTime = LocalDateTime.of(finishDate, LocalTime.of(finishHour, finishMinute));
       }
-      int finishHour = finishHourField.getValue() != null ? Integer.parseInt(finishHourField.getValue()) : 23;
-      int finishMinute = finishMinuteField.getValue() != null ? Integer.parseInt(finishMinuteField.getValue()) : 59;
-      LocalDateTime endTime = LocalDateTime.of(finishDate, LocalTime.of(finishHour, finishMinute));
 
       // Kiểm tra logic thời gian cơ bản
       if (endTime.isBefore(startTime)) {
@@ -158,6 +247,12 @@ public class UploadItemController {
         imageExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
       }
 
+      // Thu thập các thuộc tính động
+      Map<String, String> additionalAttributes = new HashMap<>();
+      for (Map.Entry<String, TextField> entry : dynamicTextFields.entrySet()) {
+          additionalAttributes.put(entry.getKey(), entry.getValue().getText().trim());
+      }
+
       UploadItemRequestDTO uploadItemRequestDTO = new UploadItemRequestDTO(sellerId,
                                                                           nameItem,
                                                                           type,
@@ -167,7 +262,8 @@ public class UploadItemController {
                                                                           startTime,
                                                                           endTime,
                                                                           imageBytes,
-                                                                          imageExtension);
+                                                                          imageExtension,
+                                                                          additionalAttributes);
 
       ServerConnection.sendData(uploadItemRequestDTO);
 
@@ -199,6 +295,7 @@ public class UploadItemController {
       case "Thời trang" -> ItemType.FASHION;
       case "Đồ sưu tầm" -> ItemType.COLLECTIBLES;
       case "Thể thao" -> ItemType.SPORTS;
+      case "Nghệ thuật" -> ItemType.ARTS;
       default -> ItemType.OTHER;
     };
   }
