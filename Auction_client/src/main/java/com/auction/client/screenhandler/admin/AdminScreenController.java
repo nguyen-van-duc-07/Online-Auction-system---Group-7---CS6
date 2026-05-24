@@ -40,6 +40,11 @@ public class AdminScreenController implements Initializable {
     loadComponent("/com/auction/client/Admin/AuctionManager.fxml");
   }
 
+  @FXML
+  public void gotoPendingTransactionManager() {
+    loadComponent("/com/auction/client/Admin/PendingTransactionManager.fxml");
+  }
+
   /**
    * Chuyển vùng nội dung bên trong VBox sang Quản lý duyệt Seller.
    */

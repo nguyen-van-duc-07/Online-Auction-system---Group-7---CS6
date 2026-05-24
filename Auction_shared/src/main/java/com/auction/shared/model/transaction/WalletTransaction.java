@@ -6,12 +6,14 @@ import com.auction.shared.model.core.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
+@Setter
 public class WalletTransaction extends Entity {
     private String walletId;
     private WalletTransactionType type;

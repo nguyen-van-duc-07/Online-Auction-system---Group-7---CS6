@@ -89,6 +89,20 @@ public class WalletRepository {
     }
   }
 
+  public Wallet getWalletByWalletId(Connection conn, String walletId) {
+    String sql = "SELECT * FROM wallets WHERE id = ? FOR UPDATE";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, walletId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return mapRow(rs);
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private Wallet mapRow(ResultSet rs) throws SQLException {
     Wallet wallet = new Wallet();
 

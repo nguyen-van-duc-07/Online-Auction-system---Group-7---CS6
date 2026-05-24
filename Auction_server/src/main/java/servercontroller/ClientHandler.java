@@ -229,6 +229,21 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case CreateTransactionRequestDTO req -> {
+                out.writeObject(RequestHandler.createTransactionRequest(req));
+                out.flush();
+              }
+
+              case GetPendingTransactionsRequestDTO req -> {
+                out.writeObject(RequestHandler.getPendingTransactions(req));
+                out.flush();
+              }
+
+              case ProcessTransactionRequestDTO req -> {
+                out.writeObject(RequestHandler.processTransactionRequest(req));
+                out.flush();
+              }
+
               case CreateAdminRequestDTO request -> {
                 out.writeObject(RequestHandler.createAdmin(request));
                 out.flush();

@@ -1,13 +1,15 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.WalletTransactionType;
+import com.auction.shared.request.CreateTransactionRequestDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import service.WalletService;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -20,7 +22,6 @@ public class DepositController {
 
   // Khai báo một callback để truyền dữ liệu về màn hình ví
   private Consumer<BigDecimal> onSuccessCallback;
-  private WalletService walletService = new WalletService();
 
   // Setter để màn hình chính truyền hàm xử lý vào
   public void setOnSuccessCallback(Consumer<BigDecimal> onSuccessCallback) {
@@ -62,28 +63,20 @@ public class DepositController {
         return;
       }
 
-      // 2. THỰC HIỆN GỌI SERVICE ĐỂ LƯU VÀO DATABASE
+      // 2. THỰC HIỆN GỌI SERVICE QUA SOCKET
       // Lấy ID người dùng đang đăng nhập từ Session
       String currentUserId = SessionManager.getCurrentUser().getId();
 
-      // Gọi hàm deposit (hàm này sử dụng SQL UPDATE wallets SET balance = balance + ? ...)
-      boolean isSuccess = walletService.deposit(currentUserId, amount);
+      CreateTransactionRequestDTO requestDTO = CreateTransactionRequestDTO.builder()
+          .userId(currentUserId)
+          .amount(amount)
+          .type(WalletTransactionType.DEPOSIT)
+          .build();
+      
+      ServerConnection.sendData(requestDTO);
 
-      if (isSuccess) {
-        // CHỈ KHI DATABASE CẬP NHẬT THÀNH CÔNG MỚI CHẠY TIẾP
-        if (onSuccessCallback != null) {
-          onSuccessCallback.accept(amount);
-        }
-
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        String formattedAmount = currencyFormat.format(amount);
-
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã nạp thành công: " + formattedAmount);
-        closeWindow(event);
-      } else {
-        // Nếu database trả về false (lỗi kết nối hoặc không tìm thấy user_id trong bảng wallets)
-        showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thực hiện giao dịch vào Database!");
-      }
+      // Đóng cửa sổ nạp tiền sau khi gửi request
+      closeWindow(event);
 
     } catch (NumberFormatException e) {
       showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng số tiền không hợp lệ!");

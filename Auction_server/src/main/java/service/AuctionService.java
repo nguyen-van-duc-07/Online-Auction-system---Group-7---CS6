@@ -214,35 +214,19 @@ public class AuctionService {
   }
 
   public static List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-    String sellerId = sellerRepo.findProfileIdByUserId(userId);
-    List<AuctionDTO> activeAuctionsBelongsToSeller = auctionRepo.findActiveAuctionsBySellerId(sellerId);
-    return activeAuctionsBelongsToSeller;
+    return auctionRepo.findActiveAuctionsBySellerId(userId);
   }
 
   public static List<AuctionDTO> getAuctionsBySeller(String userId) {
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-    String sellerId = sellerRepo.findProfileIdByUserId(userId);
-    List<AuctionDTO> auctionsBelongsToSeller = auctionRepo.findAuctionsBySellerId(sellerId);
-    return auctionsBelongsToSeller;
+    return auctionRepo.findAuctionsBySellerId(userId);
   }
 
   public static boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-    String sellerId = sellerRepo.findProfileIdByUserId(userId);
-    if (sellerId == null) {
-      return false;
-    }
-    return auctionRepo.cancelActiveAndWaitingAuctionsBySellerId(sellerId);
+    return auctionRepo.cancelActiveAndWaitingAuctionsBySellerId(userId);
   }
 
   public static boolean restoreCanceledAuctionsBySellerUserId(String userId) {
-    SellerProfileRepository sellerRepo = new SellerProfileRepository();
-    String sellerId = sellerRepo.findProfileIdByUserId(userId);
-    if (sellerId == null) {
-      return false;
-    }
-    return auctionRepo.restoreCanceledAuctionsBySellerId(sellerId, LocalDateTime.now());
+    return auctionRepo.restoreCanceledAuctionsBySellerId(userId, LocalDateTime.now());
   }
 
   public static AuctionResponseDTO getAuctionHistory(String auctionId) {

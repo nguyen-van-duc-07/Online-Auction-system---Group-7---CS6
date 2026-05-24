@@ -12,6 +12,7 @@ import com.auction.shared.response.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.auction.shared.model.transaction.WalletTransaction;
 import repository.SellerProfileRepository;
 import service.*;
 
@@ -345,4 +346,26 @@ public class RequestHandler {
     return new CreateAdminResponseDTO(isSuccess, msg);
   }
 
+
+  public static CreateTransactionResponseDTO createTransactionRequest(CreateTransactionRequestDTO req) {
+    WalletService walletService = new WalletService();
+    boolean success = walletService.createTransactionRequest(req.getUserId(), req.getAmount(), req.getType());
+    String message = success ? "Yêu cầu giao dịch đang được xử lý!" : "Lỗi khi tạo yêu cầu giao dịch!";
+    return new CreateTransactionResponseDTO(success, message);
+  }
+
+  public static GetPendingTransactionsResponseDTO getPendingTransactions(GetPendingTransactionsRequestDTO req) {
+    WalletService walletService = new WalletService();
+    List<WalletTransaction> pendingTransactions = walletService.getPendingTransactions();
+    boolean success = pendingTransactions != null;
+    String message = success ? "Tải danh sách thành công" : "Lỗi tải danh sách!";
+    return new GetPendingTransactionsResponseDTO(success, message, pendingTransactions);
+  }
+
+  public static ProcessTransactionResponseDTO processTransactionRequest(ProcessTransactionRequestDTO req) {
+    WalletService walletService = new WalletService();
+    boolean success = walletService.processTransactionRequest(req.getTransactionId(), req.getActionStatus());
+    String message = success ? "Duyệt giao dịch thành công!" : "Lỗi khi duyệt giao dịch!";
+    return new ProcessTransactionResponseDTO(success, message);
+  }
 }
