@@ -230,4 +230,21 @@ public class UserRepository {
     }
     return null;
   }
+  public boolean saveAdminAccount(Admin admin) {
+    String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, admin.getId());
+      ps.setString(2, admin.getAccountName());
+      ps.setString(3, admin.getPassword());
+      ps.setDate(4, Date.valueOf(admin.getDob()));
+      ps.setString(5, admin.getEmail());
+      ps.setString(6, admin.getPhoneNumber());
+      ps.setString(7, admin.getAddress());
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

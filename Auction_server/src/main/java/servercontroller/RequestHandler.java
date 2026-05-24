@@ -337,4 +337,12 @@ public class RequestHandler {
     List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersByBuyerId(req.getBuyerId());
     return new GetCancelledOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
   }
+
+  public static CreateAdminResponseDTO createAdmin(CreateAdminRequestDTO req) {
+    boolean isSuccess = AuthService.createAdmin(req);
+    String msg = isSuccess ? "Đăng ký tài khoản admin thành công!" :
+        "Tài khoản đã tồn tại hoặc lỗi hệ thống!";
+    return new CreateAdminResponseDTO(isSuccess, msg);
+  }
+
 }

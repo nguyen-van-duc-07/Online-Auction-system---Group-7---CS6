@@ -1,8 +1,8 @@
 package service;
 
-import com.auction.shared.enums.NotificationType;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.Admin;
+import com.auction.shared.request.CreateAdminRequestDTO;
 import com.auction.shared.request.LoginRequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
 import com.auction.shared.model.user.Bidder;
@@ -12,6 +12,7 @@ import com.auction.shared.request.UpdateProfileRequestDTO;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import java.sql.Connection;
+
 import org.mindrot.jbcrypt.BCrypt;
 import repository.UserRepository;
 import repository.WalletRepository;
@@ -149,5 +150,23 @@ public class AuthService {
       return userRepo.getUserByPhoneNumberNameOrId(null, user.getId());
     }
     return null;
+  }
+  public static boolean createAdmin(CreateAdminRequestDTO createAdminReq) {
+    if (userRepo.isAccountExist(createAdminReq.getPhoneNumber())) {
+      return false;
+    }
+
+    String hashedPassword = BCrypt.hashpw(
+        createAdminReq.getPassword(),
+        BCrypt.gensalt()
+    );
+    Admin admin = new Admin();
+    admin.setAccountName(createAdminReq.getAccountName());
+    admin.setPassword(hashedPassword);
+    admin.setEmail(createAdminReq.getEmail());
+    admin.setPhoneNumber(createAdminReq.getPhoneNumber());
+    admin.setDob(createAdminReq.getDob());
+    admin.setAddress(createAdminReq.getAddress());
+    return userRepo.saveAdminAccount(admin);
   }
 }
