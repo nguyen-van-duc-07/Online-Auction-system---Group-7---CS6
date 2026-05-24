@@ -22,6 +22,7 @@ abstract public class User extends Entity {
 
   public User(UserDTO dto) {
     super();
+    this.id = dto.getId();
     this.accountName = dto.getAccountName();
     this.password = dto.getPassword();
     this.email = dto.getEmail();

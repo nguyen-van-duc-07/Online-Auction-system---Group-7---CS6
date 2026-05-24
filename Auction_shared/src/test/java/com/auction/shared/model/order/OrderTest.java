@@ -3,44 +3,68 @@ package com.auction.shared.model.order;
 import com.auction.shared.enums.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderTest {
 
     @Test
-    @DisplayName("Tạo Order thành công với dữ liệu hợp lệ")
+    @DisplayName("Khởi tạo thành công với constructor đầy đủ tất cả thuộc tính mở rộng")
     void testConstructor_FullParams_AssignsAllFields() {
-        LocalDateTime expectedResolvedAt = LocalDateTime.of(2026, 5, 24, 15, 30);
-
         Order order = new Order(
                 "AUC_001", "BUYER_123", "SELLER_456",
-                new BigDecimal("5000"), new BigDecimal("500"),
-                OrderStatus.PENDING, expectedResolvedAt,
-                "Nguyen Van A", "0123456789", "Ha Noi"
+                new BigDecimal("5000"), new BigDecimal("500"), new BigDecimal("4500"),
+                OrderStatus.PENDING,
+                "Nguyen Van A", "0123456789", "Ha Noi",
+                "Nike", "Kho Ha Noi", "Giay The Thao"
         );
 
         assertNotNull(order.getId());
         assertNotNull(order.getCreatedAt());
+
         assertEquals("AUC_001", order.getAuctionId());
-        assertEquals(expectedResolvedAt, order.getResolvedAt());
-        assertEquals("Nguyen Van A", order.getConsigneeName());
+        assertEquals("BUYER_123", order.getBuyerId());
+        assertEquals("SELLER_456", order.getSellerId());
+
+        assertEquals(new BigDecimal("4500"), order.getRemainingAmount());
+        assertEquals("Nike", order.getBrandName());
+        assertEquals("Kho Ha Noi", order.getLocation());
+        assertEquals("Giay The Thao", order.getItemName());
     }
 
     @Test
-    @DisplayName("Khởi tạo Order thành công khi dùng constructor không có resolvedAt")
-    void testConstructor_WithoutResolvedAt_AssignsFields() {
+    @DisplayName("Khởi tạo thành công với constructor chứa resolvedAt (không có trường mở rộng)")
+    void testConstructor_WithResolvedAt_AssignsFields() {
+        LocalDateTime expectedResolvedAt = LocalDateTime.of(2026, 5, 24, 15, 30);
+
         Order order = new Order(
-                "AUC_001", "BUYER_123", "SELLER_456",
+                "AUC_002", "BUYER_123", "SELLER_456",
                 new BigDecimal("5000"), new BigDecimal("500"),
-                OrderStatus.PENDING,
+                OrderStatus.PENDING, expectedResolvedAt,
                 "Nguyen Van B", "0987654321", "TP.HCM"
         );
 
-        assertEquals("AUC_001", order.getAuctionId());
-        assertNull(order.getResolvedAt());
-        assertEquals(OrderStatus.PENDING, order.getStatus());
+        assertEquals("AUC_002", order.getAuctionId());
+        assertEquals(expectedResolvedAt, order.getResolvedAt());
+        assertNull(order.getRemainingAmount());
+    }
+
+    @Test
+    @DisplayName("Khởi tạo thành công với constructor chứa remainingAmount nhưng thiếu brandName/location")
+    void testConstructor_WithoutExtendedFields_AssignsFields() {
+        Order order = new Order(
+                "AUC_003", "BUYER_123", "SELLER_456",
+                new BigDecimal("5000"), new BigDecimal("500"), new BigDecimal("4500"),
+                OrderStatus.PENDING,
+                "Nguyen Van C", "0987654321", "Da Nang"
+        );
+
+        assertEquals("AUC_003", order.getAuctionId());
+        assertEquals(new BigDecimal("4500"), order.getRemainingAmount());
+        assertNull(order.getBrandName());
     }
 
     @Test
@@ -65,7 +89,7 @@ class OrderTest {
         IllegalStateException exception = assertThrows(IllegalStateException.class, order::confirm);
 
         assertEquals("Chỉ có thể xác nhận đơn hàng đang PENDING", exception.getMessage());
-        assertEquals(OrderStatus.CANCELLED, order.getStatus()); // Đảm bảo trạng thái không bị thay đổi
+        assertEquals(OrderStatus.CANCELLED, order.getStatus());
     }
 
     @Test
@@ -90,6 +114,6 @@ class OrderTest {
         IllegalStateException exception = assertThrows(IllegalStateException.class, order::cancel);
 
         assertEquals("Chỉ có thể hủy đơn hàng đang PENDING", exception.getMessage());
-        assertEquals(OrderStatus.CONFIRMED, order.getStatus()); // Đảm bảo trạng thái không bị thay đổi
+        assertEquals(OrderStatus.CONFIRMED, order.getStatus());
     }
 }
