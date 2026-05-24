@@ -438,8 +438,8 @@ public class MainLayoutController implements Initializable, Controller {
     return mainContent;
   }
 
-  public VBox getSideBar() {
-    return sideBar;
+  public Label getAccountNameLabel() {
+    return accountNameLabel;
   }
 
   public void setCurrentContext(String context) {

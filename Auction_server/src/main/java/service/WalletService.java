@@ -16,6 +16,7 @@ import repository.WalletRepository;
 import repository.WalletTransactionRepository;
 
 import java.sql.Connection;
+import java.util.List;
 
 public class WalletService {
   private final WalletRepository walletRepo = new WalletRepository();
@@ -134,6 +135,85 @@ public class WalletService {
       return false;
     }
   }
+
+  public boolean createTransactionRequest(String userId, BigDecimal amount, WalletTransactionType type) {
+    WalletTransaction tx = WalletTransaction.builder()
+        .walletId(walletRepo.getWalletByUserId(userId).getId()) // Giả sử walletId lấy từ userId
+        .type(type)
+        .amount(amount)
+        .status(WalletTransactionStatus.PENDING)
+        .build();
+
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      return txRepo.saveWalletTransaction(conn, tx);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public List<WalletTransaction> getPendingTransactions() {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      return txRepo.findPendingTransactions(conn);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public boolean processTransactionRequest(String transactionId, WalletTransactionStatus actionStatus) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        WalletTransaction tx = txRepo.getTransactionById(conn, transactionId);
+        if (tx == null || tx.getStatus() != WalletTransactionStatus.PENDING) {
+          return false;
+        }
+
+        if (actionStatus == WalletTransactionStatus.APPROVE) {
+          // Tính toán balance mới
+          Wallet wallet = walletRepo.getWalletByWalletId(conn, tx.getWalletId());
+          if (wallet == null) return false;
+
+          BigDecimal balBefore = wallet.getBalance();
+          BigDecimal balAfter = balBefore;
+
+          if (tx.getType() == WalletTransactionType.DEPOSIT) {
+            balAfter = balBefore.add(tx.getAmount());
+            wallet.setBalance(balAfter);
+            walletRepo.updateWallet(conn, wallet);
+          } else if (tx.getType() == WalletTransactionType.WITHDRAW) {
+            if (balBefore.compareTo(tx.getAmount()) < 0) {
+              return false; // Không đủ tiền
+            }
+            balAfter = balBefore.subtract(tx.getAmount());
+            wallet.setBalance(balAfter);
+            walletRepo.updateWallet(conn, wallet);
+          }
+
+          tx.setStatus(WalletTransactionStatus.APPROVE);
+
+          txRepo.updateWalletTransaction(conn, tx);
+        } else if (actionStatus == WalletTransactionStatus.REJECT) {
+          tx.setStatus(WalletTransactionStatus.REJECT);
+          txRepo.updateWalletTransaction(conn, tx);
+        }
+
+        conn.commit();
+        return true;
+      } catch (Exception e) {
+        conn.rollback();
+        e.printStackTrace();
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   public void processPayment(Connection conn, Order order) {
     System.out.println("BAT DAU QUA TRINH THANH TOAN CHO ORDER: " + order.getId());
     // 1. Xử lý ví buyer
