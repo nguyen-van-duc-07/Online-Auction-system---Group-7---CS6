@@ -15,7 +15,6 @@ import java.util.Locale;
  * Class có nhiệm vụ quản lý màn hình ví người dùng.
  */
 public class WalletController {
-  HomeController homeController = new HomeController();
   @FXML private Label balanceLabel;
 
   private static WalletController instance;
@@ -68,12 +67,12 @@ public class WalletController {
 
   @FXML
   public void gotoLogin() {
-    homeController.gotoLogin();
+    MainLayoutController.getInstance().gotoLogin();
   }
 
   @FXML
   public void gotoProfile() {
-    homeController.gotoProfile();
+    MainLayoutController.getInstance().gotoProfile();
   }
 
   @FXML
@@ -101,7 +100,7 @@ public class WalletController {
 
   @FXML
   public void gotoResult() {
-    homeController.gotoResult();
+    MainLayoutController.getInstance().gotoResult();
   }
 
   @FXML

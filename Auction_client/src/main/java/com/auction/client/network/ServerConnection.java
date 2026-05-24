@@ -159,6 +159,22 @@ public class ServerConnection {
                 ResponseHandler.handleAuctionExtended(dto);
 
 
+            case GetCompletedOrdersOfBuyerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetCompletedOrdersOfBuyer(responseDTO);
+            }
+
+            case GetCancelledOrdersOfBuyerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetCancelledOrdersOfBuyer(responseDTO);
+            }
+
+            case GetCompletedOrdersOfSellerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetCompletedOrdersOfSeller(responseDTO);
+            }
+
+            case GetCancelledOrdersOfSellerResponseDTO responseDTO -> {
+              ResponseHandler.handleGetCancelledOrdersOfSeller(responseDTO);
+            }
+
             default -> System.out.println("Phản hồi không hợp lệ");
           }
         }

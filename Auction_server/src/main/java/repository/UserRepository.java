@@ -252,8 +252,8 @@ public class UserRepository {
   }
 
   public InfoDTO getInfoByUserId(String userId) {
-    String query = "SELECT real_name, phone_number, address"
-        + "FROM users"
+    String query = "SELECT real_name, phone_number, address "
+        + "FROM users "
         + "WHERE id = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();

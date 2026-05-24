@@ -360,8 +360,17 @@ public class BidService {
       BigDecimal newPrice) throws SQLException {
 
     if (previousHighestBidderId != null && !previousHighestBidderId.isEmpty()) {
-      walletService.releaseFrozen(conn, previousHighestBidderId,
-          previousPrice.multiply(FREEZE_RATE), auctionId);
+      BigDecimal releaseAmount = previousPrice.multiply(FREEZE_RATE);
+      System.out.println("[TRANSFER] Release " + releaseAmount
+          + " từ " + previousHighestBidderId
+          + " | previousPrice=" + previousPrice);
+
+      // Kiểm tra frozen balance trước khi release
+      Wallet prevWallet = walletRepo.getWalletByUserIdForUpdate(conn, previousHighestBidderId);
+      System.out.println("[TRANSFER] frozenBalance hiện tại của " + previousHighestBidderId
+          + " = " + (prevWallet != null ? prevWallet.getFrozenBalance() : "null"));
+
+      walletService.releaseFrozen(conn, previousHighestBidderId, releaseAmount, auctionId);
     }
     walletService.freezeMoney(conn, newBidderId, newPrice.multiply(FREEZE_RATE), auctionId);
   }

@@ -1,78 +1,75 @@
 package com.auction.client.screenhandler;
 
-import com.auction.client.network.ServerConnection;
-import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.order.OrderDTO;
-import com.auction.shared.request.GetPendingOrdersOfBuyerRequestDTO;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import com.auction.shared.request.*;
+import com.auction.client.network.ServerConnection;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class ResultController implements Initializable {
+public class ResultController {
 
-  @FXML
-  private ScrollPane mainContent;
-
-  @FXML
-  private VBox feedContainer;
-
-  private List<OrderDTO> orders;
   private static ResultController instance;
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  private final MainLayoutController mainLayout;
+  private List<OrderDTO> orders;
+
+  public ResultController(MainLayoutController mainLayout) {
+    this.mainLayout = mainLayout;
     instance = this;
-    ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(
-        SessionManager.getCurrentUser().getId()));
   }
 
-  /**
-   * Tải và hiển thị danh sách thẻ sản phẩm (Component) lên giao diện.
-   * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
-   * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
-   */
-  public void loadFeedToUI(List<OrderDTO> orders) {
+  public static ResultController getInstance() {
+    return instance;
+  }
+
+  public void loadOrdersToUI(List<OrderDTO> orders) {
     this.orders = orders;
     Platform.runLater(() -> {
-      // Xóa các card cũ (nếu có) trước khi nạp mới
-      feedContainer.getChildren().clear();
+      mainLayout.getMainContent().setContent(mainLayout.getFeedContainer());
+      mainLayout.getMainContent().setFitToWidth(true);
+      mainLayout.getMainContent().setFitToHeight(false);
+
+      mainLayout.getFeedContainer().getChildren().clear();
 
       for (OrderDTO order : orders) {
         try {
-          // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Card
-          FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/User/OrderCard.fxml"));
-
-          // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
+          FXMLLoader loader = new FXMLLoader(
+              getClass().getResource("/com/auction/client/User/OrderCard.fxml"));
           Node cardNode = loader.load();
 
-          // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           OrderCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          // Truyền object auction
-          cardController.setData(order, new HomeController());
+          cardController.setData(order, mainLayout);
 
-          // 4. Nhét thẻ đã hoàn thiện vào VBox
-          feedContainer.getChildren().add(cardNode);
-
+          mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {
-          System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
+          System.err.println("Lỗi khi load Component OrderCard: " + e.getMessage());
           e.printStackTrace();
         }
       }
     });
   }
 
-  public static ResultController getInstance() {
-    return instance;
+  public void handleGetPendingOrders() {
+    String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(userId));
+  }
+
+  public void handleGetCompletedOrders() {
+    String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetCompletedOrdersOfBuyerRequestDTO(userId));
+  }
+
+  public void handleGetCancelledOrders() {
+    String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetCancelledOrdersOfBuyerRequestDTO(userId));
   }
 }

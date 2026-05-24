@@ -309,4 +309,32 @@ public class RequestHandler {
     List<OrderDTO> pendingOrders =  orderService.getPendingOrdersByBuyerId(req.getBuyerId());
     return new GetPendingOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, pendingOrders);
   }
+
+  public static GetCompletedOrdersOfSellerResponseDTO handleGetCompletedOrdersOfSeller(
+      GetCompletedOrdersOfSellerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersBySellerId(req.getSellerId());
+    return new GetCompletedOrdersOfSellerResponseDTO("Tải danh sách thành công", true, completedOrders);
+  }
+
+  public static GetCancelledOrdersOfSellerResponseDTO handleGetCancelledOrdersOfSeller(
+      GetCancelledOrdersOfSellerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersBySellerId(req.getSellerId());
+    return new GetCancelledOrdersOfSellerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
+  }
+
+  public static GetCompletedOrdersOfBuyerResponseDTO handleGetCompletedOrdersOfBuyer(
+      GetCompletedOrdersOfBuyerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersByBuyerId(req.getBuyerId());
+    return new GetCompletedOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, completedOrders);
+  }
+
+  public static GetCancelledOrdersOfBuyerResponseDTO handleGetCancelledOrdersOfBuyer(
+      GetCancelledOrdersOfBuyerRequestDTO req) {
+    OrderService orderService = new OrderService();
+    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersByBuyerId(req.getBuyerId());
+    return new GetCancelledOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
+  }
 }

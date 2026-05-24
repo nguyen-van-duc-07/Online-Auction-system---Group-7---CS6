@@ -5,113 +5,62 @@ import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.FlowPane;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
-
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class có nhiệm vụ quản lý màn hình seller.
+ * Đóng vai trò là Sub-controller cho MainLayoutController.
  */
-public class SellerHomeController implements Initializable, Controller {
-  /**
-   * Biến static lưu trữ Controller hiện tại của SellerHome.
-   */
+public class SellerHomeController {
   private static SellerHomeController instance;
+
+  private final MainLayoutController mainLayout;
+  private List<AuctionDTO> currentAuctions = new ArrayList<>();
+
+  public SellerHomeController(MainLayoutController mainLayout) {
+    this.mainLayout = mainLayout;
+    instance = this;
+  }
 
   public static SellerHomeController getInstance() {
     return instance;
   }
 
-  /** Khung chứa các thẻ sản phẩm, được ánh xạ từ fx:id="feedContainer" trong Seller/SellerHome.fxml. */
-  @FXML
-  private FlowPane feedContainer;
 
-  @FXML
-  private ScrollPane mainContent;
-
-  private Node homeFeedNode;
-
-  @FXML
-  private Label realNameLabel;
-
-  @FXML
-  private Label notificationBadge;
-
-  HomeController homecontroller = HomeController.getInstance();
-
-
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    // Ghi nhận bản thân (this) làm instance hiện tại ngay khi màn hình vừa mở lên
-    instance = this;
-
-    // Lưu lại giao diện Node gốc của trang chủ
-    homeFeedNode = mainContent.getContent();
-
-    // Hiện Label chào user
-    String phoneNumber = SessionManager.currentUser.getPhoneNumber();
-    String realName = SessionManager.currentUser.getRealName();
-    if (realName != null) {
-      realNameLabel.setText("Chào, " + realName);
-    } else if (phoneNumber != null) {
-      realNameLabel.setText("Chào, " + phoneNumber);
-    } else {
-      realNameLabel.setText("N/A");
-    }
-
-    // Gửi yêu cầu lấy danh sách ngay khi load UI
-    String sellerId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(sellerId));
-
-    ServerConnection.sendData(
-        new GetNotificationsRequestDTO(SessionManager.getCurrentUser().getId())
-    );
-  }
-
-  /**
-   * Tải và hiển thị danh sách thẻ sản phẩm (Component) lên giao diện.
-   * Hàm này sẽ được ResponseHandler gọi sau khi nhận được dữ liệu từ Server.
-   * * @param auctions Danh sách các phiên đấu giá trả về từ Server.
-   */
-  public void loadFeedToUI(List<AuctionDTO> auctions) {
-    // Bắt buộc dùng Platform.runLater để cập nhật UI an toàn từ luồng mạng (Network Thread)
+  public void loadSellerFeedToUI(List<AuctionDTO> auctions) {
+    this.currentAuctions = auctions;
     Platform.runLater(() -> {
-      // Xóa các card cũ (nếu có) trước khi nạp mới
-      feedContainer.getChildren().clear();
+      mainLayout.getMainContent().setContent(mainLayout.getFeedContainer());
+      mainLayout.getMainContent().setFitToWidth(true);
+      mainLayout.getMainContent().setFitToHeight(false);
 
-      VBox addNewCard = new VBox(5); // Khoảng cách giữa các phần tử là 10px
+      mainLayout.getFeedContainer().getChildren().clear();
 
-      // CHÚ Ý: Đổi 220, 300 thành kích thước đúng với AuctionItemCard.fxml của bạn
+      // === Card "Đăng bán sản phẩm" ===
+      VBox addNewCard = new VBox(5);
       addNewCard.setPrefSize(760, 110);
       addNewCard.setAlignment(Pos.CENTER);
 
-      // Trang trí CSS cho Card (Nền xám nhạt, viền bo góc)
-      // Khi bình thường
-      String normalStyle = "-fx-background-color: #27ae60; -fx-border-color: #219653; -fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
-      // Khi di chuột vào (Sáng hơn)
-      String hoverStyle = "-fx-background-color: #2ecc71; -fx-border-color: #27ae60; -fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
-      addNewCard.setStyle(normalStyle);
+      String normalStyle = "-fx-background-color: #27ae60; -fx-border-color: #219653; "
+          + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
+      String hoverStyle = "-fx-background-color: #2ecc71; -fx-border-color: #27ae60; "
+          + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-cursor: hand;";
 
-      // Hiệu ứng Hover (Làm sáng lên khi đưa chuột vào)
+      addNewCard.setStyle(normalStyle);
       addNewCard.setOnMouseEntered(e -> addNewCard.setStyle(hoverStyle));
       addNewCard.setOnMouseExited(e -> addNewCard.setStyle(normalStyle));
 
-      // Tạo Label dấu + và Text
       Label plusIcon = new Label("+");
       plusIcon.setStyle("-fx-font-size: 60px; -fx-text-fill: white; -fx-font-weight: bold;");
 
@@ -119,30 +68,22 @@ public class SellerHomeController implements Initializable, Controller {
       textLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
 
       addNewCard.getChildren().addAll(plusIcon, textLabel);
+      addNewCard.setOnMouseClicked(event -> mainLayout.gotoUploadItem());
 
-      // Bắt sự kiện Click để chuyển sang trang Upload
-      addNewCard.setOnMouseClicked(event -> gotoUploadItem());
+      mainLayout.getFeedContainer().getChildren().add(addNewCard);
 
-      // Thêm card này vào Container đầu tiên
-      feedContainer.getChildren().add(addNewCard);
-
+      // === Các thẻ auction của seller ===
       for (AuctionDTO auction : auctions) {
         try {
-          // 1. Khởi tạo FXMLLoader trỏ tới file thiết kế Component của KeDuc
-          FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
-
-          // 2. Load giao diện thành một Node (khối hình ảnh tĩnh)
+          FXMLLoader loader = new FXMLLoader(
+              getClass().getResource("/com/auction/client/Bidder/AuctionItemCard.fxml"));
           Node cardNode = loader.load();
 
-          // 3. Lấy Controller quản lý Node đó ra để bơm dữ liệu vào
           AuctionItemCardController cardController = loader.getController();
+          cardNode.setUserData(cardController);
+          cardController.setData(auction, mainLayout);
 
-          // Truyền object auction
-          cardController.setData(auction, instance);
-
-          // 4. Nhét thẻ đã hoàn thiện vào FlowPane
-          feedContainer.getChildren().add(cardNode);
-
+          mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {
           System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
           e.printStackTrace();
@@ -151,109 +92,41 @@ public class SellerHomeController implements Initializable, Controller {
     });
   }
 
-  public void gotoUploadItem() {
-    loadComponent("/com/auction/client/Seller/UploadItem.fxml");
+  public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
+    for (AuctionDTO auction : currentAuctions) {
+      if (auction.getAuctionId().equals(auctionId)) {
+        auction.setCurrentPrice(newPrice);
+        refreshAuctionCard(auctionId, newPrice);
+        break;
+      }
+    }
   }
 
-  @FXML
-  public void gotoLogin() {
-    ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
-        "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
-      if (Response == ButtonType.OK) {
-        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
-        logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
-        ServerConnection.sendData(logoutRequestDTO);
-        SessionManager.setCurrentUser(null);
-        ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
-        ScreenController.primaryStage.setMaximized(false);
+  private void refreshAuctionCard(String auctionId, BigDecimal newPrice) {
+    Platform.runLater(() -> {
+      for (Node node : mainLayout.getFeedContainer().getChildren()) {
+        if (node.getUserData() instanceof AuctionItemCardController controller) {
+          if (controller.getAuctionId() != null && controller.getAuctionId().equals(auctionId)) {
+            controller.updatePrice(newPrice);
+            break;
+          }
+        }
       }
     });
   }
 
-  @FXML
-  public void gotoNotifications() {
-    ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
-    ServerConnection.sendData(
-        new GetNotificationsRequestDTO(SessionManager.getCurrentUser().getId())
-    );
-  }
-
-  @FXML
-  public void gotoProfile() {
-    loadComponent("/com/auction/client/User/Profile.fxml");
-  }
-
-  @FXML
-  public void gotoWallet() {
-    loadComponent(("/com/auction/client/User/Wallet/Wallet.fxml"));
-  }
-
-  @FXML
-  public void gotoHome() {
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
-  }
-
-  @FXML
-  public void handleReload() {
-    gotoHomeFeed();
-    String sellerId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(sellerId));
-  }
-
-  @FXML
   public void handleGetPendingOrders() {
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetPendingOrdersOfSellerRequestDTO(userId));
   }
 
-  @FXML
   public void handleGetCompletedOrders() {
-
-  }
-
-  @FXML
-  public void handleGetCanceledOrders() {
-
-  }
-
-  @FXML
-  public void handleGetMyActiveAuctions() {
-    gotoHomeFeed();
     String userId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetActiveAuctionsBySellerRequestDTO(userId));
+    ServerConnection.sendData(new GetCompletedOrdersOfSellerRequestDTO(userId));
   }
 
-  /**
-   * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của ScrollPane.
-   */
-  public void loadComponent(String fxmlPath) {
-    try {
-      FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-      Parent newNode = loader.load();
-
-      mainContent.setContent(newNode);
-
-      mainContent.setFitToHeight(true);
-      mainContent.setFitToWidth(true);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void gotoHomeFeed() {
-    // Nếu đã lưu giao diện Feed, chỉ cần set lại nó vào phần mainContent
-    if (homeFeedNode != null) {
-      mainContent.setContent(homeFeedNode);
-    }
-  }
-
-  public void updateNotificationBadge(int unreadCount) {
-    Platform.runLater(() ->
-        notificationBadge.setVisible(unreadCount > 0)
-    );
-  }
-
-  public void incrementNotificationBadge() {
-    Platform.runLater(() -> notificationBadge.setVisible(true));
+  public void handleGetCanceledOrders() {
+    String userId = SessionManager.getCurrentUser().getId();
+    ServerConnection.sendData(new GetCancelledOrdersOfSellerRequestDTO(userId));
   }
 }

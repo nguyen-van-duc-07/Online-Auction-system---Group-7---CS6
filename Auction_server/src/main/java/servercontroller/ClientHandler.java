@@ -209,6 +209,26 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetCompletedOrdersOfSellerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetCompletedOrdersOfSeller(request));
+                out.flush();
+              }
+
+              case GetCancelledOrdersOfSellerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetCancelledOrdersOfSeller(request));
+                out.flush();
+              }
+
+              case GetCompletedOrdersOfBuyerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetCompletedOrdersOfBuyer(request));
+                out.flush();
+              }
+
+              case GetCancelledOrdersOfBuyerRequestDTO request -> {
+                out.writeObject(RequestHandler.handleGetCancelledOrdersOfBuyer(request));
+                out.flush();
+              }
+
               default -> {
                 System.out.println(">>> Server nhận được Request không xác định!");
               }
