@@ -39,4 +39,8 @@ public class Bidder extends User{
       joinedAuctionIds.add(auctionId);
     }
   }
+  @Override
+  public String getDefaultAccountName() {
+    return "user" + this.id.substring(0,6);
+  }
 }

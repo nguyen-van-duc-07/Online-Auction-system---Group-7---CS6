@@ -17,11 +17,11 @@ import java.io.Serializable;
  * để có thể truyền tải dữ liệu qua môi trường mạng (Network stream).
  */
 public class SignUpRequestDTO implements RequestDTO {
-  private String accountName;
+  private String phoneNumber;
   private String password;
 
-  public SignUpRequestDTO(String accountName, String password) {
-    this.accountName = accountName;
+  public SignUpRequestDTO(String phoneNumber, String password) {
+    this.phoneNumber = phoneNumber;
     this.password = password;
   }
 }

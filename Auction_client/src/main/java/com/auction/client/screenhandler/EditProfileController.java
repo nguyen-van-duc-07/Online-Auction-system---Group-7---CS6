@@ -7,11 +7,7 @@ import com.auction.shared.request.UpdateProfileRequestDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 
-import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -24,14 +20,14 @@ import java.util.ResourceBundle;
 public class EditProfileController implements Initializable {
   private final UserDTO currentUser = SessionManager.getCurrentUser();
 
-  private String realName;
+  private String accountName;
   private String email;
   private String phoneNumber;
   private String address;
   private LocalDate birthDate;
 
   @FXML
-  private TextField realNameField;
+  private TextField accountNameField;
   @FXML
   private TextField emailField;
   @FXML
@@ -49,8 +45,8 @@ public class EditProfileController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     if (currentUser != null) {
       if (currentUser.getAccountName() != null) {
-        if (currentUser.getRealName() != null) {
-          realNameField.setText(currentUser.getRealName());
+        if (currentUser.getAccountName() != null) {
+          accountNameField.setText(currentUser.getAccountName());
         }
         if (currentUser.getEmail() != null) {
           emailField.setText(currentUser.getEmail());
@@ -69,14 +65,14 @@ public class EditProfileController implements Initializable {
   }
 
   public boolean isInformationValid() {
-    realName = realNameField.getText();
+    accountName = accountNameField.getText();
     email = emailField.getText();
     phoneNumber = phoneNumberField.getText();
     birthDate = dateOfBirthField.getValue();
     address = addressField.getText();
 
     // Dùng .trim().isEmpty() để kiểm tra chuỗi rỗng hoặc chỉ toàn dấu cách
-    boolean isRealNameValid = realName != null && !realName.trim().isEmpty();
+    boolean isRealNameValid = accountName != null && !accountName.trim().isEmpty();
     boolean isEmailValid = email != null && !email.trim().isEmpty();
     boolean isPhoneValid = phoneNumber != null && !phoneNumber.trim().isEmpty();
     boolean isAddressValid = address != null && !address.trim().isEmpty();
@@ -90,20 +86,18 @@ public class EditProfileController implements Initializable {
   }
 
   public boolean isInformationChanged() {
-    realName = realNameField.getText();
+    accountName = accountNameField.getText();
     email = emailField.getText();
-    phoneNumber = phoneNumberField.getText();
     birthDate = dateOfBirthField.getValue();
     address = addressField.getText();
 
     // Kiểm tra xem các Field có thay đổi nào không
-    boolean isRealNameChanged = !(realName.equals(currentUser.getRealName()));
+    boolean isRealNameChanged = !(accountName.equals(currentUser.getAccountName()));
     boolean isEmailChanged = !(email.equals(currentUser.getEmail()));
-    boolean isPhoneChanged = !(phoneNumber.equals(currentUser.getPhoneNumber()));
     boolean isAddressChanged = !(address.equals(currentUser.getAddress()));
     boolean isDateChanged = !(birthDate.equals(currentUser.getDob()));
 
-    if (isRealNameChanged || isEmailChanged || isPhoneChanged || isAddressChanged || isDateChanged) {
+    if (isRealNameChanged || isEmailChanged || isAddressChanged || isDateChanged) {
       return true;
     } else {
       return false;
@@ -114,12 +108,12 @@ public class EditProfileController implements Initializable {
   public void handleUpdateProfile() {
     if (isInformationValid() && isInformationChanged()) {
       String userId = currentUser.getId();
-      UpdateProfileRequestDTO updateProfileReq = new UpdateProfileRequestDTO(userId,
-                                                                             realName,
-                                                                             email,
-                                                                             phoneNumber,
-                                                                             birthDate,
-                                                                             address);
+      UpdateProfileRequestDTO updateProfileReq = new UpdateProfileRequestDTO(
+          userId,
+          accountName,
+          email,
+          birthDate,
+          address);
       ServerConnection.sendData(updateProfileReq);
     } else if (!isInformationValid()) {
       ScreenController.showAlert(Alert.AlertType.WARNING,

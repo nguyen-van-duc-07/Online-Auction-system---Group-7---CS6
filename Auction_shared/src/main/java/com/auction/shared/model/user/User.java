@@ -14,7 +14,6 @@ import java.time.LocalDate;
 abstract public class User extends Entity {
   protected String accountName;
   protected String password;
-  protected String realName;
   protected LocalDate dob;
   protected String email;
   protected String phoneNumber;
@@ -23,7 +22,6 @@ abstract public class User extends Entity {
 
   public User(UserDTO dto) {
     super();
-    this.realName = dto.getRealName();
     this.accountName = dto.getAccountName();
     this.password = dto.getPassword();
     this.email = dto.getEmail();
@@ -35,4 +33,5 @@ abstract public class User extends Entity {
   public boolean isAdmin() {
     return UserRole.ADMIN.equals(this.role);
   }
+  public abstract String getDefaultAccountName();
 }

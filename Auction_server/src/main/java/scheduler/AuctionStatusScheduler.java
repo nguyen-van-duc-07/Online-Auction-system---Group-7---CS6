@@ -54,10 +54,16 @@ public class AuctionStatusScheduler {
       }
       Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
       if (!auctionsToClose.isEmpty()) {
-        auctionRepo.closeExpiredAuctions(new ArrayList<>(auctionsToClose.keySet()));
         for (Map.Entry<String, AuctionResponseDTO> entry : auctionsToClose.entrySet()) {
-          String id      = entry.getKey();
-          AuctionResponseDTO auction = entry.getValue();
+          String id = entry.getKey();
+          // Chỉ xử lý nếu UPDATE có điều kiện thành công (tránh race với bid gia hạn end_time)
+          if (!auctionRepo.tryCloseExpiredAuction(id, now)) {
+            continue;
+          }
+          AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+          if (auction == null) {
+            continue;
+          }
 
           System.out.println("BROADCAST CLOSED: " + id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
@@ -65,8 +71,7 @@ public class AuctionStatusScheduler {
           String itemName = auction.getItem().getName();
           String winnerId = auction.getHighestBidderId();
 
-          String sellerProfileId = auction.getSellerId();
-          String sellerUserId = sellerProfileRepo.getUserIdByProfileId(sellerProfileId);
+          String sellerId = auction.getSellerId();
           if (winnerId != null && !winnerId.isBlank()) {
             System.out.println("SERVER GUI THONG BAO CHIEN THANG "
                 + " [AuctionId: " + id
@@ -95,7 +100,7 @@ public class AuctionStatusScheduler {
               // Thông báo cho seller
               notifService.sendFromNotification(
                   NotificationTemplate.auctionEndedWithWinner(
-                      sellerUserId,
+                      sellerId,
                       itemName,
                       auction.getCurrentHighestPrice(),
                       order.getId()
@@ -105,7 +110,7 @@ public class AuctionStatusScheduler {
               System.out.println("Phiên " + id + " không có người thắng.");
               notifService.sendFromNotification(
                   NotificationTemplate.auctionEndedNoWinner(
-                      sellerUserId,
+                      sellerId,
                       itemName,
                       id
                   )

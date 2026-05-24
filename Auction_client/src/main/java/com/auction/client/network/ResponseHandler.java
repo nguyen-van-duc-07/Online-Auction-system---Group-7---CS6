@@ -588,4 +588,17 @@ public class ResponseHandler {
       }
     });
   }
+
+  public static void handleAuctionExtended(AuctionExtendedDTO dto) {
+    Platform.runLater(() -> {
+      // Cập nhật endTime trong ItemAuctionController
+      if (ItemAuctionController.instance != null) {
+        ItemAuctionController.instance.onAuctionExtended(dto.getNewEndTime());
+      }
+      HomeController home = HomeController.getInstance();
+      if (home != null) {
+        home.updateTimeExtend(dto.getAuctionId(), dto.getNewEndTime());
+      }
+    });
+  }
 }

@@ -23,4 +23,9 @@ public class Admin extends User {
     // Logic khóa tài khoản
     System.out.println("Admin đã khóa người dùng: " + bidderId);
   }
+
+  @Override
+  public String getDefaultAccountName() {
+    return "admin" + this.id.substring(0,6);
+  }
 }

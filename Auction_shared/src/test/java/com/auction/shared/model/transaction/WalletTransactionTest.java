@@ -17,17 +17,12 @@ public class WalletTransactionTest {
                 .walletId("WALLET_123")
                 .type(WalletTransactionType.DEPOSIT)
                 .amount(new BigDecimal("1000.50"))
-                .balanceBefore(new BigDecimal("5000.00"))
-                .balanceAfter(new BigDecimal("6000.50"))
-                .frozenBefore(BigDecimal.ZERO)
-                .frozenAfter(BigDecimal.ZERO)
                 .referenceId("REF_999")
                 .status(WalletTransactionStatus.SUCCESS)
                 .build();
         assertNotNull(transaction);
         assertEquals("WALLET_123", transaction.getWalletId());
         assertEquals(new BigDecimal("1000.50"), transaction.getAmount());
-        assertEquals(new BigDecimal("5000.00"), transaction.getBalanceBefore());
     }
     @Test
     @DisplayName("Should throw Exception when amount is zero")
