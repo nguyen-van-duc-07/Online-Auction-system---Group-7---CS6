@@ -82,7 +82,7 @@ public class OrderCardController {
     String formattedPrice = String.format("%,.0f VNĐ", order.getFinalPrice());
     finalPriceLabel.setText(formattedPrice);
 
-    brandNameLabel.setText(order.getBrandName());
+    brandNameLabel.setText("Người bán: " + order.getBrandName());
     winnerNameLabel.setText(order.getWinnerName());
 
     // Dừng timer cũ nếu có

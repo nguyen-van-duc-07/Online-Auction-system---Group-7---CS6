@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 public class Server {
   private static final Logger log = LoggerFactory.getLogger(Server.class);
   public static int SERVER_PORT = 8080;
-  private static final ExecutorService pool = Executors.newFixedThreadPool(10);
+  private static final ExecutorService pool = Executors.newCachedThreadPool();
 
   /**
    * Biến kiểu Map để quản lý các Room đấu giá.
@@ -63,6 +63,9 @@ public class Server {
 
   public static void main(String[] args) {
     try {
+      // Đảm bảo toàn bộ Server JVM chạy trên múi giờ Việt Nam (GMT+7)
+      java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+
       // Khởi chạy HTTP Static File Server cho ảnh sản phẩm
       service.ImageHttpServer.start();
 
@@ -123,6 +126,11 @@ public class Server {
     auctionRooms.values().forEach(room -> room.remove(client));
   }
 
+  public static ClientHandler getConnectedClient(String userId) {
+    if (userId == null) return null;
+    return connectedClients.get(userId);
+  }
+
   public static void registerClient(String userId, ClientHandler handler) {
     connectedClients.put(userId, handler);
     log.info("Client đã đăng ký: {}", userId);
@@ -131,7 +139,14 @@ public class Server {
   public static void unregisterClient(String userId) {
     if (userId != null) {
       connectedClients.remove(userId);
-      log.info("Client đã hủy đăng ký: {}", userId);
+      log.info("Client đã hủy đăng ký vô điều kiện: {}", userId);
+    }
+  }
+
+  public static void unregisterClient(String userId, ClientHandler handler) {
+    if (userId != null && handler != null) {
+      connectedClients.remove(userId, handler);
+      log.info("Client đã hủy đăng ký khớp phiên: {}", userId);
     }
   }
 

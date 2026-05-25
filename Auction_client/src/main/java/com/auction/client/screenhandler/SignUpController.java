@@ -34,6 +34,15 @@ public class SignUpController {
   private boolean isPasswordVisible = false;
   private boolean isConfirmVisible = false;
 
+  @FXML
+  public void initialize() {
+    phoneNumberField.setOnAction(event -> handleRegister());
+    pwdHidden.setOnAction(event -> handleRegister());
+    pwdVisible.setOnAction(event -> handleRegister());
+    confirmPwdHidden.setOnAction(event -> handleRegister());
+    confirmPwdVisible.setOnAction(event -> handleRegister());
+  }
+
   // Tạo một hàm dùng chung để xử lý logic ẩn/hiện
   private void updateVisibility(boolean isVisible, TextField visibleField,
                                 PasswordField hiddenField, Label showLabel, Label hideLabel) {

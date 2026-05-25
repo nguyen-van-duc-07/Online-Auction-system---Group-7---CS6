@@ -39,7 +39,11 @@ public class ScreenController {
       currentScreen = new ScreenState(root, title, fxmlFile);
 
       // Hiển thị lên màn hình
-      primaryStage.getScene().setRoot(root);
+      if (primaryStage.getScene() == null) {
+        primaryStage.setScene(new Scene(root));
+      } else {
+        primaryStage.getScene().setRoot(root);
+      }
       primaryStage.setTitle(title);
       
       if (fxmlFile.contains("Login.fxml") || fxmlFile.contains("SignUp.fxml")) {
@@ -68,7 +72,11 @@ public class ScreenController {
       ScreenState previous = history.pop();
       currentScreen = previous;
       // Không cần load FXML: Gắn lại trực tiếp Root cũ vào Scene
-      primaryStage.getScene().setRoot(previous.getRoot());
+      if (primaryStage.getScene() == null) {
+        primaryStage.setScene(new Scene(previous.getRoot()));
+      } else {
+        primaryStage.getScene().setRoot(previous.getRoot());
+      }
       primaryStage.setTitle(previous.getTitle());
       
       if (previous.getFxmlFile().contains("Login.fxml") || previous.getFxmlFile().contains("SignUp.fxml")) {

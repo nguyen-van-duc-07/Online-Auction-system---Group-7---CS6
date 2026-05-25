@@ -24,7 +24,7 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <Label fx:id="itemNameLabel" prefHeight="27.0" prefWidth="306.0" text="Xe máy Honda Vision 2024" textFill="#1E293B">
+                                <Label fx:id="itemNameLabel" prefHeight="27.0" prefWidth="306.0" text="Tên đơn hàng" textFill="#1E293B">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
@@ -45,7 +45,7 @@
                         </Label>
                         <HBox prefHeight="26.0" prefWidth="382.0" spacing="8.0">
                             <children>
-                                <Label fx:id="brandNameLabel" style="-fx-background-color: #FFEAE6; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Người bán: DatGB" textFill="#C53030">
+                                <Label fx:id="brandNameLabel" minWidth="-Infinity" style="-fx-background-color: #FFEAE6; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Thông tin người bán" textFill="#C53030">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>
@@ -65,7 +65,7 @@
                                         <Font size="13.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="finalPriceLabel" prefHeight="30.0" prefWidth="171.0" text="32,500,000 VNĐ" textFill="#009900">
+                                <Label fx:id="finalPriceLabel" prefHeight="30.0" prefWidth="171.0" text="Giá đơn hàng" textFill="#009900">
                                     <font>
                                         <Font name="System Bold" size="20.0" />
                                     </font>
@@ -79,7 +79,7 @@
                                         <Font size="13.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="winnerNameLabel" prefHeight="27.0" prefWidth="127.0" style="-fx-background-color: #DEF7EC; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Nguyễn Văn Đức" textFill="#03543F">
+                                <Label fx:id="winnerNameLabel" minWidth="-Infinity" prefHeight="27.0" style="-fx-background-color: #DEF7EC; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Tên người thắng cuộc" textFill="#03543F">
                                     <font>
                                         <Font name="System Bold" size="13.0" />
                                     </font>
