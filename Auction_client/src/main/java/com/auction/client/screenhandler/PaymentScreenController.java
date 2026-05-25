@@ -162,6 +162,17 @@ public class PaymentScreenController implements Initializable {
     if (order.getAddress() != null && !order.getAddress().trim().isEmpty()) {
       txtAddress.setText(order.getAddress());
     }
+
+    // Kiểm tra vai trò và trạng thái
+    boolean isSeller = false;
+    UserDTO currentUser = SessionManager.getCurrentUser();
+    if (currentUser != null && order.getSellerId() != null) {
+      isSeller = currentUser.getId().equals(order.getSellerId());
+    }
+
+    if (isSeller || order.getStatus() != com.auction.shared.enums.OrderStatus.PENDING) {
+      disableAllForViewOnly();
+    }
   }
 
   // Nạp dữ liệu khi mở từ thẻ Đơn hàng (Order Card)
@@ -184,6 +195,48 @@ public class PaymentScreenController implements Initializable {
     lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
+
+    // Đổ dữ liệu thông tin giao hàng có sẵn từ orderDTO (nếu có)
+    if (orderDTO.getConsigneeName() != null && !orderDTO.getConsigneeName().trim().isEmpty()) {
+      txtFullName.setText(orderDTO.getConsigneeName());
+    }
+    if (orderDTO.getPhoneNumber() != null && !orderDTO.getPhoneNumber().trim().isEmpty()) {
+      txtPhoneNumber.setText(orderDTO.getPhoneNumber());
+    }
+    if (orderDTO.getAddress() != null && !orderDTO.getAddress().trim().isEmpty()) {
+      txtAddress.setText(orderDTO.getAddress());
+    }
+
+    // Kiểm tra vai trò của người dùng hiện tại đối với đơn hàng này
+    boolean isSeller = false;
+    UserDTO currentUser = SessionManager.getCurrentUser();
+    if (currentUser != null && orderDTO.getSellerId() != null) {
+      isSeller = currentUser.getId().equals(orderDTO.getSellerId());
+    }
+
+    if (isSeller || orderDTO.getStatus() != com.auction.shared.enums.OrderStatus.PENDING) {
+      disableAllForViewOnly();
+    }
+  }
+
+  private void disableAllForViewOnly() {
+    txtFullName.setDisable(true);
+    txtFullName.setEditable(false);
+    txtPhoneNumber.setDisable(true);
+    txtPhoneNumber.setEditable(false);
+    txtAddress.setDisable(true);
+    txtAddress.setEditable(false);
+
+    rbUserWallet.setDisable(true);
+    rbBankTransfer.setDisable(true);
+    rbCashOnDelivery.setDisable(true);
+
+    btnCompletePayment.setDisable(true);
+    btnCompletePayment.setText("HÓA ĐƠN CHỈ XEM 📄");
+    btnCompletePayment.setStyle("-fx-background-color: #64748B; -fx-background-radius: 8; -fx-cursor: default;");
+
+    btnCancelOrder.setDisable(true);
+    btnCancelOrder.setVisible(false); // Ẩn hoàn toàn nút hủy đơn hàng
   }
 
   private void handlePayment() {

@@ -20,8 +20,8 @@ public class OrderExpiryScheduler {
     scheduler.scheduleAtFixedRate(
         this::checkExpiredOrders,
         0,
-        1,
-        TimeUnit.HOURS
+        5,
+        TimeUnit.SECONDS
     );
   }
 

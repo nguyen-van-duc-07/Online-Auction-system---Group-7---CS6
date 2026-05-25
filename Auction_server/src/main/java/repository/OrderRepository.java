@@ -244,6 +244,15 @@ public class OrderRepository {
     orderDTO.setFinalPrice(rs.getBigDecimal("final_price"));
     orderDTO.setStatus(OrderStatus.valueOf(rs.getString("status")));
     orderDTO.setWinnerName(rs.getString("consignee_name"));
+    orderDTO.setSellerId(rs.getString("seller_id"));
+    orderDTO.setBuyerId(rs.getString("buyer_id"));
+    Timestamp createdAt = rs.getTimestamp("created_at");
+    if (createdAt != null) {
+      orderDTO.setCreatedAt(createdAt.toLocalDateTime());
+    }
+    orderDTO.setConsigneeName(rs.getString("consignee_name"));
+    orderDTO.setPhoneNumber(rs.getString("phone_number"));
+    orderDTO.setAddress(rs.getString("address"));
 
     return orderDTO;
   }
