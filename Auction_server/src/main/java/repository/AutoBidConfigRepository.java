@@ -38,28 +38,22 @@ public class AutoBidConfigRepository {
     }
   }
 
-  // Lấy tất cả config đang active trong 1 phiên, trừ người vừa bid
-  public List<AutoBidConfig> findActiveByAuctionId(String auctionId, String excludeUserId) {
-    List<AutoBidConfig> configs = new ArrayList<>();
+  public AutoBidConfig findActiveByUserIdAndAuctionId(String userId, String auctionId) {
     String sql = "SELECT * FROM auto_bid_configs "
-        + "WHERE auction_id = ? AND user_id != ? AND is_active = TRUE "
-        + "ORDER BY max_price DESC"; // ưu tiên người có max cao hơn
-
+        + "WHERE user_id = ? AND auction_id = ? AND is_active = TRUE";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, auctionId);
-      ps.setString(2, excludeUserId);
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        configs.add(mapRow(rs));
+      ps.setString(1, userId);
+      ps.setString(2, auctionId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return mapRow(rs);
+        }
       }
-
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm cấu hình tự động đấu giá đang hoạt động cho phiên ID: {}", auctionId, e);
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm cấu hình tự động đấu giá của user: {} và phiên: {}", userId, auctionId, e);
     }
-    return configs;
+    return null;
   }
   private AutoBidConfig mapRow(ResultSet rs) throws SQLException {
     AutoBidConfig config = new AutoBidConfig();

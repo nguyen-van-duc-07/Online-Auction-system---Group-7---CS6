@@ -269,7 +269,7 @@ public class ResponseHandler {
   public static void handleAuctionRoomJoined(JoinRoomResponseDTO response) {
     if (response.isSuccess()) {
       if (ItemAuctionController.instance != null) {
-        ItemAuctionController.instance.onAuctionRoomJoined(response.getAuction());
+        ItemAuctionController.instance.onAuctionRoomJoined(response.getAuction(), response.getAutoBidConfig());
       }
     }
   }

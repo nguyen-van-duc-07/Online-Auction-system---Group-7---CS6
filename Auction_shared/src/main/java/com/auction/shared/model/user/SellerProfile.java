@@ -42,7 +42,7 @@ public class SellerProfile extends Entity {
     this.userId = userId;
     this.rating = 5;
   }
-  public void addAuction (String auctionId){
+  public void addAuction(String auctionId){
     if (auctionId == null || auctionId.isEmpty()) {
       throw new IllegalArgumentException("Auction ID không hợp lệ");
     }

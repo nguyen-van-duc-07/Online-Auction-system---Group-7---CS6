@@ -7,6 +7,7 @@ import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.request.SetAutoBidRequestDTO;
+import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
@@ -381,6 +382,7 @@ public class ItemAuctionController implements Initializable {
             stepAmount,
             true
         );
+        System.out.println("[CLIENT - AUTO BID] Đã chốt đơn Bot! Tối đa: " + maxPrice + " | Bước: " + stepAmount + ". Đang đẩy lên Server...");
         ServerConnection.sendData(req);
 
         // Khóa ô cấu hình để bot an tâm chạy
@@ -582,10 +584,10 @@ public class ItemAuctionController implements Initializable {
 
     // (Tùy chọn UX) Nháy màu để người dùng chú ý giá vừa thay đổi
     // 1. Lưu lại style gốc (màu cam) để tí nữa quay về
-    String originalStyle = "-fx-text-fill: #e67e22; -fx-font-weight: bold; -fx-font-size: 19";
+    String originalStyle = "-fx-text-fill: #f39c12; -fx-font-weight: bold; -fx-font-size: 22px;";
 
     // 2. Đổi sang màu xanh để báo hiệu thành công
-    currentPriceField.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 23");
+    currentPriceField.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 23px;");
 
     // 3. Tạo một độ trễ 1 giây, sau đó tự động trả về màu cũ
     javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
@@ -594,6 +596,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   public void onNewBidReceived(NewBidDTO newBid) {
+    System.out.println("[CLIENT - LỊCH SỬ] Nhận được giá mới từ mạng: " + newBid.getBidAmount() + " của " + newBid.getBidderName());
     Platform.runLater(() -> {
       // 1. Cập nhật giá mới nhất vào biến hiện tại
       currentAuction.setCurrentHighestPrice(newBid.getBidAmount());
@@ -654,7 +657,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
-  public void onAuctionRoomJoined(AuctionResponseDTO auctionData) {
+  public void onAuctionRoomJoined(AuctionResponseDTO auctionData, AutoBidConfig autoBidConfig) {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
@@ -672,6 +675,7 @@ public class ItemAuctionController implements Initializable {
 
       String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
       currentPriceField.setText("Giá hiện tại: " + formattedPrice);
+      currentPriceField.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 22px;");
 
       // 3. Bắt đầu khởi động bộ đếm thời gian
       startCountdownTimer();
@@ -686,6 +690,24 @@ public class ItemAuctionController implements Initializable {
             + NetworkConfig.IMAGE_SERVER_PORT + "/images/" + auctionData.getImagePath();
         Image image = new Image(imageUrl, true); // true = background loading
         itemImageView.setImage(image);
+      }
+
+      // 6. KHÔI PHỤC TRẠNG THÁI AUTO-BID NẾU ĐANG CHẠY TRÊN SERVER
+      if (autoBidConfig != null && autoBidConfig.isActive()) {
+        if (autoBidCheckBox != null) {
+          autoBidCheckBox.setSelected(true);
+        }
+        if (maxAutoPriceField != null) {
+          maxAutoPriceField.setText(autoBidConfig.getMaxPrice().toPlainString());
+          maxAutoPriceField.setDisable(true); // Khóa lại
+        }
+        if (autoStepPriceField != null) {
+          autoStepPriceField.setText(autoBidConfig.getStepAmount().toPlainString());
+          autoStepPriceField.setDisable(true); // Khóa lại
+        }
+
+        // Cập nhật lại UI các cụm nút bấm bên dưới theo chế độ Auto-bid đang hoạt động
+        updateBidControlState(true);
       }
 
       // In log ra để dễ debug
