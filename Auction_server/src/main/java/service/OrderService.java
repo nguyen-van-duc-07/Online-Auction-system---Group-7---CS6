@@ -133,13 +133,13 @@ public class OrderService {
       } catch (Exception e) {
         conn.rollback();
         log.error("[ORDER] Xác nhận đơn hàng {} thất bại", orderId, e);
-        return false;
+        throw new RuntimeException(e.getMessage(), e);
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
       log.error("[ORDER] Lỗi kết nối DB khi xác nhận đơn hàng: {}", orderId, e);
-      return false;
+      throw new RuntimeException("Lỗi cơ sở dữ liệu: " + e.getMessage(), e);
     }
   }
   private boolean cancelOrderInternal(Connection conn, Order order) throws Exception {

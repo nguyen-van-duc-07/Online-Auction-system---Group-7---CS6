@@ -16,16 +16,11 @@ class AuctionTest {
 
     @BeforeEach
     void setUp() {
-        // Mock một Item rỗng hoặc khởi tạo cơ bản vì logic Auction hiện không phụ thuộc sâu vào Item
         dummyItem = new Item();
     }
 
-    // ==========================================
-    // 1. TEST CONSTRUCTOR LẬP LỊCH THỜI GIAN
-    // ==========================================
-
     @Test
-    @DisplayName("Khởi tạo Auction với startTime ở quá khứ/hiện tại -> Trạng thái ACTIVE")
+    @DisplayName("Khởi tạo Auction với startTime ở quá khứ -> Trạng thái ACTIVE")
     void testConstructor_StartTimeInPast_ShouldBeActive() {
         LocalDateTime pastStartTime = LocalDateTime.now().minusMinutes(10);
         LocalDateTime futureEndTime = LocalDateTime.now().plusDays(1);
@@ -46,10 +41,6 @@ class AuctionTest {
         assertEquals(AuctionStatus.WAITING, auction.getStatus());
     }
 
-    // ==========================================
-    // 2. TEST CHUYỂN ĐỔI TRẠNG THÁI (STATE MACHINE)
-    // ==========================================
-
     @Test
     @DisplayName("Hàm start() chuyển từ WAITING sang ACTIVE")
     void testStart_FromWaiting_ShouldChangeToActive() {
@@ -65,11 +56,11 @@ class AuctionTest {
     @DisplayName("Hàm start() bỏ qua nếu trạng thái không phải WAITING")
     void testStart_FromClosed_ShouldDoNothing() {
         Auction auction = new Auction(dummyItem, new BigDecimal("100"), LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2));
-        auction.close(); // Chuyển sang CLOSED
 
-        auction.start(); // Cố tình start lại
+        auction.close();
+        auction.start();
 
-        assertEquals(AuctionStatus.CLOSED, auction.getStatus()); // Vẫn phải là CLOSED
+        assertEquals(AuctionStatus.CLOSED, auction.getStatus());
     }
 
     @Test
@@ -86,16 +77,12 @@ class AuctionTest {
     @DisplayName("Hàm cancel() ném lỗi IllegalStateException nếu đã CANCELED trước đó")
     void testCancel_AlreadyCanceled_ShouldThrowException() {
         Auction auction = new Auction(dummyItem, new BigDecimal("100"), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-        auction.cancel(); // Lần 1
-        assertEquals(AuctionStatus.CANCELED, auction.getStatus());
 
-        // Lần 2 phải ném lỗi
+        auction.cancel();
+
+        assertEquals(AuctionStatus.CANCELED, auction.getStatus());
         assertThrows(IllegalStateException.class, auction::cancel);
     }
-
-    // ==========================================
-    // 3. TEST KIỂM TRA HẠN GIỜ (IS EXPIRED)
-    // ==========================================
 
     @Test
     @DisplayName("isExpired() trả về true nếu đã qua endTime")
@@ -113,10 +100,6 @@ class AuctionTest {
         Auction auction2 = new Auction(dummyItem, new BigDecimal("100"), LocalDateTime.now(), null);
         assertFalse(auction2.isExpired());
     }
-
-    // ==========================================
-    // 4. TEST LOGIC ĐẶT GIÁ (APPLY BID)
-    // ==========================================
 
     @Test
     @DisplayName("applyBid() thành công: cập nhật giá, người bid và lưu lịch sử")
@@ -142,18 +125,16 @@ class AuctionTest {
 
         assertFalse(resultEqual);
         assertFalse(resultLower);
-        assertEquals(new BigDecimal("100.00"), auction.getCurrentHighestPrice()); // Giá không đổi
-        assertTrue(auction.getBidHistory().isEmpty()); // Không có giao dịch nào được lưu
+        assertEquals(new BigDecimal("100.00"), auction.getCurrentHighestPrice());
+        assertTrue(auction.getBidHistory().isEmpty());
     }
 
     @Test
     @DisplayName("applyBid() thất bại do phiên đấu giá không ở trạng thái ACTIVE")
     void testApplyBid_NotActiveAuction_ShouldFail() {
-        // Đang WAITING
         Auction waitingAuction = new Auction(dummyItem, new BigDecimal("100.00"), LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
         boolean result1 = waitingAuction.applyBid("USER_123", new BigDecimal("150.00"));
 
-        // Đã CLOSED
         Auction closedAuction = new Auction(dummyItem, new BigDecimal("100.00"), LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1));
         closedAuction.close();
         boolean result2 = closedAuction.applyBid("USER_123", new BigDecimal("150.00"));

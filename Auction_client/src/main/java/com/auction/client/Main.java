@@ -14,11 +14,7 @@ public class Main extends Application {
     // Đặt mặc định cho ScreenController biết rằng đây là stage chính của chương trình
     ScreenController.primaryStage = stage;
 
-    FXMLLoader fxmlLoader = new FXMLLoader();
-    Parent root = fxmlLoader.load(getClass().getResource("/com/auction/client/User/Login.fxml"));
-    Scene scene = new Scene(root);
-    stage.setScene(scene);
-    stage.setTitle("Đăng nhập");
+    ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
 
     // Lắng nghe sự kiện đóng cửa sổ chính để tắt kết nối và thoát tiến trình sạch sẽ
     stage.setOnCloseRequest(event -> {
@@ -32,7 +28,11 @@ public class Main extends Application {
 
     stage.show();
 
-    ServerConnection.connect();
+    try {
+      ServerConnection.connect();
+    } catch (Exception e) {
+      // Bỏ qua hoặc log lỗi kết nối khi khởi động, cho phép tự kết nối lại khi thao tác đăng nhập
+    }
   }
 
   @Override

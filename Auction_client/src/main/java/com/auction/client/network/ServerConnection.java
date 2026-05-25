@@ -28,20 +28,26 @@ public class ServerConnection {
   private static ObjectOutputStream out;
   private static ObjectInputStream in;
 
-  public static void connect() {
-    try {
-      socket = new Socket(NetworkConfig.DEFAULT_HOST, NetworkConfig.SERVER_PORT);
+  public static synchronized void connect() throws IOException {
+    log.info("Đang kết nối tới máy chủ tại {}:{}", NetworkConfig.DEFAULT_HOST, NetworkConfig.SERVER_PORT);
+    socket = new Socket(NetworkConfig.DEFAULT_HOST, NetworkConfig.SERVER_PORT);
+    socket.setKeepAlive(true); // Kích hoạt TCP Keep-Alive
 
-      out = new ObjectOutputStream(socket.getOutputStream());
-      out.flush();
-      in = new ObjectInputStream(socket.getInputStream());
+    out = new ObjectOutputStream(socket.getOutputStream());
+    out.flush();
+    in = new ObjectInputStream(socket.getInputStream());
 
-      Thread listenerThread = new Thread(() -> listenForData());
-      listenerThread.setDaemon(true);
-      listenerThread.start();
+    Thread listenerThread = new Thread(() -> listenForData());
+    listenerThread.setDaemon(true);
+    listenerThread.start();
+    log.info("Kết nối tới máy chủ thành công.");
+  }
 
-    } catch (IOException e) {
-      log.error("Lỗi khi kết nối tới Server", e);
+  public static synchronized void ensureConnected() throws IOException {
+    if (socket == null || socket.isClosed() || !socket.isConnected() || out == null || in == null) {
+      log.warn("Mất kết nối hoặc chưa kết nối tới máy chủ. Đang kết nối lại...");
+      closeConnection();
+      connect();
     }
   }
 
@@ -201,35 +207,82 @@ public class ServerConnection {
       if (socket != null && socket.isClosed()) {
         log.info("Đã đóng kết nối với Server thành công.");
       } else {
-        log.error("Lỗi khi lắng nghe dữ liệu từ Server", e);
+        boolean wasLoggedIn = (com.auction.client.network.SessionManager.currentUser != null);
+        log.error("Lỗi khi lắng nghe dữ liệu từ Server (hoặc bị ngắt kết nối): {}", e.getMessage());
+        closeConnection(); // Tự dọn dẹp socket khi có lỗi đường truyền
+
+        if (wasLoggedIn) {
+          com.auction.client.network.SessionManager.currentUser = null;
+          com.auction.client.network.SessionManager.currentAuctionId = null;
+          com.auction.client.network.SessionManager.currentOrderId = null;
+
+          javafx.application.Platform.runLater(() -> {
+            com.auction.client.screenhandler.ScreenController.clearHistory();
+            com.auction.client.screenhandler.ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+            com.auction.client.screenhandler.ScreenController.showAlert(
+                javafx.scene.control.Alert.AlertType.WARNING,
+                "Thông báo kết nối",
+                "Tài khoản của bạn đã được đăng nhập ở một thiết bị khác hoặc mất kết nối tới máy chủ!"
+            );
+          });
+        }
       }
     }
   }
 
   public static void sendData(Object obj) {
     try {
+      ensureConnected();
       if (out != null) {
         out.writeObject(obj);
         out.flush();
+      } else {
+        throw new IOException("Luồng xuất dữ liệu (out) bị null.");
       }
     } catch (IOException e) {
       log.error("Lỗi khi gửi dữ liệu lên Server", e);
+      closeConnection(); // Reset connection
+      
+      javafx.application.Platform.runLater(() -> {
+        com.auction.client.screenhandler.ScreenController.showAlert(
+            javafx.scene.control.Alert.AlertType.ERROR,
+            "Lỗi kết nối",
+            "Mất kết nối tới máy chủ. Vui lòng kiểm tra lại đường truyền mạng hoặc khởi động lại ứng dụng!"
+        );
+      });
     }
   }
 
-  public static void closeConnection() {
+  public static synchronized void closeConnection() {
     try {
       if (in != null) {
         in.close();
       }
+    } catch (IOException e) {
+      log.error("Lỗi khi đóng luồng vào", e);
+    } finally {
+      in = null;
+    }
+
+    try {
       if (out != null) {
         out.close();
       }
+    } catch (IOException e) {
+      log.error("Lỗi khi đóng luồng ra", e);
+    } finally {
+      out = null;
+    }
+
+    try {
       if (socket != null) {
         socket.close();
       }
     } catch (IOException e) {
-      log.error("Lỗi khi đóng kết nối", e);
+      log.error("Lỗi khi đóng socket", e);
+    } finally {
+      socket = null;
     }
+    log.info("Đã dọn dẹp và đóng kết nối hoàn toàn.");
   }
 }

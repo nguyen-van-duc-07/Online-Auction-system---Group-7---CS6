@@ -28,6 +28,12 @@ public class ClientHandler implements Runnable {
   private String userId;
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
+    try {
+      this.clientSocket.setKeepAlive(true);
+      this.clientSocket.setSoTimeout(30 * 60 * 1000); // Tự động đóng kết nối sau 30 phút rảnh rỗi
+    } catch (Exception e) {
+      log.warn("Không thể cấu hình thuộc tính Socket cho client: {}", e.getMessage());
+    }
   }
 
   @Override
@@ -62,16 +68,19 @@ public class ClientHandler implements Runnable {
 
                   // Kiểm tra xem user này đã có trong danh sách online của Server chưa
                   if (Server.isUserOnline(checkUserId)) {
-                    // Nếu đã online, từ chối đăng nhập và ghi đè lại kết quả Response
-                    response.setSuccess(false);
-                    response.setMessage("Tài khoản này đang được đăng nhập ở một thiết bị khác!");
-                    response.setUser(null); // Xóa dữ liệu user trả về để bảo mật
-                  } else {
-                    // Nếu chưa online, cho phép đăng nhập và lưu vào danh sách Server
-                    this.userId = checkUserId;
-                    MDC.put("clientId", "User:" + this.userId);
-                    Server.registerClient(this.userId, this);
+                    // Nếu đã online, ngắt kết nối cũ để giải phóng tài nguyên và ghi đè phiên đăng nhập mới
+                    ClientHandler oldHandler = Server.getConnectedClient(checkUserId);
+                    if (oldHandler != null) {
+                      log.info("Tài khoản {} đã đăng nhập từ kết nối mới. Đang đóng kết nối cũ...", checkUserId);
+                      oldHandler.closeConnection();
+                      Server.unregisterClient(checkUserId);
+                    }
                   }
+
+                  // Cho phép đăng nhập và lưu kết nối mới vào danh sách Server
+                  this.userId = checkUserId;
+                  MDC.put("clientId", "User:" + this.userId);
+                  Server.registerClient(this.userId, this);
                 }
 
                 // Trả về đối tượng 'res' đã được xử lý thay vì gọi hàm login() thêm lần nữa
@@ -135,7 +144,7 @@ public class ClientHandler implements Runnable {
 
               case JoinRoomRequestDTO joinRoomReq -> {
                 Server.joinSelectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
-                out.writeObject(RequestHandler.joinRoom(joinRoomReq));
+                out.writeObject(RequestHandler.joinRoom(joinRoomReq, this.userId));
                 out.flush();
               }
 
@@ -280,7 +289,7 @@ public class ClientHandler implements Runnable {
       log.error("Lỗi nghiêm trọng trong phiên kết nối của Client", e);
     } finally {
       Server.removeClientFromAllRooms(this);
-      Server.unregisterClient(this.userId);
+      Server.unregisterClient(this.userId, this);
       log.info("Kết nối client đóng.");
       MDC.clear();
     }

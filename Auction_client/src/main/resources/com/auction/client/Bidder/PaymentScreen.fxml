@@ -87,7 +87,7 @@
                                         <Label fx:id="lblItemId" text="Mã SP: SP002" textFill="#adb5bd" />
                                     </children>
                                 </VBox>
-                                <Label fx:id="lblItemPrice" alignment="CENTER_RIGHT" prefHeight="20.0" text="40.000.000đ" textFill="#28a745">
+                                <Label fx:id="lblItemPrice" alignment="CENTER_RIGHT" minWidth="-Infinity" prefHeight="20.0" text="40.000.000đ" textFill="#28a745">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
                             </children>

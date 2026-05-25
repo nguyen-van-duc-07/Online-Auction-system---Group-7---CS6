@@ -13,8 +13,8 @@ public abstract class Transaction {
   private String toId;
 
   public Transaction(String fromId, String toId) {
-    Objects.requireNonNull(fromId, "fromId must not be null");
-    Objects.requireNonNull(toId, "toId must not be null");
+    Objects.requireNonNull(fromId, "fromId không đuợc có giá trị null");
+    Objects.requireNonNull(toId, "toId không đuợc có giá trị null");
     this.fromId = fromId;
     this.toId = toId;
   }
