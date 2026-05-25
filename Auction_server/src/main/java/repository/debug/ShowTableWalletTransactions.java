@@ -13,7 +13,7 @@ public class ShowTableWalletTransactions {
 
     String tableName = "wallet_transactions";
 
-    String sql = "SELECT * FROM " + tableName;
+    String sql = "SELECT * FROM " + tableName + " ORDER BY created_at DESC";
 
     try (
         Connection conn = DatabaseConnection.getConnection();

@@ -90,55 +90,6 @@ public class WalletService {
     txRepo.saveWalletTransaction(conn, tx);
   }
 
-  /**
-   * Hàm cập nhật số dư ví trực tiếp dưới Database.
-   */
-  public boolean deposit(String userId, BigDecimal amount) {
-    // Cập nhật đúng tên bảng là 'wallets' và cột khóa ngoại là 'user_id'
-    String query = "UPDATE wallets SET balance = balance + ? WHERE user_id = ?";
-
-    // Lấy connection từ class cấu hình DB của bạn
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-      // Tham số 1: Số tiền cần nạp (thay vào dấu ? thứ nhất)
-      pstmt.setBigDecimal(1, amount);
-
-      // Tham số 2: ID của người dùng (thay vào dấu ? thứ hai)
-      pstmt.setString(2, userId);
-
-      // ExecuteUpdate trả về số dòng bị ảnh hưởng.
-      int rowsAffected = pstmt.executeUpdate();
-
-      // Nếu có ít nhất 1 dòng được update tức là nạp tiền thành công
-      return rowsAffected > 0;
-
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi nạp tiền cho user: {}", userId, e);
-      return false;
-    }
-  }
-
-  public boolean withdraw(String userId, BigDecimal amount) {
-    // Câu lệnh UPDATE kèm điều kiện balance >= ? để đảm bảo không rút quá số tiền đang có
-    String query = "UPDATE wallets SET balance = balance - ? WHERE user_id = ? AND balance >= ?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-      pstmt.setBigDecimal(1, amount); // Số tiền rút
-      pstmt.setString(2, userId);      // ID người dùng
-      pstmt.setBigDecimal(3, amount); // Điều kiện: Số dư phải đủ để trừ
-
-      int rowsAffected = pstmt.executeUpdate();
-      return rowsAffected > 0; // Trả về true nếu cập nhật thành công
-
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi rút tiền cho user: {}", userId, e);
-      return false;
-    }
-  }
-
   public boolean createTransactionRequest(String userId, BigDecimal amount, WalletTransactionType type) {
     WalletTransaction tx = WalletTransaction.builder()
         .walletId(walletRepo.getWalletByUserId(userId).getId()) // Giả sử walletId lấy từ userId
@@ -234,8 +185,6 @@ public class WalletService {
     txRepo.saveWalletTransaction(conn, buyerTx);
     // 2. Xử lý ví seller
     Wallet sellerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getSellerId());
-    BigDecimal sellerBalBefore = sellerWallet.getBalance();
-
     sellerWallet.deposit(order.getFinalPrice());  // nhận 100%
     walletRepo.updateWallet(conn, sellerWallet);
 

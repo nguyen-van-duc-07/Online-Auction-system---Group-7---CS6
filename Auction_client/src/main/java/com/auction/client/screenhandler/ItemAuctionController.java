@@ -7,6 +7,7 @@ import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.request.SetAutoBidRequestDTO;
+import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
@@ -656,7 +657,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
-  public void onAuctionRoomJoined(AuctionResponseDTO auctionData) {
+  public void onAuctionRoomJoined(AuctionResponseDTO auctionData, AutoBidConfig autoBidConfig) {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
       this.currentAuction = auctionData;
@@ -689,6 +690,24 @@ public class ItemAuctionController implements Initializable {
             + NetworkConfig.IMAGE_SERVER_PORT + "/images/" + auctionData.getImagePath();
         Image image = new Image(imageUrl, true); // true = background loading
         itemImageView.setImage(image);
+      }
+
+      // 6. KHÔI PHỤC TRẠNG THÁI AUTO-BID NẾU ĐANG CHẠY TRÊN SERVER
+      if (autoBidConfig != null && autoBidConfig.isActive()) {
+        if (autoBidCheckBox != null) {
+          autoBidCheckBox.setSelected(true);
+        }
+        if (maxAutoPriceField != null) {
+          maxAutoPriceField.setText(autoBidConfig.getMaxPrice().toPlainString());
+          maxAutoPriceField.setDisable(true); // Khóa lại
+        }
+        if (autoStepPriceField != null) {
+          autoStepPriceField.setText(autoBidConfig.getStepAmount().toPlainString());
+          autoStepPriceField.setDisable(true); // Khóa lại
+        }
+
+        // Cập nhật lại UI các cụm nút bấm bên dưới theo chế độ Auto-bid đang hoạt động
+        updateBidControlState(true);
       }
 
       // In log ra để dễ debug

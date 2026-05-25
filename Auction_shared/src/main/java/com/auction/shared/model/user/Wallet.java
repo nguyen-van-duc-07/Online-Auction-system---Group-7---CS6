@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Wallet extends Entity {
   private String bidderId;
-  private BigDecimal balance = BigDecimal.ZERO;
-  private BigDecimal frozenBalance = BigDecimal.ZERO;
+  private BigDecimal balance;
+  private BigDecimal frozenBalance;
 
 
   public Wallet(String bidderId) {
@@ -36,19 +36,15 @@ public class Wallet extends Entity {
     this.balance = this.balance.add(amount);
   }
 
-  public BigDecimal getAvailableBalance() {
-    return this.balance.subtract(this.frozenBalance);
-  }
-
   public void withdraw(BigDecimal amount) {
-    if (getAvailableBalance().compareTo(amount) < 0) {
+    if (this.balance.compareTo(amount) < 0) {
       throw new IllegalStateException("Số dư khả dụng không đủ để rút!");
     }
     this.balance = this.balance.subtract(amount);
   }
 
   public void freeze(BigDecimal amount) {
-    if (getAvailableBalance().compareTo(amount) < 0) {
+    if (this.balance.compareTo(amount) < 0) {
       throw new IllegalStateException("Số dư khả dụng không đủ để đặt cược!");
     }
     this.frozenBalance = this.frozenBalance.add(amount);
@@ -64,16 +60,21 @@ public class Wallet extends Entity {
   }
 
   public void payWinningAuction(BigDecimal depositAmount, BigDecimal remainingAmount) {
-    if (remainingAmount == null) {
-      throw new IllegalArgumentException("Lỗi hệ thống: Số tiền thanh toán không được để trống!");
+    if (this.frozenBalance.compareTo(depositAmount) < 0) {
+      throw new IllegalStateException("Tiền cọc đóng băng không đủ!");
     }
+
     if (this.balance.compareTo(remainingAmount) < 0) {
-      throw new IllegalStateException("Lỗi hệ thống: Tiền không đủ để thanh toán!");
+      throw new IllegalStateException("Tiền thanh toán còn lại không đủ!");
     }
+
     this.frozenBalance = this.frozenBalance.subtract(depositAmount);
     this.balance = this.balance.subtract(remainingAmount);
   }
   public void penaltyDeposit(BigDecimal depositAmount) {
+    if (this.frozenBalance.compareTo(depositAmount) < 0) {
+      throw new IllegalStateException("Tiền cọc đóng băng không đủ!");
+    }
     this.frozenBalance = this.frozenBalance.subtract(depositAmount);
   }
 }

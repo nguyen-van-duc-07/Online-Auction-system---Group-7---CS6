@@ -1,6 +1,7 @@
 package servercontroller;
 
 import com.auction.shared.model.auction.AuctionDTO;
+import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
 import com.auction.shared.model.transaction.WalletTransaction;
+import repository.AutoBidConfigRepository;
 import repository.SellerProfileRepository;
 import service.*;
 
@@ -150,7 +152,7 @@ public class RequestHandler {
     return bidService.placeBid(req);
   }
 
-  public static JoinRoomResponseDTO joinRoom(JoinRoomRequestDTO request) {
+  public static JoinRoomResponseDTO joinRoom(JoinRoomRequestDTO request, String userId) {
     String auctionId = request.getSelectedAuctionId();
     AuctionResponseDTO auction = AuctionService.getAuctionHistory(auctionId);
     JoinRoomResponseDTO response = new JoinRoomResponseDTO();
@@ -161,6 +163,12 @@ public class RequestHandler {
       response.setSuccess(success);
       response.setMessage(message);
       response.setAuction(auction);
+
+      if (userId != null) {
+        AutoBidConfigRepository autoBidRepo = new AutoBidConfigRepository();
+        response.setAutoBidConfig(autoBidRepo.findActiveByUserIdAndAuctionId(userId, auctionId));
+      }
+
       return response;
     } else {
       response.setSuccess(false);
