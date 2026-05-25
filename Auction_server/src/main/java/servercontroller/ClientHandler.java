@@ -272,6 +272,10 @@ public class ClientHandler implements Runnable {
           log.error("Lỗi xảy ra khi xử lý request từ client", e);
         }
       }
+    } catch (java.io.EOFException e) {
+      log.info("Client đã ngắt kết nối (đóng ứng dụng).");
+    } catch (java.net.SocketException e) {
+      log.info("Kết nối Socket với Client bị ngắt đột ngột: {}", e.getMessage());
     } catch (Exception e) {
       log.error("Lỗi nghiêm trọng trong phiên kết nối của Client", e);
     } finally {
