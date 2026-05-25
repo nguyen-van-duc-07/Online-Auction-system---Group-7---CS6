@@ -265,7 +265,7 @@ public class OrderRepository {
     order.setSellerId(rs.getString("seller_id"));
     order.setFinalPrice(rs.getBigDecimal("final_price"));
     order.setDepositAmount(rs.getBigDecimal("deposit_amount"));
-    order.setDepositAmount(rs.getBigDecimal("remaining_amount"));
+    order.setRemainingAmount(rs.getBigDecimal("remaining_amount"));
     order.setConsigneeName(rs.getString("consignee_name"));
     order.setPhoneNumber(rs.getString("phone_number"));
     order.setAddress(rs.getString("address"));
