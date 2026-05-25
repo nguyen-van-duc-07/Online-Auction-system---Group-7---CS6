@@ -265,3 +265,61 @@ java.io.EOFException: null
 2026-05-25 13:15:45.977 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:52413
 2026-05-25 13:15:47.852 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
 2026-05-25 13:15:47.853 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 17:10:39.633 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 17:10:39.668 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 17:10:39.669 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 17:10:39.710 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 17:10:42.542 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@50c2982c
+2026-05-25 17:10:42.546 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 17:10:42.546 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 17:12:28.217 [pool-1-thread-1] [IP:/127.0.0.1:57915] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:57915
+2026-05-25 17:12:48.313 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:13:42.044 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
+2026-05-25 17:13:42.045 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã hủy đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:13:42.045 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 17:15:20.939 [pool-1-thread-2] [IP:/127.0.0.1:57930] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:57930
+2026-05-25 17:15:30.049 [pool-1-thread-2] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:18:16.851 [pool-1-thread-2] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.ClientHandler - Kết nối Socket với Client bị ngắt đột ngột: Connection reset
+2026-05-25 17:18:16.851 [pool-1-thread-2] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã hủy đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:18:16.851 [pool-1-thread-2] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 17:19:56.037 [pool-1-thread-3] [IP:/127.0.0.1:57955] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:57955
+2026-05-25 17:20:04.668 [pool-1-thread-3] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:22:15.763 [pool-1-thread-3] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  service.ImageStorageService - >>> Đã lưu ảnh: D:\Online-Auction-system---Group-7---CS6\uploads\images\508dcd2b-afbb-4c29-9084-db5d1b24a33b.jpg
+2026-05-25 17:22:23.728 [pool-1-thread-3] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã hủy đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:22:31.883 [pool-1-thread-3] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  servercontroller.Server - Client đã đăng ký: ae478d21-901a-4b12-a3d2-c6e655733fd2
+2026-05-25 17:22:45.956 [pool-1-thread-3] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - [WALLET - FREEZE] Yêu cầu đóng băng 11000.000 của User: ae478d21-901a-4b12-a3d2-c6e655733fd2 (Auction: 8362f056-d370-4409-815c-e34b154f5c90)
+2026-05-25 17:27:54.405 [pool-1-thread-3] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - [WALLET - FREEZE] Yêu cầu đóng băng 32000.000 của User: ae478d21-901a-4b12-a3d2-c6e655733fd2 (Auction: 8362f056-d370-4409-815c-e34b154f5c90)
+2026-05-25 17:27:54.731 [pool-1-thread-3] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.BidService - [ANTI-SNIPING] Gia hạn phiên 8362f056-d370-4409-815c-e34b154f5c90 thêm 3 phút. Giờ đóng cửa mới: 2026-05-25T17:33
+2026-05-25 17:46:30.789 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 17:46:30.812 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 17:46:30.813 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 17:46:30.842 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 17:46:32.736 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1ae00d7f
+2026-05-25 17:46:32.740 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 17:46:32.740 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 17:49:44.736 [pool-1-thread-1] [IP:/127.0.0.1:58110] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:58110
+2026-05-25 17:49:58.351 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:50:11.128 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã hủy đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34
+2026-05-25 17:50:16.058 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  servercontroller.Server - Client đã đăng ký: ae478d21-901a-4b12-a3d2-c6e655733fd2
+2026-05-25 17:51:06.148 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - Bắt đầu quá trình thanh toán cho đơn hàng: 7bbb52da-c7d0-4795-9151-28d7eb054bd8
+2026-05-25 17:51:06.548 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - >>> Đã cộng tiền vào ví người bán: 320,000 đ
+2026-05-25 17:51:06.753 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.OrderService - [ORDER] Xác nhận thanh toán thành công cho đơn hàng: 7bbb52da-c7d0-4795-9151-28d7eb054bd8
+2026-05-25 17:51:07.119 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] WARN  servercontroller.Server - User 38bf499e-6a02-458c-b6b9-a2ad91ffef34 không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 17:51:07.193 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] WARN  servercontroller.Server - User 38bf499e-6a02-458c-b6b9-a2ad91ffef34 không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 18:03:02.686 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - Bắt đầu quá trình thanh toán cho đơn hàng: 7bbb52da-c7d0-4795-9151-28d7eb054bd8
+2026-05-25 18:03:03.094 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - >>> Đã cộng tiền vào ví người bán: 320,000 đ
+2026-05-25 18:03:03.148 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] ERROR service.OrderService - [ORDER] Xác nhận đơn hàng 7bbb52da-c7d0-4795-9151-28d7eb054bd8 thất bại
+java.lang.IllegalStateException: Chỉ có thể xác nhận đơn hàng đang PENDING
+	at com.auction.shared/com.auction.shared.model.order.Order.confirm(Order.java:89)
+	at com.auction.server/service.OrderService.confirmOrder(OrderService.java:102)
+	at com.auction.server/servercontroller.RequestHandler.confirmOrder(RequestHandler.java:190)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:221)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 18:07:27.731 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.WalletService - [CANCEL] Người mua mất cọc: 101,200 đ | Người bán nhận: 101,200 đ
+2026-05-25 18:07:27.807 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  service.OrderService - [ORDER] Hủy đơn thành công: 59fa8fce-fb3f-4582-9c45-ea1c96e373b2
+2026-05-25 18:07:28.460 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] WARN  servercontroller.Server - User 949db642-dbb4-492e-be08-1a0d4298153b không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 18:07:28.540 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] WARN  servercontroller.Server - User 949db642-dbb4-492e-be08-1a0d4298153b không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 18:08:02.214 [pool-1-thread-1] [User:ae478d21-901a-4b12-a3d2-c6e655733fd2] INFO  servercontroller.Server - Client đã hủy đăng ký: ae478d21-901a-4b12-a3d2-c6e655733fd2
+2026-05-25 18:08:08.462 [pool-1-thread-1] [User:38bf499e-6a02-458c-b6b9-a2ad91ffef34] INFO  servercontroller.Server - Client đã đăng ký: 38bf499e-6a02-458c-b6b9-a2ad91ffef34

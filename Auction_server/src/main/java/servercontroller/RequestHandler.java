@@ -186,12 +186,20 @@ public class RequestHandler {
   }
 
   public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
-    OrderService orderService = new OrderService();
-    boolean success = orderService.confirmOrder(req.getOrderId(), req.getBuyerInfo());
-    if (success) {
-      return new OrderActionResponseDTO(true, "Xác nhận thanh toán thành công!");
+    try {
+      OrderService orderService = new OrderService();
+      boolean success = orderService.confirmOrder(req.getOrderId(), req.getBuyerInfo());
+      if (success) {
+        return new OrderActionResponseDTO(true, "Xác nhận thanh toán thành công!");
+      }
+      return new OrderActionResponseDTO(false, "Xác nhận thanh toán thất bại! Đơn hàng không tồn tại.");
+    } catch (Exception e) {
+      String errorMsg = e.getMessage();
+      if (e.getCause() != null) {
+        errorMsg = e.getCause().getMessage();
+      }
+      return new OrderActionResponseDTO(false, "Xác nhận thanh toán thất bại: " + errorMsg);
     }
-    return new OrderActionResponseDTO(false, "Xác nhận thanh toán thất bại!");
   }
 
   public static OrderActionResponseDTO cancelOrder(CancelOrderRequestDTO req) {
