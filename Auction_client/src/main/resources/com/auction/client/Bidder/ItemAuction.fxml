@@ -10,7 +10,6 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -94,7 +93,7 @@
                                     </VBox.margin>
                                     <children>
                                         <VBox prefHeight="16.0" prefWidth="4.0" style="-fx-background-color: #009900; -fx-background-radius: 2;" />
-                                        <Label text="Thông tin sản phẩm " textFill="#2C3E50">
+                                        <Label text="Lịch sử đặt giá" textFill="#2C3E50">
                                             <font>
                                                 <Font name="System Bold" size="14.0" />
                                             </font>
@@ -102,24 +101,15 @@
                                     </children>
                                 </HBox>
 
-                                <VBox spacing="12.0" VBox.vgrow="ALWAYS">
-                                    <children>
-
-                                        <HBox spacing="12.0" />
-
-                                        <HBox spacing="12.0">
-                                            <children>
-                                                <HBox alignment="CENTER" prefHeight="455.0" prefWidth="409.0" style="-fx-background-color: #F0FDF4; -fx-background-radius: 8; -fx-border-color: #DCFCE7; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
-                                                    <padding><Insets left="12.0" right="12.0" /></padding>
-                                                    <children>
-                                                        <ImageView fx:id="itemImageView" fitHeight="420.0" fitWidth="380.0" preserveRatio="true" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </HBox>
-
-                                    </children>
-                                </VBox>
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: #FFFFFF;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox fx:id="bidHistoryContainer" spacing="10.0" style="-fx-background-color: #FFFFFF;">
+                                            <padding>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
                             </children>
                         </VBox>
 
@@ -148,7 +138,7 @@
                                 </Button>
                             </children>
                         </HBox>
-                        <Label text="Mã sản phẩm: SP-00918" textFill="#95A5A6" />
+                        <Label fx:id="itemIdLabel" text="Mã sản phẩm: SP-00918" textFill="#95A5A6" />
                         <Separator prefWidth="200.0"><VBox.margin><Insets bottom="15.0" top="15.0" /></VBox.margin></Separator>
                         <VBox alignment="CENTER" style="-fx-background-color: #FFF5F5; -fx-background-radius: 8; -fx-padding: 10;">
                             <children>

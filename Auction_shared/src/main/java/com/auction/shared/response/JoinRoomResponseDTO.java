@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class JoinRoomResponseDTO implements ResponseDTO {
+  private static final long serialVersionUID = 1L;
+
   private boolean success;
   private String message;
   private AuctionResponseDTO auction;

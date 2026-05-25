@@ -25,6 +25,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuctionResponseDTO implements ResponseDTO {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Mã định danh duy nhất của phiên đấu giá.
    */

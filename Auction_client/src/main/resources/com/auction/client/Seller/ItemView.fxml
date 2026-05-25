@@ -69,12 +69,6 @@
                                                 </ImageView>
                                             </children>
                                         </StackPane>
-
-                                        <Label alignment="CENTER" prefHeight="32.0" prefWidth="130.0" style="-fx-background-color: #E8F5E9; -fx-background-radius: 20; -fx-border-color: #A3D9A5; -fx-border-radius: 20;" text="Đang diễn ra" textFill="#2E7D32">
-                                            <font>
-                                                <Font name="System Bold" size="14.0" />
-                                            </font>
-                                        </Label>
                                     </children>
                                 </VBox>
                             </children>

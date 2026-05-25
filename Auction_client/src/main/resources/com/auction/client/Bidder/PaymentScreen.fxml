@@ -3,66 +3,80 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.PaymentScreenController">
+<AnchorPane prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f1f5f9;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.PaymentScreenController">
     <children>
-        <AnchorPane prefHeight="70.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <!-- Header Bar -->
+        <AnchorPane prefHeight="70.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(148,163,184,0.08), 10, 0, 0, 2); -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Button fx:id="btnBack" layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-cursor: hand;" text="← Quay lại" textFill="#6c757d" AnchorPane.leftAnchor="25.0">
-                    <font><Font name="System" size="14.0" /></font>
-                </Button>
-
-                <Label alignment="CENTER" layoutY="18.0" onMouseClicked="#handleBack" text="THANH TOÁN ĐƠN HÀNG" textFill="#28a745" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                    <font><Font name="System Bold" size="24.0" /></font>
+                <Label alignment="CENTER" layoutY="18.0" mouseTransparent="true" text="XÁC NHẬN THANH TOÁN" textFill="#0f172a" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="150.0">
+                    <font><Font name="System Bold" size="22.0" /></font>
                 </Label>
 
-                <Button fx:id="btnCancelOrder" layoutY="20.0" mnemonicParsing="false" style="-fx-background-color: #dc3545; -fx-background-radius: 5; -fx-cursor: hand;" text="Hủy đơn hàng" textFill="WHITE" AnchorPane.rightAnchor="40.0">
+                <Button fx:id="btnBack" layoutY="18.0" mnemonicParsing="false" onAction="#handleBack" style="-fx-background-color: white; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-padding: 8 16; -fx-cursor: hand;" text="← Quay lại" AnchorPane.leftAnchor="25.0">
+                    <font><Font name="System" size="13.0" /></font>
+                </Button>
+
+                <Button fx:id="btnCancelOrder" layoutY="18.0" mnemonicParsing="false" onAction="#handleCancel" style="-fx-background-color: #fef2f2; -fx-border-color: #fca5a5; -fx-border-radius: 8; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-padding: 8 16; -fx-cursor: hand;" text="Hủy đơn hàng" AnchorPane.rightAnchor="25.0">
                     <font><Font name="System Bold" size="13.0" /></font>
                 </Button>
             </children>
         </AnchorPane>
 
-        <HBox layoutY="100.0" spacing="30.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="100.0">
+        <!-- Main Content Area -->
+        <HBox layoutY="105.0" spacing="35.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="105.0">
             <children>
-                <VBox spacing="20.0" HBox.hgrow="ALWAYS">
+                <!-- Left Column: Shipping Details Form -->
+                <VBox spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(148,163,184,0.06), 20, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                    <padding><Insets bottom="30.0" left="30.0" right="30.0" top="30.0" /></padding>
                     <children>
-                        <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
-                            <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+                        <VBox spacing="6.0">
                             <children>
-                                <Label text="1. Thông tin giao hàng" textFill="#343a40">
-                                    <font><Font name="System Bold" size="16.0" /></font>
+                                <Label text="📍 THÔNG TIN NHẬN HÀNG" textFill="#0f172a">
+                                    <font><Font name="System Bold" size="17.0" /></font>
                                 </Label>
-                                <TextField fx:id="txtFullName" prefHeight="40.0" promptText="Họ và tên người nhận" style="-fx-background-radius: 5;" />
-                                <HBox spacing="15.0">
-                                    <children>
-                                        <TextField fx:id="txtPhoneNumber" prefHeight="40.0" promptText="Số điện thoại" style="-fx-background-radius: 5;" HBox.hgrow="ALWAYS" />
-                                    </children>
-                                </HBox>
-                                <TextField fx:id="txtAddress" prefHeight="40.0" promptText="Địa chỉ chi tiết (Số nhà, đường...)" style="-fx-background-radius: 5;" />
+                                <Label text="Vui lòng kiểm tra kỹ thông tin giao hàng để hệ thống vận chuyển chính xác." textFill="#64748b">
+                                    <font><Font size="13.0" /></font>
+                                </Label>
                             </children>
+                            <VBox.margin><Insets bottom="10.0" /></VBox.margin>
                         </VBox>
 
-                        <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
-                            <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+                        <VBox spacing="18.0" VBox.vgrow="ALWAYS">
                             <children>
-                                <Label text="2. Phương thức thanh toán" textFill="#343a40">
-                                    <font><Font name="System Bold" size="16.0" /></font>
-                                </Label>
-                                <VBox spacing="12.0">
+                                <!-- Field: Full Name -->
+                                <VBox spacing="6.0">
                                     <children>
-                                        <RadioButton fx:id="rbUserWallet" mnemonicParsing="false" selected="true" text="Ví người dùng">
-                                            <toggleGroup><ToggleGroup fx:id="paymentMethod" /></toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton fx:id="rbBankTransfer" mnemonicParsing="false" text="Chuyển khoản ngân hàng" toggleGroup="$paymentMethod" />
-                                        <RadioButton fx:id="rbCashOnDelivery" mnemonicParsing="false" text="Thanh toán khi nhận hàng (COD)" toggleGroup="$paymentMethod" />
+                                        <Label text="Họ và tên người nhận" textFill="#475569">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Label>
+                                        <TextField fx:id="txtFullName" prefHeight="45.0" promptText="Nhập đầy đủ họ tên..." style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 0 12;" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Field: Phone Number -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Số điện thoại liên hệ" textFill="#475569">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Label>
+                                        <TextField fx:id="txtPhoneNumber" prefHeight="45.0" promptText="Nhập số điện thoại di động..." style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 0 12;" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Field: Address -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Địa chỉ nhận hàng chi tiết" textFill="#475569">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Label>
+                                        <TextField fx:id="txtAddress" prefHeight="45.0" promptText="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..." style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 0 12;" />
                                     </children>
                                 </VBox>
                             </children>
@@ -70,64 +84,89 @@
                     </children>
                 </VBox>
 
-                <VBox maxWidth="380.0" minWidth="350.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
-                    <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+                <!-- Right Column: Order Summary & Checkout -->
+                <VBox maxWidth="380.0" minWidth="380.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(148,163,184,0.06), 20, 0, 0, 4);">
+                    <padding><Insets bottom="30.0" left="30.0" right="30.0" top="30.0" /></padding>
                     <children>
-                        <Label text="Tóm tắt đơn hàng" textFill="#343a40">
-                            <font><Font name="System Bold" size="18.0" /></font>
+                        <Label text="📦 TÓM TẮT ĐƠN HÀNG" textFill="#0f172a">
+                            <font><Font name="System Bold" size="17.0" /></font>
                         </Label>
-                        <Separator />
-                        <HBox spacing="10.0">
+                        <Separator style="-fx-background-color: #e2e8f0; -fx-opacity: 0.5;" />
+                        
+                        <!-- Product Item Highlight Box -->
+                        <VBox spacing="10.0" style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 15; -fx-border-color: #f1f5f9; -fx-border-width: 1; -fx-border-radius: 12;">
                             <children>
-                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <HBox spacing="10.0">
                                     <children>
-                                        <Label fx:id="lblItemName" text="iPhone 17 Pro Max" textFill="#495057">
-                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="lblItemName" text="Sản phẩm đấu giá" textFill="#1e293b" wrapText="true">
+                                                    <font><Font name="System Bold" size="15.0" /></font>
+                                                </Label>
+                                                <Label fx:id="lblItemId" text="Mã SP: N/A" textFill="#64748b">
+                                                    <font><Font size="12.0" /></font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BOTTOM_RIGHT">
+                                    <children>
+                                        <Label fx:id="lblItemPrice" text="0đ" textFill="#10b981">
+                                            <font><Font name="System Bold" size="16.0" /></font>
                                         </Label>
-                                        <Label fx:id="lblItemId" text="Mã SP: SP002" textFill="#adb5bd" />
-                                    </children>
-                                </VBox>
-                                <Label fx:id="lblItemPrice" alignment="CENTER_RIGHT" minWidth="-Infinity" prefHeight="20.0" text="40.000.000đ" textFill="#28a745">
-                                    <font><Font name="System Bold" size="14.0" /></font>
-                                </Label>
-                            </children>
-                        </HBox>
-                        <Separator />
-                        <VBox spacing="10.0">
-                            <children>
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <Label text="Tạm tính" textFill="#6c757d" />
-                                        <Label fx:id="lblSubTotal" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.000.000đ" HBox.hgrow="ALWAYS" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <Label text="Phí vận chuyển" textFill="#6c757d" />
-                                        <Label fx:id="lblShippingFee" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="30.000đ" HBox.hgrow="ALWAYS" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <Label text="Giảm giá" textFill="#6c757d" />
-                                        <Label fx:id="lblDiscount" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="-0đ" textFill="#e74c3c" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
-                        <Separator />
-                        <HBox alignment="CENTER_LEFT">
+
+                        <Separator style="-fx-background-color: #e2e8f0; -fx-opacity: 0.5;" />
+                        
+                        <!-- Invoice Price Breakdowns -->
+                        <VBox spacing="12.0">
                             <children>
-                                <Label text="TỔNG CỘNG" textFill="#343a40">
-                                    <font><Font name="System Bold" size="16.0" /></font>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label text="Tạm tính" textFill="#64748b">
+                                            <font><Font size="13.0" /></font>
+                                        </Label>
+                                        <VBox HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblSubTotal" text="0đ" textFill="#334155">
+                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label text="Giảm giá" textFill="#64748b">
+                                            <font><Font size="13.0" /></font>
+                                        </Label>
+                                        <VBox HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblDiscount" text="-0đ" textFill="#ef4444">
+                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Separator style="-fx-background-color: #e2e8f0; -fx-opacity: 0.5;" />
+                        
+                        <!-- Total Payment Row -->
+                        <HBox alignment="CENTER_LEFT" style="-fx-padding: 5 0;">
+                            <children>
+                                <Label text="TỔNG CỘNG" textFill="#0f172a">
+                                    <font><Font name="System Bold" size="15.0" /></font>
                                 </Label>
-                                <Label fx:id="lblTotalAmount" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="40.030.000đ" textFill="#28a745" HBox.hgrow="ALWAYS">
-                                    <font><Font name="System Bold" size="20.0" /></font>
+                                <VBox HBox.hgrow="ALWAYS" />
+                                <Label fx:id="lblTotalAmount" text="0đ" textFill="#10b981">
+                                    <font><Font name="System Bold" size="22.0" /></font>
                                 </Label>
                             </children>
                         </HBox>
-                        <Button fx:id="btnCompletePayment" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: #28a745; -fx-background-radius: 8; -fx-cursor: hand;" text="HOÀN TẤT THANH TOÁN" textFill="WHITE">
-                            <font><Font name="System Bold" size="16.0" /></font>
+                        
+                        <!-- Primary CTA Button -->
+                        <Button fx:id="btnCompletePayment" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: linear-gradient(to right, #10b981, #059669); -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16.0; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(16,185,129,0.15), 10, 0, 0, 4);" text="HOÀN TẤT THANH TOÁN">
                             <VBox.margin><Insets top="10.0" /></VBox.margin>
                         </Button>
                     </children>

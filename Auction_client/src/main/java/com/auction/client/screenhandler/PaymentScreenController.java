@@ -41,15 +41,6 @@ public class PaymentScreenController implements Initializable {
   @FXML
   private TextField txtAddress;
 
-  // --- 2. Payment Methods ---
-  @FXML
-  private RadioButton rbUserWallet;
-  @FXML
-  private RadioButton rbBankTransfer;
-  @FXML
-  private RadioButton rbCashOnDelivery;
-  private ToggleGroup paymentMethodGroup;
-
   // --- 3. Order Summary ---
   @FXML
   private Label lblItemName;
@@ -59,8 +50,6 @@ public class PaymentScreenController implements Initializable {
   private Label lblItemPrice;
   @FXML
   private Label lblSubTotal;
-  @FXML
-  private Label lblShippingFee;
   @FXML
   private Label lblDiscount;
   @FXML
@@ -83,12 +72,6 @@ public class PaymentScreenController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this;
-    paymentMethodGroup = new ToggleGroup();
-    rbUserWallet.setToggleGroup(paymentMethodGroup);
-    rbBankTransfer.setToggleGroup(paymentMethodGroup);
-    rbCashOnDelivery.setToggleGroup(paymentMethodGroup);
-
-    rbUserWallet.setSelected(true);
 
     btnCompletePayment.setOnAction(event -> handlePayment());
     btnCancelOrder.setOnAction(event -> handleCancel());
@@ -115,8 +98,7 @@ public class PaymentScreenController implements Initializable {
     this.currentAuctionId = resultDTO.getAuctionId();
     this.currentItemId = resultDTO.getItemId();
 
-    BigDecimal shippingFee = new BigDecimal("30000.00");
-    this.totalAmountToPay = resultDTO.getFinalPrice().add(shippingFee);
+    this.totalAmountToPay = resultDTO.getFinalPrice();
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
@@ -126,7 +108,6 @@ public class PaymentScreenController implements Initializable {
     lblItemId.setText("Mã sản phẩm: " + resultDTO.getItemId());
     lblItemPrice.setText(currencyFormat.format(resultDTO.getFinalPrice()) + "đ");
     lblSubTotal.setText(currencyFormat.format(resultDTO.getFinalPrice()) + "đ");
-    lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
   }
@@ -137,8 +118,7 @@ public class PaymentScreenController implements Initializable {
     this.currentAuctionId = order.getAuctionId();
     this.currentItemId = itemId != null ? itemId : order.getAuctionId();
 
-    BigDecimal shippingFee = new BigDecimal("30000.00");
-    this.totalAmountToPay = order.getFinalPrice().add(shippingFee);
+    this.totalAmountToPay = order.getFinalPrice();
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
@@ -148,7 +128,6 @@ public class PaymentScreenController implements Initializable {
     lblItemId.setText("Mã đơn hàng: " + order.getId());
     lblItemPrice.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
     lblSubTotal.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
-    lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
 
@@ -181,8 +160,7 @@ public class PaymentScreenController implements Initializable {
     this.currentAuctionId = orderDTO.getAuctionId();
     this.currentItemId = orderDTO.getAuctionId(); // fallback
 
-    BigDecimal shippingFee = new BigDecimal("30000.00");
-    this.totalAmountToPay = orderDTO.getFinalPrice().add(shippingFee);
+    this.totalAmountToPay = orderDTO.getFinalPrice();
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
@@ -192,7 +170,6 @@ public class PaymentScreenController implements Initializable {
     lblItemId.setText("Mã đơn hàng: " + orderDTO.getOrderId());
     lblItemPrice.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
     lblSubTotal.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
-    lblShippingFee.setText(currencyFormat.format(shippingFee) + "đ");
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
 
@@ -226,10 +203,6 @@ public class PaymentScreenController implements Initializable {
     txtPhoneNumber.setEditable(false);
     txtAddress.setDisable(true);
     txtAddress.setEditable(false);
-
-    rbUserWallet.setDisable(true);
-    rbBankTransfer.setDisable(true);
-    rbCashOnDelivery.setDisable(true);
 
     btnCompletePayment.setDisable(true);
     btnCompletePayment.setText("HÓA ĐƠN CHỈ XEM 📄");
@@ -305,8 +278,8 @@ public class PaymentScreenController implements Initializable {
         String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "Mã đơn hàng";
         String validItemId = currentItemId != null && !currentItemId.trim().isEmpty() ? currentItemId : validAuctionId;
         
-        BigDecimal shippingFee = new BigDecimal("30000.00");
-        BigDecimal finalPrice = totalAmountToPay != null ? totalAmountToPay.subtract(shippingFee) : BigDecimal.ZERO;
+        BigDecimal shippingFee = BigDecimal.ZERO;
+        BigDecimal finalPrice = totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO;
         if (finalPrice.compareTo(BigDecimal.ZERO) <= 0) {
           finalPrice = new BigDecimal("1.00"); // fallback to avoid PrizedTransaction validation failure
         }
@@ -350,7 +323,7 @@ public class PaymentScreenController implements Initializable {
     // Bảo vệ phòng ngừa nếu transaction bị null hoặc chứa giá trị rỗng gây lỗi
     String auctionId = (transaction != null && transaction.getAuctionId() != null) ? transaction.getAuctionId() : (currentAuctionId != null ? currentAuctionId : "Mã đơn hàng");
     String itemId = (transaction != null && transaction.getItemId() != null && !transaction.getItemId().trim().isEmpty()) ? transaction.getItemId() : (currentItemId != null && !currentItemId.trim().isEmpty() ? currentItemId : auctionId);
-    BigDecimal price = (transaction != null && transaction.getFinalPrice() != null) ? transaction.getFinalPrice() : (totalAmountToPay != null ? totalAmountToPay.subtract(new BigDecimal("30000.00")) : BigDecimal.ZERO);
+    BigDecimal price = (transaction != null && transaction.getFinalPrice() != null) ? transaction.getFinalPrice() : (totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO);
     if (price.compareTo(BigDecimal.ZERO) < 0) {
       price = BigDecimal.ZERO;
     }
@@ -384,9 +357,9 @@ public class PaymentScreenController implements Initializable {
       InvoiceService invoiceService = new InvoiceService();
       
       // Tính toán giá tạm tính và phí vận chuyển
-      BigDecimal shippingFee = new BigDecimal("30000.00");
-      BigDecimal finalTotal = totalAmountToPay != null ? totalAmountToPay : price.add(shippingFee);
-      BigDecimal finalPrice = finalTotal.subtract(shippingFee);
+      BigDecimal shippingFee = BigDecimal.ZERO;
+      BigDecimal finalTotal = totalAmountToPay != null ? totalAmountToPay : price;
+      BigDecimal finalPrice = finalTotal;
       if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
         finalPrice = BigDecimal.ZERO;
       }

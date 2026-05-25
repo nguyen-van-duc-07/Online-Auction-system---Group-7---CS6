@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox fx:id="cardRoot" alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="450.0" spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #f1f5f9; -fx-border-width: 1; -fx-border-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(148, 163, 184, 0.05), 8, 0, 0, 2);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.BidHistoryCardController">
+   <padding>
+      <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+   </padding>
+   <children>
+      <!-- Avatar Sphere -->
+      <StackPane fx:id="avatarContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="38.0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 50;">
+         <children>
+            <Label fx:id="lblAvatar" text="👤" textFill="#64748b">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </StackPane>
+      
+      <!-- Bidder & Time Info -->
+      <VBox alignment="CENTER_LEFT" spacing="4.0">
+         <children>
+            <Label fx:id="lblBidderName" text="Người chơi..." textFill="#1e293b">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblBidTime" text="10:00:00 01/01/2026" textFill="#94a3b8">
+               <font>
+                  <Font size="11.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+      
+      <Region HBox.hgrow="ALWAYS" />
+      
+      <!-- Amount & Rank Badge -->
+      <VBox alignment="CENTER_RIGHT" spacing="4.0">
+         <children>
+            <Label fx:id="lblBidAmount" text="0đ" textFill="#10b981">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblBadge" style="-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-padding: 2 6; -fx-background-radius: 4;" text="#1">
+               <font>
+                  <Font name="System Bold" size="10.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</HBox>

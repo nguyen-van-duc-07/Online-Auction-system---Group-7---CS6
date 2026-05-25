@@ -20,6 +20,7 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -28,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.text.DecimalFormat;
+
 import org.controlsfx.control.Notifications;
 import com.auction.shared.network.NetworkConfig;
 import javafx.scene.image.Image;
@@ -44,6 +46,8 @@ public class ItemAuctionController implements Initializable {
   private TextField bidAmountField;
   @FXML
   private Label itemNameLabel;
+  @FXML
+  private Label itemIdLabel;
   @FXML
   private Label currentPriceField;
   @FXML
@@ -67,9 +71,14 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private TextField autoStepPriceField;
 
-  /** Khung hiển thị ảnh sản phẩm đấu giá (load bất đồng bộ qua HTTP). */
+  /**
+   * Khung hiển thị ảnh sản phẩm đấu giá (load bất đồng bộ qua HTTP).
+   */
   @FXML
   private ImageView itemImageView;
+
+  @FXML
+  private VBox bidHistoryContainer;
 
 
   // Quick Add buttons
@@ -328,6 +337,51 @@ public class ItemAuctionController implements Initializable {
     priceChart.getData().add(priceSeries);
   }
 
+  private void loadBidHistory() {
+    if (bidHistoryContainer == null) {
+      log.warn("bidHistoryContainer is null!");
+      return;
+    }
+    bidHistoryContainer.getChildren().clear();
+
+    if (currentAuction == null) {
+      return;
+    }
+
+    List<BidTransaction> history = currentAuction.getBidHistory();
+    if (history == null || history.isEmpty()) {
+      Label emptyLabel = new Label("Chưa có lượt đặt giá nào cho sản phẩm này.");
+      emptyLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-style: italic; -fx-font-size: 13px; -fx-padding: 15;");
+      bidHistoryContainer.getChildren().add(emptyLabel);
+      return;
+    }
+
+    // Tạo bản sao cục bộ để sắp xếp giảm dần theo số tiền bid (mới nhất/cao nhất lên đầu)
+    List<BidTransaction> sortedHistory = new java.util.ArrayList<>(history);
+    sortedHistory.sort((b1, b2) -> b2.getBidAmount().compareTo(b1.getBidAmount()));
+
+    int totalBids = sortedHistory.size();
+    for (int i = 0; i < totalBids; i++) {
+      BidTransaction tx = sortedHistory.get(i);
+      try {
+        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+            getClass().getResource("/com/auction/client/Bidder/BidHistoryCard.fxml"));
+        javafx.scene.Node cardNode = loader.load();
+        BidHistoryCardController cardController = loader.getController();
+        cardNode.setUserData(cardController);
+
+        // i == 0 là bid cao nhất hiện tại (dẫn đầu)
+        boolean isLeading = (i == 0);
+        int sequenceNum = totalBids - i;
+
+        cardController.setData(tx, isLeading, sequenceNum);
+        bidHistoryContainer.getChildren().add(cardNode);
+      } catch (java.io.IOException e) {
+        log.error("Lỗi khi tải thẻ lịch sử đặt giá", e);
+      }
+    }
+  }
+
   // Hàm hỗ trợ format text thời gian
   private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
     long days = java.time.temporal.ChronoUnit.DAYS.between(from, to);
@@ -356,6 +410,10 @@ public class ItemAuctionController implements Initializable {
 
   @FXML
   public void placeBid() {
+    if (currentAuction == null) {
+      showError("Đang kết nối tới máy chủ, vui lòng đợi...");
+      return;
+    }
     // ================= LUỒNG 1: XÁC NHẬN AUTO-BID =================
     if (autoBidCheckBox != null && autoBidCheckBox.isSelected()) {
       String maxText = maxAutoPriceField.getText().trim();
@@ -413,7 +471,7 @@ public class ItemAuctionController implements Initializable {
       BigDecimal bidAmount = new BigDecimal(bidText);
       BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
       BigDecimal stepPrice = currentAuction.getMinStepPrice();
-      log.debug("[DEBUG PLACEBID] bidAmount={} | currentPrice={} | stepPrice={} | minimum={}", 
+      log.debug("[DEBUG PLACEBID] bidAmount={} | currentPrice={} | stepPrice={} | minimum={}",
           bidAmount, currentPrice, stepPrice, currentPrice.add(stepPrice));
       if (bidAmount.compareTo(currentPrice) <= 0) {
         showError("Mức giá phải lớn hơn giá hiện tại của sản phẩm!");
@@ -604,6 +662,19 @@ public class ItemAuctionController implements Initializable {
       // 2. Chạy hiệu ứng nháy màu và cập nhật Text
       refreshPriceUI();
 
+      // Cập nhật danh sách lịch sử bid trong phòng đấu giá (thêm thầu mới nhận được)
+      if (currentAuction.getBidHistory() == null) {
+        currentAuction.setBidHistory(new java.util.ArrayList<>());
+      }
+      BidTransaction newTx = new BidTransaction(
+          currentAuction.getId(),
+          newBid.getBidderId(),
+          newBid.getBidAmount()
+      );
+      newTx.setCreatedAt(LocalDateTime.now());
+      currentAuction.getBidHistory().add(newTx);
+      loadBidHistory();
+
       // 3. Thêm điểm ảnh mới vào biểu đồ LineChart/AreaChart
       if (priceSeries != null) {
         // Lấy thời gian thực lúc nhận được Bid
@@ -665,6 +736,7 @@ public class ItemAuctionController implements Initializable {
       updateQuickAddButtonTexts();
 
       itemNameLabel.setText(auctionData.getItem().getName());
+      itemIdLabel.setText("Mã sản phẩm: " + auctionData.getItem().getId());
 
       DecimalFormat formatter = new DecimalFormat("#,###");
       String formattedMinStepPrice = formatter.format(auctionData.getMinStepPrice());
@@ -682,6 +754,9 @@ public class ItemAuctionController implements Initializable {
 
       // 4. Vẽ lại biểu đồ dựa trên dữ liệu lịch sử mới nhất
       loadChartData();
+
+      // 4.5. Nạp danh sách lịch sử bid
+      loadBidHistory();
 
       // 5. Load ảnh sản phẩm bất đồng bộ qua HTTP
       if (auctionData.getImagePath() != null && !auctionData.getImagePath().isEmpty()
@@ -713,7 +788,7 @@ public class ItemAuctionController implements Initializable {
       // In log ra để dễ debug
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       // THÊM
-      log.debug("[DEBUG JOIN] currentHighestPrice={} | minStepPrice={}", 
+      log.debug("[DEBUG JOIN] currentHighestPrice={} | minStepPrice={}",
           auctionData.getCurrentHighestPrice(), auctionData.getMinStepPrice());
       log.info(">>> Đã đồng bộ thành công lịch sử đấu giá: {} bản ghi.", historySize);
     });
@@ -733,6 +808,10 @@ public class ItemAuctionController implements Initializable {
   }
 
   public void handleViewItemProperties() {
+    if (currentAuction == null || currentAuction.getItem() == null) {
+      log.warn("currentAuction hoặc thông tin sản phẩm chưa được tải từ Server!");
+      return;
+    }
     String title = "Chi tiết sản phẩm " + currentAuction.getItem().getName();
     ItemViewController productViewController = ScreenController.createSubWindowAndGetController("Seller/ItemView.fxml", title);
     productViewController.initData(currentAuction);
