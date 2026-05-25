@@ -265,3 +265,55 @@ java.io.EOFException: null
 2026-05-25 13:15:45.977 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:52413
 2026-05-25 13:15:47.852 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
 2026-05-25 13:15:47.853 [pool-1-thread-1] [IP:/127.0.0.1:52413] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 14:59:34.738 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 14:59:34.755 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 14:59:34.755 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 14:59:34.769 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 14:59:37.346 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@747426d3
+2026-05-25 14:59:37.348 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 14:59:37.348 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 14:59:43.155 [pool-1-thread-1] [IP:/127.0.0.1:58180] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:58180
+2026-05-25 15:00:07.148 [pool-1-thread-1] [User:e1f4f2d5-53b4-474c-aff7-209266069b6d] INFO  servercontroller.Server - Client đã đăng ký: e1f4f2d5-53b4-474c-aff7-209266069b6d
+2026-05-25 15:00:34.592 [pool-1-thread-1] [User:e1f4f2d5-53b4-474c-aff7-209266069b6d] INFO  service.WalletService - Bắt đầu quá trình thanh toán cho đơn hàng: 77dc9774-73d4-40c9-a5ed-8823e2a963d8
+2026-05-25 15:00:34.769 [pool-1-thread-1] [User:e1f4f2d5-53b4-474c-aff7-209266069b6d] ERROR service.OrderService - [ORDER] Xác nhận đơn hàng 77dc9774-73d4-40c9-a5ed-8823e2a963d8 thất bại
+java.lang.NullPointerException: Cannot read field "scale" because "val" is null
+	at java.base/java.math.BigDecimal.compareTo(BigDecimal.java:3130)
+	at com.auction.shared/com.auction.shared.model.user.Wallet.payWinningAuction(Wallet.java:67)
+	at com.auction.server/service.WalletService.processPayment(WalletService.java:224)
+	at com.auction.server/service.OrderService.confirmOrder(OrderService.java:101)
+	at com.auction.server/servercontroller.RequestHandler.confirmOrder(RequestHandler.java:190)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:221)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 15:02:47.551 [pool-1-thread-1] [User:e1f4f2d5-53b4-474c-aff7-209266069b6d] INFO  service.ImageStorageService - >>> Đã lưu ảnh: D:\Hoanchinh\Online-Auction-system---Group-7---CS6\uploads\images\276c711d-6382-4c6e-8d87-8af3573ff294.png
+2026-05-25 15:02:50.474 [pool-2-thread-1] [] INFO  scheduler.AuctionStatusScheduler - BROADCAST CLOSED: 71f26f3a-90e9-415e-8d2c-b4915206cebe
+2026-05-25 15:03:19.551 [pool-1-thread-1] [User:e1f4f2d5-53b4-474c-aff7-209266069b6d] INFO  servercontroller.Server - Client đã hủy đăng ký: e1f4f2d5-53b4-474c-aff7-209266069b6d
+2026-05-25 15:03:35.137 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:04:19.253 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
+2026-05-25 15:04:19.254 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã hủy đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:04:19.255 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 15:08:41.165 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 15:08:41.181 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 15:08:41.182 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 15:08:41.203 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 15:08:42.839 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@747426d3
+2026-05-25 15:08:42.840 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 15:08:42.840 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 15:08:45.702 [pool-1-thread-1] [IP:/127.0.0.1:51244] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:51244
+2026-05-25 15:08:55.453 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:10:23.792 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
+2026-05-25 15:10:23.793 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã hủy đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:10:23.793 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 15:14:04.312 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 15:14:04.325 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 15:14:04.325 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 15:14:04.336 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 15:14:05.915 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@747426d3
+2026-05-25 15:14:05.916 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 15:14:05.916 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 15:14:06.681 [pool-1-thread-1] [IP:/127.0.0.1:62424] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:62424
+2026-05-25 15:15:14.847 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:15:31.493 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Client đã ngắt kết nối (đóng ứng dụng).
+2026-05-25 15:15:31.495 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.Server - Client đã hủy đăng ký: 949db642-dbb4-492e-be08-1a0d4298153b
+2026-05-25 15:15:31.495 [pool-1-thread-1] [User:949db642-dbb4-492e-be08-1a0d4298153b] INFO  servercontroller.ClientHandler - Kết nối client đóng.
