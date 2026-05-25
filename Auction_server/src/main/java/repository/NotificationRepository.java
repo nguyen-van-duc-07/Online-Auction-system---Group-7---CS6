@@ -7,8 +7,11 @@ import config.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationRepository {
+  private static final Logger log = LoggerFactory.getLogger(NotificationRepository.class);
 
   public boolean save(Notification notification) {
     String sql = "INSERT INTO notifications (id, user_id, type, title, content, reference_id, is_read, created_at) "
@@ -28,7 +31,7 @@ public class NotificationRepository {
       return ps.executeUpdate() > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lưu thông báo cho user: {}", notification.getUserId(), e);
       return false;
     }
   }
@@ -50,7 +53,7 @@ public class NotificationRepository {
       }
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy thông báo của user: {}", userId, e);
     }
     return notifications;
   }
@@ -68,7 +71,7 @@ public class NotificationRepository {
       if (rs.next()) return rs.getInt(1);
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi đếm số thông báo chưa đọc của user: {}", userId, e);
     }
     return 0;
   }
@@ -84,7 +87,7 @@ public class NotificationRepository {
       return ps.executeUpdate() > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi đánh dấu đã đọc thông báo ID: {}", notificationId, e);
       return false;
     }
   }
@@ -101,7 +104,7 @@ public class NotificationRepository {
       return ps.executeUpdate() > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi đánh dấu đã đọc tất cả thông báo của user: {}", userId, e);
       return false;
     }
   }
@@ -116,11 +119,11 @@ public class NotificationRepository {
 
       int deleted = ps.executeUpdate();
       if (deleted > 0) {
-        System.out.println("[NOTIFICATION] Đã xóa " + deleted + " thông báo hết hạn.");
+        log.info("[NOTIFICATION] Đã xóa {} thông báo hết hạn.", deleted);
       }
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi xóa thông báo hết hạn", e);
     }
   }
 

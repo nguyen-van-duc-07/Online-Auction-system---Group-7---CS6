@@ -2,7 +2,8 @@ package config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -10,6 +11,7 @@ import java.sql.DriverManager;
  * Class được sử dụng để tạo kết nối tới Database.
  */
 public class DatabaseConnection {
+  private static final Logger log = LoggerFactory.getLogger(DatabaseConnection.class);
   private static final String URL =
       "jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/"
       + "auction_db?useSSL=true";
@@ -39,7 +41,7 @@ public class DatabaseConnection {
     config.setConnectionTestQuery("SELECT 1");
 
     dataSource = new HikariDataSource(config);
-    System.out.println("[DB] Connection pool đã khởi tạo thành công.");
+    log.info("[DB] Connection pool đã khởi tạo thành công.");
   }
 
 
@@ -57,7 +59,7 @@ public class DatabaseConnection {
     try {
       return dataSource.getConnection();
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi lấy kết nối từ Connection Pool", e);
       return null;
     }
   }

@@ -2,7 +2,9 @@ package servercontroller;
 
 import com.auction.shared.request.*;
 import com.auction.shared.response.LoginResponseDTO;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -19,6 +21,7 @@ import java.net.Socket;
  * @see com.auction.shared.request.RequestDTO
  */
 public class ClientHandler implements Runnable {
+  private static final Logger log = LoggerFactory.getLogger(ClientHandler.class);
   private Socket clientSocket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
@@ -29,6 +32,10 @@ public class ClientHandler implements Runnable {
 
   @Override
   public void run() {
+    String clientIp = clientSocket.getRemoteSocketAddress().toString();
+    MDC.put("clientId", "IP:" + clientIp);
+    log.info("Client mới đang kết nối từ IP: {}", clientIp);
+
     try {
       out = new ObjectOutputStream(clientSocket.getOutputStream());
       out.flush();
@@ -62,6 +69,7 @@ public class ClientHandler implements Runnable {
                   } else {
                     // Nếu chưa online, cho phép đăng nhập và lưu vào danh sách Server
                     this.userId = checkUserId;
+                    MDC.put("clientId", "User:" + this.userId);
                     Server.registerClient(this.userId, this);
                   }
                 }
@@ -255,20 +263,22 @@ public class ClientHandler implements Runnable {
               }
 
               default -> {
-                System.out.println(">>> Server nhận được Request không xác định!");
+                log.warn("Server nhận được Request không xác định!");
               }
             }
           }
         }
         catch(Exception e){
-          e.printStackTrace();
+          log.error("Lỗi xảy ra khi xử lý request từ client", e);
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi nghiêm trọng trong phiên kết nối của Client", e);
     } finally {
       Server.removeClientFromAllRooms(this);
       Server.unregisterClient(this.userId);
+      log.info("Kết nối client đóng.");
+      MDC.clear();
     }
   }
 
@@ -284,7 +294,7 @@ public class ClientHandler implements Runnable {
         clientSocket.close();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi khi đóng kết nối", e);
     }
   }
 
@@ -299,7 +309,7 @@ public class ClientHandler implements Runnable {
         out.flush();
       }
     } catch (Exception e) {
-      System.out.println("Lỗi gửi dữ liệu cho Client, Client có thể đã ngắt kết nối.");
+      log.warn("Lỗi gửi dữ liệu cho Client, Client có thể đã ngắt kết nối.");
     }
   }
 }

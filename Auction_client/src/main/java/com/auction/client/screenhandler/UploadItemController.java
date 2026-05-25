@@ -10,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -28,6 +30,7 @@ import java.util.Map;
  * và ánh xạ danh mục sang Enum trước khi đóng gói gửi lên Server.</p>
  */
 public class UploadItemController {
+  private static final Logger log = LoggerFactory.getLogger(UploadItemController.class);
   /**
    * Trường nhập tên sản phẩm.
    */
@@ -276,7 +279,7 @@ public class UploadItemController {
     } catch (Exception e) {
       ScreenController.showAlert(Alert.AlertType.ERROR,
           "Lỗi hệ thống", "Đã xảy ra lỗi không xác định!");
-      e.printStackTrace();
+      log.error("Lỗi xảy ra trong quá trình đăng bán sản phẩm", e);
     }
   }
 

@@ -10,6 +10,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -17,6 +19,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 public class DepositController {
+  private static final Logger log = LoggerFactory.getLogger(DepositController.class);
 
   @FXML private TextField amountTextField;
 
@@ -81,7 +84,7 @@ public class DepositController {
     } catch (NumberFormatException e) {
       showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng số tiền không hợp lệ!");
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Có lỗi xảy ra trong quá trình nạp tiền", e);
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Có lỗi xảy ra: " + e.getMessage());
     }
   }

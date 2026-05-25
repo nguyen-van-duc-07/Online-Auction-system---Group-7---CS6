@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Quản lý kết nối mạng (Socket) từ phía Client tới Server.
@@ -21,6 +23,7 @@ import java.net.Socket;
  * @see ResponseHandler
  */
 public class ServerConnection {
+  private static final Logger log = LoggerFactory.getLogger(ServerConnection.class);
   private static Socket socket;
   private static ObjectOutputStream out;
   private static ObjectInputStream in;
@@ -33,10 +36,12 @@ public class ServerConnection {
       out.flush();
       in = new ObjectInputStream(socket.getInputStream());
 
-      new Thread(() -> listenForData()).start();
+      Thread listenerThread = new Thread(() -> listenForData());
+      listenerThread.setDaemon(true);
+      listenerThread.start();
 
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi khi kết nối tới Server", e);
     }
   }
 
@@ -74,18 +79,17 @@ public class ServerConnection {
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
-            case AuctionStatusUpdateDTO dto -> System.out.println("CLIENT RECEIVED: " + dto.getId()
-                + " status=" + dto.getAuctionStatus());
+            case AuctionStatusUpdateDTO dto -> log.info("CLIENT RECEIVED: {} status={}", 
+                dto.getId(), dto.getAuctionStatus());
 
             case NewBidDTO dto -> {
               ResponseHandler.handleNewBid(dto);
-              System.out.println("CLIENT RECEIVED: Phien: " + dto.getAuctionId()
-                  + "- Bidder: " + dto.getBidderId()
-                  + "dat gia: " + dto.getBidAmount());
+              log.info("CLIENT RECEIVED: Phien: {} - Bidder: {} dat gia: {}", 
+                  dto.getAuctionId(), dto.getBidderId(), dto.getBidAmount());
             }
 
             case PlaceBidResponseDTO dto -> {
-              System.out.println("Ket qua: " + dto.getMessage());
+              log.info("Ket qua: {}", dto.getMessage());
               ResponseHandler.handlePlaceBidResponse(dto); // THÊM DÒNG NÀY
             }
 
@@ -93,7 +97,7 @@ public class ServerConnection {
                 ResponseHandler.handleAuctionRoomJoined(joinRoomRes); // THÊM CASE NÀY
 
             case PaymentNotificationDTO dto -> {
-              System.out.println("[CLIENT] Nhận PaymentNotification: " + dto.getItemName());
+              log.info("[CLIENT] Nhận PaymentNotification: {}", dto.getItemName());
                 ResponseHandler.handlePaymentNotification(dto);
             }
 
@@ -134,12 +138,12 @@ public class ServerConnection {
                 ResponseHandler.handleAutoBidResponse(dto);
 
             case AutoBidDefeatedDTO dto -> {
-              System.out.println("[CLIENT] Nhận thông báo Bot bị đè giá: " + dto.getMessage());
+              log.info("[CLIENT] Nhận thông báo Bot bị đè giá: {}", dto.getMessage());
               ResponseHandler.handleAutoBidDefeated(dto);
             }
 
             case GetBalanceResponseDTO balanceRes -> {
-              System.out.println("Nhận phản hồi lấy số dư từ Server.");
+              log.info("Nhận phản hồi lấy số dư từ Server.");
               com.auction.client.network.SessionManager.updateBalance(balanceRes);
               ResponseHandler.handleGetBalance(balanceRes);
             }
@@ -189,12 +193,16 @@ public class ServerConnection {
               ResponseHandler.handleProcessTransactionResponse(responseDTO);
             }
 
-            default -> System.out.println("Phản hồi không hợp lệ");
+            default -> log.warn("Phản hồi không hợp lệ");
           }
         }
       }
     } catch (IOException | ClassNotFoundException e) {
-      e.printStackTrace();
+      if (socket != null && socket.isClosed()) {
+        log.info("Đã đóng kết nối với Server thành công.");
+      } else {
+        log.error("Lỗi khi lắng nghe dữ liệu từ Server", e);
+      }
     }
   }
 
@@ -205,7 +213,7 @@ public class ServerConnection {
         out.flush();
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi khi gửi dữ liệu lên Server", e);
     }
   }
 
@@ -221,7 +229,7 @@ public class ServerConnection {
         socket.close();
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi khi đóng kết nối", e);
     }
   }
 }

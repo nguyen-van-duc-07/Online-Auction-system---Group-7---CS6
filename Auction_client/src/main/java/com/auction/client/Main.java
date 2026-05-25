@@ -25,6 +25,12 @@ public class Main extends Application {
     ServerConnection.connect();
   }
 
+  @Override
+  public void stop() throws Exception {
+    ServerConnection.closeConnection();
+    super.stop();
+  }
+
   public static void main(String[] args) {
     launch();
   }

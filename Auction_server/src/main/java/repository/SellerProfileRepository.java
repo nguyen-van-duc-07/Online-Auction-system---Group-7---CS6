@@ -11,8 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SellerProfileRepository {
+  private static final Logger log = LoggerFactory.getLogger(SellerProfileRepository.class);
   public boolean createSellerProfile(SellerProfile sellerProfile){
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "INSERT INTO seller_profiles (id, user_id, brand_name, cccd, location, bank_account, bank_name, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -27,6 +30,7 @@ public class SellerProfileRepository {
       ps.setString(8, SellerRegisterStatus.UNREGISTERED.toString());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi tạo hồ sơ người bán cho user: {}", sellerProfile.getUserId(), e);
       throw new RuntimeException(e);
     }
   }
@@ -46,7 +50,7 @@ public class SellerProfileRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm hồ sơ người bán cho user ID: {}", userId, e);
     }
     return null; // Trả về null nếu User này chưa đăng ký làm người bán
   }
@@ -70,7 +74,7 @@ public class SellerProfileRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy trạng thái hồ sơ người bán cho user ID: {}", userId, e);
     }
 
     return null; // Trả về null nếu User này chưa từng đăng ký làm người bán
@@ -87,7 +91,7 @@ public class SellerProfileRepository {
       }
       return null;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy userId bằng profileId: {}", profileId, e);
       return null;
     }
   }
@@ -128,8 +132,7 @@ public class SellerProfileRepository {
         sellerList.add(profile);
       }
     } catch (SQLException e) {
-      System.err.println("Lỗi khi lấy danh sách Seller: " + e.getMessage());
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy toàn bộ danh sách hồ sơ người bán", e);
     }
 
     return sellerList;
@@ -152,7 +155,7 @@ public class SellerProfileRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy userId bằng sellerId: {}", sellerId, e);
     }
 
     // Trả về null nếu không tìm thấy hoặc có lỗi xảy ra
@@ -167,7 +170,7 @@ public class SellerProfileRepository {
       ps.setString(2, userId);
       return ps.executeUpdate() == 1;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật trạng thái hồ sơ người bán cho user: {}", userId, e);
       return false;
     }
   }
@@ -180,7 +183,7 @@ public class SellerProfileRepository {
         return rs.next();
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi kiểm tra sự tồn tại hồ sơ người bán cho user ID: {}", userId, e);
       return false;
     }
   }
@@ -203,8 +206,7 @@ public class SellerProfileRepository {
         }
       }
     } catch (SQLException e) {
-      System.err.println("Lỗi khi lấy thông tin của sellerProfile cua: " + sellerId);
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy thông tin của cửa hàng cho seller ID: {}", sellerId, e);
     }
     return null;
   }

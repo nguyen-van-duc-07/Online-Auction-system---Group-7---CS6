@@ -15,8 +15,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionRepository {
+  private static final Logger log = LoggerFactory.getLogger(AuctionRepository.class);
   // Lấy tất cả các phiên đấu giá đang mở
   public List<AuctionDTO> findActiveAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
@@ -35,7 +38,7 @@ public class AuctionRepository {
         auctions.add(auction);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động", e);
     }
     return auctions;
   }
@@ -57,7 +60,7 @@ public class AuctionRepository {
         auctions.add(auction);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang chờ", e);
     }
     return auctions;
   }
@@ -79,7 +82,7 @@ public class AuctionRepository {
         auctions.add(auction);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đã đóng", e);
     }
     return auctions;
   }
@@ -105,7 +108,7 @@ public class AuctionRepository {
         auctions.add(auction);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động hoặc đang chờ", e);
     }
     return auctions;
   }
@@ -135,7 +138,7 @@ public class AuctionRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá của người bán ID: {}", sellerId, e);
     }
     return auctions;
   }
@@ -162,7 +165,7 @@ public class AuctionRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động của người bán ID: {}", sellerId, e);
     }
     return auctions;
   }
@@ -181,7 +184,7 @@ public class AuctionRepository {
       ps.executeUpdate();
       return true;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi hủy các đấu giá của người bán ID: {}", sellerId, e);
       return false;
     }
   }
@@ -210,7 +213,7 @@ public class AuctionRepository {
       ps.executeUpdate();
       return true;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
       return false;
     }
   }
@@ -361,7 +364,7 @@ public class AuctionRepository {
       return ps.executeUpdate() > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lưu thông tin đấu giá ID: {}", auction.getId(), e);
       return false;
     }
   }
@@ -381,7 +384,7 @@ public class AuctionRepository {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi đóng các đấu giá hết hạn: {}", ids, e);
     }
   }
 
@@ -400,7 +403,7 @@ public class AuctionRepository {
       ps.setTimestamp(4, Timestamp.valueOf(now));
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi thử đóng đấu giá ID: {}", auctionId, e);
       return false;
     }
   }
@@ -426,7 +429,7 @@ public class AuctionRepository {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá cần kích hoạt", e);
     }
 
     return ids;
@@ -452,7 +455,7 @@ public class AuctionRepository {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá cần đóng", e);
     }
 
     return ids;
@@ -472,7 +475,7 @@ public class AuctionRepository {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi kích hoạt đấu giá: {}", ids, e);
     }
   }
 
@@ -532,7 +535,7 @@ public class AuctionRepository {
         result.put(auction.getId(), auction);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy chi tiết đấu giá cần đóng", e);
     }
 
     return result;
@@ -549,7 +552,7 @@ public class AuctionRepository {
       }
       return null;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy sellerId cho đấu giá ID: {}", auctionId, e);
       return null;
     }
   }
@@ -565,7 +568,7 @@ public class AuctionRepository {
       }
       return null;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy itemId cho đấu giá ID: {}", auctionId, e);
       return null;
     }
   }

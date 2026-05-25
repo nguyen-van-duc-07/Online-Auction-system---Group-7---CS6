@@ -15,6 +15,8 @@ import repository.SellerProfileRepository;
 import repository.UserRepository;
 import repository.WalletRepository;
 import servercontroller.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BidService {
+  private static final Logger log = LoggerFactory.getLogger(BidService.class);
   private final AuctionRepository auctionRepo = new AuctionRepository();
   private final BidTransactionRepository bidRepo = new BidTransactionRepository();
   private final AutoBidConfigRepository autoBidRepo = new AutoBidConfigRepository();
@@ -112,12 +115,13 @@ public class BidService {
         return new PlaceBidResponseDTO(true, "Bid thành công");
       } catch (Exception e) {
         conn.rollback();
-        e.printStackTrace();
+        log.error("Lỗi xảy ra trong placeBidWithinLock cho đấu giá {}", req.getAuctionId(), e);
         return new PlaceBidResponseDTO(false, e.getMessage());
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
+      log.error("Lỗi kết nối cơ sở dữ liệu khi đặt giá", e);
       return new PlaceBidResponseDTO(false, "Lỗi kết nối cơ sở dữ liệu");
     }
   }
@@ -286,12 +290,12 @@ public class BidService {
 
         } catch (Exception e) {
           conn.rollback();
-          e.printStackTrace();
+          log.error("Lỗi nghiêm trọng trong resolveAutoBidFight cho đấu giá {}", auctionId, e);
         } finally {
           conn.setAutoCommit(true);
         }
       } catch (SQLException e) {
-        e.printStackTrace();
+        log.error("Lỗi kết nối cơ sở dữ liệu trong resolveAutoBidFight", e);
       }
     });
   }
@@ -362,14 +366,12 @@ public class BidService {
 
     if (previousHighestBidderId != null && !previousHighestBidderId.isEmpty()) {
       BigDecimal releaseAmount = previousPrice.multiply(FREEZE_RATE);
-      System.out.println("[TRANSFER] Release " + releaseAmount
-          + " từ " + previousHighestBidderId
-          + " | previousPrice=" + previousPrice);
+      log.debug("[TRANSFER] Release {} từ {} | previousPrice={}", releaseAmount, previousHighestBidderId, previousPrice);
 
       // Kiểm tra frozen balance trước khi release
       Wallet prevWallet = walletRepo.getWalletByUserIdForUpdate(conn, previousHighestBidderId);
-      System.out.println("[TRANSFER] frozenBalance hiện tại của " + previousHighestBidderId
-          + " = " + (prevWallet != null ? prevWallet.getFrozenBalance() : "null"));
+      log.debug("[TRANSFER] frozenBalance hiện tại của {} = {}", previousHighestBidderId, 
+          (prevWallet != null ? prevWallet.getFrozenBalance() : "null"));
 
       walletService.releaseFrozen(conn, previousHighestBidderId, releaseAmount, auctionId);
     }
@@ -409,7 +411,8 @@ public class BidService {
     auction.setEndTime(newEndTime);
 
     events.addExtension(new AuctionExtendedDTO(auctionId, newEndTime));
-    System.out.println("[ANTI-SNIPING] Gia hạn phiên " + auctionId + " thêm " + AuctionConfig.ANTI_SNIPE_EXTENSION_MINUTES + " phút. Giờ đóng cửa mới: " + newEndTime);
+    log.info("[ANTI-SNIPING] Gia hạn phiên {} thêm {} phút. Giờ đóng cửa mới: {}", 
+        auctionId, AuctionConfig.ANTI_SNIPE_EXTENSION_MINUTES, newEndTime);
   }
 
   /** Gom broadcast sau commit để client chỉ thấy trạng thái đã chốt DB. */

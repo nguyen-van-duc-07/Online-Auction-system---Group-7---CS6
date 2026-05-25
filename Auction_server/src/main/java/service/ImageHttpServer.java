@@ -2,6 +2,8 @@ package service;
 
 import com.sun.net.httpserver.HttpServer;
 import com.auction.shared.network.NetworkConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -13,6 +15,7 @@ import java.nio.file.*;
  * Client JavaFX sử dụng URL dạng: http://host:9090/images/filename.jpg
  */
 public class ImageHttpServer {
+  private static final Logger log = LoggerFactory.getLogger(ImageHttpServer.class);
 
   /**
    * Khởi chạy HTTP Static File Server trên port được cấu hình.
@@ -51,8 +54,7 @@ public class ImageHttpServer {
 
     server.setExecutor(null); // Sử dụng default executor
     server.start();
-    System.out.println(">>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: "
-        + NetworkConfig.IMAGE_SERVER_PORT);
+    log.info(">>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: {}", NetworkConfig.IMAGE_SERVER_PORT);
   }
 
   /**

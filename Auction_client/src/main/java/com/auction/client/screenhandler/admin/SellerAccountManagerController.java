@@ -19,6 +19,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -30,6 +32,8 @@ import java.util.ResourceBundle;
  * Controller xử lý nghiệp vụ xét duyệt yêu cầu trở thành Seller của Bidder.
  */
 public class SellerAccountManagerController implements Initializable {
+  private static final Logger log = LoggerFactory.getLogger(SellerAccountManagerController.class);
+
   /** Biến static lưu trữ Controller hiện tại của SellerAccountManagerController. */
   private static SellerAccountManagerController instance;
 
@@ -80,7 +84,7 @@ public class SellerAccountManagerController implements Initializable {
   public void handleSearch() {
     String keyword = searchField.getText().trim();
     // TODO: Lọc danh sách theo keyword
-    System.out.println("Tìm kiếm đơn đăng kí: " + keyword);
+    log.info("Tìm kiếm đơn đăng kí: {}", keyword);
   }
 
   /**
@@ -146,11 +150,11 @@ public class SellerAccountManagerController implements Initializable {
    */
   public void loadDataToTable(List<SellerRegisterRequestDTO> requestList) {
     if (requestList != null) {
-      System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC: " + requestList.size() + " đơn ==="); // THÊM DÒNG NÀY
+      log.info("=== DỮ LIỆU NHẬN ĐƯỢC: {} đơn ===", requestList.size());
       ObservableList<SellerRegisterRequestDTO> observableList = FXCollections.observableArrayList(requestList);
       sellerProfileTable.setItems(observableList);
     } else {
-      System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
+      log.warn("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
     }
   }
 

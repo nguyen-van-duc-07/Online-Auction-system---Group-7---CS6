@@ -6,8 +6,11 @@ import config.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoBidConfigRepository {
+  private static final Logger log = LoggerFactory.getLogger(AutoBidConfigRepository.class);
 
   public boolean save(AutoBidConfig config) {
     // Nếu đã có config cho user+auction này thì UPDATE, không thì INSERT
@@ -30,7 +33,7 @@ public class AutoBidConfigRepository {
       return ps.executeUpdate() > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lưu cấu hình tự động đấu giá của user: {}", config.getUserId(), e);
       return false;
     }
   }
@@ -54,7 +57,7 @@ public class AutoBidConfigRepository {
       }
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm cấu hình tự động đấu giá đang hoạt động cho phiên ID: {}", auctionId, e);
     }
     return configs;
   }
@@ -108,7 +111,7 @@ public class AutoBidConfigRepository {
       ps.setString(2, auctionId);
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tắt tự động đấu giá cho user: {} và phiên: {}", userId, auctionId, e);
       return false;
     }
   }

@@ -16,12 +16,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller xử lý logic cho màn hình trang chủ.
  * Đóng vai trò là Sub-controller cho MainLayoutController.
  */
 public class HomeController {
+  private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
   private static HomeController instance;
 
@@ -62,7 +65,7 @@ public class HomeController {
         cardController.setData(auction, mainLayout);
         mainLayout.getFeedContainer().getChildren().add(cardNode);
       } catch (IOException e) {
-        e.printStackTrace();
+        log.error("Lỗi khi tải thẻ card đấu giá cho phiên ID: {}", auction.getAuctionId(), e);
       }
     }
   }
@@ -130,7 +133,7 @@ public class HomeController {
   }
 
   public void handleGetActiveAuctions() {
-    System.out.println(">>> Đã bấm nút Đang diễn ra");
+    log.info(">>> Đã bấm nút Đang diễn ra");
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
   }
 

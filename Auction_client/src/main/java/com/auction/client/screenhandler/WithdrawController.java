@@ -7,6 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -14,6 +16,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 public class WithdrawController {
+  private static final Logger log = LoggerFactory.getLogger(WithdrawController.class);
 
   @FXML private TextField amountTextField;
   private Consumer<BigDecimal> onSuccessCallback;
@@ -68,7 +71,7 @@ public class WithdrawController {
       showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng không hợp lệ!");
     }
     catch (Exception e){
-      e.printStackTrace();
+      log.error("Có lỗi xảy ra khi thực hiện rút tiền", e);
     }
   }
 

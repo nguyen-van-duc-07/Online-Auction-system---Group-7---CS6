@@ -21,8 +21,11 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionStatusScheduler {
+  private static final Logger log = LoggerFactory.getLogger(AuctionStatusScheduler.class);
 
   private final AuctionRepository auctionRepo =
       new AuctionRepository();
@@ -49,7 +52,7 @@ public class AuctionStatusScheduler {
       List<String> activateIds = auctionRepo.findAuctionsToActivate(now);
       auctionRepo.activateAuctions(activateIds);
       for (String id : activateIds) {
-        System.out.println("BROADCAST ACTIVE: " + id);
+        log.info("BROADCAST ACTIVE: {}", id);
         Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
       }
       Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
@@ -65,7 +68,7 @@ public class AuctionStatusScheduler {
             continue;
           }
 
-          System.out.println("BROADCAST CLOSED: " + id);
+          log.info("BROADCAST CLOSED: {}", id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
           String itemId = auction.getItem().getId();
           String itemName = auction.getItem().getName();
@@ -73,10 +76,8 @@ public class AuctionStatusScheduler {
 
           String sellerId = auction.getSellerId();
           if (winnerId != null && !winnerId.isBlank()) {
-            System.out.println("SERVER GUI THONG BAO CHIEN THANG "
-                + " [AuctionId: " + id
-                + " | Winner: " + winnerId
-                + " | Giá cuối : " + com.auction.shared.util.FormatUtil.fmt(auction.getCurrentHighestPrice()));
+            log.info("SERVER GỬI THÔNG BÁO CHIẾN THẮNG [AuctionId: {} | Winner: {} | Giá cuối : {}]",
+                id, winnerId, com.auction.shared.util.FormatUtil.fmt(auction.getCurrentHighestPrice()));
             Server.broadcastToAuctionRoom(new AuctionResultDTO(
                 id,
                 winnerId,
@@ -85,7 +86,7 @@ public class AuctionStatusScheduler {
                 auction.getCurrentHighestPrice()
             ));
             Order order = orderService.createOrder(id, winnerId, auction.getCurrentHighestPrice());
-            System.out.println("[SCHEDULER] createOrder result: " + (order != null ? order.getId() : "NULL"));
+            log.info("[SCHEDULER] Kết quả tạo đơn hàng: {}", (order != null ? order.getId() : "NULL"));
             if (order != null) {
               // Thông báo cho winner
               notifService.sendFromNotification(
@@ -107,7 +108,7 @@ public class AuctionStatusScheduler {
                   )
               );
             } else {
-              System.out.println("Phiên " + id + " không có người thắng.");
+              log.info("Phiên {} không có người thắng.", id);
               notifService.sendFromNotification(
                   NotificationTemplate.auctionEndedNoWinner(
                       sellerId,
@@ -120,8 +121,7 @@ public class AuctionStatusScheduler {
         }
       }
     } catch (Exception e) {
-      System.out.println("[SCHEDULER] LỖI: " + e.getMessage());
-      e.printStackTrace();
+      log.error("[SCHEDULER] Lỗi nghiêm trọng khi cập nhật trạng thái đấu giá", e);
     }
   }
 }
