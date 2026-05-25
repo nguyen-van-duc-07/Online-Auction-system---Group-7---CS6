@@ -19,4 +19,10 @@ public class OrderDTO implements Serializable {
   private BigDecimal finalPrice;
   private OrderStatus status;
   private String winnerName;
+  private String sellerId;
+  private String buyerId;
+  private java.time.LocalDateTime createdAt;
+  private String consigneeName;
+  private String phoneNumber;
+  private String address;
 }

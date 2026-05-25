@@ -123,11 +123,35 @@ public class ScreenController {
       // Ngăn người dùng tương tác với cửa sổ cũ khi cửa sổ mới đang mở (tùy chọn)
       newStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
 
+      // Thiết lập kích thước tối đa dựa trên kích thước của cửa sổ chính
+      if (primaryStage != null && primaryStage.getHeight() > 100) {
+        newStage.setMaxHeight(Math.max(400, primaryStage.getHeight() - 80));
+      }
+      if (primaryStage != null && primaryStage.getWidth() > 100) {
+        newStage.setMaxWidth(Math.max(600, primaryStage.getWidth() - 80));
+      }
+
       // Tạm ẩn cửa sổ đi (độ mờ = 0) để tránh hiệu ứng "nháy" vị trí
       newStage.setOpacity(0);
 
       // Lắng nghe sự kiện ngay khi OS vừa cấp phát xong kích thước thực tế
       newStage.setOnShown(event -> {
+        double maxHeight = 700;
+        double maxWidth = 900;
+        if (primaryStage != null && primaryStage.getHeight() > 100) {
+          maxHeight = primaryStage.getHeight() - 80;
+        }
+        if (primaryStage != null && primaryStage.getWidth() > 100) {
+          maxWidth = primaryStage.getWidth() - 80;
+        }
+
+        if (newStage.getHeight() > maxHeight) {
+          newStage.setHeight(maxHeight);
+        }
+        if (newStage.getWidth() > maxWidth) {
+          newStage.setWidth(maxWidth);
+        }
+
         // Tính điểm chính giữa của cửa sổ cha
         double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2;
         double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2;
@@ -161,9 +185,33 @@ public class ScreenController {
 
       newStage.initOwner(primaryStage);
       newStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+
+      if (primaryStage != null && primaryStage.getHeight() > 100) {
+        newStage.setMaxHeight(Math.max(400, primaryStage.getHeight() - 80));
+      }
+      if (primaryStage != null && primaryStage.getWidth() > 100) {
+        newStage.setMaxWidth(Math.max(600, primaryStage.getWidth() - 80));
+      }
+
       newStage.setOpacity(0);
 
       newStage.setOnShown(event -> {
+        double maxHeight = 700;
+        double maxWidth = 900;
+        if (primaryStage != null && primaryStage.getHeight() > 100) {
+          maxHeight = primaryStage.getHeight() - 80;
+        }
+        if (primaryStage != null && primaryStage.getWidth() > 100) {
+          maxWidth = primaryStage.getWidth() - 80;
+        }
+
+        if (newStage.getHeight() > maxHeight) {
+          newStage.setHeight(maxHeight);
+        }
+        if (newStage.getWidth() > maxWidth) {
+          newStage.setWidth(maxWidth);
+        }
+
         double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2;
         double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2;
 

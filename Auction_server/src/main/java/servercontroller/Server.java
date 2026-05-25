@@ -6,6 +6,7 @@ import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
+import scheduler.OrderExpiryScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.net.ServerSocket;
@@ -67,6 +68,10 @@ public class Server {
 
       AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
       scheduler.start();
+
+      OrderExpiryScheduler orderExpiryScheduler = new OrderExpiryScheduler();
+      orderExpiryScheduler.start();
+
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
       log.info("Server đã chạy trên port: {}", SERVER_PORT);
       log.info("Đang đợi Client kết nối vào...");
