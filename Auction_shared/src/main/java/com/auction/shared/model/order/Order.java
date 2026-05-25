@@ -28,6 +28,20 @@ public class Order extends Entity {
   private String location;
   private String itemName;
 
+  public Order(String auctionId, String buyerId, String sellerId, BigDecimal finalPrice, BigDecimal depositAmount, BigDecimal remainingAmount, OrderStatus status, String consigneeName, String brandName, String location, String itemName) {
+    this.auctionId = auctionId;
+    this.buyerId = buyerId;
+    this.sellerId = sellerId;
+    this.finalPrice = finalPrice;
+    this.depositAmount = depositAmount;
+    this.remainingAmount = remainingAmount;
+    this.status = status;
+    this.consigneeName = consigneeName;
+    this.brandName = brandName;
+    this.location = location;
+    this.itemName = itemName;
+  }
+
   public Order(String auctionId, String buyerId, String sellerId, BigDecimal finalPrice, BigDecimal depositAmount, BigDecimal remainingAmount, OrderStatus status, String consigneeName, String phoneNumber, String address, String brandName, String location, String itemName) {
     this.auctionId = auctionId;
     this.buyerId = buyerId;

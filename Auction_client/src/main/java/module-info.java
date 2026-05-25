@@ -3,9 +3,9 @@ module com.auction.client {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.auction.shared;
+    requires org.slf4j;
     requires static lombok;
     requires java.desktop;
-    requires com.auction.server;
     requires openhtmltopdf.pdfbox; // Gọi sang Shared
 
     requires org.kordamp.ikonli.javafx;

@@ -7,6 +7,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -15,6 +18,8 @@ import java.util.Locale;
  * Class có nhiệm vụ quản lý màn hình ví người dùng.
  */
 public class WalletController {
+  private static final Logger log = LoggerFactory.getLogger(WalletController.class);
+
   @FXML private Label balanceLabel;
 
   private static WalletController instance;
@@ -38,7 +43,7 @@ public class WalletController {
     if (balanceLabel != null) {
       balanceLabel.setText("Đang tải...");
     }
-    System.out.println("Gửi yêu cầu lấy số dư lên Server...");
+    log.info("Gửi yêu cầu lấy số dư lên Server...");
     GetBalanceRequestDTO request = new GetBalanceRequestDTO();
     ServerConnection.sendData(request);
   }

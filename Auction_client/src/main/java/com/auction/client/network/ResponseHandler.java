@@ -19,17 +19,22 @@ import javafx.scene.control.Label;
 
 import java.text.DecimalFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Lớp xử lý các phản hồi (Response) nhận được từ Server và cập nhật giao diện người dùng (UI).
  *
  * <p>Do JavaFX yêu cầu mọi thay đổi UI (như hiện thông báo, đổi màn hình) phải được
  * thực hiện trên luồng chính (Application Thread), lớp này sử dụng {@code Platform.runLater()}
- * để bọc các thao tác UI một cách an toàn. Nó xử lý kết quả thành công hoặc thất bại
+ * để bọc các thao tác UI một cách an sau. Nó xử lý kết quả thành công hoặc thất bại
  * dựa trên dữ liệu mang theo trong các {@code ResponseDTO}.</p>
  *
  * @see com.auction.client.screenhandler.ScreenController
  */
 public class ResponseHandler {
+  private static final Logger log = LoggerFactory.getLogger(ResponseHandler.class);
+
   /**
    * Xử lý gói tin phản hồi đăng nhập từ Server.
    *
@@ -58,7 +63,7 @@ public class ResponseHandler {
 
     } else {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập",  loginRes.getMessage());
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", loginRes.getMessage());
       });
     }
   }
@@ -70,10 +75,10 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
             signUpRes.getMessage()).ifPresent(Response -> {
-              if (Response == ButtonType.OK) {
-                ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
-              }
-            });
+          if (Response == ButtonType.OK) {
+            ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
+          }
+        });
       });
 
       // Nếu xử lý thất bại
@@ -95,18 +100,28 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", uploadItemRes.getMessage()).ifPresent(Response -> {
-              if (Response == ButtonType.OK) {
-                MainLayoutController controller = MainLayoutController.getInstance();
-                if (controller != null) {
-                  controller.showSellerHome();
-                }
-              }
+          if (Response == ButtonType.OK) {
+            MainLayoutController controller = MainLayoutController.getInstance();
+            if (controller != null) {
+              controller.showSellerHome();
+            }
+          }
         });
       });
     } else {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi", uploadItemRes.getMessage());
+      });
+    }
+  }
+
+  public static void handleFindAuctionById(AuctionResponseDTO response) {
+    if (response != null) {
+      Platform.runLater(() -> {
+        String title = "Chi tiết sản phẩm " + response.getItem().getName();
+        ItemViewController itemViewController = ScreenController.createSubWindowAndGetController("Seller/ItemView.fxml", title);
+        itemViewController.initData(response);
       });
     }
   }
@@ -191,15 +206,15 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
-              if (Response == ButtonType.OK) {
-                SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
-                MainLayoutController controller = MainLayoutController.getInstance();
-                Label accountNameLabel = controller.getAccountNameLabel();
-                accountNameLabel.setText("Chào, " + updateProfileRes.getUserAfterUpdatingProfile().getAccountName());
-                if (controller != null) {
-                  controller.gotoHomeFeed();
-                }
-              }
+          if (Response == ButtonType.OK) {
+            SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
+            MainLayoutController controller = MainLayoutController.getInstance();
+            Label accountNameLabel = controller.getAccountNameLabel();
+            accountNameLabel.setText("Chào, " + updateProfileRes.getUserAfterUpdatingProfile().getAccountName());
+            if (controller != null) {
+              controller.gotoHomeFeed();
+            }
+          }
         });
       });
     } else {
@@ -221,15 +236,13 @@ public class ResponseHandler {
       );
     });
 
-    System.out.println("VUI LONG THANH TOAN SAN PHAM: " + dto.getItemName());
-    System.out.println("Giá cuối: " + dto.getFinalPrice());
+    log.info("VUI LÒNG THANH TOÁN SẢN PHẨM: {} | Giá cuối: {}", dto.getItemName(), dto.getFinalPrice());
   }
 
   public static void handleAuctionResult(AuctionResultDTO dto) {
     // Hiển thị lên UI: "Người thắng: winnerId - Giá: finalPrice"
-    System.out.println("Phiên " + dto.getAuctionId()
-        + " | Người thắng: " + dto.getWinnerId()
-        + " | Giá cuối: " + dto.getFinalPrice());
+    log.info("Phiên {} | Người thắng: {} | Giá cuối: {}",
+        dto.getAuctionId(), dto.getWinnerId(), dto.getFinalPrice());
   }
 
   /**
@@ -253,9 +266,11 @@ public class ResponseHandler {
   }
 
   // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
-  public static void handleAuctionRoomJoined(AuctionResponseDTO response) {
-    if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
-      com.auction.client.screenhandler.ItemAuctionController.instance.onAuctionRoomJoined(response);
+  public static void handleAuctionRoomJoined(JoinRoomResponseDTO response) {
+    if (response.isSuccess()) {
+      if (ItemAuctionController.instance != null) {
+        ItemAuctionController.instance.onAuctionRoomJoined(response.getAuction());
+      }
     }
   }
 
@@ -264,12 +279,12 @@ public class ResponseHandler {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo",
             sellerRegisterRes.getMessage()).ifPresent(Response -> {
-           if (Response == ButtonType.OK) {
-              MainLayoutController controller = MainLayoutController.getInstance();
-              if (controller != null) {
-                controller.gotoHomeFeed();
-              }
-           }
+          if (Response == ButtonType.OK) {
+            MainLayoutController controller = MainLayoutController.getInstance();
+            if (controller != null) {
+              controller.gotoHomeFeed();
+            }
+          }
         });
       });
     } else {
@@ -296,11 +311,11 @@ public class ResponseHandler {
       } else {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo",
             "Bạn cần đăng ký hồ sơ người bán để sử dụng tính năng này.").ifPresent(Response -> {
-              if  (Response == ButtonType.OK) {
-                if (controller != null) {
-                  controller.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
-                }
-              }
+          if (Response == ButtonType.OK) {
+            if (controller != null) {
+              controller.loadComponent("/com/auction/client/Bidder/SellerRegisterForBidder.fxml");
+            }
+          }
         });
       }
     });
@@ -408,10 +423,10 @@ public class ResponseHandler {
             "Thông báo", updateSellerProfileStatusRes.getMessage());
         ServerConnection.sendData(new GetSellerProfileRequestDTO());
       });
-    } else  {
+    } else {
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.ERROR,
-            "Lỗi",  updateSellerProfileStatusRes.getMessage());
+            "Lỗi", updateSellerProfileStatusRes.getMessage());
       });
     }
   }
@@ -461,13 +476,13 @@ public class ResponseHandler {
 
   public static void handleGetBalance(GetBalanceResponseDTO balanceRes) {
     if (balanceRes.isSuccess()) {
-      System.out.println("Lấy số dư thành công: " + balanceRes.getBalance());
+      log.info("Lấy số dư thành công: {}", balanceRes.getBalance());
       // Gọi sang Controller giao diện để cập nhật Label
       if (WalletController.getInstance() != null) {
         WalletController.getInstance().updateBalanceUI(balanceRes.getBalance());
       }
     } else {
-      System.out.println("Lỗi lấy số dư: " + balanceRes.getMessage());
+      log.error("Lỗi lấy số dư: {}", balanceRes.getMessage());
       if (WalletController.getInstance() != null) {
         WalletController.getInstance().showErrorUI();
       }
@@ -480,9 +495,9 @@ public class ResponseHandler {
 
       // Đẩy dữ liệu ngược về màn hình Controller để nó cập nhật giao diện
       PaymentScreenController.instance.processPaymentResponse(
-              responseDTO.isSuccess(),
-              responseDTO.getMessage(),
-              responseDTO.getTransaction()
+          responseDTO.isSuccess(),
+          responseDTO.getMessage(),
+          responseDTO.getTransaction()
       );
     }
   }
@@ -512,14 +527,14 @@ public class ResponseHandler {
       if (controller != null) {
         controller.incrementNotificationBadge();
       }
-      System.out.println("[CLIENT] Thông báo mới: " + dto.getTitle());
+      log.info("[CLIENT] Thông báo mới: {}", dto.getTitle());
     });
   }
 
   public static void handleAutoBidDefeated(AutoBidDefeatedDTO dto) {
     // Đảm bảo chỉ giật giao diện nếu người dùng đang ở đúng phòng đấu giá đó
     if (SessionManager.getCurrentAuctionId() != null &&
-            SessionManager.getCurrentAuctionId().equals(dto.getAuctionId())) {
+        SessionManager.getCurrentAuctionId().equals(dto.getAuctionId())) {
 
       if (ItemAuctionController.instance != null) {
         // Gọi hàm điều khiển HMI (tắt check box, hiện cảnh báo đỏ) mà chúng ta đã viết lúc nãy

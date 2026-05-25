@@ -6,8 +6,11 @@ import com.auction.shared.model.item.ItemDTO;
 import config.DatabaseConnection;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItemRepository {
+  private static final Logger log = LoggerFactory.getLogger(ItemRepository.class);
   public boolean saveItem(Item item) {
 
     try (Connection conn = DatabaseConnection.getConnection()) {
@@ -20,7 +23,7 @@ public class ItemRepository {
       return ps.executeUpdate() > 0; // Trả về true nếu Insert thành công ít nhất 1 dòng
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lưu sản phẩm ID: {}", item.getId(), e);
       return false;
     }
   }
@@ -41,7 +44,7 @@ public class ItemRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm sản phẩm ID: {}", id, e);
     }
     return item; // Sẽ trả về null nếu không tìm thấy món hàng
   }

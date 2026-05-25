@@ -1,8 +1,10 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.request.AuctionRequestDTO;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -11,11 +13,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller xử lý logic cho màn hình kết quả đấu giá.
  */
 public class OrderCardController {
+  private static final Logger log = LoggerFactory.getLogger(OrderCardController.class);
   @FXML
   private Label itemNameLabel;
 
@@ -35,7 +40,7 @@ public class OrderCardController {
   public void gotoPayment() {
     SessionManager.setCurrentOrderId(currentOrder.getOrderId());
     SessionManager.setPreviousScreen(currentScreen);
-    System.out.println("Đang mở chi tiết phiên đơn hàng: " + currentOrder.getAuctionId());
+    log.info("Đang mở chi tiết phiên đơn hàng: {}", currentOrder.getAuctionId());
     ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Đơn hàng " + currentOrder.getItemName());
     if (PaymentScreenController.instance != null) {
       PaymentScreenController.instance.setOrderData(currentOrder);
@@ -44,7 +49,10 @@ public class OrderCardController {
 
   @FXML
   public void gotoItemDetail() {
-
+    String auctionId = currentOrder.getAuctionId();
+    AuctionRequestDTO auctionRequestDTO = new AuctionRequestDTO();
+    auctionRequestDTO.setAuctionId(auctionId);
+    ServerConnection.sendData(auctionRequestDTO);
   }
 
   /**

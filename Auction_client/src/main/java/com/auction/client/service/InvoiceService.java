@@ -7,8 +7,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InvoiceService {
+  private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
   public void exportInvoiceToPdf(PrizedTransaction transaction, String outputPath) {
     try {
       // 1. Đọc file template HTML từ thư mục resources
@@ -38,11 +41,10 @@ public class InvoiceService {
           builder.run();
         }
 
-        System.out.println("Xuất hóa đơn thành công tại: " + outputPath);
+        log.info("Xuất hóa đơn thành công tại: {}", outputPath);
       }
     } catch (Exception e) {
-      System.err.println("Lỗi khi xuất hóa đơn PDF: " + e.getMessage());
-      e.printStackTrace();
+      log.error("Lỗi khi xuất hóa đơn PDF tại đường dẫn: {}", outputPath, e);
     }
   }
 }

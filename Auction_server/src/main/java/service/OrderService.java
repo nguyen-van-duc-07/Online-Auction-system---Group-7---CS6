@@ -8,6 +8,7 @@ import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
 import com.auction.shared.model.user.User;
+import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
 import com.auction.shared.util.FormatUtil;
 import com.auction.shared.util.NotificationTemplate;
@@ -17,6 +18,8 @@ import repository.OrderRepository;
 import repository.SellerProfileRepository;
 import repository.UserRepository;
 import servercontroller.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -25,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderService {
+  private static final Logger log = LoggerFactory.getLogger(OrderService.class);
   private final OrderRepository orderRepo = new OrderRepository();
   private final AuctionRepository auctionRepo = new AuctionRepository();
   private final UserRepository userRepo = new UserRepository();
@@ -42,7 +46,7 @@ public class OrderService {
       try {
         String sellerId = auctionRepo.getSellerIdByAuctionId(auctionId);
         ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(sellerId);
-        InfoDTO buyerInfo = userRepo.getInfoByUserId(buyerId);
+        String consigneeName = userRepo.getAccountNameByUserId(buyerId);
         String itemName = auctionRepo.findAuctionById(auctionId).getItem().getName();
         BigDecimal depositAmount = finalPrice.multiply(new BigDecimal("0.1"));
         BigDecimal remainingAmount = finalPrice.subtract(depositAmount);
@@ -54,9 +58,7 @@ public class OrderService {
             depositAmount,
             remainingAmount,
             OrderStatus.PENDING,
-            buyerInfo.getConsigneeName(),
-            buyerInfo.getPhoneNumber(),
-            buyerInfo.getAddress(),
+            consigneeName,
             shopInfo.getBrandName(),
             shopInfo.getLocation(),
             itemName
@@ -64,23 +66,20 @@ public class OrderService {
         orderRepo.saveOrder(conn, order);
         conn.commit();
 
-        System.out.println("[ORDER] Tạo order thành công: " + order.getId()
-            + " | Buyer: " + buyerId
-            + " | Giá: " + FormatUtil.fmt(finalPrice)
-            + " | Cọc: " + FormatUtil.fmt(depositAmount)
-            + " | So tien can thanh toan " + FormatUtil.fmt(remainingAmount));
+        log.info("[ORDER] Tạo order thành công: {} | Buyer: {} | Giá: {} | Cọc: {} | Còn lại: {}",
+            order.getId(), buyerId, FormatUtil.fmt(finalPrice), 
+            FormatUtil.fmt(depositAmount), FormatUtil.fmt(remainingAmount));
         return order;
 
       } catch (Exception e) {
         conn.rollback();
-        System.out.println("[ORDER] Tạo order thất bại: " + e.getMessage());
-        e.printStackTrace();
+        log.error("[ORDER] Tạo order thất bại cho đấu giá: {}", auctionId, e);
         return null;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("[ORDER] Lỗi kết nối DB khi tạo order cho đấu giá: {}", auctionId, e);
       return null;
     }
   }
@@ -88,7 +87,7 @@ public class OrderService {
   /**
    * Buyer xác nhận thanh toán.
    */
-  public boolean confirmOrder(String orderId) {
+  public boolean confirmOrder(String orderId, InfoDTO buyerInfo) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
       try {
@@ -96,14 +95,17 @@ public class OrderService {
         if (order == null) {
           return false;
         }
+        order.setConsigneeName(buyerInfo.getConsigneeName());
+        order.setPhoneNumber(buyerInfo.getPhoneNumber());
+        order.setAddress(buyerInfo.getAddress());
         walletService.processPayment(conn, order);
         order.confirm();
         orderRepo.updateOrder(conn, order);
         conn.commit();
-        System.out.println("[ORDER] Xác nhận thanh toán thành công: " + orderId);
+        log.info("[ORDER] Xác nhận thanh toán thành công cho đơn hàng: {}", orderId);
 
         // Lấy itemName từ auction
-        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
         String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
         // Thông báo cho seller
@@ -130,14 +132,13 @@ public class OrderService {
 
       } catch (Exception e) {
         conn.rollback();
-        System.out.println("[ORDER] Xác nhận thất bại: " + e.getMessage());
-        e.printStackTrace();
+        log.error("[ORDER] Xác nhận đơn hàng {} thất bại", orderId, e);
         return false;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("[ORDER] Lỗi kết nối DB khi xác nhận đơn hàng: {}", orderId, e);
       return false;
     }
   }
@@ -161,8 +162,8 @@ public class OrderService {
         }
         cancelOrderInternal(conn, order);
         conn.commit();
-        System.out.println("[ORDER] Hủy đơn thành công: " + orderId);
-        Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+        log.info("[ORDER] Hủy đơn thành công: {}", orderId);
+        AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
         String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
         // Thông báo cho seller
@@ -189,14 +190,13 @@ public class OrderService {
 
       } catch (Exception e) {
         conn.rollback();
-        System.out.println("[ORDER] Hủy đơn thất bại: " + e.getMessage());
-        e.printStackTrace();
+        log.error("[ORDER] Hủy đơn hàng {} thất bại", orderId, e);
         return false;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("[ORDER] Lỗi kết nối DB khi hủy đơn hàng: {}", orderId, e);
       return false;
     }
   }
@@ -208,13 +208,13 @@ public class OrderService {
   public void cancelExpiredOrders() {
     List<Order> expiredOrders = orderRepo.findExpiredPendingOrders(LocalDateTime.now());
     for (Order order : expiredOrders) {
-      System.out.println("[ORDER] Tự động hủy order hết hạn: " + order.getId());
+      log.info("[ORDER] Tự động hủy order hết hạn: {}", order.getId());
       try (Connection conn = DatabaseConnection.getConnection()) {
         conn.setAutoCommit(false);
         try {
           cancelOrderInternal(conn, order);
           conn.commit();
-          Auction auction = auctionRepo.findAuctionById(order.getAuctionId());
+          AuctionResponseDTO auction = auctionRepo.findAuctionById(order.getAuctionId());
           String itemName = auction != null ? auction.getItem().getName() : "Sản phẩm";
 
           notifService.sendFromNotification(
@@ -236,12 +236,12 @@ public class OrderService {
           );
         } catch (Exception e) {
           conn.rollback();
-          e.printStackTrace();
+          log.error("[ORDER] Lỗi khi xử lý tự động hủy order hết hạn: {}", order.getId(), e);
         } finally {
           conn.setAutoCommit(true);
         }
       } catch (SQLException e) {
-        throw new RuntimeException(e);
+        log.error("[ORDER] Lỗi kết nối DB khi tự động hủy order hết hạn: {}", order.getId(), e);
       }
     }
   }
@@ -249,7 +249,7 @@ public class OrderService {
     return orderRepo.findById(orderId);
   }
   public void notifyToSeller(Order order) {
-    System.out.println("GUI THONG BAO CHO SELLER: " + order.getStatus());
+    log.debug("Gửi thông báo cập nhật đơn hàng cho Seller: Status={}", order.getStatus());
     OrderUpdateNotificationDTO update = new OrderUpdateNotificationDTO(order.getId(), order.getStatus());
     Server.sendToUser(order.getSellerId(), update);
   }

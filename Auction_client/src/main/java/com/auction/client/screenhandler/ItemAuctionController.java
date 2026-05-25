@@ -2,7 +2,6 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
@@ -32,8 +31,11 @@ import org.controlsfx.control.Notifications;
 import com.auction.shared.network.NetworkConfig;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItemAuctionController implements Initializable {
+  private static final Logger log = LoggerFactory.getLogger(ItemAuctionController.class);
   public static ItemAuctionController instance;
   private XYChart.Series<String, Number> priceSeries;
   private int bidSequence = 1;
@@ -41,8 +43,6 @@ public class ItemAuctionController implements Initializable {
   private TextField bidAmountField;
   @FXML
   private Label itemNameLabel;
-//  @FXML
-//  private Label descriptionField;
   @FXML
   private Label currentPriceField;
   @FXML
@@ -412,10 +412,8 @@ public class ItemAuctionController implements Initializable {
       BigDecimal bidAmount = new BigDecimal(bidText);
       BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
       BigDecimal stepPrice = currentAuction.getMinStepPrice();
-      System.out.println("[DEBUG PLACEBID] bidAmount=" + bidAmount
-          + " | currentPrice=" + currentPrice
-          + " | stepPrice=" + stepPrice
-          + " | minimum=" + currentPrice.add(stepPrice));
+      log.debug("[DEBUG PLACEBID] bidAmount={} | currentPrice={} | stepPrice={} | minimum={}", 
+          bidAmount, currentPrice, stepPrice, currentPrice.add(stepPrice));
       if (bidAmount.compareTo(currentPrice) <= 0) {
         showError("Mức giá phải lớn hơn giá hiện tại của sản phẩm!");
         return;
@@ -436,7 +434,7 @@ public class ItemAuctionController implements Initializable {
     } catch (NumberFormatException e) {
       showError("Số tiền không hợp lệ. Vui lòng chỉ nhập số!");
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi khi thực hiện đặt giá thầu", e);
     }
   }
 
@@ -696,9 +694,9 @@ public class ItemAuctionController implements Initializable {
       // In log ra để dễ debug
       int historySize = (auctionData.getBidHistory() != null) ? auctionData.getBidHistory().size() : 0;
       // THÊM
-      System.out.println("[DEBUG JOIN] currentHighestPrice=" + auctionData.getCurrentHighestPrice()
-          + " | minStepPrice=" + auctionData.getMinStepPrice());
-      System.out.println(">>> Đã đồng bộ thành công lịch sử đấu giá: " + historySize + " bản ghi.");
+      log.debug("[DEBUG JOIN] currentHighestPrice={} | minStepPrice={}", 
+          auctionData.getCurrentHighestPrice(), auctionData.getMinStepPrice());
+      log.info(">>> Đã đồng bộ thành công lịch sử đấu giá: {} bản ghi.", historySize);
     });
   }
 
@@ -713,5 +711,11 @@ public class ItemAuctionController implements Initializable {
           .position(Pos.TOP_RIGHT)
           .showWarning();
     });
+  }
+
+  public void handleViewItemProperties() {
+    String title = "Chi tiết sản phẩm " + currentAuction.getItem().getName();
+    ItemViewController productViewController = ScreenController.createSubWindowAndGetController("Seller/ItemView.fxml", title);
+    productViewController.initData(currentAuction);
   }
 }

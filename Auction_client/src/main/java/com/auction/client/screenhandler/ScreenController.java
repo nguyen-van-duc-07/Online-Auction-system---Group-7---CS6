@@ -10,11 +10,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class có nhiệm vụ quản lý màn hình.
  */
 public class ScreenController {
+  private static final Logger log = LoggerFactory.getLogger(ScreenController.class);
   public static Stage primaryStage;
 
   private static final Stack<ScreenState> history = new Stack<ScreenState>();
@@ -36,14 +39,23 @@ public class ScreenController {
       currentScreen = new ScreenState(root, title, fxmlFile);
 
       // Hiển thị lên màn hình
-      primaryStage.setMaximized(true);
-      primaryStage.setResizable(false);
       primaryStage.getScene().setRoot(root);
       primaryStage.setTitle(title);
+      
+      if (fxmlFile.contains("Login.fxml") || fxmlFile.contains("SignUp.fxml")) {
+        primaryStage.setMaximized(false);
+        primaryStage.setResizable(false);
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
+      } else {
+        primaryStage.setMaximized(true);
+        primaryStage.setResizable(false);
+      }
+      
       primaryStage.show();
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi hệ thống khi tải màn hình: {}", fxmlFile, e);
       showAlert(Alert.AlertType.ERROR,
           "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
     }
@@ -58,9 +70,20 @@ public class ScreenController {
       // Không cần load FXML: Gắn lại trực tiếp Root cũ vào Scene
       primaryStage.getScene().setRoot(previous.getRoot());
       primaryStage.setTitle(previous.getTitle());
+      
+      if (previous.getFxmlFile().contains("Login.fxml") || previous.getFxmlFile().contains("SignUp.fxml")) {
+        primaryStage.setMaximized(false);
+        primaryStage.setResizable(false);
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
+      } else {
+        primaryStage.setMaximized(true);
+        primaryStage.setResizable(false);
+      }
+      
       primaryStage.show();
 
-      System.out.println("Quay lại màn hình trước đó thành công");
+      log.debug("Quay lại màn hình trước đó thành công");
     } else {
       // Fallback về trang chủ nếu không có lịch sử
       switchScreen("Bidder/Home.fxml", "Trang chủ");
@@ -120,7 +143,7 @@ public class ScreenController {
       newStage.setResizable(false); // Khoá tính năng thay đổi kích thước của cửa sổ phụ
       newStage.show();
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi hệ thống khi tải cửa sổ con: {}", fxmlFile, e);
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình" + fxmlFile);
     }
   }
@@ -155,7 +178,7 @@ public class ScreenController {
       return loader.getController();
 
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi hệ thống khi tải cửa sổ con có controller: {}", fxmlFile, e);
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
       return null;
     }

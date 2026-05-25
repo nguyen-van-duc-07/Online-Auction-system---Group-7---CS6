@@ -9,6 +9,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,6 +21,8 @@ import java.util.ResourceBundle;
  * Chịu trách nhiệm điều hướng và hiển thị các chức năng quản trị bên trong BorderPane.
  */
 public class AdminScreenController implements Initializable {
+  private static final Logger log = LoggerFactory.getLogger(AdminScreenController.class);
+
   @FXML
   private VBox mainContent;
 
@@ -83,7 +87,7 @@ public class AdminScreenController implements Initializable {
       VBox.setVgrow(newNode, javafx.scene.layout.Priority.ALWAYS);
 
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Lỗi khi load Component FXML từ path: {}", fxmlPath, e);
     }
   }
 }

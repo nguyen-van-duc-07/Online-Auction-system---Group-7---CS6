@@ -6,6 +6,7 @@ import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.ConfirmOrderRequestDTO;
 import com.auction.shared.request.CancelOrderRequestDTO;
@@ -16,6 +17,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class PaymentScreenController implements Initializable {
+  private static final Logger log = LoggerFactory.getLogger(PaymentScreenController.class);
+
   // --- 1. Shipping Information ---
   @FXML
   private TextField txtFullName;
@@ -182,12 +187,16 @@ public class PaymentScreenController implements Initializable {
   }
 
   private void handlePayment() {
-    if (txtFullName.getText().trim().isEmpty() ||
-        txtPhoneNumber.getText().trim().isEmpty() ||
-        txtAddress.getText().trim().isEmpty()) {
+    String consigneeName = txtFullName.getText().trim();
+    String phoneNumber = txtPhoneNumber.getText().trim();
+    String address = txtAddress.getText().trim();
+    if (consigneeName.isEmpty() ||
+        phoneNumber.isEmpty() ||
+        address.isEmpty()) {
       showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin giao hàng!");
       return;
     }
+    InfoDTO buyerInfo = new InfoDTO(consigneeName, phoneNumber, address);
 
     // Khóa nút bấm trên UI để tránh click nhiều lần
     btnCompletePayment.setDisable(true);
@@ -201,7 +210,7 @@ public class PaymentScreenController implements Initializable {
     }
 
     // Gửi ConfirmOrderRequestDTO lên Server
-    ConfirmOrderRequestDTO requestDTO = new ConfirmOrderRequestDTO(orderId);
+    ConfirmOrderRequestDTO requestDTO = new ConfirmOrderRequestDTO(orderId, buyerInfo);
     ServerConnection.sendData(requestDTO);
   }
 
@@ -248,7 +257,7 @@ public class PaymentScreenController implements Initializable {
         );
         exportAndOpenInvoice(transaction);
       } catch (Exception e) {
-        System.err.println("Không thể xuất hóa đơn: " + e.getMessage());
+        log.error("Không thể xuất hóa đơn", e);
       }
       handleBack();
     });
@@ -267,7 +276,7 @@ public class PaymentScreenController implements Initializable {
   // Quay lại trang trước đó
   @FXML
   private void handleBack() {
-    System.out.println("Quay lại màn hình trước...");
+    log.info("Quay lại màn hình trước...");
     ScreenController.goBack();
   }
 
@@ -292,7 +301,7 @@ public class PaymentScreenController implements Initializable {
           java.awt.Desktop.getDesktop().open(fileToSave);
         }
       } catch (IOException e) {
-        System.err.println("Không thể tự động mở file PDF: " + e.getMessage());
+        log.error("Không thể tự động mở file PDF", e);
       }
     }
   }

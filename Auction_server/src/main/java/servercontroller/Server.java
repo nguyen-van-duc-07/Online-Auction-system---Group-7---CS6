@@ -6,6 +6,8 @@ import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.concurrent.Executors;
  * Class khởi chạy Server.
  */
 public class Server {
+  private static final Logger log = LoggerFactory.getLogger(Server.class);
   public static int SERVER_PORT = 8080;
   private static final ExecutorService pool = Executors.newFixedThreadPool(10);
 
@@ -65,8 +68,8 @@ public class Server {
       AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
       scheduler.start();
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
-      System.out.println(">>> SERVER DA CHAY TREN PORT: " + SERVER_PORT);
-      System.out.println(">>> DANG DOI CLIENT KET NOI VAO ...");
+      log.info("Server đã chạy trên port: {}", SERVER_PORT);
+      log.info("Đang đợi Client kết nối vào...");
       List<Socket> clientSockets = new ArrayList<>();
       while (true) {
         Socket clientSocket = serverSocket.accept();
@@ -75,7 +78,7 @@ public class Server {
         pool.execute(task);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi nghiêm trọng xảy ra ở Server", e);
     }
   }
 
@@ -117,13 +120,13 @@ public class Server {
 
   public static void registerClient(String userId, ClientHandler handler) {
     connectedClients.put(userId, handler);
-    System.out.println("Client đã đăng ký: " + userId);
+    log.info("Client đã đăng ký: {}", userId);
   }
 
   public static void unregisterClient(String userId) {
     if (userId != null) {
       connectedClients.remove(userId);
-      System.out.println("Client đã hủy đăng ký: " + userId);
+      log.info("Client đã hủy đăng ký: {}", userId);
     }
   }
 
@@ -132,7 +135,7 @@ public class Server {
     if (handler != null) {
       handler.sendData(dto);
     } else {
-      System.out.println("User " + userId + " không online, bỏ qua.");
+      log.warn("User {} không online, bỏ qua việc gửi dữ liệu.", userId);
     }
   }
 

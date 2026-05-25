@@ -9,8 +9,11 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderRepository {
+  private static final Logger log = LoggerFactory.getLogger(OrderRepository.class);
 
   public boolean saveOrder(Connection conn, Order order) {
     String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_id, final_price, deposit_amount, remaining_amount, consignee_name, phone_number, address, status, item_name) "
@@ -31,7 +34,7 @@ public class OrderRepository {
       ps.setString(12, order.getItemName());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lưu đơn hàng ID: {}", order.getId(), e);
       return false;
     }
   }
@@ -51,7 +54,7 @@ public class OrderRepository {
       return null;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đơn hàng ID: {}", orderId, e);
       return null;
     }
   }
@@ -71,7 +74,7 @@ public class OrderRepository {
       return null;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đơn hàng cho phiên ID: {}", auctionId, e);
       return null;
     }
   }
@@ -90,7 +93,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng đang xử lý của người bán ID: {}", sellerId, e);
     }
     return orders;
   }
@@ -109,7 +112,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng đang xử lý của người mua ID: {}", buyerId, e);
     }
     return orders;
   }
@@ -128,7 +131,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng thành công của người bán ID: {}", sellerId, e);
     }
     return orders;
   }
@@ -147,7 +150,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng bị hủy của người bán ID: {}", sellerId, e);
     }
     return orders;
   }
@@ -166,7 +169,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng thành công của người mua ID: {}", buyerId, e);
     }
     return orders;
   }
@@ -185,7 +188,7 @@ public class OrderRepository {
         orders.add(mapResultSetToOrderDTO(rs));
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng bị hủy của người mua ID: {}", buyerId, e);
     }
     return orders;
   }
@@ -208,23 +211,26 @@ public class OrderRepository {
       }
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng hết hạn", e);
     }
 
     return orders;
   }
 
   public boolean updateOrder(Connection conn, Order order) {
-    String sql = "UPDATE orders SET status = ?, resolved_at = ? WHERE id = ?";
+    String sql = "UPDATE orders SET consignee_name= ?, phone_number = ?, address = ?, status = ?, resolved_at = ? WHERE id = ?";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setString(1, order.getStatus().name());
-      ps.setTimestamp(2, order.getResolvedAt() != null
+      ps.setString(1, order.getConsigneeName());
+      ps.setString(2, order.getPhoneNumber());
+      ps.setString(3, order.getAddress());
+      ps.setString(4, order.getStatus().name());
+      ps.setTimestamp(5, order.getResolvedAt() != null
           ? Timestamp.valueOf(order.getResolvedAt()) : null);
-      ps.setString(3, order.getId());
+      ps.setString(6, order.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật đơn hàng ID: {}", order.getId(), e);
       return false;
     }
   }

@@ -10,11 +10,14 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import com.auction.shared.request.*;
 import com.auction.client.network.ServerConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class ResultController {
+  private static final Logger log = LoggerFactory.getLogger(ResultController.class);
 
   private static ResultController instance;
 
@@ -51,8 +54,7 @@ public class ResultController {
 
           mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {
-          System.err.println("Lỗi khi load Component OrderCard: " + e.getMessage());
-          e.printStackTrace();
+          log.error("Lỗi khi load Component OrderCard", e);
         }
       }
     });

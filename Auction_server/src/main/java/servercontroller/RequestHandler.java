@@ -8,10 +8,10 @@ import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
-
 import com.auction.shared.model.transaction.WalletTransaction;
 import repository.SellerProfileRepository;
 import service.*;
@@ -28,6 +28,7 @@ import service.*;
  * @see com.auction.shared.response.ResponseDTO
  */
 public class RequestHandler {
+  private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
   public static LoginResponseDTO login(LoginRequestDTO loginReq) {
     User loggedInUser = AuthService.login(loginReq);
 
@@ -72,6 +73,12 @@ public class RequestHandler {
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
             "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);
+  }
+
+  public static AuctionResponseDTO handleFindAuctionById(AuctionRequestDTO request) {
+    String auctionId = request.getAuctionId();
+    AuctionResponseDTO auction = AuctionService.findAuctionById(auctionId);
+    return auction;
   }
 
   /**
@@ -143,12 +150,23 @@ public class RequestHandler {
     return bidService.placeBid(req);
   }
 
-  public static AuctionResponseDTO joinRoom(JoinRoomRequestDTO request) {
+  public static JoinRoomResponseDTO joinRoom(JoinRoomRequestDTO request) {
     String auctionId = request.getSelectedAuctionId();
     AuctionResponseDTO auction = AuctionService.getAuctionHistory(auctionId);
+    JoinRoomResponseDTO response = new JoinRoomResponseDTO();
 
-    if (auction == null) return null;
-    return auction;
+    if (auction != null) {
+      boolean success = true;
+      String message = "Tải thông tin thành công!";
+      response.setSuccess(success);
+      response.setMessage(message);
+      response.setAuction(auction);
+      return response;
+    } else {
+      response.setSuccess(false);
+      response.setMessage("Tải thông tin thất bại!");
+      return response;
+    }
   }
 
   public static SellerRegisterResponseDTO sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {
@@ -169,7 +187,7 @@ public class RequestHandler {
 
   public static OrderActionResponseDTO confirmOrder(ConfirmOrderRequestDTO req) {
     OrderService orderService = new OrderService();
-    boolean success = orderService.confirmOrder(req.getOrderId());
+    boolean success = orderService.confirmOrder(req.getOrderId(), req.getBuyerInfo());
     if (success) {
       return new OrderActionResponseDTO(true, "Xác nhận thanh toán thành công!");
     }
@@ -203,7 +221,7 @@ public class RequestHandler {
           }
         }
       } catch (Exception e) {
-        e.printStackTrace();
+        log.error("Lỗi khi truy vấn thông tin sản phẩm cho đơn hàng: {}", order.getId(), e);
       }
       return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order, itemName, itemId);
     }
@@ -276,7 +294,7 @@ public class RequestHandler {
       return new GetBalanceResponseDTO(true, "Lấy số dư thành công", currentBalance);
 
     } catch (Exception e) {
-      System.err.println("Lỗi khi xử lý số dư trong RequestHandler: " + e.getMessage());
+      log.error("Lỗi khi xử lý số dư trong RequestHandler cho user: {}", userId, e);
       return new GetBalanceResponseDTO(false, "Không tìm thấy thông tin ví hoặc lỗi hệ thống", BigDecimal.ZERO);
     }
   }

@@ -77,7 +77,7 @@ public class AuctionResponseDTO implements ResponseDTO {
    * Trạng thái hiện tại của phiên đấu giá (ví dụ: WAITING, ACTIVE, FINISHED).
    */
   private AuctionStatus status;
-  // Lọc bớt các thông tin nhạy cảm/ ko cần thiết để trả về máy khách
+
   /**
    * Danh sách lịch sử đấu giá (giới hạn 20 phần tử).
    */

@@ -1,72 +1,248 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.kordamp.ikonli.javafx.*?>
 
-<StackPane style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SignUpController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="900.0" style="-fx-background-color: #f3fbf7;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.SignUpController">
 
-    <VBox alignment="CENTER" maxWidth="550.0" prefHeight="350.0" spacing="25.0" style="-fx-background-color: #e8f5e9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 8); -fx-padding: 40;">
-
-        <Label style="-fx-text-fill: #27ae60; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-style: italic; -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 1, 1);" text="ĐẤU GIÁ 88" />
-
-        <GridPane alignment="CENTER" hgap="15.0" vgap="20.0">
-            <columnConstraints>
-                <ColumnConstraints halignment="RIGHT" minWidth="140.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="300.0" />
-            </columnConstraints>
-
-            <rowConstraints>
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-
-            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Số điện thoại:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField fx:id="phoneNumberField" promptText="Nhập số điện thoại" style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-
-            <HBox alignment="CENTER_LEFT" spacing="0.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <StackPane HBox.hgrow="ALWAYS">
-                    <PasswordField fx:id="pwdHidden" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" />
-                    <TextField fx:id="pwdVisible" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" visible="false" />
-                </StackPane>
-
-                <StackPane fx:id="eyeIconContainer" alignment="CENTER" onMouseClicked="#togglePasswordVisible" style="-fx-padding: 0 10 0 10; -fx-cursor: hand;">
-                    <Label fx:id="eyeShow" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Hiện" />
-                    <Label fx:id="eyeHide" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Ẩn" visible="false" />
-                </StackPane>
-            </HBox>
-
-            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;" text="Nhập lại mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-
-            <HBox alignment="CENTER_LEFT" spacing="0.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6;" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                <StackPane HBox.hgrow="ALWAYS">
-                    <PasswordField fx:id="confirmPwdHidden" promptText="Xác nhận lại mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" />
-                    <TextField fx:id="confirmPwdVisible" promptText="Xác nhận lại mật khẩu" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-font-size: 14px;" visible="false" />
-                </StackPane>
-
-                <StackPane fx:id="confirmEyeIconContainer" alignment="CENTER" onMouseClicked="#toggleConfirmPasswordVisible" style="-fx-padding: 0 10 0 10; -fx-cursor: hand;">
-                    <Label fx:id="confirmEyeShow" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Hiện" />
-                    <Label fx:id="confirmEyeHide" style="-fx-font-size: 12px; -fx-text-fill: #555;" text="Ẩn" visible="false" />
-                </StackPane>
-            </HBox>
-
-            <Button onAction="#handleRegister" style="-fx-background-color: #e0e0e0; -fx-text-fill: #008000; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 25; -fx-background-radius: 6; -fx-border-color: #ccc; -fx-border-radius: 6; -fx-cursor: hand;" text="Đăng ký" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-        </GridPane>
-        <HBox alignment="CENTER" spacing="5">
-            <Label style="-fx-text-fill: #555; -fx-font-size: 13px;" text="Đã có tài khoản?" />
-            <Hyperlink onAction="#gotoLogin" style="-fx-text-fill: #2e7d32; -fx-font-size: 13px; -fx-font-weight: bold; -fx-border-color: transparent;" text="Đăng nhập ngay" />
+    <top>
+        <HBox alignment="CENTER" prefHeight="60.0" prefWidth="200.0" style="-fx-background-color: #ffffff; -fx-border-color: #e5e5e5; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER" spacing="5.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="ĐẤU GIÁ 88" textFill="#10a31f">
+                            <font>
+                                <Font name="System Bold" size="36.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
+            </children>
         </HBox>
-    </VBox>
-</StackPane>
+    </top>
+
+    <center>
+        <StackPane BorderPane.alignment="CENTER">
+            <children>
+                <VBox alignment="TOP_CENTER" maxWidth="420.0" prefWidth="420.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 10, 0, 0, 5);">
+                    <children>
+
+                        <Label text="Đăng ký" textFill="#009900">
+                            <font>
+                                <Font name="System Bold" size="28.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="35.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Label text="Vui lòng đăng ký để tham gia đấu giá" textFill="#64748b">
+                            <font>
+                                <Font size="13.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </Label>
+
+                        <HBox prefHeight="1.0" style="-fx-background-color: #f1f5f9;">
+                            <VBox.margin>
+                                <Insets bottom="25.0" top="25.0" />
+                            </VBox.margin>
+                        </HBox>
+
+                        <VBox spacing="20.0">
+                            <children>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label text="Số điện thoại" textFill="#334155">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="45.0" style="-fx-border-color: #cbd5e1; -fx-border-radius: 6; -fx-background-color: #f8fafc; -fx-background-radius: 6;">
+                                            <children>
+                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-mobile-alt" iconSize="18">
+                                                    <HBox.margin>
+                                                        <Insets left="12.0" />
+                                                    </HBox.margin>
+                                                </FontIcon>
+                                                <TextField fx:id="phoneNumberField" promptText="Nhập số điện thoại của bạn" style="-fx-background-color: transparent; -fx-box-border: transparent;" HBox.hgrow="ALWAYS">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </TextField>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label text="Mật khẩu" textFill="#334155" HBox.hgrow="ALWAYS">
+                                                    <font>
+                                                        <Font name="System Bold" size="13.0" />
+                                                    </font>
+                                                </Label>
+                                                <AnchorPane HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="45.0" style="-fx-border-color: #cbd5e1; -fx-border-radius: 6; -fx-background-color: #f8fafc; -fx-background-radius: 6;">
+                                            <children>
+                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-lock" iconSize="16">
+                                                    <HBox.margin>
+                                                        <Insets left="12.0" />
+                                                    </HBox.margin>
+                                                </FontIcon>
+                                                <StackPane HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <PasswordField fx:id="pwdHidden" promptText="Nhập mật khẩu" style="-fx-background-color: transparent;">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </PasswordField>
+                                                        <TextField fx:id="pwdVisible" promptText="Nhập mật khẩu" style="-fx-background-color: transparent;" visible="false">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </TextField>
+                                                    </children>
+                                                </StackPane>
+                                                <StackPane>
+                                                    <children>
+                                                        <Label fx:id="eyeShow" onMouseClicked="#togglePasswordVisible">
+                                                            <graphic>
+                                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-eye" iconSize="16" />
+                                                            </graphic>
+                                                        </Label>
+                                                        <Label fx:id="eyeHide" onMouseClicked="#togglePasswordVisible" visible="false">
+                                                            <graphic>
+                                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-eye-slash" iconSize="16" />
+                                                            </graphic>
+                                                        </Label>
+                                                    </children>
+                                                    <HBox.margin>
+                                                        <Insets right="12.0" />
+                                                    </HBox.margin>
+                                                </StackPane>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label text="Nhập lại mật khẩu" textFill="#334155">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="45.0" style="-fx-border-color: #cbd5e1; -fx-border-radius: 6; -fx-background-color: #f8fafc; -fx-background-radius: 6;">
+                                            <children>
+                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-key" iconSize="16">
+                                                    <HBox.margin>
+                                                        <Insets left="12.0" />
+                                                    </HBox.margin>
+                                                </FontIcon>
+                                                <StackPane HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <PasswordField fx:id="confirmPwdHidden" promptText="Xác nhận mật khẩu của bạn" style="-fx-background-color: transparent;">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </PasswordField>
+                                                        <TextField fx:id="confirmPwdVisible" promptText="Xác nhận mật khẩu của bạn" style="-fx-background-color: transparent;" visible="false">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </TextField>
+                                                    </children>
+                                                </StackPane>
+                                                <StackPane>
+                                                    <children>
+                                                        <Label fx:id="confirmEyeShow" onMouseClicked="#toggleConfirmPasswordVisible">
+                                                            <graphic>
+                                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-eye" iconSize="16" />
+                                                            </graphic>
+                                                        </Label>
+                                                        <Label fx:id="confirmEyeHide" onMouseClicked="#toggleConfirmPasswordVisible" visible="false">
+                                                            <graphic>
+                                                                <FontIcon iconColor="#94a3b8" iconLiteral="fas-eye-slash" iconSize="16" />
+                                                            </graphic>
+                                                        </Label>
+                                                    </children>
+                                                    <HBox.margin>
+                                                        <Insets right="12.0" />
+                                                    </HBox.margin>
+                                                </StackPane>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets left="24.0" />
+                            </padding>
+                            <VBox.margin>
+                                <Insets right="24.0" />
+                            </VBox.margin>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox.margin>
+                                <Insets bottom="25.0" left="24.0" top="15.0" />
+                            </VBox.margin>
+                        </HBox>
+
+                        <Button onAction="#handleRegister" graphicTextGap="8.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="45.0" style="-fx-background-color: #009918; -fx-background-radius: 6; -fx-cursor: hand;" text="Đăng ký" textFill="white">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                            <graphic>
+                                <FontIcon iconColor="WHITE" iconLiteral="fas-arrow-right" iconSize="14" />
+                            </graphic>
+                            <VBox.margin>
+                                <Insets left="24.0" right="24.0" />
+                            </VBox.margin>
+                        </Button>
+
+                        <HBox alignment="CENTER" spacing="5.0">
+                            <children>
+                                <Label text="Bạn đã có tài khoản?" textFill="#64748b">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                                <Hyperlink onAction="#gotoLogin" text="Đăng nhập ngay" textFill="#10a31f">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Hyperlink>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="35.0" top="25.0" />
+                            </VBox.margin>
+                        </HBox>
+
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="15.0" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="© 2026 ĐẤU GIÁ 88. All rights reserved." textFill="#94a3b8">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Label>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
