@@ -62,8 +62,7 @@ public class InvoiceService {
   ) {
     try {
       // 1. Đọc file template HTML từ tài nguyên
-      ClassLoader classLoader = getClass().getClassLoader();
-      try (InputStream inputStream = classLoader.getResourceAsStream("invoice_template.html")) {
+      try (InputStream inputStream = InvoiceService.class.getResourceAsStream("/invoice_template.html")) {
         if (inputStream == null) {
           throw new IllegalArgumentException("Không tìm thấy file template invoice_template.html!");
         }
@@ -98,7 +97,7 @@ public class InvoiceService {
           // Cách này tránh sử dụng trực tiếp FSSupplier (giải quyết lỗi Java Module JPMS)
           File tempFontFile = File.createTempFile("Arial", ".ttf");
           tempFontFile.deleteOnExit();
-          try (InputStream is = classLoader.getResourceAsStream("fonts/Arial.ttf");
+          try (InputStream is = InvoiceService.class.getResourceAsStream("/Arial.ttf");
                OutputStream fos = new FileOutputStream(tempFontFile)) {
             if (is == null) {
               throw new IllegalArgumentException("Không tìm thấy font Arial.ttf trong tài nguyên!");

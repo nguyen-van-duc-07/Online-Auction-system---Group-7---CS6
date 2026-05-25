@@ -84,7 +84,7 @@ public class SessionManager {
   }
 
   /**
-   * Hàm tập trung để cập nhật số dư từ bất kỳ đâu (Màn hình ví, luồng nhận sự kiện Socket...)
+   * Hàm tập trung để cập nhật số dư từ bất kỳ đâu (Màn hình ví, luồng nhận sự kiện Socket...).
    */
   public static void updateBalance(GetBalanceResponseDTO response) {
     if (response != null && response.isSuccess()) {
@@ -96,7 +96,7 @@ public class SessionManager {
   }
 
   /**
-   * Hàm tiện ích để lấy nhanh số dư hiện tại dưới dạng số khi cần tính toán ở các controller khác
+   * Hàm tiện ích để lấy nhanh số dư hiện tại dưới dạng số khi cần tính toán ở các controller khác.
    */
   public static BigDecimal getCurrentBalance() {
     return balanceProperty.get();
