@@ -381,6 +381,7 @@ public class ItemAuctionController implements Initializable {
             stepAmount,
             true
         );
+        System.out.println("[CLIENT - AUTO BID] Đã chốt đơn Bot! Tối đa: " + maxPrice + " | Bước: " + stepAmount + ". Đang đẩy lên Server...");
         ServerConnection.sendData(req);
 
         // Khóa ô cấu hình để bot an tâm chạy
@@ -596,6 +597,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   public void onNewBidReceived(NewBidDTO newBid) {
+    System.out.println("[CLIENT - LỊCH SỬ] Nhận được giá mới từ mạng: " + newBid.getBidAmount() + " của " + newBid.getBidderName());
     Platform.runLater(() -> {
       // 1. Cập nhật giá mới nhất vào biến hiện tại
       currentAuction.setCurrentHighestPrice(newBid.getBidAmount());
