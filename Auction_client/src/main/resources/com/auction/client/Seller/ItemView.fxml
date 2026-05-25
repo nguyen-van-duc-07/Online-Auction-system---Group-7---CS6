@@ -108,9 +108,9 @@
                                                     <children>
                                                         <DatePicker fx:id="startDateField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
                                                         <HBox alignment="CENTER_LEFT" spacing="5.0">
-                                                            <ComboBox fx:id="startHourField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <TextField fx:id="startHourField" alignment="CENTER" editable="false" focusTraversable="false" prefWidth="60.0" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
                                                             <Label text=":" />
-                                                            <ComboBox fx:id="startMinuteField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <TextField fx:id="startMinuteField" alignment="CENTER" editable="false" focusTraversable="false" prefWidth="60.0" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
                                                         </HBox>
                                                     </children>
                                                 </HBox>
@@ -123,9 +123,9 @@
                                                     <children>
                                                         <DatePicker fx:id="finishDateField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" HBox.hgrow="ALWAYS" />
                                                         <HBox alignment="CENTER_LEFT" spacing="5.0">
-                                                            <ComboBox fx:id="finishHourField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <TextField fx:id="finishHourField" alignment="CENTER" editable="false" focusTraversable="false" prefWidth="60.0" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
                                                             <Label text=":" />
-                                                            <ComboBox fx:id="finishMinuteField" focusTraversable="false" mouseTransparent="true" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
+                                                            <TextField fx:id="finishMinuteField" alignment="CENTER" editable="false" focusTraversable="false" prefWidth="60.0" style="-fx-pref-height: 40; -fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" />
                                                         </HBox>
                                                     </children>
                                                 </HBox>

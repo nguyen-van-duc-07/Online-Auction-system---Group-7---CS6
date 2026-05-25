@@ -1,5 +1,6 @@
 package com.auction.client.screenhandler;
 
+import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.network.NetworkConfig;
 import com.auction.shared.response.AuctionResponseDTO;
@@ -24,15 +25,15 @@ public class ItemViewController {
   @FXML
   private DatePicker startDateField;
   @FXML
-  private ComboBox<String> startHourField;
+  private TextField startHourField;
   @FXML
-  private ComboBox<String> startMinuteField;
+  private TextField startMinuteField;
   @FXML
   private DatePicker finishDateField;
   @FXML
-  private ComboBox<String> finishHourField;
+  private TextField finishHourField;
   @FXML
-  private ComboBox<String> finishMinuteField;
+  private TextField finishMinuteField;
   @FXML
   private TextField durationField;
   @FXML
@@ -41,6 +42,19 @@ public class ItemViewController {
   private VBox dynamicAttributesBox;
   @FXML
   private TextArea descriptionField;
+
+  @FXML
+  public void initialize() {
+    categoryField.getItems().addAll(
+        ItemType.ELECTRONICS.getValue(),
+        ItemType.VEHICLES.getValue(),
+        ItemType.COLLECTIBLES.getValue(),
+        ItemType.FASHION.getValue(),
+        ItemType.SPORTS.getValue(),
+        ItemType.ARTS.getValue(),
+        ItemType.OTHER.getValue()
+    );
+  }
 
   /**
    * Khởi tạo dữ liệu để điền vào các trường trên giao diện.
@@ -75,19 +89,43 @@ public class ItemViewController {
 
     if (auction.getStartTime() != null) {
       startDateField.setValue(auction.getStartTime().toLocalDate());
-      startHourField.setValue(String.format("%02d", auction.getStartTime().getHour()));
-      startMinuteField.setValue(String.format("%02d", auction.getStartTime().getMinute()));
+      startHourField.setText(String.format("%02d", auction.getStartTime().getHour()));
+      startMinuteField.setText(String.format("%02d", auction.getStartTime().getMinute()));
     }
 
     if (auction.getEndTime() != null) {
       finishDateField.setValue(auction.getEndTime().toLocalDate());
-      finishHourField.setValue(String.format("%02d", auction.getEndTime().getHour()));
-      finishMinuteField.setValue(String.format("%02d", auction.getEndTime().getMinute()));
+      finishHourField.setText(String.format("%02d", auction.getEndTime().getHour()));
+      finishMinuteField.setText(String.format("%02d", auction.getEndTime().getMinute()));
     }
 
     if (auction.getStartTime() != null && auction.getEndTime() != null) {
-      long hours = Duration.between(auction.getStartTime(), auction.getEndTime()).toHours();
-      durationField.setText(String.valueOf(hours));
+      Duration duration = Duration.between(auction.getStartTime(), auction.getEndTime());
+      long totalMinutes = duration.toMinutes();
+      double decimalHours = totalMinutes / 60.0;
+
+      long days = totalMinutes / (24 * 60);
+      long hours = (totalMinutes % (24 * 60)) / 60;
+      long minutes = totalMinutes % 60;
+
+      StringBuilder humanReadable = new StringBuilder();
+      if (days > 0) {
+        humanReadable.append(days).append(" ngày ");
+      }
+      if (hours > 0) {
+        humanReadable.append(hours).append(" giờ ");
+      }
+      if (minutes > 0) {
+        humanReadable.append(minutes).append(" phút");
+      }
+
+      String durationText;
+      if (humanReadable.length() > 0) {
+        durationText = String.format("%.1f giờ (%s)", decimalHours, humanReadable.toString().trim());
+      } else {
+        durationText = String.format("%.1f giờ", decimalHours);
+      }
+      durationField.setText(durationText);
     }
 
     if (auction.getImagePath() != null && !auction.getImagePath().isEmpty() && imageField != null) {
