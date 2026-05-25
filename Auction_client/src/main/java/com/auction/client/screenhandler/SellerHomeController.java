@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +25,8 @@ import java.util.List;
  * Đóng vai trò là Sub-controller cho MainLayoutController.
  */
 public class SellerHomeController {
+  private static final Logger log = LoggerFactory.getLogger(SellerHomeController.class);
+
   private static SellerHomeController instance;
 
   private final MainLayoutController mainLayout;
@@ -85,8 +89,7 @@ public class SellerHomeController {
 
           mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {
-          System.err.println("Lỗi khi load Component thẻ sản phẩm: " + e.getMessage());
-          e.printStackTrace();
+          log.error("Lỗi khi load Component thẻ sản phẩm", e);
         }
       }
     });

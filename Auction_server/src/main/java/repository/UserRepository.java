@@ -8,12 +8,15 @@ import com.auction.shared.model.user.User;
 import config.DatabaseConnection;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Lớp UserRepository dùng để thao tác với bảng users trong cơ sở dữ liệu.
  * Cung cấp các phương thức truy vấn và xử lý dữ liệu người dùng.
  */
 public class UserRepository {
+  private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
   /**
    * Lấy mật khẩu của người dùng theo tên tài khoản.
@@ -35,7 +38,7 @@ public class UserRepository {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy mật khẩu của số điện thoại: {}", phoneNumber, e);
     }
 
     return null;
@@ -53,7 +56,7 @@ public class UserRepository {
         return rs.next();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi kiểm tra sự tồn tại của số điện thoại: {}", phoneNumber, e);
     }
     return false; // Mặc định nếu có lỗi hoặc không tìm thấy thì coi như chưa tồn tại
   }
@@ -82,7 +85,7 @@ public class UserRepository {
       return ps.executeUpdate() > 0;
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tạo người dùng ID: {}", user.getId(), e);
     }
 
     return false;
@@ -144,7 +147,7 @@ public class UserRepository {
         return user;
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy thông tin người dùng bằng sđt: {} hoặc ID: {}", phoneNumber, id, e);
     }
     return null;
   }
@@ -162,6 +165,7 @@ public class UserRepository {
       ps.setString(5, user.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật hồ sơ người dùng ID: {}", user.getId(), e);
       throw new RuntimeException(e);
     }
   }
@@ -174,7 +178,8 @@ public class UserRepository {
       ps.setString(1, user.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      throw new RuntimeException();
+      log.error("Lỗi cơ sở dữ liệu khi xóa tài khoản người dùng ID: {}", user.getId(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -198,8 +203,7 @@ public class UserRepository {
         }
       }
     } catch (SQLException e) {
-      System.err.println("Lỗi khi lấy account_name của userId: " + userId);
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy account_name của user ID: {}", userId, e);
     }
 
     return null;
@@ -225,8 +229,7 @@ public class UserRepository {
         }
       }
     } catch (SQLException e) {
-      System.err.println("Lỗi khi lấy thông tin của userId: " + userId);
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy thông tin giao hàng của user ID: {}", userId, e);
     }
     return null;
   }
@@ -244,6 +247,7 @@ public class UserRepository {
       ps.setString(7, admin.getAddress());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi lưu tài khoản admin ID: {}", admin.getId(), e);
       throw new RuntimeException(e);
     }
   }

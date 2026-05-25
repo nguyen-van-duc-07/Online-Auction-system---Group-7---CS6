@@ -17,8 +17,11 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionItemCardController {
+  private static final Logger log = LoggerFactory.getLogger(AuctionItemCardController.class);
 
   @FXML
   private Label nameLabel;
@@ -62,7 +65,7 @@ public class AuctionItemCardController {
     // Lưu sản phẩm vừa chọn vào SessionManager
     SessionManager.setCurrentAuctionId(auction.getAuctionId());
     SessionManager.setPreviousScreen(currentScreen);
-    System.out.println("Đang mở chi tiết phiên đấu giá: " + auction.getAuctionId());
+    log.info("Đang mở chi tiết phiên đấu giá: {}", auction.getAuctionId());
     ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + auction.getItemName());
   }
 

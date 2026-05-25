@@ -3,12 +3,15 @@ package service;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dịch vụ lưu trữ ảnh sản phẩm lên đĩa cứng phía Server.
  * Mỗi ảnh được đặt tên ngẫu nhiên UUID để tránh trùng lặp.
  */
 public class ImageStorageService {
+  private static final Logger log = LoggerFactory.getLogger(ImageStorageService.class);
   private static final String UPLOAD_DIR = "uploads/images";
 
   static {
@@ -30,7 +33,7 @@ public class ImageStorageService {
     String fileName = UUID.randomUUID() + "." + imageExtension;
     Path filePath = Paths.get(UPLOAD_DIR, fileName);
     Files.write(filePath, imageBytes);
-    System.out.println(">>> Đã lưu ảnh: " + filePath.toAbsolutePath());
+    log.info(">>> Đã lưu ảnh: {}", filePath.toAbsolutePath());
     return fileName;
   }
 

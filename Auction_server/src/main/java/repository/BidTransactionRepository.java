@@ -9,8 +9,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BidTransactionRepository {
+  private static final Logger log = LoggerFactory.getLogger(BidTransactionRepository.class);
   public boolean saveBid(Connection conn, BidTransaction bid) throws SQLException {
     String sql = "INSERT INTO bid_transactions "
         + "(id, auction_id, bidder_id, bid_amount) "
@@ -34,7 +37,7 @@ public class BidTransactionRepository {
 
       // KIỂM TRA PHÒNG THỦ: Tránh NullPointerException
       if (conn == null) {
-        System.err.println(">>> LỖI: Không thể kết nối Database!");
+        log.error(">>> LỖI: Không thể kết nối Database!");
         return list;
       }
 
@@ -53,7 +56,7 @@ public class BidTransactionRepository {
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy danh sách bid gần đây của phiên ID: {}", auctionId, e);
     }
     return list;
   }

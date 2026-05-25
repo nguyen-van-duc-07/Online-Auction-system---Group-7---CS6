@@ -7,6 +7,8 @@ import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,6 +27,8 @@ import repository.SellerProfileRepository;
  * Bao gồm các chức năng như tạo phiên đấu giá, xử lý đặt giá, và quản lý trạng thái đấu giá.
  */
 public class AuctionService {
+  private static final Logger log = LoggerFactory.getLogger(AuctionService.class);
+
   private static final ItemRepository itemRepo = new ItemRepository();
   private static final AuctionRepository auctionRepo = new AuctionRepository();
   private static final BidTransactionRepository bidRepo = new BidTransactionRepository();
@@ -59,7 +63,7 @@ public class AuctionService {
       try {
         imagePath = ImageStorageService.saveImage(request.getImageBytes(), request.getImageExtension());
       } catch (Exception e) {
-        System.err.println("Lỗi lưu ảnh, tiếp tục tạo auction không có ảnh: " + e.getMessage());
+        log.error("Lỗi lưu ảnh, tiếp tục tạo auction không có ảnh: {}", e.getMessage(), e);
       }
     }
 

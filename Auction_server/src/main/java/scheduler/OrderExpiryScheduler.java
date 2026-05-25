@@ -5,8 +5,11 @@ import service.OrderService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderExpiryScheduler {
+  private static final Logger log = LoggerFactory.getLogger(OrderExpiryScheduler.class);
 
   private final OrderService orderService = new OrderService();
 
@@ -24,11 +27,10 @@ public class OrderExpiryScheduler {
 
   private void checkExpiredOrders() {
     try {
-      System.out.println("[ORDER EXPIRY] Đang kiểm tra các order hết hạn...");
+      log.info("[ORDER EXPIRY] Đang kiểm tra các order hết hạn...");
       orderService.cancelExpiredOrders();
     } catch (Exception e) {
-      System.out.println("[ORDER EXPIRY] LỖI: " + e.getMessage());
-      e.printStackTrace();
+      log.error("[ORDER EXPIRY] Lỗi nghiêm trọng khi kiểm tra order hết hạn", e);
     }
   }
 }

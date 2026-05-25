@@ -17,8 +17,11 @@ import repository.WalletTransactionRepository;
 
 import java.sql.Connection;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WalletService {
+  private static final Logger log = LoggerFactory.getLogger(WalletService.class);
   private final WalletRepository walletRepo = new WalletRepository();
   private final WalletTransactionRepository txRepo = new WalletTransactionRepository();
   private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
@@ -46,13 +49,13 @@ public class WalletService {
         }
       }
     } catch (Exception e) {
-      System.err.println("Lỗi truy vấn số dư: " + e.getMessage());
+      log.error("Lỗi truy vấn số dư cho user: {}", userId, e);
       throw e; // Ném lỗi lên trên cho Controller xử lý (hiển thị thông báo)
     }
   }
 
   public void freezeMoney(Connection conn, String userId, BigDecimal amount, String auctionId) {
-    System.out.println("[WALLET - FREEZE] Yêu cầu đóng băng " + amount + " của User: " + userId + " (Auction: " + auctionId + ")");
+    log.info("[WALLET - FREEZE] Yêu cầu đóng băng {} của User: {} (Auction: {})", amount, userId, auctionId);
     Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
     if (wallet.getBalance().compareTo(amount) < 0) {
       throw new RuntimeException("Số dư không đủ để đặt giá");
@@ -111,7 +114,7 @@ public class WalletService {
       return rowsAffected > 0;
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi nạp tiền cho user: {}", userId, e);
       return false;
     }
   }
@@ -131,7 +134,7 @@ public class WalletService {
       return rowsAffected > 0; // Trả về true nếu cập nhật thành công
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi rút tiền cho user: {}", userId, e);
       return false;
     }
   }
@@ -147,7 +150,7 @@ public class WalletService {
     try (Connection conn = DatabaseConnection.getConnection()) {
       return txRepo.saveWalletTransaction(conn, tx);
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tạo yêu cầu giao dịch cho user: {}", userId, e);
       return false;
     }
   }
@@ -156,7 +159,7 @@ public class WalletService {
     try (Connection conn = DatabaseConnection.getConnection()) {
       return txRepo.findPendingTransactions(conn);
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi lấy danh sách giao dịch đang xử lý", e);
       return null;
     }
   }
@@ -203,19 +206,19 @@ public class WalletService {
         return true;
       } catch (Exception e) {
         conn.rollback();
-        e.printStackTrace();
+        log.error("Lỗi khi xử lý duyệt giao dịch ID: {}", transactionId, e);
         return false;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi xử lý duyệt giao dịch ID: {}", transactionId, e);
       return false;
     }
   }
 
   public void processPayment(Connection conn, Order order) {
-    System.out.println("BAT DAU QUA TRINH THANH TOAN CHO ORDER: " + order.getId());
+    log.info("Bắt đầu quá trình thanh toán cho đơn hàng: {}", order.getId());
     // 1. Xử lý ví buyer
     Wallet buyerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getBuyerId());
     buyerWallet.payWinningAuction(order.getDepositAmount(), order.getRemainingAmount());
@@ -244,7 +247,7 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, sellerTx);
-    System.out.println(">>>DA CONG TIEN LAI CHO NGUOI BAN " + com.auction.shared.util.FormatUtil.fmt(sellerTx.getAmount()));
+    log.info(">>> Đã cộng tiền vào ví người bán: {}", com.auction.shared.util.FormatUtil.fmt(sellerTx.getAmount()));
   }
   public void processCancelPenalty(Connection conn, Order order) {
     // 1. Xử lý ví buyer — mất cọc
@@ -267,7 +270,8 @@ public class WalletService {
     );
     txRepo.saveWalletTransaction(conn, sellerTx);
 
-    System.out.println("[CANCEL] Buyer mất cọc: " + com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount())
-        + " | Seller nhận: " + com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()));
+    log.info("[CANCEL] Người mua mất cọc: {} | Người bán nhận: {}", 
+        com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()), 
+        com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()));
   }
 }

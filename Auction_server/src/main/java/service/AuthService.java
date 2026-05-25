@@ -11,6 +11,8 @@ import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.UpdateProfileRequestDTO;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -22,6 +24,7 @@ import repository.WalletRepository;
  * Bao gồm đăng nhập, kiểm tra thông tin tài khoản và xử lý logic liên quan đến authentication.
  */
 public class AuthService {
+  private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
   private static final UserRepository userRepo = new UserRepository();
   private static final WalletRepository walletRepo = new WalletRepository();
@@ -118,19 +121,19 @@ public class AuthService {
       return true;
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi nghiêm trọng trong quá trình đăng ký tài khoản cho SĐT: {}", signUpUser.getPhoneNumber(), e);
 
       try {
         if (conn != null) conn.rollback();
       } catch (Exception ex) {
-        ex.printStackTrace();
+        log.error("Lỗi khi rollback giao dịch đăng ký", ex);
       }
 
     } finally {
       try {
         if (conn != null) conn.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        log.error("Lỗi khi đóng kết nối DB trong đăng ký tài khoản", e);
       }
     }
 

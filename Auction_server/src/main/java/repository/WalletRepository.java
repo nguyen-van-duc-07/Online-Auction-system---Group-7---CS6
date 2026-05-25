@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Lớp WalletRepository dùng để thao tác với bảng wallets trong cơ sở dữ liệu.
@@ -14,6 +16,7 @@ import java.sql.SQLException;
  * (tài khoản thanh toán) của người dùng trong hệ thống đấu giá.
  */
 public class WalletRepository {
+  private static final Logger log = LoggerFactory.getLogger(WalletRepository.class);
 
   /**
    * Tạo một ví điện tử mới và liên kết nó với tài khoản người dùng.
@@ -39,7 +42,7 @@ public class WalletRepository {
       return ps.executeUpdate() > 0;
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Lỗi cơ sở dữ liệu khi tạo ví cho user ID: {}", wallet.getBidderId(), e);
     }
 
     return false;
@@ -55,6 +58,7 @@ public class WalletRepository {
         return mapRow(rs);
       }
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi lấy ví của user ID: {}", userId, e);
       throw new RuntimeException(e);
     }
     return null;
@@ -72,6 +76,7 @@ public class WalletRepository {
       ps.setString(3, wallet.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật ví ID: {}", wallet.getId(), e);
       throw new RuntimeException(e);
     }
   }
@@ -85,6 +90,7 @@ public class WalletRepository {
       }
       return null;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi khóa ví để cập nhật cho user ID: {}", userId, e);
       throw new RuntimeException(e);
     }
   }
@@ -99,6 +105,7 @@ public class WalletRepository {
       }
       return null;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi khóa ví để cập nhật cho ví ID: {}", walletId, e);
       throw new RuntimeException(e);
     }
   }
@@ -124,6 +131,7 @@ public class WalletRepository {
       ps.setString(3, wallet.getId());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật ví ID: {}", wallet.getId(), e);
       throw new RuntimeException(e);
     }
   }

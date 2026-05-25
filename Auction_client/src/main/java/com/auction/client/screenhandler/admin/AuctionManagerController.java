@@ -13,6 +13,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class AuctionManagerController implements Initializable {
+  private static final Logger log = LoggerFactory.getLogger(AuctionManagerController.class);
+
   /** Biến static lưu trữ Controller hiện tại của AuctionManagerController. */
   private static AuctionManagerController instance;
 
@@ -128,11 +132,11 @@ public class AuctionManagerController implements Initializable {
    */
   public void loadDataToTable(List<AuctionDTO> auctionsList) {
     if (auctionsList != null) {
-      System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC: " + auctionsList.size() + " đơn ==="); // THÊM DÒNG NÀY
+      log.info("=== DỮ LIỆU NHẬN ĐƯỢC: {} đơn ===", auctionsList.size());
       ObservableList<AuctionDTO> observableList = FXCollections.observableArrayList(auctionsList);
       auctionTable.setItems(observableList);
     } else {
-      System.out.println("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
+      log.warn("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
     }
   }
 

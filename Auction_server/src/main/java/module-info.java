@@ -4,6 +4,7 @@ module com.auction.server {
     requires jdk.httpserver;
     requires org.controlsfx.controls;
     requires javafx.controls;
+    requires org.slf4j;
     // Nếu bạn dùng các thư viện như BCrypt hay JDBC trong server, bạn cũng phải requires chúng ở đây
     requires java.sql; // Cần cho DatabaseConnection
     requires jbcrypt;

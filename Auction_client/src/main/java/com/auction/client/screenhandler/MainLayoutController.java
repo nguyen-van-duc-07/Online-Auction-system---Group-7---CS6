@@ -10,6 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +25,8 @@ import java.util.ResourceBundle;
  * cùng ScrollPane trung tâm để load nội dung theo ngữ cảnh.</p>
  */
 public class MainLayoutController implements Initializable, Controller {
+
+  private static final Logger log = LoggerFactory.getLogger(MainLayoutController.class);
 
   /** Biến static lưu trữ Controller hiện tại. */
   private static MainLayoutController instance;
@@ -279,7 +283,7 @@ public class MainLayoutController implements Initializable, Controller {
       mainContent.setFitToHeight(true);
       mainContent.setFitToWidth(true);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Failed to load FXML component from path: {}", fxmlPath, e);
     }
   }
 
