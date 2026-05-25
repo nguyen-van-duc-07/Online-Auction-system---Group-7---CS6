@@ -63,6 +63,9 @@ public class Server {
 
   public static void main(String[] args) {
     try {
+      // Đảm bảo toàn bộ Server JVM chạy trên múi giờ Việt Nam (GMT+7)
+      java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+
       // Khởi chạy HTTP Static File Server cho ảnh sản phẩm
       service.ImageHttpServer.start();
 

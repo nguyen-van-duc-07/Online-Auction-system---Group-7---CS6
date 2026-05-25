@@ -20,6 +20,16 @@ public class Main extends Application {
     stage.setScene(scene);
     stage.setTitle("Đăng nhập");
 
+    // Lắng nghe sự kiện đóng cửa sổ chính để tắt kết nối và thoát tiến trình sạch sẽ
+    stage.setOnCloseRequest(event -> {
+      try {
+        stop();
+      } catch (Exception e) {
+        // Bỏ qua lỗi khi đóng ứng dụng
+      }
+      System.exit(0);
+    });
+
     stage.show();
 
     ServerConnection.connect();
@@ -32,6 +42,8 @@ public class Main extends Application {
   }
 
   public static void main(String[] args) {
+    // Đảm bảo Client JVM chạy trên múi giờ Việt Nam (GMT+7)
+    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
     launch();
   }
 }

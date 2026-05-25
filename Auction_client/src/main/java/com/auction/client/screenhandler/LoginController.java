@@ -28,6 +28,13 @@ public class LoginController {
   private boolean isPasswordVisible = false;
 
   @FXML
+  public void initialize() {
+    phoneNumberField.setOnAction(event -> handleLogin());
+    hiddenPasswordField.setOnAction(event -> handleLogin());
+    visiblePasswordField.setOnAction(event -> handleLogin());
+  }
+
+  @FXML
   private void togglePasswordVisible(MouseEvent event) {
     // Chuyển sang trạng thái ngược lại
     isPasswordVisible = !isPasswordVisible;

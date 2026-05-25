@@ -55,7 +55,8 @@ public class Auction extends Entity implements Serializable {
     this.startTime = startTime;
     this.endTime = endTime;
 
-    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+    // Khoảng đệm 1 phút chống lệch đồng hồ hoặc trễ truyền tải mạng
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now().plusMinutes(1))) {
       this.status = AuctionStatus.ACTIVE;
     } else {
       this.status = AuctionStatus.WAITING;
@@ -71,7 +72,7 @@ public class Auction extends Entity implements Serializable {
     this.endTime = endTime;
     // Nếu thời gian bắt đầu bằng hoặc trước thời điểm hiện tại -> ACTIVE luôn
     // Ngược lại (hẹn giờ trong tương lai) -> WAITING
-    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now().plusMinutes(1))) {
       this.status = AuctionStatus.ACTIVE;
     } else {
       this.status = AuctionStatus.WAITING;
@@ -87,7 +88,7 @@ public class Auction extends Entity implements Serializable {
     this.endTime = endTime;
     // Nếu thời gian bắt đầu bằng hoặc trước thời điểm hiện tại -> ACTIVE luôn
     // Ngược lại (hẹn giờ trong tương lai) -> WAITING
-    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now())) {
+    if (this.startTime == null || !this.startTime.isAfter(LocalDateTime.now().plusMinutes(1))) {
       this.status = AuctionStatus.ACTIVE;
     } else {
       this.status = AuctionStatus.WAITING;
