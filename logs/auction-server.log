@@ -128,3 +128,68 @@ java.io.EOFException: null
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 2026-05-25 11:46:15.489 [pool-1-thread-1] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.Server - Client đã hủy đăng ký: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807
 2026-05-25 11:46:15.489 [pool-1-thread-1] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 11:52:57.245 [main] [] INFO  service.ImageHttpServer - >>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: 9090
+2026-05-25 11:52:57.255 [main] [] INFO  servercontroller.Server - Server đã chạy trên port: 8080
+2026-05-25 11:52:57.255 [main] [] INFO  servercontroller.Server - Đang đợi Client kết nối vào...
+2026-05-25 11:52:57.270 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-25 11:52:59.253 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5248b36
+2026-05-25 11:52:59.254 [pool-2-thread-1] [] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-25 11:52:59.254 [pool-2-thread-1] [] INFO  config.DatabaseConnection - [DB] Connection pool đã khởi tạo thành công.
+2026-05-25 11:53:02.819 [pool-1-thread-1] [IP:/127.0.0.1:65129] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:65129
+2026-05-25 11:53:05.443 [pool-1-thread-1] [IP:/127.0.0.1:65129] ERROR servercontroller.ClientHandler - Lỗi nghiêm trọng trong phiên kết nối của Client
+java.io.EOFException: null
+	at java.base/java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3232)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1713)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:540)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:498)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:45)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 11:53:05.446 [pool-1-thread-1] [IP:/127.0.0.1:65129] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 11:53:11.188 [pool-1-thread-2] [IP:/127.0.0.1:65137] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:65137
+2026-05-25 11:53:16.355 [pool-1-thread-2] [IP:/127.0.0.1:65137] ERROR servercontroller.ClientHandler - Lỗi nghiêm trọng trong phiên kết nối của Client
+java.io.EOFException: null
+	at java.base/java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3232)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1713)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:540)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:498)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:45)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 11:53:16.355 [pool-1-thread-2] [IP:/127.0.0.1:65137] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 12:00:03.086 [pool-2-thread-1] [] INFO  scheduler.AuctionStatusScheduler - BROADCAST CLOSED: fcd472c2-8cde-486e-89a0-6f9437eac39c
+2026-05-25 12:00:03.089 [pool-2-thread-1] [] INFO  scheduler.AuctionStatusScheduler - SERVER GỬI THÔNG BÁO CHIẾN THẮNG [AuctionId: fcd472c2-8cde-486e-89a0-6f9437eac39c | Winner: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807 | Giá cuối : 11,050,000 đ]
+2026-05-25 12:00:03.799 [pool-2-thread-1] [] INFO  service.OrderService - [ORDER] Tạo order thành công: ace9c8c3-3deb-40d2-b85a-c5be011f8d86 | Buyer: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807 | Giá: 11,050,000 đ | Cọc: 1,105,000 đ | Còn lại: 9,945,000 đ
+2026-05-25 12:00:03.902 [pool-2-thread-1] [] INFO  scheduler.AuctionStatusScheduler - [SCHEDULER] Kết quả tạo đơn hàng: ace9c8c3-3deb-40d2-b85a-c5be011f8d86
+2026-05-25 12:00:04.006 [pool-2-thread-1] [] WARN  servercontroller.Server - User 03ed5e0c-cdc9-4e68-af3c-035cab1cd807 không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 12:00:04.107 [pool-2-thread-1] [] WARN  servercontroller.Server - User 949db642-dbb4-492e-be08-1a0d4298153b không online, bỏ qua việc gửi dữ liệu.
+2026-05-25 12:07:21.622 [pool-1-thread-3] [IP:/127.0.0.1:51524] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:51524
+2026-05-25 12:07:29.513 [pool-1-thread-3] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.Server - Client đã đăng ký: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807
+2026-05-25 12:36:30.419 [pool-1-thread-3] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] ERROR servercontroller.ClientHandler - Lỗi nghiêm trọng trong phiên kết nối của Client
+java.io.EOFException: null
+	at java.base/java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3232)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1713)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:540)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:498)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:45)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 12:36:30.419 [pool-1-thread-3] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.Server - Client đã hủy đăng ký: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807
+2026-05-25 12:36:30.419 [pool-1-thread-3] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.ClientHandler - Kết nối client đóng.
+2026-05-25 12:36:37.402 [pool-1-thread-4] [IP:/127.0.0.1:65349] INFO  servercontroller.ClientHandler - Client mới đang kết nối từ IP: /127.0.0.1:65349
+2026-05-25 12:36:43.444 [pool-1-thread-4] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.Server - Client đã đăng ký: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807
+2026-05-25 12:39:10.550 [pool-1-thread-4] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] ERROR servercontroller.ClientHandler - Lỗi nghiêm trọng trong phiên kết nối của Client
+java.io.EOFException: null
+	at java.base/java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3232)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1713)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:540)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:498)
+	at com.auction.server/servercontroller.ClientHandler.run(ClientHandler.java:45)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-25 12:39:10.551 [pool-1-thread-4] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.Server - Client đã hủy đăng ký: 03ed5e0c-cdc9-4e68-af3c-035cab1cd807
+2026-05-25 12:39:10.551 [pool-1-thread-4] [User:03ed5e0c-cdc9-4e68-af3c-035cab1cd807] INFO  servercontroller.ClientHandler - Kết nối client đóng.

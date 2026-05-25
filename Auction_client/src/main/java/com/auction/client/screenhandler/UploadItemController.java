@@ -241,19 +241,26 @@ public class UploadItemController {
       // Xử lý Danh mục (Ánh xạ từ text giao diện sang Enum)
       ItemType type = mapCategoryToEnum(categoryField.getValue());
 
-      // Đọc dữ liệu ảnh (nếu người dùng đã chọn ảnh)
-      byte[] imageBytes = null;
-      String imageExtension = null;
-      if (selectedImageFile != null) {
-        imageBytes = java.nio.file.Files.readAllBytes(selectedImageFile.toPath());
-        String fileName = selectedImageFile.getName();
-        imageExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+      // Đọc dữ liệu ảnh (bắt buộc phải có ảnh)
+      if (selectedImageFile == null) {
+        ScreenController.showAlert(Alert.AlertType.WARNING,
+            "Cảnh báo", "Vui lòng chọn ảnh cho sản phẩm!");
+        return;
       }
+      byte[] imageBytes = java.nio.file.Files.readAllBytes(selectedImageFile.toPath());
+      String fileName = selectedImageFile.getName();
+      String imageExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 
-      // Thu thập các thuộc tính động
+      // Thu thập các thuộc tính động (bắt buộc phải điền, không được để trống)
       Map<String, String> additionalAttributes = new HashMap<>();
       for (Map.Entry<String, TextField> entry : dynamicTextFields.entrySet()) {
-          additionalAttributes.put(entry.getKey(), entry.getValue().getText().trim());
+          String attrValue = entry.getValue().getText().trim();
+          if (attrValue.isEmpty()) {
+              ScreenController.showAlert(Alert.AlertType.WARNING,
+                  "Cảnh báo", "Vui lòng điền đầy đủ thuộc tính '" + entry.getKey() + "'! Nếu sản phẩm không có thuộc tính này, vui lòng ghi là 'không có'.");
+              return;
+          }
+          additionalAttributes.put(entry.getKey(), attrValue);
       }
 
       UploadItemRequestDTO uploadItemRequestDTO = new UploadItemRequestDTO(sellerId,
