@@ -57,6 +57,7 @@
                                     <MenuItem mnemonicParsing="false" onAction="#gotoProfile" text="Thông tin" />
                                     <MenuItem mnemonicParsing="false" onAction="#gotoLogin" text="Đăng xuất" />
                                     <MenuItem mnemonicParsing="false" onAction="#gotoWallet" text="Ví người dùng" />
+                                    <MenuItem mnemonicParsing="false" onAction="#gotoChangePassword" text="Đổi mật khẩu" />
                                 </items>
                             </MenuButton>
                         </children>
@@ -103,13 +104,9 @@
         <center>
             <VBox BorderPane.alignment="CENTER">
                 <!-- ===== THANH LỌC (FILTER BAR) ===== -->
-                <HBox fx:id="filterBar" alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-padding: 10 25;">
-                    <Label fx:id="filterLabel" text="Phân loại:"
-                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #555;"/>
-                    <MenuButton fx:id="categoryFilter" text="Tất cả danh mục"
-                                mnemonicParsing="false"
-                                style="-fx-background-color: #f0f2f5; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px; -fx-padding: 8 16; -fx-cursor: hand;">
+                <HBox fx:id="filterBar" alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-padding: 10 25;">
+                    <Label fx:id="filterLabel" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #555;" text="Phân loại:" />
+                    <MenuButton fx:id="categoryFilter" mnemonicParsing="false" style="-fx-background-color: #f0f2f5; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px; -fx-padding: 8 16; -fx-cursor: hand;" text="Tất cả danh mục">
                         <!-- Items được tạo động từ Controller -->
                     </MenuButton>
                 </HBox>

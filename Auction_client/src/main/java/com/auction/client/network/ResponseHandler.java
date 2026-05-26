@@ -225,6 +225,19 @@ public class ResponseHandler {
     }
   }
 
+  public static void handleChangePassword(ChangePasswordResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
+        if (ChangePasswordController.getInstance() != null) {
+          ChangePasswordController.getInstance().closeWindow();
+        }
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+      }
+    });
+  }
+
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
     Platform.runLater(() -> {
       DecimalFormat formatter = new DecimalFormat("#,###");

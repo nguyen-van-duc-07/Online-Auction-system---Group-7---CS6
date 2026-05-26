@@ -35,9 +35,13 @@ jobs:
             # 4. Build lại dự án Java sang file .jar mới nhất
             ./mvnw clean package -DskipTests
             
-            # 5. Tắt tiến trình server cũ đang chạy ngầm (nếu có)
+            # 5. Tắt tiến trình server cũ đang chạy ngầm (Hệ thống tự vệ thông minh)
             echo "Stopping existing server..."
-            pkill -f "[A]uction_server" || true
+            if command -v lsof >/dev/null 2>&1; then
+            kill -9 $(lsof -t -i:8080) || true
+            else
+            pgrep -f "Auction_server-0.0.1.*jar" | grep -v "$$" | xargs kill -9 || true
+            fi
             
             # 6. Khởi động lại Server ngầm với file jar mới build
             echo "Starting new server..."

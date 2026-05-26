@@ -9,6 +9,8 @@ import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
 import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.UpdateProfileRequestDTO;
+import com.auction.shared.request.ChangePasswordRequestDTO;
+import com.auction.shared.response.ChangePasswordResponseDTO;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import org.slf4j.Logger;
@@ -171,5 +173,30 @@ public class AuthService {
     admin.setDob(createAdminReq.getDob());
     admin.setAddress(createAdminReq.getAddress());
     return userRepo.saveAdminAccount(admin);
+  }
+
+  public static ChangePasswordResponseDTO changePassword(ChangePasswordRequestDTO request) {
+    String userId = request.getUserId();
+    String oldPassword = request.getOldPassword();
+    String newPassword = request.getNewPassword();
+
+    String currentHashedPassword = userRepo.getPasswordByUserId(userId);
+    if (currentHashedPassword == null) {
+      return new ChangePasswordResponseDTO(false, "Không tìm thấy thông tin tài khoản người dùng!");
+    }
+
+    if (!BCrypt.checkpw(oldPassword, currentHashedPassword)) {
+      return new ChangePasswordResponseDTO(false, "Mật khẩu hiện tại không chính xác!");
+    }
+
+    String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+    boolean success = userRepo.updatePassword(userId, hashedNewPassword);
+    if (success) {
+      log.info("Cập nhật mật khẩu thành công cho user ID: {}", userId);
+      return new ChangePasswordResponseDTO(true, "Cập nhật mật khẩu mới thành công!");
+    } else {
+      log.error("Lỗi khi cập nhật mật khẩu trong CSDL cho user ID: {}", userId);
+      return new ChangePasswordResponseDTO(false, "Lỗi hệ thống khi cập nhật mật khẩu mới!");
+    }
   }
 }

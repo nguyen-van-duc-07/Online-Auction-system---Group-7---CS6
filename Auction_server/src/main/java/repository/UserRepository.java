@@ -233,6 +233,34 @@ public class UserRepository {
     }
     return null;
   }
+  public String getPasswordByUserId(String userId) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "SELECT password FROM users WHERE id = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, userId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return rs.getString("password");
+      }
+    } catch (Exception e) {
+      log.error("Lỗi cơ sở dữ liệu khi lấy mật khẩu của user ID: {}", userId, e);
+    }
+    return null;
+  }
+
+  public boolean updatePassword(String userId, String hashedPassword) {
+    String sql = "UPDATE users SET password = ? WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, hashedPassword);
+      ps.setString(2, userId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật mật khẩu cho user ID: {}", userId, e);
+    }
+    return false;
+  }
+
   public boolean saveAdminAccount(Admin admin) {
     String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address "
         + "VALUES (?, ?, ?, ?, ?, ?, ?)";

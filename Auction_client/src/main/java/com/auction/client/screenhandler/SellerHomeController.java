@@ -48,6 +48,7 @@ public class SellerHomeController {
     this.currentAuctions = auctions;
     this.currentStatusFilter = null; // Reset filter khi load dữ liệu mới
     Platform.runLater(() -> {
+      mainLayout.setFilterBarVisible(true); // Ensure filter bar is visible on seller feed
       mainLayout.getMainContent().setContent(mainLayout.getFeedContainer());
       mainLayout.getMainContent().setFitToWidth(true);
       mainLayout.getMainContent().setFitToHeight(false);
