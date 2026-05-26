@@ -113,19 +113,32 @@ public class SellerHomeController {
     }
   }
 
+  public void filterAuctions(String keyword) {
+    applyFilters();
+  }
+
   /**
    * Lọc các phiên đấu giá của seller theo trạng thái.
    * @param status null = tất cả
    */
   public void filterByStatus(AuctionStatus status) {
     this.currentStatusFilter = status;
-    List<AuctionDTO> filtered = (status == null)
-        ? currentAuctions
-        : currentAuctions.stream()
-            .filter(a -> a.getStatus() == status)
-            .toList();
+    applyFilters();
+  }
+
+  private void applyFilters() {
+    String keyword = mainLayout.getSearchField().getText().trim().toLowerCase();
+
+    List<AuctionDTO> filtered = currentAuctions.stream()
+        .filter(a -> keyword.isEmpty()
+            || (a.getItemName() != null && a.getItemName().toLowerCase().contains(keyword)))
+        .filter(a -> currentStatusFilter == null
+            || a.getStatus() == currentStatusFilter)
+        .toList();
+
     Platform.runLater(() -> loadSellerCards(filtered));
   }
+
 
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     for (AuctionDTO auction : currentAuctions) {

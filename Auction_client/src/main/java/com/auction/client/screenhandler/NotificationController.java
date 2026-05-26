@@ -183,7 +183,7 @@ public class NotificationController implements Initializable {
            ORDER_CANCELLED_BY_BUYER  -> new FontIcon("fas-times-circle");
       case AUCTION_ENDED             -> new FontIcon("fas-bell");
       case REQUEST_APPROVED          -> new FontIcon("fas-check-circle");
-      case REQUEST_REJECTED          -> new FontIcon("fas-circle-xmark");
+      case REQUEST_REJECTED          -> new FontIcon("fas-times-circle");
       case REQUEST_SUBMITTED         -> new FontIcon("fas-hourglass-half");
       case AUCTION_CANCELLED         -> new FontIcon("fas-ban");
       case SYSTEM                    -> new FontIcon("fas-bullhorn");

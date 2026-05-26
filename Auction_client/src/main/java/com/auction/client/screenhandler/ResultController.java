@@ -60,6 +60,41 @@ public class ResultController {
     });
   }
 
+  public void filterOrders(String keyword) {
+    if (orders == null) return;
+
+    List<OrderDTO> filtered = orders.stream()
+        .filter(o -> keyword.isEmpty()
+            || (o.getItemName() != null && o.getItemName().toLowerCase().contains(keyword))
+            || (o.getBrandName() != null && o.getBrandName().toLowerCase().contains(keyword)))
+        .toList();
+
+    Platform.runLater(() -> {
+      mainLayout.getFeedContainer().getChildren().clear();
+      for (OrderDTO order : filtered) {
+        try {
+          FXMLLoader loader = new FXMLLoader(
+              getClass().getResource("/com/auction/client/User/OrderCard.fxml"));
+          Node cardNode = loader.load();
+
+          OrderCardController cardController = loader.getController();
+          cardNode.setUserData(cardController);
+          cardController.setData(order, mainLayout);
+
+          mainLayout.getFeedContainer().getChildren().add(cardNode);
+        } catch (IOException e) {
+          log.error("Lỗi khi load Component OrderCard trong lúc tìm kiếm", e);
+        }
+      }
+
+      if (filtered.isEmpty()) {
+        Label noResult = new Label("Không tìm thấy đơn hàng nào!");
+        noResult.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-padding: 20;");
+        mainLayout.getFeedContainer().getChildren().add(noResult);
+      }
+    });
+  }
+
   public void handleGetPendingOrders() {
     String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(userId));
