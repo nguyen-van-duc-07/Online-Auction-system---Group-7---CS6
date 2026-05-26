@@ -82,8 +82,17 @@ public class OrderCardController {
     String formattedPrice = String.format("%,.0f VNĐ", order.getFinalPrice());
     finalPriceLabel.setText(formattedPrice);
 
-    brandNameLabel.setText("Người bán: " + order.getBrandName());
-    winnerNameLabel.setText(order.getWinnerName());
+    if (order.getBrandName() != null && !order.getBrandName().trim().isEmpty()) {
+      brandNameLabel.setText("Người bán: " + order.getBrandName());
+    } else {
+      brandNameLabel.setText("Người bán: N/A");
+    }
+
+    if (order.getWinnerName() != null && !order.getWinnerName().trim().isEmpty()) {
+      winnerNameLabel.setText(order.getWinnerName());
+    } else {
+      winnerNameLabel.setText("Không rõ");
+    }
 
     // Dừng timer cũ nếu có
     if (countdownTimeline != null) {

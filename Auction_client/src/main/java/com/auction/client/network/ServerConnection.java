@@ -85,6 +85,9 @@ public class ServerConnection {
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
+            case ChangePasswordResponseDTO changePasswordRes ->
+                ResponseHandler.handleChangePassword(changePasswordRes);
+
             case AuctionStatusUpdateDTO dto -> log.info("CLIENT RECEIVED: {} status={}", 
                 dto.getId(), dto.getAuctionStatus());
 

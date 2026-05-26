@@ -147,6 +147,10 @@ public class RequestHandler {
     }
   }
 
+  public static ChangePasswordResponseDTO changePassword(ChangePasswordRequestDTO req) {
+    return AuthService.changePassword(req);
+  }
+
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     BidService bidService = new BidService();
     return bidService.placeBid(req);

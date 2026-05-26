@@ -137,6 +137,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case ChangePasswordRequestDTO changePasswordReq -> {
+                out.writeObject(RequestHandler.changePassword(changePasswordReq));
+                out.flush();
+              }
+
               case PlaceBidRequestDTO bidReq -> {
                 out.writeObject(RequestHandler.placeBid(bidReq));
                 out.flush();

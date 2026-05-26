@@ -76,20 +76,6 @@ public class PaymentScreenController implements Initializable {
     btnCompletePayment.setOnAction(event -> handlePayment());
     btnCancelOrder.setOnAction(event -> handleCancel());
     btnBack.setOnAction(event -> handleBack());
-
-    // Tự động điền (Pre-populate) thông tin giao hàng của người dùng hiện tại từ Profile
-    UserDTO currentUser = SessionManager.getCurrentUser();
-    if (currentUser != null) {
-      if (currentUser.getAccountName() != null && !currentUser.getAccountName().trim().isEmpty()) {
-        txtFullName.setText(currentUser.getAccountName());
-      }
-      if (currentUser.getPhoneNumber() != null && !currentUser.getPhoneNumber().trim().isEmpty()) {
-        txtPhoneNumber.setText(currentUser.getPhoneNumber());
-      }
-      if (currentUser.getAddress() != null && !currentUser.getAddress().trim().isEmpty()) {
-        txtAddress.setText(currentUser.getAddress());
-      }
-    }
   }
 
   // Nạp dữ liệu khi kết thúc phiên trực tiếp
@@ -131,15 +117,17 @@ public class PaymentScreenController implements Initializable {
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
 
-    // Sử dụng thông tin giao hàng lưu trong Order nếu có
-    if (order.getConsigneeName() != null && !order.getConsigneeName().trim().isEmpty()) {
-      txtFullName.setText(order.getConsigneeName());
-    }
-    if (order.getPhoneNumber() != null && !order.getPhoneNumber().trim().isEmpty()) {
-      txtPhoneNumber.setText(order.getPhoneNumber());
-    }
-    if (order.getAddress() != null && !order.getAddress().trim().isEmpty()) {
-      txtAddress.setText(order.getAddress());
+    // Sử dụng thông tin giao hàng lưu trong Order chỉ khi đã xác nhận thanh toán (CONFIRMED)
+    if (order.getStatus() == com.auction.shared.enums.OrderStatus.CONFIRMED) {
+      if (order.getConsigneeName() != null && !order.getConsigneeName().trim().isEmpty()) {
+        txtFullName.setText(order.getConsigneeName());
+      }
+      if (order.getPhoneNumber() != null && !order.getPhoneNumber().trim().isEmpty()) {
+        txtPhoneNumber.setText(order.getPhoneNumber());
+      }
+      if (order.getAddress() != null && !order.getAddress().trim().isEmpty()) {
+        txtAddress.setText(order.getAddress());
+      }
     }
 
     // Kiểm tra vai trò và trạng thái
@@ -173,15 +161,17 @@ public class PaymentScreenController implements Initializable {
     lblDiscount.setText("-0đ");
     lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
 
-    // Đổ dữ liệu thông tin giao hàng có sẵn từ orderDTO (nếu có)
-    if (orderDTO.getConsigneeName() != null && !orderDTO.getConsigneeName().trim().isEmpty()) {
-      txtFullName.setText(orderDTO.getConsigneeName());
-    }
-    if (orderDTO.getPhoneNumber() != null && !orderDTO.getPhoneNumber().trim().isEmpty()) {
-      txtPhoneNumber.setText(orderDTO.getPhoneNumber());
-    }
-    if (orderDTO.getAddress() != null && !orderDTO.getAddress().trim().isEmpty()) {
-      txtAddress.setText(orderDTO.getAddress());
+    // Đổ dữ liệu thông tin giao hàng có sẵn từ orderDTO chỉ khi đã xác nhận thanh toán (CONFIRMED)
+    if (orderDTO.getStatus() == com.auction.shared.enums.OrderStatus.CONFIRMED) {
+      if (orderDTO.getConsigneeName() != null && !orderDTO.getConsigneeName().trim().isEmpty()) {
+        txtFullName.setText(orderDTO.getConsigneeName());
+      }
+      if (orderDTO.getPhoneNumber() != null && !orderDTO.getPhoneNumber().trim().isEmpty()) {
+        txtPhoneNumber.setText(orderDTO.getPhoneNumber());
+      }
+      if (orderDTO.getAddress() != null && !orderDTO.getAddress().trim().isEmpty()) {
+        txtAddress.setText(orderDTO.getAddress());
+      }
     }
 
     // Kiểm tra vai trò của người dùng hiện tại đối với đơn hàng này

@@ -46,6 +46,7 @@ public class HomeController {
   public void loadFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
     Platform.runLater(() -> {
+      mainLayout.setFilterBarVisible(true); // Ensure filter bar is visible on home feed
       // Đảm bảo ScrollPane đang hiển thị FlowPane feedContainer
       mainLayout.getMainContent().setContent(mainLayout.getFeedContainer());
       mainLayout.getMainContent().setFitToWidth(true);

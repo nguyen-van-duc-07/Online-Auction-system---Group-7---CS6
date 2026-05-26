@@ -176,12 +176,21 @@ public class MainLayoutController implements Initializable, Controller {
    * - "seller": lọc theo AuctionStatus (Tất cả, Đang diễn ra, Sắp diễn ra, Đã kết thúc)
    * - "result": ẩn filter bar
    */
+  /**
+   * Bật/tắt hiển thị thanh filter lọc sản phẩm (HBox filterBar).
+   */
+  public void setFilterBarVisible(boolean visible) {
+    if (filterBar != null) {
+      filterBar.setVisible(visible);
+      filterBar.setManaged(visible);
+    }
+  }
+
   private void configureFilterBar(String context) {
     categoryFilter.getItems().clear();
 
     if ("home".equals(context)) {
-      filterBar.setVisible(true);
-      filterBar.setManaged(true);
+      setFilterBarVisible(true);
       filterLabel.setText("Phân loại:");
       categoryFilter.setText("Tất cả danh mục");
 
@@ -204,8 +213,7 @@ public class MainLayoutController implements Initializable, Controller {
       }
 
     } else if ("seller".equals(context)) {
-      filterBar.setVisible(true);
-      filterBar.setManaged(true);
+      setFilterBarVisible(true);
       filterLabel.setText("Trạng thái:");
       categoryFilter.setText("Tất cả phiên");
 
@@ -233,8 +241,7 @@ public class MainLayoutController implements Initializable, Controller {
 
     } else {
       // "result" — ẩn filter bar
-      filterBar.setVisible(false);
-      filterBar.setManaged(false);
+      setFilterBarVisible(false);
     }
   }
 
@@ -362,6 +369,7 @@ public class MainLayoutController implements Initializable, Controller {
    */
   public void loadComponent(String fxmlPath) {
     try {
+      setFilterBarVisible(false); // Tự động ẩn thanh lọc khi chuyển sang trang khác
       FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
       javafx.scene.Parent newNode = loader.load();
 
@@ -369,7 +377,7 @@ public class MainLayoutController implements Initializable, Controller {
       mainContent.setFitToHeight(true);
       mainContent.setFitToWidth(true);
     } catch (IOException e) {
-      log.error("Failed to load FXML component from path: {}", fxmlPath, e);
+      log.error("Không thể load thông tin trong file .fxml: {}", fxmlPath, e);
     }
   }
 
@@ -499,6 +507,12 @@ public class MainLayoutController implements Initializable, Controller {
     ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
+  }
+
+  /** Mở cửa sổ đổi mật khẩu (sub window). */
+  @FXML
+  public void gotoChangePassword() {
+    ScreenController.createSubWindow("Admin/ChangePasswordForm.fxml", "Đổi mật khẩu");
   }
 
   /** Mở trang đăng bán sản phẩm trong ScrollPane. */
