@@ -15,7 +15,6 @@ import java.time.LocalDate;
 public class UserDTO implements Serializable {
     protected String id;
     protected String accountName;
-    protected String realName;
     protected String password;
     protected String email;
     protected LocalDate dob;

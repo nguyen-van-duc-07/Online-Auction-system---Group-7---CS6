@@ -211,7 +211,6 @@ public class ResponseHandler {
           if (Response == ButtonType.OK) {
             SessionManager.setCurrentUser(updatedUser);
             if (updatedUser.getRole() == UserRole.ADMIN) {
-              ScreenController.switchScreen("Admin/AdminScreen.fxml", "Trang chủ");
               AdminScreenController adminController = AdminScreenController.getInstance();
               if (adminController != null) {
                 adminController.gotoProfile();

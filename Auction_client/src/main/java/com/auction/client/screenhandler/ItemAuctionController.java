@@ -49,6 +49,8 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private Label itemIdLabel;
   @FXML
+  private Label startPriceLabel;
+  @FXML
   private Label currentPriceField;
   @FXML
   private AreaChart<String, Number> priceChart;
@@ -742,11 +744,15 @@ public class ItemAuctionController implements Initializable {
       String formattedMinStepPrice = formatter.format(auctionData.getMinStepPrice());
       minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + formattedMinStepPrice + " VNĐ");
 
-      // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
+      // 2. Cập nhật UI cơ bản: Tên người cao nhất, Giá ban đầu và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
 
-      String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
-      currentPriceField.setText("Giá hiện tại: " + formattedPrice);
+      String formattedStartPrice = formatter.format(auctionData.getStartPrice());
+      startPriceLabel.setText(formattedStartPrice + " VNĐ");
+      startPriceLabel.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 15px;");
+
+      String formattedHighestPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
+      currentPriceField.setText("Giá hiện tại: " + formattedHighestPrice);
       currentPriceField.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 22px;");
 
       // 3. Bắt đầu khởi động bộ đếm thời gian

@@ -23,7 +23,7 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở
   public List<AuctionDTO> findActiveAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
+    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột account_name
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'ACTIVE'"
@@ -146,7 +146,7 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang mở thuộc về một seller
   public List<AuctionDTO> findActiveAuctionsBySellerId(String sellerId) {
     List<AuctionDTO> auctions = new ArrayList<>();
-    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
+    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột account_name
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'ACTIVE' AND seller_id = ?"
@@ -317,6 +317,7 @@ public class AuctionRepository {
     auction.setId(rs.getString("id"));
     auction.setSellerId(rs.getString("seller_id"));
     auction.setItem(item);
+    auction.setStartPrice(rs.getBigDecimal("start_price"));
     auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
     auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
     auction.setStatus(AuctionStatus.valueOf(rs.getString("status")));
@@ -530,7 +531,7 @@ public class AuctionRepository {
 
   public AuctionResponseDTO findAuctionById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
-    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.account_name AS highest_bidder_name "
         + "FROM auctions a "
         + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
         + "WHERE a.id = ?";
@@ -549,7 +550,7 @@ public class AuctionRepository {
 
   public AuctionResponseDTO findAuctionResponseDTOById(String auctionId) {
     // Cập nhật câu SQL tương tự như trên
-    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.account_name AS highest_bidder_name "
         + "FROM auctions a "
         + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
         + "WHERE a.id = ?";
@@ -632,7 +633,7 @@ public class AuctionRepository {
   }
 
   public AuctionResponseDTO findAuctionForUpdate(Connection conn, String auctionId) throws SQLException {
-    String sql = "SELECT a.*, u.real_name AS highest_bidder_name "
+    String sql = "SELECT a.*, u.account_name AS highest_bidder_name "
         + "FROM auctions a "
         + "LEFT JOIN users u ON a.highest_bidder_id = u.id "
         + "WHERE a.id = ? FOR UPDATE"; // Khóa dòng này lại cho đến khi commit

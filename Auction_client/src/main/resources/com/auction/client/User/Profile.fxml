@@ -28,9 +28,6 @@
                         <Label fx:id="accountNameLabel" text="Nguyễn Văn Đức" textFill="#2C3E50">
                             <font><Font name="System Bold" size="28.0" /></font>
                         </Label>
-                        <Label fx:id="memberRankLabel" text="Thành viên hạng Kim Cương" textFill="#2BA659">
-                            <font><Font name="System Bold" size="13.0" /></font>
-                        </Label>
                     </children>
                 </VBox>
 
