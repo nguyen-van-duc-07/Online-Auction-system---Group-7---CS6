@@ -2,6 +2,7 @@ package service;
 
 import com.auction.shared.model.order.Order;
 import com.auction.shared.util.FormatUtil;
+import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 
 import java.math.BigDecimal;
@@ -99,7 +100,21 @@ public class WalletService {
         .build();
 
     try (Connection conn = DatabaseConnection.getConnection()) {
-      return txRepo.saveWalletTransaction(conn, tx);
+      boolean success = txRepo.saveWalletTransaction(conn, tx);
+      if (success) {
+        NotificationService notifService = new NotificationService();
+        switch (type) {
+          case WITHDRAW -> notifService.sendFromNotification(
+              NotificationTemplate.withdrawSubmitted(userId, amount)
+          );
+          case DEPOSIT -> notifService.sendFromNotification(
+              NotificationTemplate.depositSubmitted(userId, amount)
+          );
+          default -> {
+          }
+        }
+      }
+      return success;
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi tạo yêu cầu giao dịch cho user: {}", userId, e);
       return false;
@@ -123,26 +138,22 @@ public class WalletService {
         if (tx == null || tx.getStatus() != WalletTransactionStatus.PENDING) {
           return false;
         }
-
+        NotificationService notifService = new NotificationService();
+        Wallet wallet = walletRepo.getWalletByWalletId(conn, tx.getWalletId());
+        if (wallet == null) return false;
         if (actionStatus == WalletTransactionStatus.APPROVE) {
-          // Tính toán balance mới
-          Wallet wallet = walletRepo.getWalletByWalletId(conn, tx.getWalletId());
-          if (wallet == null) return false;
-
-          BigDecimal balBefore = wallet.getBalance();
-          BigDecimal balAfter = balBefore;
-
           if (tx.getType() == WalletTransactionType.DEPOSIT) {
-            balAfter = balBefore.add(tx.getAmount());
-            wallet.setBalance(balAfter);
-            walletRepo.updateWallet(conn, wallet);
-          } else if (tx.getType() == WalletTransactionType.WITHDRAW) {
-            if (balBefore.compareTo(tx.getAmount()) < 0) {
-              return false; // Không đủ tiền
+            wallet.deposit(tx.getAmount());
+            boolean success = walletRepo.updateWallet(conn, wallet);
+            if (success) {
+              notifService.sendFromNotification(NotificationTemplate.depositApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
             }
-            balAfter = balBefore.subtract(tx.getAmount());
-            wallet.setBalance(balAfter);
-            walletRepo.updateWallet(conn, wallet);
+          } else if (tx.getType() == WalletTransactionType.WITHDRAW) {
+            wallet.withdraw(tx.getAmount());
+            boolean success = walletRepo.updateWallet(conn, wallet);
+            if (success) {
+              notifService.sendFromNotification(NotificationTemplate.withdrawApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
+            }
           }
 
           tx.setStatus(WalletTransactionStatus.APPROVE);
@@ -150,7 +161,12 @@ public class WalletService {
           txRepo.updateWalletTransaction(conn, tx);
         } else if (actionStatus == WalletTransactionStatus.REJECT) {
           tx.setStatus(WalletTransactionStatus.REJECT);
-          txRepo.updateWalletTransaction(conn, tx);
+          if (txRepo.updateWalletTransaction(conn, tx)) {
+            switch (tx.getType()) {
+              case DEPOSIT -> notifService.sendFromNotification(NotificationTemplate.depositRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
+              case WITHDRAW -> notifService.sendFromNotification(NotificationTemplate.withdrawRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
+            }
+          }
         }
 
         conn.commit();
