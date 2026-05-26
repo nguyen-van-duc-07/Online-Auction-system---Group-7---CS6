@@ -1,6 +1,7 @@
 package com.auction.shared.model.auction;
 
 import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.enums.ItemType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class AuctionDTO implements Serializable {
     private String auctionId;
     private String itemName;
+    private ItemType itemType;
     private BigDecimal currentPrice;
     private AuctionStatus status;
     private LocalDateTime startTime;
