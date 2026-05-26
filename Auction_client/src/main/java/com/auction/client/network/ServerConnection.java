@@ -202,6 +202,10 @@ public class ServerConnection {
               ResponseHandler.handleProcessTransactionResponse(responseDTO);
             }
 
+            case UpdateAuctionStatusResponseDTO responseDTO -> {
+              ResponseHandler.handleUpdateAuctionStatus(responseDTO);
+            }
+
             default -> log.warn("Phản hồi không hợp lệ");
           }
         }

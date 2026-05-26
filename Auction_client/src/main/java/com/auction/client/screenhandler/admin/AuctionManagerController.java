@@ -5,6 +5,8 @@ import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO;
 import com.auction.shared.request.SellerRegisterRequestDTO;
+import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.request.UpdateAuctionStatusRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -60,6 +62,19 @@ public class AuctionManagerController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     instance = this;
     setupTableColumns();
+
+    // Nhấp đúp chuột để xem chi tiết sản phẩm
+    auctionTable.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+          com.auction.shared.request.AuctionRequestDTO req = new com.auction.shared.request.AuctionRequestDTO();
+          req.setAuctionId(selected.getAuctionId());
+          ServerConnection.sendData(req);
+        }
+      }
+    });
+
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
   }
 
@@ -189,5 +204,55 @@ public class AuctionManagerController implements Initializable {
    */
   public static AuctionManagerController getInstance() {
     return instance;
+  }
+
+  @FXML
+  public void handleOpenAuction() {
+    AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
+    if (selected == null) {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn một phiên đấu giá!");
+      return;
+    }
+
+    if (selected.getStatus() == AuctionStatus.ACTIVE) {
+      ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thông báo", "Phiên hiện đang mở sẵn!");
+      return;
+    }
+
+    if (selected.getStatus() == AuctionStatus.WAITING) {
+      ServerConnection.sendData(new UpdateAuctionStatusRequestDTO(selected.getAuctionId(), AuctionStatus.ACTIVE));
+    } else {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Chỉ có thể mở phiên ở trạng thái chờ (WAITING)!");
+    }
+  }
+
+  @FXML
+  public void handleCloseAuction() {
+    AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
+    if (selected == null) {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn một phiên đấu giá!");
+      return;
+    }
+
+    if (selected.getStatus() == AuctionStatus.ACTIVE || selected.getStatus() == AuctionStatus.WAITING) {
+      ServerConnection.sendData(new UpdateAuctionStatusRequestDTO(selected.getAuctionId(), AuctionStatus.CLOSED));
+    } else {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Không thể đóng phiên đấu giá ở trạng thái này!");
+    }
+  }
+
+  @FXML
+  public void handleBlockAuction() {
+    AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
+    if (selected == null) {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn một phiên đấu giá!");
+      return;
+    }
+
+    if (selected.getStatus() == AuctionStatus.ACTIVE || selected.getStatus() == AuctionStatus.WAITING) {
+      ServerConnection.sendData(new UpdateAuctionStatusRequestDTO(selected.getAuctionId(), AuctionStatus.CANCELED));
+    } else {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Không thể chặn phiên đấu giá ở trạng thái này!");
+    }
   }
 }

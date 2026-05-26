@@ -671,4 +671,15 @@ public class ResponseHandler {
       }
     });
   }
+
+  public static void handleUpdateAuctionStatus(UpdateAuctionStatusResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
+        ServerConnection.sendData(new com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO());
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+      }
+    });
+  }
 }

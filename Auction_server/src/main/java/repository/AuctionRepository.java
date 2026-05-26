@@ -608,5 +608,76 @@ public class AuctionRepository {
     }
     return null;
   }
+
+  public boolean updateAuctionStatusAndStartTime(String auctionId, String status, LocalDateTime startTime) {
+    String sql = "UPDATE auctions SET status = ?, start_time = ? WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, status);
+      ps.setTimestamp(2, Timestamp.valueOf(startTime));
+      ps.setString(3, auctionId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật trạng thái và start_time cho đấu giá ID: {}", auctionId, e);
+      return false;
+    }
+  }
+
+  public boolean updateAuctionEndTime(String auctionId, LocalDateTime endTime) {
+    String sql = "UPDATE auctions SET end_time = ? WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setTimestamp(1, Timestamp.valueOf(endTime));
+      ps.setString(2, auctionId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật end_time cho đấu giá ID: {}", auctionId, e);
+      return false;
+    }
+  }
+
+  public boolean cancelAuctionAndReleaseDeposit(String auctionId) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        AuctionResponseDTO auction = findAuctionForUpdate(conn, auctionId);
+        if (auction == null) {
+          conn.rollback();
+          return false;
+        }
+
+        String sql = "UPDATE auctions SET status = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+          ps.setString(1, AuctionStatus.CANCELED.name());
+          ps.setString(2, auctionId);
+          ps.executeUpdate();
+        }
+
+        if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty() && auction.getCurrentHighestPrice() != null) {
+          java.math.BigDecimal releaseAmount = auction.getCurrentHighestPrice().multiply(new java.math.BigDecimal("0.1"));
+          new service.WalletService().releaseFrozen(conn, auction.getHighestBidderId(), releaseAmount, auctionId);
+          log.info("[CANCEL - RELEASE] Hoàn trả cọc {} cho user {} khi hủy đấu giá {}", releaseAmount, auction.getHighestBidderId(), auctionId);
+        }
+
+        String botSql = "UPDATE auto_bid_configs SET is_active = FALSE WHERE auction_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(botSql)) {
+          ps.setString(1, auctionId);
+          ps.executeUpdate();
+        }
+
+        conn.commit();
+        return true;
+      } catch (Exception e) {
+        conn.rollback();
+        log.error("Lỗi khi hủy phiên đấu giá và giải phóng cọc ID: {}", auctionId, e);
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
+      }
+    } catch (SQLException e) {
+      log.error("Lỗi kết nối cơ sở dữ liệu khi hủy đấu giá ID: {}", auctionId, e);
+      return false;
+    }
+  }
 }
 

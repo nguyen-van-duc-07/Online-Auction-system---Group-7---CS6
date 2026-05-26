@@ -406,4 +406,8 @@ public class RequestHandler {
     String message = success ? "Duyệt giao dịch thành công!" : "Lỗi khi duyệt giao dịch!";
     return new ProcessTransactionResponseDTO(success, message);
   }
+
+  public static UpdateAuctionStatusResponseDTO updateAuctionStatus(UpdateAuctionStatusRequestDTO req) {
+    return AuctionService.updateAuctionStatusByAdmin(req);
+  }
 }
