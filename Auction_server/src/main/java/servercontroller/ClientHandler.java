@@ -281,6 +281,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case GetAllUsersRequestDTO getAllUsersReq -> {
+                out.writeObject(RequestHandler.getAllUsers(getAllUsersReq));
+                out.flush();
+              }
+
               default -> {
                 log.warn("Server nhận được Request không xác định!");
               }

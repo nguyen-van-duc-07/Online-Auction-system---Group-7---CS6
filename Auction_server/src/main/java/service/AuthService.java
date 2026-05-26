@@ -199,4 +199,8 @@ public class AuthService {
       return new ChangePasswordResponseDTO(false, "Lỗi hệ thống khi cập nhật mật khẩu mới!");
     }
   }
+
+  public static java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
+    return userRepo.getAllUsers();
+  }
 }

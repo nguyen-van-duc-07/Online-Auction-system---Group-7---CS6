@@ -31,6 +31,8 @@ public class AuctionManagerController implements Initializable {
   /** Biến static lưu trữ Controller hiện tại của AuctionManagerController. */
   private static AuctionManagerController instance;
 
+  private List<AuctionDTO> originalList;
+
   @FXML
   private TextField searchField;
 
@@ -146,12 +148,15 @@ public class AuctionManagerController implements Initializable {
    * @param auctionsList Danh sách các đơn đăng ký nhận từ Server
    */
   public void loadDataToTable(List<AuctionDTO> auctionsList) {
+    this.originalList = auctionsList;
     if (auctionsList != null) {
       log.info("=== DỮ LIỆU NHẬN ĐƯỢC: {} đơn ===", auctionsList.size());
       ObservableList<AuctionDTO> observableList = FXCollections.observableArrayList(auctionsList);
       auctionTable.setItems(observableList);
+      handleSearch();
     } else {
       log.warn("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
+      auctionTable.setItems(FXCollections.observableArrayList());
     }
   }
 
@@ -160,8 +165,24 @@ public class AuctionManagerController implements Initializable {
    */
   @FXML
   public void handleSearch() {
-    String keyword = searchField.getText().trim();
-    // TODO: Xử lý logic tìm kiếm
+    String keyword = searchField.getText().trim().toLowerCase();
+    log.info("Tìm kiếm phiên đấu giá theo tên sản phẩm hoặc ID: {}", keyword);
+    if (originalList == null) {
+      return;
+    }
+    if (keyword.isEmpty()) {
+      auctionTable.setItems(FXCollections.observableArrayList(originalList));
+    } else {
+      java.util.List<AuctionDTO> filtered = new java.util.ArrayList<>();
+      for (AuctionDTO dto : originalList) {
+        boolean matchesName = dto.getItemName() != null && dto.getItemName().toLowerCase().contains(keyword);
+        boolean matchesId = dto.getAuctionId() != null && String.valueOf(dto.getAuctionId()).toLowerCase().contains(keyword);
+        if (matchesName || matchesId) {
+          filtered.add(dto);
+        }
+      }
+      auctionTable.setItems(FXCollections.observableArrayList(filtered));
+    }
   }
 
   /**

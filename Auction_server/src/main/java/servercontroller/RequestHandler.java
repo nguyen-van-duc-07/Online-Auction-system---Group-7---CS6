@@ -405,4 +405,14 @@ public class RequestHandler {
   public static UpdateAuctionStatusResponseDTO updateAuctionStatus(UpdateAuctionStatusRequestDTO req) {
     return AuctionService.updateAuctionStatusByAdmin(req);
   }
+
+  public static com.auction.shared.response.GetAllUsersResponseDTO getAllUsers(com.auction.shared.request.GetAllUsersRequestDTO req) {
+    try {
+      List<UserDTO> users = AuthService.getAllUsers();
+      return new com.auction.shared.response.GetAllUsersResponseDTO(true, "Tải danh sách người dùng thành công!", users);
+    } catch (Exception e) {
+      log.error("Lỗi khi lấy toàn bộ người dùng trong RequestHandler", e);
+      return new com.auction.shared.response.GetAllUsersResponseDTO(false, "Lỗi hệ thống: " + e.getMessage(), null);
+    }
+  }
 }
