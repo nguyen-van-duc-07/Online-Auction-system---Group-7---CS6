@@ -28,6 +28,10 @@ public class SellerService {
         SellerRegisterStatus.UNREGISTERED.toString());
 
     boolean success = sellerRepo.createSellerProfile(sellerProfile);
+    if (success) {
+      NotificationService notifService = new NotificationService();
+      notifService.sendFromNotification(NotificationTemplate.sellerSubmitted(sellerRegisterReq.getUserId()));
+    }
     return success;
   }
 

@@ -182,19 +182,21 @@ public class NotificationController implements Initializable {
       case ORDER_CANCELLED,
            ORDER_CANCELLED_BY_BUYER  -> new FontIcon("fas-times-circle");
       case AUCTION_ENDED             -> new FontIcon("fas-bell");
-      case SELLER_APPROVED           -> new FontIcon("fas-check-circle");
-      case SELLER_REJECTED           -> new FontIcon("fas-ban");
+      case REQUEST_APPROVED          -> new FontIcon("fas-check-circle");
+      case REQUEST_REJECTED          -> new FontIcon("fas-circle-xmark");
+      case REQUEST_SUBMITTED         -> new FontIcon("fas-hourglass-half");
       case AUCTION_CANCELLED         -> new FontIcon("fas-ban");
       case SYSTEM                    -> new FontIcon("fas-bullhorn");
     };
 
     // Màu theo type
     Color color = switch (type) {
-      case AUCTION_WON, SELLER_APPROVED, ORDER_CONFIRMED -> Color.web("#27ae60");
+      case AUCTION_WON, REQUEST_APPROVED, ORDER_CONFIRMED -> Color.web("#27ae60");
       case ORDER_CANCELLED, ORDER_CANCELLED_BY_BUYER,
-           SELLER_REJECTED, AUCTION_CANCELLED            -> Color.web("#e74c3c");
-      case AUCTION_ENDED                                 -> Color.web("#3498db");
-      case SYSTEM                                        -> Color.web("#9b59b6");
+           REQUEST_REJECTED, AUCTION_CANCELLED            -> Color.web("#e74c3c");
+      case AUCTION_ENDED                                  -> Color.web("#3498db");
+      case REQUEST_SUBMITTED                              -> Color.web("#f39c12");
+      case SYSTEM                                         -> Color.web("#9b59b6");
     };
 
     icon.setIconColor(color);

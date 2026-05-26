@@ -127,10 +127,21 @@ public class NotificationTemplate {
   }
 
   // ==================== SELLER PROFILE ====================
+  public static Notification sellerSubmitted(String userId) {
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_SUBMITTED,
+        "Yêu cầu mở tài khoản bán hàng ",
+        "Yêu cầu mở tài khoản của bạn đã được gửi đi\n"
+            + "Hiện tại yêu cầu của bạn đang được Admin xét duyệt."
+            + "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+        null
+    );
+  }
   public static Notification sellerApproved(String userId) {
     return new Notification(
         userId,
-        NotificationType.SELLER_APPROVED,
+        NotificationType.REQUEST_APPROVED,
         "Tài khoản người bán đã được duyệt",
         "Chúc mừng! Hồ sơ người bán của bạn đã được phê duyệt.\n"
             + "Bạn có thể bắt đầu đăng sản phẩm lên sàn ngay bây giờ.",
@@ -141,7 +152,7 @@ public class NotificationTemplate {
   public static Notification sellerRejected(String userId) {
     return new Notification(
         userId,
-        NotificationType.SELLER_REJECTED,
+        NotificationType.REQUEST_REJECTED,
         "Tài khoản người bán bị từ chối",
         "Hồ sơ người bán của bạn không đáp ứng yêu cầu.\n"
             + "Vui lòng kiểm tra lại thông tin và liên hệ hỗ trợ để biết thêm chi tiết.",
@@ -158,6 +169,93 @@ public class NotificationTemplate {
         "Tài khoản của bạn đã được tạo thành công.\n"
             + "Khám phá ngay các phiên đấu giá hấp dẫn đang diễn ra!\n"
             + "Chúc bạn có những trải nghiệm mua sắm tuyệt vời.",
+        null
+    );
+  }
+
+  // =================== WALLET ======================
+  public static Notification depositSubmitted(String userId, BigDecimal amount) {
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_SUBMITTED,
+        "Yêu cầu nạp tiền ",
+        "Yêu cầu nạp tiền của bạn đã được gửi đi\n"
+            + "Số tiền cần nạp: " + FormatUtil.fmt(amount) + "\n"
+            + "Hiện tại yêu cầu của bạn đang được Admin xét duyệt."
+            + "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+        null
+    );
+  }
+
+  public static Notification withdrawSubmitted(String userId, BigDecimal amount) {
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_SUBMITTED,
+        "Yêu cầu rút tiền ",
+        "Yêu cầu rút tiền của bạn đã được gửi đi\n"
+            + "Số tiền cần rút: " + FormatUtil.fmt(amount) + "\n"
+            + "Hiện tại yêu cầu của bạn đang được Admin xét duyệt."
+            + "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+        null
+    );
+  }
+
+  public static Notification depositApproved(String userId, BigDecimal amount, BigDecimal currentBalance) {
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_APPROVED,
+        "Yêu cầu nạp tiền đã được phê duyệt ",
+        "Chúc mừng! Yêu cầu nạp tiền của bạn đã được phê duyệt\n"
+            + "Số tiền nạp: " + FormatUtil.fmt(amount) + "\n"
+            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n",
+        null
+    );
+  }
+
+  public static Notification withdrawApproved(String userId, BigDecimal amount, BigDecimal currentBalance) {
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_APPROVED,
+        "Yêu cầu rút tiền đã được phê duyệt ",
+        "Chúc mừng! Yêu cầu rút tiền của bạn đã được phê duyệt\n"
+            + "Số tiền rút: " + FormatUtil.fmt(amount) + "\n"
+            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n",
+        null
+    );
+  }
+
+  public static Notification depositRejected(
+      String userId,
+      BigDecimal amount,
+      BigDecimal currentBalance
+  ) {
+
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_REJECTED,
+        "Yêu cầu nạp tiền đã bị từ chối",
+        "Yêu cầu nạp tiền của bạn chưa được chấp thuận.\n"
+            + "Số tiền yêu cầu: " + FormatUtil.fmt(amount) + "\n"
+            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n"
+            + "Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ để biết thêm chi tiết.",
+        null
+    );
+  }
+
+  public static Notification withdrawRejected(
+      String userId,
+      BigDecimal amount,
+      BigDecimal currentBalance
+  ) {
+
+    return new Notification(
+        userId,
+        NotificationType.REQUEST_REJECTED,
+        "Yêu cầu rút tiền đã bị từ chối",
+        "Yêu cầu rút tiền của bạn chưa được chấp thuận.\n"
+            + "Số tiền yêu cầu: " + FormatUtil.fmt(amount) + "\n"
+            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n"
+            + "Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ để biết thêm chi tiết.",
         null
     );
   }
