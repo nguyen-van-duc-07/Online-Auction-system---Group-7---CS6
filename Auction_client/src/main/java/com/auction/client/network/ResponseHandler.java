@@ -430,18 +430,17 @@ public class ResponseHandler {
   }
 
   public static void handleUpdateSellerProfileStatus(UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes) {
-    if (updateSellerProfileStatusRes.isSuccess()) {
-      Platform.runLater(() -> {
+    Platform.runLater(() -> {
+      if (updateSellerProfileStatusRes.isSuccess()) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateSellerProfileStatusRes.getMessage());
-        ServerConnection.sendData(new GetSellerProfileRequestDTO());
-      });
-    } else {
-      Platform.runLater(() -> {
+      } else {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi", updateSellerProfileStatusRes.getMessage());
-      });
-    }
+      }
+      // Luôn tải lại danh sách để đồng bộ trạng thái mới nhất hiển thị trên bảng
+      ServerConnection.sendData(new GetSellerProfileRequestDTO());
+    });
   }
 
   public static void handleCancelSellerAuctions(CancelSellerAuctionsResponseDTO response) {

@@ -172,19 +172,58 @@ public class AuctionRepository {
 
   // Cập nhật giá cao nhất khi có người bid
   public boolean cancelActiveAndWaitingAuctionsBySellerId(String sellerId) {
-    String sql = "UPDATE auctions SET status = ? WHERE seller_id = ? AND status IN (?, ?)";
+    String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE seller_id = ? AND status = 'ACTIVE'";
+    String updateSql = "UPDATE auctions SET status = ? WHERE seller_id = ? AND status IN (?, ?)";
+    String deactivateBotsSql = "UPDATE auto_bid_configs SET is_active = FALSE WHERE auction_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        // 1. Lấy tất cả phiên ACTIVE của seller này và giải phóng cọc cho người chơi dẫn đầu
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setString(1, sellerId);
+          try (ResultSet rs = psSelect.executeQuery()) {
+            service.WalletService walletService = new service.WalletService();
+            while (rs.next()) {
+              String auctionId = rs.getString("id");
+              String highestBidderId = rs.getString("highest_bidder_id");
+              java.math.BigDecimal currentPrice = rs.getBigDecimal("current_price");
 
-      ps.setString(1, AuctionStatus.CANCELED.name());
-      ps.setString(2, sellerId);
-      ps.setString(3, AuctionStatus.ACTIVE.name());
-      ps.setString(4, AuctionStatus.WAITING.name());
-      ps.executeUpdate();
-      return true;
+              if (highestBidderId != null && !highestBidderId.isEmpty() && currentPrice != null) {
+                java.math.BigDecimal releaseAmount = currentPrice.multiply(new java.math.BigDecimal("0.1"));
+                walletService.releaseFrozen(conn, highestBidderId, releaseAmount, auctionId);
+                log.info("[SELLER REJECT - RELEASE] Hoàn trả cọc {} cho user {} từ phiên {}", releaseAmount, highestBidderId, auctionId);
+              }
+
+              // 2. Vô hiệu hóa bot của phiên này
+              try (PreparedStatement psBot = conn.prepareStatement(deactivateBotsSql)) {
+                psBot.setString(1, auctionId);
+                psBot.executeUpdate();
+              }
+            }
+          }
+        }
+
+        // 3. Cập nhật trạng thái tất cả phiên sang CANCELED
+        try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+          psUpdate.setString(1, AuctionStatus.CANCELED.name());
+          psUpdate.setString(2, sellerId);
+          psUpdate.setString(3, AuctionStatus.ACTIVE.name());
+          psUpdate.setString(4, AuctionStatus.WAITING.name());
+          psUpdate.executeUpdate();
+        }
+
+        conn.commit();
+        return true;
+      } catch (Exception e) {
+        conn.rollback();
+        log.error("Lỗi khi hủy các đấu giá của người bán ID: {}", sellerId, e);
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
+      }
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi hủy các đấu giá của người bán ID: {}", sellerId, e);
+      log.error("Lỗi kết nối cơ sở dữ liệu khi hủy các đấu giá của người bán ID: {}", sellerId, e);
       return false;
     }
   }
