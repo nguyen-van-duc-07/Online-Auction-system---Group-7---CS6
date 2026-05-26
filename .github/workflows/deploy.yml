@@ -37,7 +37,7 @@ jobs:
             
             # 5. Tắt tiến trình server cũ đang chạy ngầm (nếu có)
             echo "Stopping existing server..."
-            pkill -f "Auction_server" || true
+            pkill -f "java -jar.*Auction_server" || true
             
             # 6. Khởi động lại Server ngầm với file jar mới build
             echo "Starting new server..."
