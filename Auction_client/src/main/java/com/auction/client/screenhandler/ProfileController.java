@@ -24,8 +24,6 @@ public class ProfileController implements Initializable {
   private Label emailLabel;
   @FXML
   private Label phoneNumberLabel;
-  @FXML
-  private Label memberRankLabel;
 
   /**
    * Hàm được tự động gọi khi màn hình Profile.fxml được load lên.
@@ -36,13 +34,6 @@ public class ProfileController implements Initializable {
     UserDTO currentUser = SessionManager.getCurrentUser();
 
     if (currentUser != null) {
-      if (memberRankLabel != null) {
-        if (currentUser.getRole() == UserRole.ADMIN) {
-          memberRankLabel.setText("QUẢN TRỊ VIÊN");
-        } else {
-          memberRankLabel.setText("NGƯỜI ĐẤU GIÁ");
-        }
-      }
       if (currentUser.getAccountName() != null) {
         if (currentUser.getAccountName() != null) {
           accountNameLabel.setText(currentUser.getAccountName());

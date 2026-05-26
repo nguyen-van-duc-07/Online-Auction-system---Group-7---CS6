@@ -108,7 +108,7 @@ public class UserManagerController implements Initializable {
     roleColumn.setStyle("-fx-alignment: CENTER;");
 
     // Ánh xạ các trường dữ liệu từ UserDTO
-    realNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getRealName()));
+    realNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAccountName()));
     dobColumn.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getDob()));
     phoneNumberColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPhoneNumber()));
     emailColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEmail()));
@@ -149,7 +149,7 @@ public class UserManagerController implements Initializable {
     } else {
       List<UserDTO> filtered = new ArrayList<>();
       for (UserDTO dto : originalList) {
-        boolean matchesRealName = dto.getRealName() != null && dto.getRealName().toLowerCase().contains(keyword);
+        boolean matchesRealName = dto.getAccountName() != null && dto.getAccountName().toLowerCase().contains(keyword);
         boolean matchesPhone = dto.getPhoneNumber() != null && dto.getPhoneNumber().toLowerCase().contains(keyword);
         boolean matchesEmail = dto.getEmail() != null && dto.getEmail().toLowerCase().contains(keyword);
         if (matchesRealName || matchesPhone || matchesEmail) {

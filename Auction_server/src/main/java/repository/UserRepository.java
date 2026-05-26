@@ -263,7 +263,7 @@ public class UserRepository {
 
   public java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
     java.util.List<com.auction.shared.model.user.UserDTO> list = new java.util.ArrayList<>();
-    String sql = "SELECT id, account_name, real_name, dob, phone_number, email, address, role FROM users";
+    String sql = "SELECT id, account_name, dob, phone_number, email, address, role FROM users";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
@@ -272,7 +272,6 @@ public class UserRepository {
         com.auction.shared.model.user.UserDTO dto = new com.auction.shared.model.user.UserDTO();
         dto.setId(rs.getString("id"));
         dto.setAccountName(rs.getString("account_name"));
-        dto.setRealName(rs.getString("real_name"));
         dto.setEmail(rs.getString("email"));
         dto.setPhoneNumber(rs.getString("phone_number"));
         dto.setAddress(rs.getString("address"));
