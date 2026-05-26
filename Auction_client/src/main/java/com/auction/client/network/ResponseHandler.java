@@ -1,6 +1,7 @@
 package com.auction.client.network;
 
 import com.auction.client.screenhandler.*;
+import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
@@ -202,17 +203,28 @@ public class ResponseHandler {
 
   public static void handleUpdateProfile(UpdateProfileResponseDTO updateProfileRes) {
     if (updateProfileRes.isSuccess()) {
-      SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
+      UserDTO updatedUser = updateProfileRes.getUserAfterUpdatingProfile();
+      SessionManager.setCurrentUser(updatedUser);
       Platform.runLater(() -> {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateProfileRes.getMessage()).ifPresent(Response -> {
           if (Response == ButtonType.OK) {
-            SessionManager.setCurrentUser(updateProfileRes.getUserAfterUpdatingProfile());
-            MainLayoutController controller = MainLayoutController.getInstance();
-            Label accountNameLabel = controller.getAccountNameLabel();
-            accountNameLabel.setText("Chào, " + updateProfileRes.getUserAfterUpdatingProfile().getAccountName());
-            if (controller != null) {
-              controller.gotoHomeFeed();
+            SessionManager.setCurrentUser(updatedUser);
+            if (updatedUser.getRole() == UserRole.ADMIN) {
+              ScreenController.switchScreen("Admin/AdminScreen.fxml", "Trang chủ");
+              AdminScreenController adminController = AdminScreenController.getInstance();
+              if (adminController != null) {
+                adminController.gotoProfile();
+              }
+            } else {
+              MainLayoutController controller = MainLayoutController.getInstance();
+              if (controller != null) {
+                Label accountNameLabel = controller.getAccountNameLabel();
+                if (accountNameLabel != null) {
+                  accountNameLabel.setText("Chào, " + updatedUser.getAccountName());
+                }
+                controller.gotoHomeFeed();
+              }
             }
           }
         });

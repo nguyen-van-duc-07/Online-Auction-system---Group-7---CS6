@@ -541,7 +541,7 @@ public class MainLayoutController implements Initializable, Controller {
   /** Mở cửa sổ đổi mật khẩu (sub window). */
   @FXML
   public void gotoChangePassword() {
-    ScreenController.createSubWindow("Admin/ChangePasswordForm.fxml", "Đổi mật khẩu");
+    ScreenController.createSubWindow("User/ChangePasswordForm.fxml", "Đổi mật khẩu");
   }
 
   /** Mở trang đăng bán sản phẩm trong ScrollPane. */

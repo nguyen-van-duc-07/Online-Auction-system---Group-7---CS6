@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.MenuButton;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +24,32 @@ import java.util.ResourceBundle;
 public class AdminScreenController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(AdminScreenController.class);
 
+  private static AdminScreenController instance;
+
+  public static AdminScreenController getInstance() {
+    return instance;
+  }
+
   @FXML
   private VBox mainContent;
 
+  @FXML
+  private MenuButton adminMenuBtn;
+
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    instance = this;
 
+    // Khởi tạo tên hiển thị của Admin chào mừng từ SessionManager
+    if (SessionManager.getCurrentUser() != null) {
+      String realName = SessionManager.getCurrentUser().getAccountName();
+      String phoneNumber = SessionManager.getCurrentUser().getPhoneNumber();
+      if (realName != null) {
+        adminMenuBtn.setText("Xin chào: " + realName);
+      } else if (phoneNumber != null) {
+        adminMenuBtn.setText("Xin chào: " + phoneNumber);
+      }
+    }
   }
 
   /**
@@ -73,9 +94,34 @@ public class AdminScreenController implements Initializable {
   }
 
   /**
+   * Tải màn hình thông tin cá nhân của Admin.
+   */
+  @FXML
+  public void gotoProfile() {
+    loadComponent("/com/auction/client/User/Profile.fxml");
+  }
+
+  /**
+   * Mở cửa sổ đổi mật khẩu.
+   */
+  @FXML
+  public void gotoChangePassword() {
+    ScreenController.createSubWindow("User/ChangePasswordForm.fxml", "Đổi mật khẩu");
+  }
+
+  /**
+   * Cập nhật tên hiển thị của Admin trên MenuButton chào mừng.
+   */
+  public void updateAdminName(String newName) {
+    if (adminMenuBtn != null) {
+      adminMenuBtn.setText("Xin chào: " + newName);
+    }
+  }
+
+  /**
    * Nạp file FXML và thay thế toàn bộ nội dung hiện tại của VBox.
    */
-  private void loadComponent(String fxmlPath) {
+  public void loadComponent(String fxmlPath) {
     try {
       FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
       Parent newNode = loader.load();

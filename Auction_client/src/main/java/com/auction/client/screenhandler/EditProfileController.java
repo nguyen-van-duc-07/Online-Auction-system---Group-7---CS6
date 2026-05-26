@@ -2,6 +2,8 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.client.screenhandler.admin.AdminScreenController;
+import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.UpdateProfileRequestDTO;
 import javafx.fxml.FXML;
@@ -129,6 +131,23 @@ public class EditProfileController implements Initializable {
 
   @FXML
   public void handleCancel() {
+    if (currentUser != null && currentUser.getRole() == UserRole.ADMIN) {
+      AdminScreenController adminController = AdminScreenController.getInstance();
+      if (adminController != null) {
+        if (isInformationChanged()) {
+          ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
+                  "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
+            if (Response == ButtonType.OK) {
+              adminController.gotoProfile();
+            }
+          });
+        } else {
+          adminController.gotoProfile();
+        }
+      }
+      return;
+    }
+
     MainLayoutController mainLayoutController = MainLayoutController.getInstance();
     if (isInformationChanged()) {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
