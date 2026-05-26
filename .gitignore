@@ -37,4 +37,7 @@ build/
 .DS_Store
 
 ### Auction System Config ###
-config.properties
+config.properties
+
+### Logs ###
+logs/

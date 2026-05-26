@@ -20,6 +20,7 @@
                </font>
             </Label>
             <Label fx:id="statusLabel" textFill="#27ae60" />
+            <Label fx:id="categoryLabel" textFill="#7f8c8d" style="-fx-font-size: 12px;" />
          </children>
       </VBox>
       <VBox alignment="CENTER" prefWidth="200.0">
