@@ -177,8 +177,8 @@ public class SellerAccountManagerController implements Initializable {
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.REGISTERED);
+    request.setExpectedOldStatus(SellerRegisterStatus.valueOf(selected.getStatus()));
     ServerConnection.sendData(request);
-    ServerConnection.sendData(new RestoreSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**
@@ -200,8 +200,8 @@ public class SellerAccountManagerController implements Initializable {
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.DENIED);
+    request.setExpectedOldStatus(SellerRegisterStatus.valueOf(selected.getStatus()));
     ServerConnection.sendData(request);
-    ServerConnection.sendData(new CancelSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**

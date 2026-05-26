@@ -38,13 +38,13 @@
 
         <HBox spacing="15.0">
             <children>
-                <Button onAction="#handleAdd" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #27ae60;" text="Mở" textFill="WHITE">
+                <Button onAction="#handleOpenAuction" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #27ae60;" text="Mở phiên" textFill="WHITE">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Button>
-                <Button onAction="#handleEdit" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2980b9;" text="Chỉnh sửa" textFill="WHITE">
+                <Button onAction="#handleCloseAuction" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2980b9;" text="Đóng phiên" textFill="WHITE">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Button>
-                <Button onAction="#handleDelete" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #c0392b;" text="Xóa" textFill="WHITE">
+                <Button onAction="#handleBlockAuction" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #c0392b;" text="Chặn phiên" textFill="WHITE">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Button>
             </children>

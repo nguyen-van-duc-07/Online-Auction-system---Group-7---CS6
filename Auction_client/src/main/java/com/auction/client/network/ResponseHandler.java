@@ -430,18 +430,17 @@ public class ResponseHandler {
   }
 
   public static void handleUpdateSellerProfileStatus(UpdateSellerProfileStatusResponseDTO updateSellerProfileStatusRes) {
-    if (updateSellerProfileStatusRes.isSuccess()) {
-      Platform.runLater(() -> {
+    Platform.runLater(() -> {
+      if (updateSellerProfileStatusRes.isSuccess()) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION,
             "Thông báo", updateSellerProfileStatusRes.getMessage());
-        ServerConnection.sendData(new GetSellerProfileRequestDTO());
-      });
-    } else {
-      Platform.runLater(() -> {
+      } else {
         ScreenController.showAlert(Alert.AlertType.ERROR,
             "Lỗi", updateSellerProfileStatusRes.getMessage());
-      });
-    }
+      }
+      // Luôn tải lại danh sách để đồng bộ trạng thái mới nhất hiển thị trên bảng
+      ServerConnection.sendData(new GetSellerProfileRequestDTO());
+    });
   }
 
   public static void handleCancelSellerAuctions(CancelSellerAuctionsResponseDTO response) {
@@ -668,6 +667,17 @@ public class ResponseHandler {
       // Reload danh sách pending
       if (response.isSuccess()) {
         ServerConnection.sendData(new GetPendingTransactionsRequestDTO());
+      }
+    });
+  }
+
+  public static void handleUpdateAuctionStatus(UpdateAuctionStatusResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
+        ServerConnection.sendData(new com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO());
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
       }
     });
   }

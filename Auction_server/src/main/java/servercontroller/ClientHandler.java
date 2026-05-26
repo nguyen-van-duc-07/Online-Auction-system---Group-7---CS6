@@ -271,6 +271,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case UpdateAuctionStatusRequestDTO req -> {
+                out.writeObject(RequestHandler.updateAuctionStatus(req));
+                out.flush();
+              }
+
               case CreateAdminRequestDTO request -> {
                 out.writeObject(RequestHandler.createAdmin(request));
                 out.flush();

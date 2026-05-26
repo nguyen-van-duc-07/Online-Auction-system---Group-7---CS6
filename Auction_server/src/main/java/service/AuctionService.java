@@ -7,6 +7,11 @@ import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
+import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.request.UpdateAuctionStatusRequestDTO;
+import com.auction.shared.response.UpdateAuctionStatusResponseDTO;
+import com.auction.shared.response.AuctionStatusUpdateDTO;
+import servercontroller.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -264,6 +269,101 @@ public class AuctionService {
       }
     }
   }
+
+  public static UpdateAuctionStatusResponseDTO updateAuctionStatusByAdmin(UpdateAuctionStatusRequestDTO request) {
+    String auctionId = request.getAuctionId();
+    AuctionStatus targetStatus = request.getStatus();
+
+    final UpdateAuctionStatusResponseDTO[] response = new UpdateAuctionStatusResponseDTO[1];
+    service.BidService.runWithAuctionLock(auctionId, () -> {
+      try {
+        AuctionResponseDTO auction = auctionRepo.findAuctionById(auctionId);
+        if (auction == null) {
+          response[0] = new UpdateAuctionStatusResponseDTO(false, "Phiên đấu giá không tồn tại!");
+          return;
+        }
+
+        if (targetStatus == AuctionStatus.ACTIVE) {
+          if (auction.getStatus() == AuctionStatus.ACTIVE) {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Phiên hiện đang mở sẵn!");
+            return;
+          }
+          if (auction.getStatus() != AuctionStatus.WAITING) {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Chỉ có thể mở phiên ở trạng thái chờ (WAITING)!");
+            return;
+          }
+
+          boolean success = auctionRepo.updateAuctionStatusAndStartTime(auctionId, AuctionStatus.ACTIVE.name(), LocalDateTime.now());
+          if (success) {
+            Auction ramAuction = getInstance().getAuction(auctionId);
+            if (ramAuction != null) {
+              ramAuction.setStatus(AuctionStatus.ACTIVE);
+              ramAuction.setStartTime(LocalDateTime.now());
+            }
+            Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.ACTIVE));
+            response[0] = new UpdateAuctionStatusResponseDTO(true, "Mở phiên đấu giá thành công!");
+          } else {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Mở phiên đấu giá thất bại!");
+          }
+        } 
+        else if (targetStatus == AuctionStatus.CLOSED) {
+          if (auction.getStatus() == AuctionStatus.ACTIVE) {
+            boolean success = auctionRepo.updateAuctionEndTime(auctionId, LocalDateTime.now());
+            if (success) {
+              Auction ramAuction = getInstance().getAuction(auctionId);
+              if (ramAuction != null) {
+                ramAuction.setEndTime(LocalDateTime.now());
+              }
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CLOSED));
+              response[0] = new UpdateAuctionStatusResponseDTO(true, "Đóng phiên thành công! Phiên sẽ xử lý kết quả ngay lập tức.");
+            } else {
+              response[0] = new UpdateAuctionStatusResponseDTO(false, "Đóng phiên thất bại!");
+            }
+          } else if (auction.getStatus() == AuctionStatus.WAITING) {
+            boolean success = auctionRepo.cancelAuctionAndReleaseDeposit(auctionId);
+            if (success) {
+              Auction ramAuction = getInstance().getAuction(auctionId);
+              if (ramAuction != null) {
+                ramAuction.setStatus(AuctionStatus.CANCELED);
+              }
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED));
+              response[0] = new UpdateAuctionStatusResponseDTO(true, "Đóng phiên thành công (Đã chuyển trạng thái sang Hủy do phiên chưa bắt đầu)!");
+            } else {
+              response[0] = new UpdateAuctionStatusResponseDTO(false, "Đóng phiên thất bại!");
+            }
+          } else {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Không thể đóng phiên đấu giá ở trạng thái này!");
+          }
+        } 
+        else if (targetStatus == AuctionStatus.CANCELED) {
+          if (auction.getStatus() == AuctionStatus.ACTIVE || auction.getStatus() == AuctionStatus.WAITING) {
+            boolean success = auctionRepo.cancelAuctionAndReleaseDeposit(auctionId);
+            if (success) {
+              Auction ramAuction = getInstance().getAuction(auctionId);
+              if (ramAuction != null) {
+                ramAuction.setStatus(AuctionStatus.CANCELED);
+              }
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED));
+              response[0] = new UpdateAuctionStatusResponseDTO(true, "Chặn và hủy phiên đấu giá thành công, đã hoàn trả cọc!");
+            } else {
+              response[0] = new UpdateAuctionStatusResponseDTO(false, "Chặn phiên đấu giá thất bại!");
+            }
+          } else {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Không thể chặn phiên đấu giá ở trạng thái này!");
+          }
+        } 
+        else {
+          response[0] = new UpdateAuctionStatusResponseDTO(false, "Trạng thái yêu cầu không hợp lệ!");
+        }
+      } catch (Exception e) {
+        log.error("Lỗi khi admin cập nhật trạng thái phiên đấu giá ID: {}", auctionId, e);
+        response[0] = new UpdateAuctionStatusResponseDTO(false, "Lỗi hệ thống: " + e.getMessage());
+      }
+    });
+
+    return response[0];
+  }
+
   /**
    * Giải quyết đụng độ khi có nhiều người dùng cùng bật Auto-bid trong một phòng.
    * Sử dụng thuật toán Jump Calculation (Đấu giá giá lớn thứ hai) để chốt giá cuối cùng

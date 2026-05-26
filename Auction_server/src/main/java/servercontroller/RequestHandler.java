@@ -259,12 +259,7 @@ public class RequestHandler {
 
   public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
           UpdateSellerProfileStatusRequestDTO request) {
-    boolean success = SellerService.handleUpdateSellerProfileStatus(request);
-    String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
-    UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
-    response.setSuccess(success);
-    response.setMessage(message);
-    return response;
+    return SellerService.handleUpdateSellerProfileStatus(request);
   }
 
   public static CancelSellerAuctionsResponseDTO cancelSellerAuctions(CancelSellerAuctionsRequestDTO request) {
@@ -405,5 +400,9 @@ public class RequestHandler {
     boolean success = walletService.processTransactionRequest(req.getTransactionId(), req.getActionStatus());
     String message = success ? "Duyệt giao dịch thành công!" : "Lỗi khi duyệt giao dịch!";
     return new ProcessTransactionResponseDTO(success, message);
+  }
+
+  public static UpdateAuctionStatusResponseDTO updateAuctionStatus(UpdateAuctionStatusRequestDTO req) {
+    return AuctionService.updateAuctionStatusByAdmin(req);
   }
 }
