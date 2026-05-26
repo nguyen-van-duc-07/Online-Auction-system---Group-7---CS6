@@ -1,6 +1,8 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
+import com.auction.client.screenhandler.admin.AdminScreenController;
+import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +24,8 @@ public class ProfileController implements Initializable {
   private Label emailLabel;
   @FXML
   private Label phoneNumberLabel;
+  @FXML
+  private Label memberRankLabel;
 
   /**
    * Hàm được tự động gọi khi màn hình Profile.fxml được load lên.
@@ -32,6 +36,13 @@ public class ProfileController implements Initializable {
     UserDTO currentUser = SessionManager.getCurrentUser();
 
     if (currentUser != null) {
+      if (memberRankLabel != null) {
+        if (currentUser.getRole() == UserRole.ADMIN) {
+          memberRankLabel.setText("QUẢN TRỊ VIÊN");
+        } else {
+          memberRankLabel.setText("NGƯỜI ĐẤU GIÁ");
+        }
+      }
       if (currentUser.getAccountName() != null) {
         if (currentUser.getAccountName() != null) {
           accountNameLabel.setText(currentUser.getAccountName());
@@ -56,6 +67,14 @@ public class ProfileController implements Initializable {
 
   @FXML
   public void gotoEditProfile() {
-    MainLayoutController.getInstance().loadComponent("/com/auction/client/User/EditProfile.fxml");
+    UserDTO currentUser = SessionManager.getCurrentUser();
+    if (currentUser != null && currentUser.getRole() == UserRole.ADMIN) {
+      AdminScreenController adminController = AdminScreenController.getInstance();
+      if (adminController != null) {
+        adminController.loadComponent("/com/auction/client/User/EditProfile.fxml");
+      }
+    } else {
+      MainLayoutController.getInstance().loadComponent("/com/auction/client/User/EditProfile.fxml");
+    }
   }
 }
