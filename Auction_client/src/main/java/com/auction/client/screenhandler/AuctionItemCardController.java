@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.AuctionStatusUI;
+import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
 import javafx.animation.Animation;
 import javafx.application.Platform;
@@ -31,6 +32,8 @@ public class AuctionItemCardController {
   private Label priceLabel;
   @FXML
   private Label timeLabel;
+  @FXML
+  private Label categoryLabel;
 
   private Controller currentScreen;
   private Timeline countdownTimer;
@@ -45,6 +48,14 @@ public class AuctionItemCardController {
       this.auction = auction;
       // 1. Đổ dữ liệu text
       nameLabel.setText(auction.getItemName());
+
+      // Hiển thị loại sản phẩm
+      ItemType type = auction.getItemType();
+      if (type != null) {
+        categoryLabel.setText(type.getValue());
+      } else {
+        categoryLabel.setText("");
+      }
 
       updateStatus(auction.getStartTime(), auction.getEndTime());
 

@@ -24,7 +24,7 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'ACTIVE'"
         + "ORDER BY start_time ASC";
@@ -46,7 +46,7 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đang chờ bắt đầu
   public List<AuctionDTO> findWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'WAITING' "
         + "ORDER BY start_time ASC";
@@ -68,7 +68,7 @@ public class AuctionRepository {
   // Lấy tất cả các phiên đấu giá đã kết thúc
   public List<AuctionDTO> findClosedAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'CLOSED' "
         + "ORDER BY end_time DESC";
@@ -91,7 +91,7 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAndWaitingAuctions() {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Sử dụng IN để lấy cả hai trạng thái WAITING và ACTIVE, kết hợp sắp xếp theo thứ tự ACTIVE -> WAITING
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status IN ('WAITING', 'ACTIVE') "
         + "ORDER BY CASE status "
@@ -115,7 +115,7 @@ public class AuctionRepository {
 
   public List<AuctionDTO> findAuctionsBySellerId(String sellerId) {
     List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE seller_id = ? "
         + "ORDER BY CASE status "
@@ -147,7 +147,7 @@ public class AuctionRepository {
   public List<AuctionDTO> findActiveAuctionsBySellerId(String sellerId) {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột real_name
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name "
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
         + "WHERE status = 'ACTIVE' AND seller_id = ?"
         + "ORDER BY start_time ASC";
@@ -237,6 +237,16 @@ public class AuctionRepository {
     auctionDTO.setStatus(AuctionStatus.valueOf(rs.getString("status")));
     auctionDTO.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
     auctionDTO.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+    // Mapping loại sản phẩm
+    String itemTypeStr = rs.getString("item_type");
+    if (itemTypeStr != null) {
+      try {
+        auctionDTO.setItemType(ItemType.valueOf(itemTypeStr.toUpperCase()));
+      } catch (IllegalArgumentException e) {
+        auctionDTO.setItemType(ItemType.OTHER);
+      }
+    }
 
     return auctionDTO;
   }

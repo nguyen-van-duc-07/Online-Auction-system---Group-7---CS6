@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
@@ -30,6 +31,7 @@ public class HomeController {
 
   private final MainLayoutController mainLayout;
   private List<AuctionDTO> currentAuctions = new ArrayList<>();
+  private ItemType currentCategoryFilter = null;
 
   public HomeController(MainLayoutController mainLayout) {
     this.mainLayout = mainLayout;
@@ -116,10 +118,28 @@ public class HomeController {
   }
 
   public void filterAuctions(String keyword) {
-    List<AuctionDTO> filtered = keyword.isEmpty()
-        ? currentAuctions
-        : currentAuctions.stream()
-        .filter(a -> a.getItemName().toLowerCase().contains(keyword))
+    applyFilters();
+  }
+
+  /**
+   * Lọc theo loại sản phẩm (null = tất cả).
+   */
+  public void filterByCategory(ItemType type) {
+    this.currentCategoryFilter = type;
+    applyFilters();
+  }
+
+  /**
+   * Áp dụng tổng hợp cả search text và category filter.
+   */
+  private void applyFilters() {
+    String keyword = mainLayout.getSearchField().getText().trim().toLowerCase();
+
+    List<AuctionDTO> filtered = currentAuctions.stream()
+        .filter(a -> keyword.isEmpty()
+            || a.getItemName().toLowerCase().contains(keyword))
+        .filter(a -> currentCategoryFilter == null
+            || a.getItemType() == currentCategoryFilter)
         .toList();
 
     Platform.runLater(() -> {

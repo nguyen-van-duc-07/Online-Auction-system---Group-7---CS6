@@ -2,6 +2,8 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.enums.ItemType;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -9,12 +11,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -66,6 +70,11 @@ public class MainLayoutController implements Initializable, Controller {
   @FXML private Button functionButton2;
   @FXML private Button functionButton3;
   @FXML private Label lblStatusHeader;
+
+  // Filter bar
+  @FXML private HBox filterBar;
+  @FXML private MenuButton categoryFilter;
+  @FXML private Label filterLabel;
 
   // ========================== STYLE CONSTANTS ==========================
 
@@ -159,6 +168,76 @@ public class MainLayoutController implements Initializable, Controller {
     });
   }
 
+  // ========================== FILTER BAR ==========================
+
+  /**
+   * Cấu hình MenuButton filter tùy theo context.
+   * - "home": lọc theo ItemType (Tất cả danh mục, Thiết bị điện tử, ...)
+   * - "seller": lọc theo AuctionStatus (Tất cả, Đang diễn ra, Sắp diễn ra, Đã kết thúc)
+   * - "result": ẩn filter bar
+   */
+  private void configureFilterBar(String context) {
+    categoryFilter.getItems().clear();
+
+    if ("home".equals(context)) {
+      filterBar.setVisible(true);
+      filterBar.setManaged(true);
+      filterLabel.setText("Phân loại:");
+      categoryFilter.setText("Tất cả danh mục");
+
+      // Item "Tất cả"
+      MenuItem allItem = new MenuItem("Tất cả danh mục");
+      allItem.setOnAction(e -> {
+        categoryFilter.setText("Tất cả danh mục");
+        if (homeController != null) homeController.filterByCategory(null);
+      });
+      categoryFilter.getItems().add(allItem);
+
+      // Các ItemType
+      for (ItemType type : ItemType.values()) {
+        MenuItem mi = new MenuItem(type.getValue());
+        mi.setOnAction(e -> {
+          categoryFilter.setText(type.getValue());
+          if (homeController != null) homeController.filterByCategory(type);
+        });
+        categoryFilter.getItems().add(mi);
+      }
+
+    } else if ("seller".equals(context)) {
+      filterBar.setVisible(true);
+      filterBar.setManaged(true);
+      filterLabel.setText("Trạng thái:");
+      categoryFilter.setText("Tất cả phiên");
+
+      // Item "Tất cả"
+      MenuItem allItem = new MenuItem("Tất cả phiên");
+      allItem.setOnAction(e -> {
+        categoryFilter.setText("Tất cả phiên");
+        if (sellerHomeController != null) sellerHomeController.filterByStatus(null);
+      });
+      categoryFilter.getItems().add(allItem);
+
+      // Các status
+      String[] statusLabels = {"🟢 Đang diễn ra", "🕒 Sắp diễn ra", "🔴 Đã kết thúc"};
+      AuctionStatus[] statusValues = {AuctionStatus.ACTIVE, AuctionStatus.WAITING, AuctionStatus.CLOSED};
+      for (int i = 0; i < statusLabels.length; i++) {
+        String label = statusLabels[i];
+        AuctionStatus status = statusValues[i];
+        MenuItem mi = new MenuItem(label);
+        mi.setOnAction(e -> {
+          categoryFilter.setText(label);
+          if (sellerHomeController != null) sellerHomeController.filterByStatus(status);
+        });
+        categoryFilter.getItems().add(mi);
+      }
+
+    } else {
+      // "result" — ẩn filter bar
+      filterBar.setVisible(false);
+      filterBar.setManaged(false);
+    }
+  }
+
   /**
    * Cập nhật style cho 2 button cố định (Quản lý hàng / Kết quả) theo context.
    * @param active "home" | "seller" | "result"
@@ -196,6 +275,7 @@ public class MainLayoutController implements Initializable, Controller {
   public void configureFunctionButtons(String context) {
     this.currentContext = context;
     resetFixedButtonStyles(context);
+    configureFilterBar(context);
 
     if ("home".equals(context)) {
 
@@ -226,16 +306,22 @@ public class MainLayoutController implements Initializable, Controller {
       functionButton1.setText("📦 Đơn hàng chờ giao");
       functionButton1.setOnAction(e -> {
         resetFunctionButtonStyles(1);
+        filterBar.setVisible(false);
+        filterBar.setManaged(false);
         if (sellerHomeController != null) sellerHomeController.handleGetPendingOrders();
       });
       functionButton2.setText("✅ Giao dịch thành công");
       functionButton2.setOnAction(e -> {
         resetFunctionButtonStyles(2);
+        filterBar.setVisible(false);
+        filterBar.setManaged(false);
         if (sellerHomeController != null) sellerHomeController.handleGetCompletedOrders();
       });
       functionButton3.setText("❌ Phiên lỗi / Huỷ đơn");
       functionButton3.setOnAction(e -> {
         resetFunctionButtonStyles(3);
+        filterBar.setVisible(false);
+        filterBar.setManaged(false);
         if (sellerHomeController != null) sellerHomeController.handleGetCanceledOrders();
       });
       resetFunctionButtonStyles(0);
@@ -329,6 +415,9 @@ public class MainLayoutController implements Initializable, Controller {
     mainContent.setContent(feedContainer);
     mainContent.setFitToWidth(true);
     mainContent.setFitToHeight(false);
+
+    // Reset filter
+    categoryFilter.setText("Tất cả danh mục");
 
     // Request danh sách đấu giá mới nhất
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
@@ -452,5 +541,9 @@ public class MainLayoutController implements Initializable, Controller {
   /** Lấy ngữ cảnh hiện tại ("home", "seller", "result"). */
   public String getCurrentContext() {
     return currentContext;
+  }
+
+  public TextField getSearchField() {
+    return searchField;
   }
 }
