@@ -261,6 +261,39 @@ public class UserRepository {
     return false;
   }
 
+  public java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
+    java.util.List<com.auction.shared.model.user.UserDTO> list = new java.util.ArrayList<>();
+    String sql = "SELECT id, account_name, real_name, dob, phone_number, email, address, role FROM users";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        com.auction.shared.model.user.UserDTO dto = new com.auction.shared.model.user.UserDTO();
+        dto.setId(rs.getString("id"));
+        dto.setAccountName(rs.getString("account_name"));
+        dto.setRealName(rs.getString("real_name"));
+        dto.setEmail(rs.getString("email"));
+        dto.setPhoneNumber(rs.getString("phone_number"));
+        dto.setAddress(rs.getString("address"));
+        
+        String roleStr = rs.getString("role");
+        if (roleStr != null) {
+          dto.setRole(com.auction.shared.enums.UserRole.valueOf(roleStr));
+        }
+        
+        java.sql.Date dobDate = rs.getDate("dob");
+        if (dobDate != null) {
+          dto.setDob(dobDate.toLocalDate());
+        }
+        list.add(dto);
+      }
+    } catch (Exception e) {
+      log.error("Lỗi cơ sở dữ liệu khi lấy toàn bộ danh sách người dùng", e);
+    }
+    return list;
+  }
+
   public boolean saveAdminAccount(Admin admin) {
     String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address "
         + "VALUES (?, ?, ?, ?, ?, ?, ?)";

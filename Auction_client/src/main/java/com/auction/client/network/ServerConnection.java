@@ -206,6 +206,10 @@ public class ServerConnection {
               ResponseHandler.handleUpdateAuctionStatus(responseDTO);
             }
 
+            case GetAllUsersResponseDTO responseDTO -> {
+              ResponseHandler.handleGetAllUsers(responseDTO);
+            }
+
             default -> log.warn("Phản hồi không hợp lệ");
           }
         }

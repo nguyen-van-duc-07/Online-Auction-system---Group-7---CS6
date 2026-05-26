@@ -21,7 +21,7 @@
 
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <TextField fx:id="searchField" prefHeight="35.0" prefWidth="300.0" promptText="Nhập tên hoặc SĐT người đăng ký..." />
+                <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefHeight="35.0" prefWidth="300.0" promptText="Nhập tên cửa hàng..." />
                 <Button onAction="#handleSearch" prefHeight="35.0" style="-fx-background-color: #e67e22;" text="Tìm kiếm" textFill="WHITE">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Button>

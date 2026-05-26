@@ -406,12 +406,21 @@ public class ResponseHandler {
   public static void handleGetSellerProfile(GetSellerProfileResponseDTO getSellerProfileRes) {
     if (getSellerProfileRes.isSuccess()) {
       Platform.runLater(() -> {
-        ScreenController.showAlert(Alert.AlertType.INFORMATION,
-            "Thông báo", getSellerProfileRes.getMessage());
         SellerAccountManagerController controller = SellerAccountManagerController.getInstance();
 
         if (controller != null) {
           controller.loadDataToTable(getSellerProfileRes.getSellerProfileList());
+        }
+      });
+    }
+  }
+
+  public static void handleGetAllUsers(com.auction.shared.response.GetAllUsersResponseDTO response) {
+    if (response.isSuccess()) {
+      Platform.runLater(() -> {
+        com.auction.client.screenhandler.admin.UserManagerController controller = com.auction.client.screenhandler.admin.UserManagerController.getInstance();
+        if (controller != null) {
+          controller.loadDataToTable(response.getUsers());
         }
       });
     }
