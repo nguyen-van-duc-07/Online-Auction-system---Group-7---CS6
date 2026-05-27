@@ -104,6 +104,13 @@ public class AuctionService {
 
     if (isAuctionSaved) {
       auctions.put(auction.getId(), auction);
+      if (auction.getStatus() == AuctionStatus.ACTIVE) {
+        new NotificationService().sendNewAuctionNotification(
+            auction.getId(),
+            auction.getItem().getName(),
+            auction.getStartPrice()
+        );
+      }
       return true;
     } else {
       return false;
@@ -301,6 +308,11 @@ public class AuctionService {
               ramAuction.setStartTime(LocalDateTime.now());
             }
             Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.ACTIVE));
+            new NotificationService().sendNewAuctionNotification(
+                auctionId,
+                auction.getItem().getName(),
+                auction.getStartPrice()
+            );
             response[0] = new UpdateAuctionStatusResponseDTO(true, "Mở phiên đấu giá thành công!");
           } else {
             response[0] = new UpdateAuctionStatusResponseDTO(false, "Mở phiên đấu giá thất bại!");

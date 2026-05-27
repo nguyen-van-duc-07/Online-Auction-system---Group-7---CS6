@@ -53,10 +53,14 @@ public class Wallet extends Entity {
 
   public void unfreeze(BigDecimal amount) {
     if (this.frozenBalance.compareTo(amount) < 0) {
-      throw new IllegalStateException("Lỗi hệ thống: Tiền đóng băng không đủ để mở!");
+      System.err.println("[WALLET WARNING] Tiền đóng băng hiện tại (" + this.frozenBalance + ") ít hơn số tiền yêu cầu mở (" + amount + "). Tiến hành mở tối đa số tiền đang đóng băng.");
+      BigDecimal availableToRelease = this.frozenBalance;
+      this.frozenBalance = BigDecimal.ZERO;
+      this.balance = this.balance.add(availableToRelease);
+    } else {
+      this.frozenBalance = this.frozenBalance.subtract(amount);
+      this.balance = this.balance.add(amount);
     }
-    this.frozenBalance = this.frozenBalance.subtract(amount);
-    this.balance = this.balance.add(amount);
   }
 
   public void payWinningAuction(BigDecimal depositAmount, BigDecimal remainingAmount) {

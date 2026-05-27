@@ -1,5 +1,6 @@
 package servercontroller;
 
+import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.response.AuctionExtendedDTO;
 import com.auction.shared.response.AuctionResultDTO;
@@ -55,9 +56,10 @@ public class Server {
     Set<ClientHandler> room = auctionRooms.get(selectedAuctionId);
     if (room != null) {
       room.remove(client);
-      if (room.isEmpty()) {
-        auctionRooms.remove(selectedAuctionId);
-      }
+      // Sử dụng phương thức nguyên tử để kiểm tra và loại bỏ phòng trống một cách an toàn tránh Race Condition
+      auctionRooms.computeIfPresent(selectedAuctionId, (key, currentRoom) -> 
+          currentRoom.isEmpty() ? null : currentRoom
+      );
     }
   }
 
@@ -162,6 +164,14 @@ public class Server {
   public static void broadcastToAll(ResponseDTO responseDTO) {
     for (ClientHandler client : connectedClients.values()) {
       client.sendData(responseDTO);
+    }
+  }
+
+  public static void broadcastToBidders(Object dto) {
+    for (ClientHandler client : connectedClients.values()) {
+      if (client.getRole() == UserRole.BIDDER) {
+        client.sendData(dto);
+      }
     }
   }
 

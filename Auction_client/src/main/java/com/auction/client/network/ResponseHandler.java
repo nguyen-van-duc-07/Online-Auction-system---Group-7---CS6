@@ -8,11 +8,13 @@ import com.auction.client.screenhandler.admin.SellerAccountManagerController;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
+import com.auction.shared.enums.NotificationType;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.GetOrderRequestDTO;
 import com.auction.shared.request.GetPendingTransactionsRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
+import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -568,6 +570,21 @@ public class ResponseHandler {
         controller.incrementNotificationBadge();
       }
       log.info("[CLIENT] Thông báo mới: {}", dto.getTitle());
+
+      if (dto.getType() == NotificationType.SYSTEM && dto.getReferenceId() != null) {
+        ToastNotification.show(
+            ScreenController.primaryStage,
+            dto.getTitle(),
+            dto.getContent() + "\n• Nhấn để tham gia ngay!",
+            () -> {
+              SessionManager.setCurrentAuctionId(dto.getReferenceId());
+              ServerConnection.sendData(new JoinRoomRequestDTO(dto.getReferenceId()));
+              Platform.runLater(() -> {
+                ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phòng đấu giá");
+              });
+            }
+        );
+      }
     });
     if (SessionManager.getCurrentUser() != null && SessionManager.getCurrentUser().getRole() == UserRole.BIDDER) {
       ServerConnection.sendData(new GetBalanceRequestDTO());

@@ -50,6 +50,15 @@ public class BidService {
     }
   }
 
+  /**
+   * Dọn dẹp lock tĩnh khi phiên đấu giá kết thúc hoặc hủy bỏ.
+   * Luôn phải được gọi bên trong một khối runWithAuctionLock của chính phiên đó để tránh Race Condition.
+   */
+  public static void removeAuctionLock(String auctionId) {
+    auctionLocks.remove(auctionId);
+    log.debug("[LOCK-CLEANUP] Đã giải phóng đối tượng Lock tĩnh cho phiên đấu giá ID: {}", auctionId);
+  }
+
   public PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     String auctionId = req.getAuctionId();
     PostCommitEvents events = new PostCommitEvents();

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.file.*;
+import java.util.concurrent.Executors;
 
 /**
  * HTTP Server siêu nhẹ nhúng vào ứng dụng Server.
@@ -52,7 +53,7 @@ public class ImageHttpServer {
       exchange.close();
     });
 
-    server.setExecutor(null); // Sử dụng default executor
+    server.setExecutor(Executors.newCachedThreadPool()); // Sử dụng Cached Thread Pool để tải ảnh song song
     server.start();
     log.info(">>> IMAGE HTTP SERVER ĐANG CHẠY TRÊN PORT: {}", NetworkConfig.IMAGE_SERVER_PORT);
   }

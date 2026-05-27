@@ -248,9 +248,12 @@ public class ServerConnection {
   public static void sendData(Object obj) {
     try {
       ensureConnected();
-      if (out != null) {
-        out.writeObject(obj);
-        out.flush();
+      ObjectOutputStream tempOut = out;
+      if (tempOut != null) {
+        synchronized (tempOut) {
+          tempOut.writeObject(obj);
+          tempOut.flush();
+        }
       } else {
         throw new IOException("Luồng xuất dữ liệu (out) bị null.");
       }

@@ -54,15 +54,31 @@ public class AuctionStatusScheduler {
       for (String id : activateIds) {
         log.info("BROADCAST ACTIVE: {}", id);
         Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
+
+        AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+        if (auction != null) {
+          notifService.sendNewAuctionNotification(id, auction.getItem().getName(), auction.getStartPrice());
+        }
       }
       Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);
       if (!auctionsToClose.isEmpty()) {
         for (Map.Entry<String, AuctionResponseDTO> entry : auctionsToClose.entrySet()) {
           String id = entry.getKey();
-          // Chỉ xử lý nếu UPDATE có điều kiện thành công (tránh race với bid gia hạn end_time)
-          if (!auctionRepo.tryCloseExpiredAuction(id, now)) {
+          // Bọc quá trình đóng phiên đấu giá dưới lock trong bộ nhớ để bảo toàn tính nguyên tử với placeBid
+          final boolean[] closedSuccessfully = new boolean[1];
+          service.BidService.runWithAuctionLock(id, () -> {
+            // 1. Cố gắng cập nhật trạng thái đấu giá sang CLOSED ở DB dưới điều kiện thời gian và trạng thái ACTIVE
+            if (auctionRepo.tryCloseExpiredAuction(id, now)) {
+              closedSuccessfully[0] = true;
+              // 2. An toàn dọn dẹp đối tượng lock tĩnh khỏi bộ nhớ vì trạng thái phiên đã chốt là CLOSED
+              service.BidService.removeAuctionLock(id);
+            }
+          });
+
+          if (!closedSuccessfully[0]) {
             continue;
           }
+
           AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
           if (auction == null) {
             continue;
