@@ -48,6 +48,11 @@ public class AuctionResponseDTO implements ResponseDTO {
   private ItemDTO item;
 
   /**
+   * Mức giá ban đầu của phiên đấu giá.
+   */
+  private BigDecimal startPrice;
+
+  /**
    * Mức giá cao nhất hiện tại của phiên đấu giá.
    */
   private BigDecimal currentHighestPrice;

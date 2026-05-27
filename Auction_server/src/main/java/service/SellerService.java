@@ -28,6 +28,10 @@ public class SellerService {
         SellerRegisterStatus.UNREGISTERED.toString());
 
     boolean success = sellerRepo.createSellerProfile(sellerProfile);
+    if (success) {
+      NotificationService notifService = new NotificationService();
+      notifService.sendFromNotification(NotificationTemplate.sellerSubmitted(sellerRegisterReq.getUserId()));
+    }
     return success;
   }
 
@@ -65,13 +69,36 @@ public class SellerService {
     return sellerProfileResponseDTOS;
   }
 
-  public static boolean handleUpdateSellerProfileStatus(UpdateSellerProfileStatusRequestDTO request) {
+  public static UpdateSellerProfileStatusResponseDTO handleUpdateSellerProfileStatus(UpdateSellerProfileStatusRequestDTO request) {
     String userId = request.getUserId();
     SellerRegisterStatus status = request.getNewStatus();
+    SellerRegisterStatus expectedStatus = request.getExpectedOldStatus();
+
+    // 1. Kiểm tra xung đột trạng thái đồng thời (OCC)
+    if (expectedStatus != null) {
+      String currentStatusStr = sellerRepo.getSellerProfileStatus(userId);
+      if (currentStatusStr == null) {
+        return new UpdateSellerProfileStatusResponseDTO(false, "Hồ sơ người bán không tồn tại!");
+      }
+      SellerRegisterStatus currentStatus = SellerRegisterStatus.valueOf(currentStatusStr);
+      if (currentStatus != expectedStatus) {
+        return new UpdateSellerProfileStatusResponseDTO(false, 
+            "Xung đột dữ liệu: Hồ sơ này đã được cập nhật bởi một Admin khác thành '" + currentStatus + "'. Vui lòng tải lại danh sách!");
+      }
+    }
+
+    // 2. Tiến hành cập nhật trạng thái trong DB
     boolean success = sellerRepo.updateStatus(userId, status);
     if (success) {
-      NotificationService notifService = new NotificationService();
+      // 3. Tự động xử lý kích hoạt/hủy đấu giá đồng bộ trên Server
+      if (status == SellerRegisterStatus.REGISTERED) {
+        AuctionService.restoreCanceledAuctionsBySellerUserId(userId);
+      } else if (status == SellerRegisterStatus.DENIED) {
+        AuctionService.cancelActiveAndWaitingAuctionsBySellerUserId(userId);
+      }
 
+      // 4. Gửi thông báo cho người dùng
+      NotificationService notifService = new NotificationService();
       switch (status) {
         case REGISTERED -> notifService.sendFromNotification(
             NotificationTemplate.sellerApproved(userId)
@@ -79,9 +106,11 @@ public class SellerService {
         case DENIED -> notifService.sendFromNotification(
             NotificationTemplate.sellerRejected(userId)
         );
-        default -> {}// UNREGISTERED không cần thông báo
+        default -> {}
       }
+      return new UpdateSellerProfileStatusResponseDTO(true, "Cập nhật trạng thái người bán thành công!");
+    } else {
+      return new UpdateSellerProfileStatusResponseDTO(false, "Lỗi cập nhật trạng thái vào cơ sở dữ liệu!");
     }
-    return success;
   }
 }

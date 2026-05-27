@@ -137,6 +137,11 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case ChangePasswordRequestDTO changePasswordReq -> {
+                out.writeObject(RequestHandler.changePassword(changePasswordReq));
+                out.flush();
+              }
+
               case PlaceBidRequestDTO bidReq -> {
                 out.writeObject(RequestHandler.placeBid(bidReq));
                 out.flush();
@@ -266,8 +271,18 @@ public class ClientHandler implements Runnable {
                 out.flush();
               }
 
+              case UpdateAuctionStatusRequestDTO req -> {
+                out.writeObject(RequestHandler.updateAuctionStatus(req));
+                out.flush();
+              }
+
               case CreateAdminRequestDTO request -> {
                 out.writeObject(RequestHandler.createAdmin(request));
+                out.flush();
+              }
+
+              case GetAllUsersRequestDTO getAllUsersReq -> {
+                out.writeObject(RequestHandler.getAllUsers(getAllUsersReq));
                 out.flush();
               }
 

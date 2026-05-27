@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -9,42 +10,76 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="15.0" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.admin.UserManagerController">
+<VBox spacing="15.0" style="-fx-padding: 20; -fx-background-color: #fffdf9;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.admin.UserManagerController">
     <children>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #1b5e20; -fx-padding: 10; -fx-background-radius: 5;">
+            <children>
+                <Label text="DANH SÁCH QUẢN LÝ NGƯỜI DÙNG" textFill="WHITE">
+                    <font><Font name="System Bold" size="16.0" /></font>
+                </Label>
+            </children>
+        </HBox>
+
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <TextField fx:id="searchField" prefHeight="35.0" prefWidth="400.0" promptText="Tìm kiếm trong danh sách quản lý..." />
-                <Button onAction="#handleSearch" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #1b5e20;" text="Tìm kiếm" textFill="WHITE">
+                <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefHeight="35.0" prefWidth="400.0" promptText="Nhập tên, số điện thoại hoặc email..." />
+                <Button onAction="#handleShowCreateAdminForm" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #2e7d32; -fx-background-radius: 5; -fx-cursor: hand;" text="Tạo tài khoản Admin" textFill="WHITE">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Button>
+                <Button onAction="#handleReload" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #2980b9; -fx-background-radius: 5; -fx-cursor: hand;" text="🔄 Làm mới" textFill="WHITE">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Button>
             </children>
         </HBox>
 
-        <Label text="Danh Sách Quản Lý Dữ Liệu" textFill="#333333">
-            <font><Font name="System Bold" size="20.0" /></font>
-        </Label>
+        <VBox fx:id="createAdminForm" managed="false" spacing="10.0" style="-fx-background-color: #f1f8e9; -fx-border-color: #c5e1a5; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 15;" visible="false">
+            <children>
+                <Label text="TẠO TÀI KHOẢN ADMIN MỚI" textFill="#2e7d32">
+                    <font><Font name="System Bold" size="14.0" /></font>
+                </Label>
+                <HBox alignment="BOTTOM_LEFT" spacing="15.0">
+                    <children>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label text="Số điện thoại:" textFill="#333333">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <TextField fx:id="adminPhoneField" prefHeight="35.0" prefWidth="250.0" promptText="Nhập số điện thoại..." />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label text="Mật khẩu:" textFill="#333333">
+                                    <font><Font name="System Bold" size="11.0" /></font>
+                                </Label>
+                                <PasswordField fx:id="adminPasswordField" prefHeight="35.0" prefWidth="250.0" promptText="Nhập mật khẩu..." />
+                            </children>
+                        </VBox>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Button onAction="#handleCreateAdminSubmit" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #2e7d32; -fx-background-radius: 5; -fx-cursor: hand;" text="Lưu" textFill="WHITE">
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Button>
+                                <Button onAction="#handleCancelCreateAdmin" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #78909c; -fx-background-radius: 5; -fx-cursor: hand;" text="Hủy" textFill="WHITE">
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
 
-        <TableView fx:id="dataTable" VBox.vgrow="ALWAYS">
+        <TableView fx:id="userTable" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="300.0" text="Tên / Nội dung" />
-                <TableColumn prefWidth="150.0" text="Ngày cập nhật" />
-                <TableColumn prefWidth="150.0" text="Trạng thái" />
+                <TableColumn fx:id="serialColumn" prefWidth="50.0" text="STT" />
+                <TableColumn fx:id="realNameColumn" prefWidth="150.0" text="Tên người dùng" />
+                <TableColumn fx:id="dobColumn" prefWidth="110.0" text="Ngày sinh" />
+                <TableColumn fx:id="phoneNumberColumn" prefWidth="130.0" text="Số điện thoại" />
+                <TableColumn fx:id="emailColumn" prefWidth="180.0" text="Email" />
+                <TableColumn fx:id="addressColumn" prefWidth="230.0" text="Địa chỉ" />
+                <TableColumn fx:id="roleColumn" prefWidth="100.0" text="Vai trò" />
             </columns>
         </TableView>
-
-        <HBox spacing="15.0">
-            <children>
-                <Button onAction="#handleAdd" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #27ae60;" text="Thêm mới" textFill="WHITE">
-                    <font><Font name="System Bold" size="12.0" /></font>
-                </Button>
-                <Button onAction="#handleEdit" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2980b9;" text="Chỉnh sửa" textFill="WHITE">
-                    <font><Font name="System Bold" size="12.0" /></font>
-                </Button>
-                <Button onAction="#handleDelete" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #c0392b;" text="Xóa" textFill="WHITE">
-                    <font><Font name="System Bold" size="12.0" /></font>
-                </Button>
-            </children>
-        </HBox>
     </children>
 </VBox>

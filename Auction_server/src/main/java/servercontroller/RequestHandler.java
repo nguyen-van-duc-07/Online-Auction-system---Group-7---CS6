@@ -134,7 +134,7 @@ public class RequestHandler {
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
               .id(userAfterUpdatingProfile.getId())
-              .accountName(userAfterUpdatingProfile.getAccountName())
+              .role(userAfterUpdatingProfile.getRole())
               .accountName(userAfterUpdatingProfile.getAccountName())
               .email(userAfterUpdatingProfile.getEmail())
               .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())
@@ -145,6 +145,10 @@ public class RequestHandler {
     } else {
       return new UpdateProfileResponseDTO(false, "Không thể cập nhật thông tin tài khoản", null);
     }
+  }
+
+  public static ChangePasswordResponseDTO changePassword(ChangePasswordRequestDTO req) {
+    return AuthService.changePassword(req);
   }
 
   public static PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
@@ -239,9 +243,9 @@ public class RequestHandler {
       } catch (Exception e) {
         log.error("Lỗi khi truy vấn thông tin sản phẩm cho đơn hàng: {}", order.getId(), e);
       }
-      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order, itemName, itemId);
+      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
     }
-    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null, null, null);
+    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
   }
 
   public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {
@@ -255,12 +259,7 @@ public class RequestHandler {
 
   public static UpdateSellerProfileStatusResponseDTO updateSellerProfileStatus(
           UpdateSellerProfileStatusRequestDTO request) {
-    boolean success = SellerService.handleUpdateSellerProfileStatus(request);
-    String message = success ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật dữ liệu!";
-    UpdateSellerProfileStatusResponseDTO response = new UpdateSellerProfileStatusResponseDTO();
-    response.setSuccess(success);
-    response.setMessage(message);
-    return response;
+    return SellerService.handleUpdateSellerProfileStatus(request);
   }
 
   public static CancelSellerAuctionsResponseDTO cancelSellerAuctions(CancelSellerAuctionsRequestDTO request) {
@@ -401,5 +400,19 @@ public class RequestHandler {
     boolean success = walletService.processTransactionRequest(req.getTransactionId(), req.getActionStatus());
     String message = success ? "Duyệt giao dịch thành công!" : "Lỗi khi duyệt giao dịch!";
     return new ProcessTransactionResponseDTO(success, message);
+  }
+
+  public static UpdateAuctionStatusResponseDTO updateAuctionStatus(UpdateAuctionStatusRequestDTO req) {
+    return AuctionService.updateAuctionStatusByAdmin(req);
+  }
+
+  public static com.auction.shared.response.GetAllUsersResponseDTO getAllUsers(com.auction.shared.request.GetAllUsersRequestDTO req) {
+    try {
+      List<UserDTO> users = AuthService.getAllUsers();
+      return new com.auction.shared.response.GetAllUsersResponseDTO(true, "Tải danh sách người dùng thành công!", users);
+    } catch (Exception e) {
+      log.error("Lỗi khi lấy toàn bộ người dùng trong RequestHandler", e);
+      return new com.auction.shared.response.GetAllUsersResponseDTO(false, "Lỗi hệ thống: " + e.getMessage(), null);
+    }
   }
 }

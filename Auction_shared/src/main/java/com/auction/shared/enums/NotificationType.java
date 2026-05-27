@@ -9,9 +9,12 @@ public enum NotificationType {
   AUCTION_ENDED,         // Phiên của seller kết thúc
   ORDER_CONFIRMED,       // Buyer xác nhận thanh toán
   ORDER_CANCELLED_BY_BUYER, // Buyer hủy đơn
-  SELLER_APPROVED,       // Tài khoản seller được duyệt
-  SELLER_REJECTED,       // Tài khoản seller bị từ chối
   AUCTION_CANCELLED,     // Phiên bị hủy
+
+  // Request
+  REQUEST_SUBMITTED,
+  REQUEST_APPROVED,
+  REQUEST_REJECTED,
 
   // System
   SYSTEM                 // Thông báo hệ thống chung

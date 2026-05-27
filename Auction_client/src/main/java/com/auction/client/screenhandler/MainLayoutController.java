@@ -162,8 +162,25 @@ public class MainLayoutController implements Initializable, Controller {
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
     // Thêm search listener
     searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if ("home".equals(currentContext) && homeController != null) {
-        homeController.filterAuctions(newValue.trim().toLowerCase());
+      String query = newValue.trim().toLowerCase();
+      if ("home".equals(currentContext)) {
+        if (homeController != null) {
+          homeController.filterAuctions(query);
+        }
+      } else if ("seller".equals(currentContext)) {
+        if (filterBar.isVisible()) {
+          if (sellerHomeController != null) {
+            sellerHomeController.filterAuctions(query);
+          }
+        } else {
+          if (resultController != null) {
+            resultController.filterOrders(query);
+          }
+        }
+      } else if ("result".equals(currentContext)) {
+        if (resultController != null) {
+          resultController.filterOrders(query);
+        }
       }
     });
   }
@@ -176,12 +193,21 @@ public class MainLayoutController implements Initializable, Controller {
    * - "seller": lọc theo AuctionStatus (Tất cả, Đang diễn ra, Sắp diễn ra, Đã kết thúc)
    * - "result": ẩn filter bar
    */
+  /**
+   * Bật/tắt hiển thị thanh filter lọc sản phẩm (HBox filterBar).
+   */
+  public void setFilterBarVisible(boolean visible) {
+    if (filterBar != null) {
+      filterBar.setVisible(visible);
+      filterBar.setManaged(visible);
+    }
+  }
+
   private void configureFilterBar(String context) {
     categoryFilter.getItems().clear();
 
     if ("home".equals(context)) {
-      filterBar.setVisible(true);
-      filterBar.setManaged(true);
+      setFilterBarVisible(true);
       filterLabel.setText("Phân loại:");
       categoryFilter.setText("Tất cả danh mục");
 
@@ -204,8 +230,7 @@ public class MainLayoutController implements Initializable, Controller {
       }
 
     } else if ("seller".equals(context)) {
-      filterBar.setVisible(true);
-      filterBar.setManaged(true);
+      setFilterBarVisible(true);
       filterLabel.setText("Trạng thái:");
       categoryFilter.setText("Tất cả phiên");
 
@@ -233,8 +258,7 @@ public class MainLayoutController implements Initializable, Controller {
 
     } else {
       // "result" — ẩn filter bar
-      filterBar.setVisible(false);
-      filterBar.setManaged(false);
+      setFilterBarVisible(false);
     }
   }
 
@@ -285,16 +309,19 @@ public class MainLayoutController implements Initializable, Controller {
       functionButton1.setText("🟢 Đang diễn ra");
       functionButton1.setOnAction(e -> {
         resetFunctionButtonStyles(1);
+        searchField.clear();
         if (homeController != null) homeController.handleGetActiveAuctions();
       });
       functionButton2.setText("🕒 Sắp diễn ra");
       functionButton2.setOnAction(e -> {
         resetFunctionButtonStyles(2);
+        searchField.clear();
         if (homeController != null) homeController.handleGetWaitingAuctions();
       });
       functionButton3.setText("🔴 Đã kết thúc");
       functionButton3.setOnAction(e -> {
         resetFunctionButtonStyles(3);
+        searchField.clear();
         if (homeController != null) homeController.handleGetClosedAuctions();
       });
       resetFunctionButtonStyles(1);
@@ -308,6 +335,7 @@ public class MainLayoutController implements Initializable, Controller {
         resetFunctionButtonStyles(1);
         filterBar.setVisible(false);
         filterBar.setManaged(false);
+        searchField.clear();
         if (sellerHomeController != null) sellerHomeController.handleGetPendingOrders();
       });
       functionButton2.setText("✅ Giao dịch thành công");
@@ -315,6 +343,7 @@ public class MainLayoutController implements Initializable, Controller {
         resetFunctionButtonStyles(2);
         filterBar.setVisible(false);
         filterBar.setManaged(false);
+        searchField.clear();
         if (sellerHomeController != null) sellerHomeController.handleGetCompletedOrders();
       });
       functionButton3.setText("❌ Phiên lỗi / Huỷ đơn");
@@ -322,6 +351,7 @@ public class MainLayoutController implements Initializable, Controller {
         resetFunctionButtonStyles(3);
         filterBar.setVisible(false);
         filterBar.setManaged(false);
+        searchField.clear();
         if (sellerHomeController != null) sellerHomeController.handleGetCanceledOrders();
       });
       resetFunctionButtonStyles(0);
@@ -333,16 +363,19 @@ public class MainLayoutController implements Initializable, Controller {
       functionButton1.setText("🕒 Chờ xác nhận");
       functionButton1.setOnAction(e -> {
         resetFunctionButtonStyles(1);
+        searchField.clear();
         if (resultController != null) resultController.handleGetPendingOrders();
       });
       functionButton2.setText("✅ Đã hoàn tất");
       functionButton2.setOnAction(e -> {
         resetFunctionButtonStyles(2);
+        searchField.clear();
         if (resultController != null) resultController.handleGetCompletedOrders();
       });
       functionButton3.setText("❌ Đã huỷ");
       functionButton3.setOnAction(e -> {
         resetFunctionButtonStyles(3);
+        searchField.clear();
         if (resultController != null) resultController.handleGetCancelledOrders();
       });
       resetFunctionButtonStyles(1);
@@ -362,6 +395,7 @@ public class MainLayoutController implements Initializable, Controller {
    */
   public void loadComponent(String fxmlPath) {
     try {
+      setFilterBarVisible(false); // Tự động ẩn thanh lọc khi chuyển sang trang khác
       FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
       javafx.scene.Parent newNode = loader.load();
 
@@ -369,7 +403,7 @@ public class MainLayoutController implements Initializable, Controller {
       mainContent.setFitToHeight(true);
       mainContent.setFitToWidth(true);
     } catch (IOException e) {
-      log.error("Failed to load FXML component from path: {}", fxmlPath, e);
+      log.error("Không thể load thông tin trong file .fxml: {}", fxmlPath, e);
     }
   }
 
@@ -409,6 +443,7 @@ public class MainLayoutController implements Initializable, Controller {
    */
   @FXML
   public void gotoHomeFeed() {
+    searchField.clear();
     configureFunctionButtons("home");
 
     // Reset ScrollPane về FlowPane feedContainer
@@ -440,6 +475,7 @@ public class MainLayoutController implements Initializable, Controller {
    */
   public void showSellerHome() {
     Platform.runLater(() -> {
+      searchField.clear();
       configureFunctionButtons("seller");
 
       // Reset ScrollPane
@@ -459,6 +495,7 @@ public class MainLayoutController implements Initializable, Controller {
    */
   @FXML
   public void gotoResult() {
+    searchField.clear();
     configureFunctionButtons("result");
 
     // Request danh sách đơn hàng pending của buyer
@@ -499,6 +536,12 @@ public class MainLayoutController implements Initializable, Controller {
     ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
+  }
+
+  /** Mở cửa sổ đổi mật khẩu (sub window). */
+  @FXML
+  public void gotoChangePassword() {
+    ScreenController.createSubWindow("User/ChangePasswordForm.fxml", "Đổi mật khẩu");
   }
 
   /** Mở trang đăng bán sản phẩm trong ScrollPane. */

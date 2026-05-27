@@ -85,6 +85,9 @@ public class ServerConnection {
 
             case UpdateProfileResponseDTO updateProfileRes -> ResponseHandler.handleUpdateProfile(updateProfileRes);
 
+            case ChangePasswordResponseDTO changePasswordRes ->
+                ResponseHandler.handleChangePassword(changePasswordRes);
+
             case AuctionStatusUpdateDTO dto -> log.info("CLIENT RECEIVED: {} status={}", 
                 dto.getId(), dto.getAuctionStatus());
 
@@ -197,6 +200,18 @@ public class ServerConnection {
 
             case ProcessTransactionResponseDTO responseDTO -> {
               ResponseHandler.handleProcessTransactionResponse(responseDTO);
+            }
+
+            case UpdateAuctionStatusResponseDTO responseDTO -> {
+              ResponseHandler.handleUpdateAuctionStatus(responseDTO);
+            }
+
+            case GetAllUsersResponseDTO responseDTO -> {
+              ResponseHandler.handleGetAllUsers(responseDTO);
+            }
+
+            case CreateAdminResponseDTO responseDTO -> {
+              ResponseHandler.handleCreateAdmin(responseDTO);
             }
 
             default -> log.warn("Phản hồi không hợp lệ");

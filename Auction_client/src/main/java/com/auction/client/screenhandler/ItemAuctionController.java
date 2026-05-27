@@ -3,6 +3,7 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.model.transaction.BidTransaction;
+import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
@@ -48,6 +49,8 @@ public class ItemAuctionController implements Initializable {
   private Label itemNameLabel;
   @FXML
   private Label itemIdLabel;
+  @FXML
+  private Label startPriceLabel;
   @FXML
   private Label currentPriceField;
   @FXML
@@ -656,6 +659,14 @@ public class ItemAuctionController implements Initializable {
   public void onNewBidReceived(NewBidDTO newBid) {
     System.out.println("[CLIENT - LỊCH SỬ] Nhận được giá mới từ mạng: " + newBid.getBidAmount() + " của " + newBid.getBidderName());
     Platform.runLater(() -> {
+      // Kiểm tra nếu mình vừa bị outbid (đang là top bidder cũ, và người mới bid không phải mình)
+      String myUserId = SessionManager.getCurrentUser().getId();
+      String prevHighestBidderId = currentAuction.getHighestBidderId();
+      if (prevHighestBidderId != null && prevHighestBidderId.equals(myUserId) && !newBid.getBidderId().equals(myUserId)) {
+        log.info("[OUTBID] Phát hiện bị vượt mặt đặt giá. Đang lấy số dư mới...");
+        ServerConnection.sendData(new GetBalanceRequestDTO());
+      }
+
       // 1. Cập nhật giá mới nhất vào biến hiện tại
       currentAuction.setCurrentHighestPrice(newBid.getBidAmount());
       updateHighestBidderUI(newBid.getBidderName());
@@ -690,7 +701,6 @@ public class ItemAuctionController implements Initializable {
         }
       }
       // 4. Phân loại thông báo (UX/HMI)
-      String myUserId = SessionManager.getCurrentUser().getId();
       if (!newBid.getBidderId().equals(myUserId)) {
         // Trường hợp 1: Người KHÁC vừa đặt giá -> Báo góc màn hình
         Notifications.create()
@@ -742,11 +752,15 @@ public class ItemAuctionController implements Initializable {
       String formattedMinStepPrice = formatter.format(auctionData.getMinStepPrice());
       minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + formattedMinStepPrice + " VNĐ");
 
-      // 2. Cập nhật UI cơ bản: Tên người cao nhất và Giá hiện tại
+      // 2. Cập nhật UI cơ bản: Tên người cao nhất, Giá ban đầu và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
 
-      String formattedPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
-      currentPriceField.setText("Giá hiện tại: " + formattedPrice);
+      String formattedStartPrice = formatter.format(auctionData.getStartPrice());
+      startPriceLabel.setText(formattedStartPrice + " VNĐ");
+      startPriceLabel.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 15px;");
+
+      String formattedHighestPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
+      currentPriceField.setText("Giá hiện tại: " + formattedHighestPrice);
       currentPriceField.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 22px;");
 
       // 3. Bắt đầu khởi động bộ đếm thời gian

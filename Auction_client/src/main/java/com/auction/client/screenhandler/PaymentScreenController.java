@@ -2,15 +2,14 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
 import com.auction.shared.model.order.Order;
-import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.ConfirmOrderRequestDTO;
 import com.auction.shared.request.CancelOrderRequestDTO;
-import com.auction.shared.response.AuctionResultDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -45,13 +44,11 @@ public class PaymentScreenController implements Initializable {
   @FXML
   private Label lblItemName;
   @FXML
-  private Label lblItemId;
+  private Label lblOrderId;
   @FXML
-  private Label lblItemPrice;
+  private Label lblFinalPrice;
   @FXML
-  private Label lblSubTotal;
-  @FXML
-  private Label lblDiscount;
+  private Label lblDepositAmount;
   @FXML
   private Label lblTotalAmount;
 
@@ -62,11 +59,11 @@ public class PaymentScreenController implements Initializable {
   private Button btnCancelOrder;
   @FXML
   private Button btnBack;
-
+  private BigDecimal itemFinalPrice;
   private BigDecimal totalAmountToPay;
   private String currentUserId;
   private String currentAuctionId;
-  private String currentItemId;
+  private String currentOrderId;
   public static PaymentScreenController instance;
 
   @Override
@@ -76,126 +73,38 @@ public class PaymentScreenController implements Initializable {
     btnCompletePayment.setOnAction(event -> handlePayment());
     btnCancelOrder.setOnAction(event -> handleCancel());
     btnBack.setOnAction(event -> handleBack());
-
-    // Tự động điền (Pre-populate) thông tin giao hàng của người dùng hiện tại từ Profile
-    UserDTO currentUser = SessionManager.getCurrentUser();
-    if (currentUser != null) {
-      if (currentUser.getAccountName() != null && !currentUser.getAccountName().trim().isEmpty()) {
-        txtFullName.setText(currentUser.getAccountName());
-      }
-      if (currentUser.getPhoneNumber() != null && !currentUser.getPhoneNumber().trim().isEmpty()) {
-        txtPhoneNumber.setText(currentUser.getPhoneNumber());
-      }
-      if (currentUser.getAddress() != null && !currentUser.getAddress().trim().isEmpty()) {
-        txtAddress.setText(currentUser.getAddress());
-      }
-    }
-  }
-
-  // Nạp dữ liệu khi kết thúc phiên trực tiếp
-  public void setOrderData(AuctionResultDTO resultDTO) {
-    this.currentUserId = resultDTO.getWinnerId();
-    this.currentAuctionId = resultDTO.getAuctionId();
-    this.currentItemId = resultDTO.getItemId();
-
-    this.totalAmountToPay = resultDTO.getFinalPrice();
-
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
-    symbols.setGroupingSeparator('.');
-    DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
-
-    lblItemName.setText(resultDTO.getItemName());
-    lblItemId.setText("Mã sản phẩm: " + resultDTO.getItemId());
-    lblItemPrice.setText(currencyFormat.format(resultDTO.getFinalPrice()) + "đ");
-    lblSubTotal.setText(currencyFormat.format(resultDTO.getFinalPrice()) + "đ");
-    lblDiscount.setText("-0đ");
-    lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
   }
 
   // Nạp dữ liệu khi mở từ thông báo (chứa đối tượng Order và item name phong phú từ Server)
-  public void setOrderData(Order order, String itemName, String itemId) {
+  public void setOrderData(Order order) {
     this.currentUserId = order.getBuyerId();
     this.currentAuctionId = order.getAuctionId();
-    this.currentItemId = itemId != null ? itemId : order.getAuctionId();
-
-    this.totalAmountToPay = order.getFinalPrice();
-
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
-    symbols.setGroupingSeparator('.');
-    DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
-
-    lblItemName.setText(itemName != null ? itemName : "Sản phẩm");
-    lblItemId.setText("Mã đơn hàng: " + order.getId());
-    lblItemPrice.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
-    lblSubTotal.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
-    lblDiscount.setText("-0đ");
-    lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
-
-    // Sử dụng thông tin giao hàng lưu trong Order nếu có
-    if (order.getConsigneeName() != null && !order.getConsigneeName().trim().isEmpty()) {
-      txtFullName.setText(order.getConsigneeName());
-    }
-    if (order.getPhoneNumber() != null && !order.getPhoneNumber().trim().isEmpty()) {
-      txtPhoneNumber.setText(order.getPhoneNumber());
-    }
-    if (order.getAddress() != null && !order.getAddress().trim().isEmpty()) {
-      txtAddress.setText(order.getAddress());
-    }
-
-    // Kiểm tra vai trò và trạng thái
-    boolean isSeller = false;
-    UserDTO currentUser = SessionManager.getCurrentUser();
-    if (currentUser != null && order.getSellerId() != null) {
-      isSeller = currentUser.getId().equals(order.getSellerId());
-    }
-
-    if (isSeller || order.getStatus() != com.auction.shared.enums.OrderStatus.PENDING) {
-      disableAllForViewOnly();
-    }
-  }
-
-  // Nạp dữ liệu khi mở từ thẻ Đơn hàng (Order Card)
-  public void setOrderData(OrderDTO orderDTO) {
-    this.currentUserId = SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown";
-    this.currentAuctionId = orderDTO.getAuctionId();
-    this.currentItemId = orderDTO.getAuctionId(); // fallback
-
-    this.totalAmountToPay = orderDTO.getFinalPrice();
+    this.totalAmountToPay = order.getRemainingAmount();
+    this.currentOrderId = order.getId();
+    this.itemFinalPrice = order.getFinalPrice();
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
     DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
-
-    lblItemName.setText(orderDTO.getItemName());
-    lblItemId.setText("Mã đơn hàng: " + orderDTO.getOrderId());
-    lblItemPrice.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
-    lblSubTotal.setText(currencyFormat.format(orderDTO.getFinalPrice()) + "đ");
-    lblDiscount.setText("-0đ");
-    lblTotalAmount.setText(currencyFormat.format(totalAmountToPay) + "đ");
-
-    // Đổ dữ liệu thông tin giao hàng có sẵn từ orderDTO (nếu có)
-    if (orderDTO.getConsigneeName() != null && !orderDTO.getConsigneeName().trim().isEmpty()) {
-      txtFullName.setText(orderDTO.getConsigneeName());
-    }
-    if (orderDTO.getPhoneNumber() != null && !orderDTO.getPhoneNumber().trim().isEmpty()) {
-      txtPhoneNumber.setText(orderDTO.getPhoneNumber());
-    }
-    if (orderDTO.getAddress() != null && !orderDTO.getAddress().trim().isEmpty()) {
-      txtAddress.setText(orderDTO.getAddress());
-    }
-
-    // Kiểm tra vai trò của người dùng hiện tại đối với đơn hàng này
-    boolean isSeller = false;
+    lblItemName.setText(order.getItemName() != null ? order.getItemName() : "Sản phẩm");
+    lblOrderId.setText("Mã đơn hàng: " + order.getId());
+    lblFinalPrice.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
+    lblDepositAmount.setText(currencyFormat.format(order.getDepositAmount().negate()));
+    lblTotalAmount.setText(currencyFormat.format(order.getRemainingAmount()) + "đ");
     UserDTO currentUser = SessionManager.getCurrentUser();
-    if (currentUser != null && orderDTO.getSellerId() != null) {
-      isSeller = currentUser.getId().equals(orderDTO.getSellerId());
-    }
-
-    if (isSeller || orderDTO.getStatus() != com.auction.shared.enums.OrderStatus.PENDING) {
+    boolean isBuyerAndPending = order.getStatus() == OrderStatus.PENDING
+        && order.getBuyerId().equals(currentUser.getId());
+    if (isBuyerAndPending) {
+      txtFullName.setText(order.getConsigneeName() != null ? order.getConsigneeName() : currentUser.getAccountName());
+      txtPhoneNumber.setText(order.getPhoneNumber() != null ? order.getPhoneNumber() : currentUser.getPhoneNumber());
+      txtAddress.setText(order.getAddress() != null ? order.getAddress() : currentUser.getAddress());
+    } else {
+      txtFullName.setText(order.getConsigneeName() != null ? order.getConsigneeName() : "");
+      txtPhoneNumber.setText(order.getPhoneNumber() != null ? order.getPhoneNumber() : "");
+      txtAddress.setText(order.getAddress() != null ? order.getAddress() : "");
       disableAllForViewOnly();
     }
   }
-
   private void disableAllForViewOnly() {
     txtFullName.setDisable(true);
     txtFullName.setEditable(false);
@@ -275,11 +184,11 @@ public class PaymentScreenController implements Initializable {
       log.info("[THANH_TOAN] Nhận thông báo xác nhận thanh toán từ Server. Khởi chạy tiến trình tạo hóa đơn...");
       try {
         String buyerId = currentUserId != null && !currentUserId.trim().isEmpty() ? currentUserId : (SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown");
-        String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "Mã đơn hàng";
-        String validItemId = currentItemId != null && !currentItemId.trim().isEmpty() ? currentItemId : validAuctionId;
+        String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "N/A";
+        String validOrderId = currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A";
         
         BigDecimal shippingFee = BigDecimal.ZERO;
-        BigDecimal finalPrice = totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO;
+        BigDecimal finalPrice = itemFinalPrice != null ? itemFinalPrice : BigDecimal.ZERO;
         if (finalPrice.compareTo(BigDecimal.ZERO) <= 0) {
           finalPrice = new BigDecimal("1.00"); // fallback to avoid PrizedTransaction validation failure
         }
@@ -289,7 +198,7 @@ public class PaymentScreenController implements Initializable {
             buyerId,
             "Hệ thống",
             validAuctionId,
-            validItemId,
+            validOrderId,
             finalPrice
         );
         exportAndOpenInvoice(transaction);
@@ -321,8 +230,8 @@ public class PaymentScreenController implements Initializable {
 
   private void exportAndOpenInvoice(PrizedTransaction transaction) {
     // Bảo vệ phòng ngừa nếu transaction bị null hoặc chứa giá trị rỗng gây lỗi
-    String auctionId = (transaction != null && transaction.getAuctionId() != null) ? transaction.getAuctionId() : (currentAuctionId != null ? currentAuctionId : "Mã đơn hàng");
-    String itemId = (transaction != null && transaction.getItemId() != null && !transaction.getItemId().trim().isEmpty()) ? transaction.getItemId() : (currentItemId != null && !currentItemId.trim().isEmpty() ? currentItemId : auctionId);
+    String auctionId = (transaction != null && transaction.getAuctionId() != null) ? transaction.getAuctionId() : (currentAuctionId != null ? currentAuctionId : "N/A");
+    String orderId = (transaction != null && transaction.getItemId() != null && !transaction.getItemId().trim().isEmpty()) ? transaction.getItemId() : (currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A");
     BigDecimal price = (transaction != null && transaction.getFinalPrice() != null) ? transaction.getFinalPrice() : (totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO);
     if (price.compareTo(BigDecimal.ZERO) < 0) {
       price = BigDecimal.ZERO;
@@ -336,7 +245,7 @@ public class PaymentScreenController implements Initializable {
             currentUserId != null ? currentUserId : "Unknown",
             "Hệ thống",
             auctionId,
-            itemId,
+            orderId,
             price.compareTo(BigDecimal.ZERO) > 0 ? price : new BigDecimal("1.00")
         );
       } catch (Exception e) {
@@ -358,7 +267,7 @@ public class PaymentScreenController implements Initializable {
       
       // Tính toán giá tạm tính và phí vận chuyển
       BigDecimal shippingFee = BigDecimal.ZERO;
-      BigDecimal finalTotal = totalAmountToPay != null ? totalAmountToPay : price;
+      BigDecimal finalTotal = itemFinalPrice != null ? itemFinalPrice : price;
       BigDecimal finalPrice = finalTotal;
       if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
         finalPrice = BigDecimal.ZERO;

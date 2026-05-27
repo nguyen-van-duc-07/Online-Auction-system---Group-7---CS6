@@ -6,6 +6,7 @@ import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.AuctionRequestDTO;
+import com.auction.shared.request.GetOrderRequestDTO;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -55,10 +56,7 @@ public class OrderCardController {
     SessionManager.setCurrentOrderId(currentOrder.getOrderId());
     SessionManager.setPreviousScreen(currentScreen);
     log.info("Đang mở chi tiết phiên đơn hàng: {}", currentOrder.getAuctionId());
-    ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Đơn hàng " + currentOrder.getItemName());
-    if (PaymentScreenController.instance != null) {
-      PaymentScreenController.instance.setOrderData(currentOrder);
-    }
+    ServerConnection.sendData(new GetOrderRequestDTO(currentOrder.getOrderId()));
   }
 
   @FXML
@@ -82,8 +80,17 @@ public class OrderCardController {
     String formattedPrice = String.format("%,.0f VNĐ", order.getFinalPrice());
     finalPriceLabel.setText(formattedPrice);
 
-    brandNameLabel.setText("Người bán: " + order.getBrandName());
-    winnerNameLabel.setText(order.getWinnerName());
+    if (order.getBrandName() != null && !order.getBrandName().trim().isEmpty()) {
+      brandNameLabel.setText("Người bán: " + order.getBrandName());
+    } else {
+      brandNameLabel.setText("Người bán: N/A");
+    }
+
+    if (order.getWinnerName() != null && !order.getWinnerName().trim().isEmpty()) {
+      winnerNameLabel.setText(order.getWinnerName());
+    } else {
+      winnerNameLabel.setText("Không rõ");
+    }
 
     // Dừng timer cũ nếu có
     if (countdownTimeline != null) {

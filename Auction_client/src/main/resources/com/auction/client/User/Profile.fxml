@@ -25,11 +25,8 @@
                     </padding>
                     <children>
                         <Circle fx:id="avatarCircle" fill="WHITE" radius="70.0" stroke="#FFFFFF" strokeWidth="5.0" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);" />
-                        <Label fx:id="accountNameLabel" text="Nguyễn Văn Đức" textFill="#2C3E50">
+                        <Label fx:id="accountNameLabel" text="Chưa có thông tin" textFill="#2C3E50">
                             <font><Font name="System Bold" size="28.0" /></font>
-                        </Label>
-                        <Label text="Thành viên hạng Kim Cương" textFill="#2BA659">
-                            <font><Font name="System Bold" size="13.0" /></font>
                         </Label>
                     </children>
                 </VBox>
@@ -56,25 +53,25 @@
                                 <VBox spacing="8.0">
                                     <children>
                                         <Label text="📧 EMAIL" textFill="#A0AEC0"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                        <Label fx:id="emailLabel" text="admin@daugia88.vn" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
+                                        <Label fx:id="emailLabel" text="Chưa có thông tin" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
                                     </children>
                                 </VBox>
                                 <VBox spacing="8.0" GridPane.columnIndex="1">
                                     <children>
                                         <Label text="📞 SỐ ĐIỆN THOẠI" textFill="#A0AEC0"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                        <Label fx:id="phoneNumberLabel" text="0909 123 456" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
+                                        <Label fx:id="phoneNumberLabel" text="Chưa có thông tin" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
                                     </children>
                                 </VBox>
                                 <VBox spacing="8.0" GridPane.rowIndex="1">
                                     <children>
                                         <Label text="🎂 NGÀY SINH" textFill="#A0AEC0"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                        <Label fx:id="dobLabel" text="15 Tháng 05, 1995" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
+                                        <Label fx:id="dobLabel" text="Chưa có thông tin" textFill="#2D3748"><font><Font size="16.0" /></font></Label>
                                     </children>
                                 </VBox>
                                 <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <children>
                                         <Label text="🏠 ĐỊA CHỈ" textFill="#A0AEC0"><font><Font name="System Bold" size="10.0" /></font></Label>
-                                        <Label fx:id="addressLabel" text="Quận 1, TP. Hồ Chí Minh" textFill="#2D3748" wrapText="true"><font><Font size="16.0" /></font></Label>
+                                        <Label fx:id="addressLabel" text="Chưa có thông tin" textFill="#2D3748" wrapText="true"><font><Font size="16.0" /></font></Label>
                                     </children>
                                 </VBox>
                             </children>

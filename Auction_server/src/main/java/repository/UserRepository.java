@@ -233,18 +233,83 @@ public class UserRepository {
     }
     return null;
   }
+  public String getPasswordByUserId(String userId) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      String sql = "SELECT password FROM users WHERE id = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setString(1, userId);
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        return rs.getString("password");
+      }
+    } catch (Exception e) {
+      log.error("Lỗi cơ sở dữ liệu khi lấy mật khẩu của user ID: {}", userId, e);
+    }
+    return null;
+  }
+
+  public boolean updatePassword(String userId, String hashedPassword) {
+    String sql = "UPDATE users SET password = ? WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, hashedPassword);
+      ps.setString(2, userId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi cập nhật mật khẩu cho user ID: {}", userId, e);
+    }
+    return false;
+  }
+
+  public java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
+    java.util.List<com.auction.shared.model.user.UserDTO> list = new java.util.ArrayList<>();
+    String sql = "SELECT id, account_name, dob, phone_number, email, address, role FROM users";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        com.auction.shared.model.user.UserDTO dto = new com.auction.shared.model.user.UserDTO();
+        dto.setId(rs.getString("id"));
+        dto.setAccountName(rs.getString("account_name"));
+        dto.setEmail(rs.getString("email"));
+        dto.setPhoneNumber(rs.getString("phone_number"));
+        dto.setAddress(rs.getString("address"));
+        
+        String roleStr = rs.getString("role");
+        if (roleStr != null) {
+          dto.setRole(com.auction.shared.enums.UserRole.valueOf(roleStr));
+        }
+        
+        java.sql.Date dobDate = rs.getDate("dob");
+        if (dobDate != null) {
+          dto.setDob(dobDate.toLocalDate());
+        }
+        list.add(dto);
+      }
+    } catch (Exception e) {
+      log.error("Lỗi cơ sở dữ liệu khi lấy toàn bộ danh sách người dùng", e);
+    }
+    return list;
+  }
+
   public boolean saveAdminAccount(Admin admin) {
-    String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address, role) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, admin.getId());
       ps.setString(2, admin.getAccountName());
       ps.setString(3, admin.getPassword());
-      ps.setDate(4, Date.valueOf(admin.getDob()));
+      if (admin.getDob() != null) {
+        ps.setDate(4, Date.valueOf(admin.getDob()));
+      } else {
+        ps.setNull(4, java.sql.Types.DATE);
+      }
       ps.setString(5, admin.getEmail());
       ps.setString(6, admin.getPhoneNumber());
       ps.setString(7, admin.getAddress());
+      ps.setString(8, admin.getRole() != null ? admin.getRole().toString() : "ADMIN");
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi lưu tài khoản admin ID: {}", admin.getId(), e);

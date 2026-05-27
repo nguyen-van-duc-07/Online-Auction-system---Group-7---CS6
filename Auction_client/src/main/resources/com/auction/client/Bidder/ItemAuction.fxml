@@ -151,7 +151,7 @@
                                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Giá khởi điểm" textFill="#7F8C8D" />
-                                        <Label textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label fx:id="startPriceLabel" textFill="#34495E"><font><Font name="System Bold" size="14.0" /></font></Label>
                                     </children>
                                 </VBox>
                                 <Separator orientation="VERTICAL" prefHeight="200.0" />

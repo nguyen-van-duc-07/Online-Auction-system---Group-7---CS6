@@ -1,6 +1,8 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
+import com.auction.client.screenhandler.admin.AdminScreenController;
+import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -56,6 +58,14 @@ public class ProfileController implements Initializable {
 
   @FXML
   public void gotoEditProfile() {
-    MainLayoutController.getInstance().loadComponent("/com/auction/client/User/EditProfile.fxml");
+    AdminScreenController adminController = AdminScreenController.getInstance();
+    if (adminController != null) {
+      adminController.loadComponent("/com/auction/client/User/EditProfile.fxml");
+    } else {
+      MainLayoutController mainLayoutController = MainLayoutController.getInstance();
+      if (mainLayoutController != null) {
+        mainLayoutController.loadComponent("/com/auction/client/User/EditProfile.fxml");
+      }
+    }
   }
 }

@@ -3,6 +3,7 @@ package repository;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.model.user.ShopInfoDTO;
 import config.DatabaseConnection;
 
 import java.sql.*;
@@ -16,8 +17,8 @@ public class OrderRepository {
   private static final Logger log = LoggerFactory.getLogger(OrderRepository.class);
 
   public boolean saveOrder(Connection conn, Order order) {
-    String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_id, final_price, deposit_amount, remaining_amount, consignee_name, phone_number, address, status, item_name) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_id, final_price, deposit_amount, remaining_amount, consignee_name, phone_number, address, status, item_name, brand_name) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, order.getId());
@@ -32,6 +33,7 @@ public class OrderRepository {
       ps.setString(10, order.getAddress());
       ps.setString(11, order.getStatus().name());
       ps.setString(12, order.getItemName());
+      ps.setString(13, order.getBrandName());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi lưu đơn hàng ID: {}", order.getId(), e);
@@ -239,20 +241,35 @@ public class OrderRepository {
     OrderDTO orderDTO = new OrderDTO();
     orderDTO.setOrderId(rs.getString("id"));
     orderDTO.setAuctionId(rs.getString("auction_id"));
-    orderDTO.setBrandName(rs.getString("brand_name"));
     orderDTO.setItemName(rs.getString("item_name"));
     orderDTO.setFinalPrice(rs.getBigDecimal("final_price"));
     orderDTO.setStatus(OrderStatus.valueOf(rs.getString("status")));
-    orderDTO.setWinnerName(rs.getString("consignee_name"));
     orderDTO.setSellerId(rs.getString("seller_id"));
     orderDTO.setBuyerId(rs.getString("buyer_id"));
     Timestamp createdAt = rs.getTimestamp("created_at");
     if (createdAt != null) {
       orderDTO.setCreatedAt(createdAt.toLocalDateTime());
     }
-    orderDTO.setConsigneeName(rs.getString("consignee_name"));
     orderDTO.setPhoneNumber(rs.getString("phone_number"));
     orderDTO.setAddress(rs.getString("address"));
+
+    String brandName = rs.getString("brand_name");
+    if (brandName == null || brandName.trim().isEmpty()) {
+      SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
+      ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(orderDTO.getSellerId());
+      if (shopInfo != null) {
+        brandName = shopInfo.getBrandName();
+      }
+    }
+    orderDTO.setBrandName(brandName);
+
+    String consigneeName = rs.getString("consignee_name");
+    if (consigneeName == null || consigneeName.trim().isEmpty()) {
+      UserRepository userRepo = new UserRepository();
+      consigneeName = userRepo.getAccountNameByUserId(orderDTO.getBuyerId());
+    }
+    orderDTO.setWinnerName(consigneeName);
+    orderDTO.setConsigneeName(consigneeName);
 
     return orderDTO;
   }

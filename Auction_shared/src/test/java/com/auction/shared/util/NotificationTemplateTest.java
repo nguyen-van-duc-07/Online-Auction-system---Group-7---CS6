@@ -156,7 +156,7 @@ class NotificationTemplateTest {
         
         assertNotNull(notification);
         assertEquals(dummyUserId, notification.getUserId());
-        assertEquals(NotificationType.SELLER_APPROVED, notification.getType());
+        assertEquals(NotificationType.REQUEST_APPROVED, notification.getType());
         assertEquals("Tài khoản người bán đã được duyệt", notification.getTitle());
         assertNull(notification.getReferenceId());
         assertFalse(notification.isRead());
@@ -169,7 +169,7 @@ class NotificationTemplateTest {
         
         assertNotNull(notification);
         assertEquals(dummyUserId, notification.getUserId());
-        assertEquals(NotificationType.SELLER_REJECTED, notification.getType());
+        assertEquals(NotificationType.REQUEST_REJECTED, notification.getType());
         assertEquals("Tài khoản người bán bị từ chối", notification.getTitle());
         assertNull(notification.getReferenceId());
         assertFalse(notification.isRead());

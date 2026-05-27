@@ -100,4 +100,9 @@ public class PendingTransactionManagerController implements Initializable {
                 .build();
         ServerConnection.sendData(req);
     }
+
+    @FXML
+    public void handleReload() {
+        loadData();
+    }
 }

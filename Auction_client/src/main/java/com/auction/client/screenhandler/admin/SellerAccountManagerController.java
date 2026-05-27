@@ -37,6 +37,8 @@ public class SellerAccountManagerController implements Initializable {
   /** Biến static lưu trữ Controller hiện tại của SellerAccountManagerController. */
   private static SellerAccountManagerController instance;
 
+  private List<SellerRegisterRequestDTO> originalList;
+
   @FXML
   private TextField searchField;
 
@@ -82,9 +84,22 @@ public class SellerAccountManagerController implements Initializable {
    */
   @FXML
   public void handleSearch() {
-    String keyword = searchField.getText().trim();
-    // TODO: Lọc danh sách theo keyword
-    log.info("Tìm kiếm đơn đăng kí: {}", keyword);
+    String keyword = searchField.getText().trim().toLowerCase();
+    log.info("Tìm kiếm đơn đăng kí theo tên cửa hàng: {}", keyword);
+    if (originalList == null) {
+      return;
+    }
+    if (keyword.isEmpty()) {
+      sellerProfileTable.setItems(FXCollections.observableArrayList(originalList));
+    } else {
+      java.util.List<SellerRegisterRequestDTO> filtered = new java.util.ArrayList<>();
+      for (SellerRegisterRequestDTO dto : originalList) {
+        if (dto.getBrandName() != null && dto.getBrandName().toLowerCase().contains(keyword)) {
+          filtered.add(dto);
+        }
+      }
+      sellerProfileTable.setItems(FXCollections.observableArrayList(filtered));
+    }
   }
 
   /**
@@ -149,12 +164,15 @@ public class SellerAccountManagerController implements Initializable {
    * @param requestList Danh sách các đơn đăng ký nhận từ Server
    */
   public void loadDataToTable(List<SellerRegisterRequestDTO> requestList) {
+    this.originalList = requestList;
     if (requestList != null) {
       log.info("=== DỮ LIỆU NHẬN ĐƯỢC: {} đơn ===", requestList.size());
       ObservableList<SellerRegisterRequestDTO> observableList = FXCollections.observableArrayList(requestList);
       sellerProfileTable.setItems(observableList);
+      handleSearch();
     } else {
       log.warn("=== DỮ LIỆU NHẬN ĐƯỢC LÀ NULL ===");
+      sellerProfileTable.setItems(FXCollections.observableArrayList());
     }
   }
 
@@ -177,8 +195,8 @@ public class SellerAccountManagerController implements Initializable {
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.REGISTERED);
+    request.setExpectedOldStatus(SellerRegisterStatus.valueOf(selected.getStatus()));
     ServerConnection.sendData(request);
-    ServerConnection.sendData(new RestoreSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**
@@ -200,8 +218,8 @@ public class SellerAccountManagerController implements Initializable {
     UpdateSellerProfileStatusRequestDTO request = new UpdateSellerProfileStatusRequestDTO();
     request.setUserId(selected.getUserId());
     request.setNewStatus(SellerRegisterStatus.DENIED);
+    request.setExpectedOldStatus(SellerRegisterStatus.valueOf(selected.getStatus()));
     ServerConnection.sendData(request);
-    ServerConnection.sendData(new CancelSellerAuctionsRequestDTO(selected.getUserId()));
   }
 
   /**
@@ -209,5 +227,11 @@ public class SellerAccountManagerController implements Initializable {
    */
   public static SellerAccountManagerController getInstance() {
     return instance;
+  }
+
+  @FXML
+  public void handleReload() {
+    log.info("Yêu cầu tải lại danh sách hồ sơ đăng ký Seller từ server...");
+    ServerConnection.sendData(new GetSellerProfileRequestDTO());
   }
 }
