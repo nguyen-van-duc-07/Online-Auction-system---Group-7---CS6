@@ -13,7 +13,7 @@ public class ShowTableOrders {
 
     String tableName = "orders";
 
-    String sql = "SELECT * FROM " + tableName;
+    String sql = "SELECT * FROM " + tableName + " ORDER BY created_at DESC";
 
     try (
         Connection conn = DatabaseConnection.getConnection();

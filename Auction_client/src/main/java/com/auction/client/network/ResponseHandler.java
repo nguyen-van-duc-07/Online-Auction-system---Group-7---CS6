@@ -378,7 +378,7 @@ public class ResponseHandler {
         SessionManager.setCurrentOrderId(dto.getOrder().getId());
         ScreenController.switchScreen("Bidder/PaymentScreen.fxml", "Chi tiết đơn hàng");
         if (PaymentScreenController.instance != null) {
-          PaymentScreenController.instance.setOrderData(dto.getOrder(), dto.getItemName(), dto.getItemId());
+          PaymentScreenController.instance.setOrderData(dto.getOrder());
         }
       });
     } else {
