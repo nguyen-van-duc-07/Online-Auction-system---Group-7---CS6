@@ -92,31 +92,57 @@ public class WalletService {
   }
 
   public boolean createTransactionRequest(String userId, BigDecimal amount, WalletTransactionType type) {
-    WalletTransaction tx = WalletTransaction.builder()
-        .walletId(walletRepo.getWalletByUserId(userId).getId()) // Giả sử walletId lấy từ userId
-        .type(type)
-        .amount(amount)
-        .status(WalletTransactionStatus.PENDING)
-        .build();
-
     try (Connection conn = DatabaseConnection.getConnection()) {
-      boolean success = txRepo.saveWalletTransaction(conn, tx);
-      if (success) {
-        NotificationService notifService = new NotificationService();
-        switch (type) {
-          case WITHDRAW -> notifService.sendFromNotification(
-              NotificationTemplate.withdrawSubmitted(userId, amount)
-          );
-          case DEPOSIT -> notifService.sendFromNotification(
-              NotificationTemplate.depositSubmitted(userId, amount)
-          );
-          default -> {
-          }
+      conn.setAutoCommit(false);
+      try {
+        Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
+        if (wallet == null) {
+          throw new Exception("Không tìm thấy ví cho người dùng: " + userId);
         }
+
+        // Nếu là giao dịch RÚT TIỀN: Kiểm tra số dư khả dụng và tạm trừ luôn
+        if (type == WalletTransactionType.WITHDRAW) {
+          if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Số dư khả dụng không đủ để tạo yêu cầu rút tiền!");
+          }
+          wallet.withdraw(amount);
+          walletRepo.updateWallet(conn, wallet);
+        }
+
+        WalletTransaction tx = WalletTransaction.builder()
+            .walletId(wallet.getId())
+            .type(type)
+            .amount(amount)
+            .status(WalletTransactionStatus.PENDING)
+            .build();
+
+        boolean success = txRepo.saveWalletTransaction(conn, tx);
+        if (success) {
+          conn.commit();
+          NotificationService notifService = new NotificationService();
+          switch (type) {
+            case WITHDRAW -> notifService.sendFromNotification(
+                NotificationTemplate.withdrawSubmitted(userId, amount)
+            );
+            case DEPOSIT -> notifService.sendFromNotification(
+                NotificationTemplate.depositSubmitted(userId, amount)
+            );
+            default -> {
+            }
+          }
+        } else {
+          conn.rollback();
+        }
+        return success;
+      } catch (Exception e) {
+        conn.rollback();
+        log.error("Lỗi khi tạo yêu cầu giao dịch cho user: {}", userId, e);
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
       }
-      return success;
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tạo yêu cầu giao dịch cho user: {}", userId, e);
+      log.error("Lỗi kết nối cơ sở dữ liệu khi tạo yêu cầu giao dịch cho user: {}", userId, e);
       return false;
     }
   }
@@ -133,12 +159,12 @@ public class WalletService {
   public boolean processTransactionRequest(String transactionId, WalletTransactionStatus actionStatus) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
+      com.auction.shared.model.notification.Notification notificationToSend = null;
       try {
         WalletTransaction tx = txRepo.getTransactionById(conn, transactionId);
         if (tx == null || tx.getStatus() != WalletTransactionStatus.PENDING) {
           return false;
         }
-        NotificationService notifService = new NotificationService();
         Wallet wallet = walletRepo.getWalletByWalletId(conn, tx.getWalletId());
         if (wallet == null) return false;
         if (actionStatus == WalletTransactionStatus.APPROVE) {
@@ -146,30 +172,38 @@ public class WalletService {
             wallet.deposit(tx.getAmount());
             boolean success = walletRepo.updateWallet(conn, wallet);
             if (success) {
-              notifService.sendFromNotification(NotificationTemplate.depositApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
+              notificationToSend = NotificationTemplate.depositApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance());
             }
           } else if (tx.getType() == WalletTransactionType.WITHDRAW) {
-            wallet.withdraw(tx.getAmount());
-            boolean success = walletRepo.updateWallet(conn, wallet);
-            if (success) {
-              notifService.sendFromNotification(NotificationTemplate.withdrawApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
-            }
+            // Tiền rút đã được trừ từ lúc tạo yêu cầu, không cần trừ lại nữa
+            notificationToSend = NotificationTemplate.withdrawApproved(wallet.getBidderId(), tx.getAmount(), wallet.getBalance());
           }
 
           tx.setStatus(WalletTransactionStatus.APPROVE);
-
           txRepo.updateWalletTransaction(conn, tx);
         } else if (actionStatus == WalletTransactionStatus.REJECT) {
           tx.setStatus(WalletTransactionStatus.REJECT);
           if (txRepo.updateWalletTransaction(conn, tx)) {
             switch (tx.getType()) {
-              case DEPOSIT -> notifService.sendFromNotification(NotificationTemplate.depositRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
-              case WITHDRAW -> notifService.sendFromNotification(NotificationTemplate.withdrawRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance()));
+              case DEPOSIT -> notificationToSend = NotificationTemplate.depositRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance());
+              case WITHDRAW -> {
+                // Rút tiền bị từ chối -> Cộng hoàn trả lại số dư khả dụng
+                wallet.deposit(tx.getAmount());
+                walletRepo.updateWallet(conn, wallet);
+                notificationToSend = NotificationTemplate.withdrawRejected(wallet.getBidderId(), tx.getAmount(), wallet.getBalance());
+              }
             }
           }
         }
 
         conn.commit();
+
+        // Gửi thông báo sau khi transaction DB đã commit thành công
+        if (notificationToSend != null) {
+          NotificationService notifService = new NotificationService();
+          notifService.sendFromNotification(notificationToSend);
+        }
+
         return true;
       } catch (Exception e) {
         conn.rollback();

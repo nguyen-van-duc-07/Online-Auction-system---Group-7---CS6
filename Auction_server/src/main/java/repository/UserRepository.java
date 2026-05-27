@@ -294,17 +294,22 @@ public class UserRepository {
   }
 
   public boolean saveAdminAccount(Admin admin) {
-    String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO users (id, account_name, password, dob, email, phone_number, address, role) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, admin.getId());
       ps.setString(2, admin.getAccountName());
       ps.setString(3, admin.getPassword());
-      ps.setDate(4, Date.valueOf(admin.getDob()));
+      if (admin.getDob() != null) {
+        ps.setDate(4, Date.valueOf(admin.getDob()));
+      } else {
+        ps.setNull(4, java.sql.Types.DATE);
+      }
       ps.setString(5, admin.getEmail());
       ps.setString(6, admin.getPhoneNumber());
       ps.setString(7, admin.getAddress());
+      ps.setString(8, admin.getRole() != null ? admin.getRole().toString() : "ADMIN");
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi lưu tài khoản admin ID: {}", admin.getId(), e);

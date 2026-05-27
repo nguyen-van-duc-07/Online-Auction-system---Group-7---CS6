@@ -166,7 +166,15 @@ public class AuthService {
         BCrypt.gensalt()
     );
     Admin admin = new Admin();
-    admin.setAccountName(createAdminReq.getAccountName());
+    admin.setRole(UserRole.ADMIN);
+
+    String accountName = createAdminReq.getAccountName();
+    if (accountName == null || accountName.trim().isEmpty()) {
+      admin.setAccountName(admin.getDefaultAccountName());
+    } else {
+      admin.setAccountName(accountName);
+    }
+
     admin.setPassword(hashedPassword);
     admin.setEmail(createAdminReq.getEmail());
     admin.setPhoneNumber(createAdminReq.getPhoneNumber());

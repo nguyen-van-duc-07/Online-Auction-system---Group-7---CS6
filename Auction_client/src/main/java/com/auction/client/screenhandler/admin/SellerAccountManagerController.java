@@ -228,4 +228,10 @@ public class SellerAccountManagerController implements Initializable {
   public static SellerAccountManagerController getInstance() {
     return instance;
   }
+
+  @FXML
+  public void handleReload() {
+    log.info("Yêu cầu tải lại danh sách hồ sơ đăng ký Seller từ server...");
+    ServerConnection.sendData(new GetSellerProfileRequestDTO());
+  }
 }

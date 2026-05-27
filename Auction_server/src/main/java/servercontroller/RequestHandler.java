@@ -134,7 +134,7 @@ public class RequestHandler {
     if (userAfterUpdatingProfile != null) {
       UserDTO userDTO = UserDTO.builder()
               .id(userAfterUpdatingProfile.getId())
-              .accountName(userAfterUpdatingProfile.getAccountName())
+              .role(userAfterUpdatingProfile.getRole())
               .accountName(userAfterUpdatingProfile.getAccountName())
               .email(userAfterUpdatingProfile.getEmail())
               .phoneNumber(userAfterUpdatingProfile.getPhoneNumber())

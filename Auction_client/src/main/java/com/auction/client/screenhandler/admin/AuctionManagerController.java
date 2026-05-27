@@ -276,4 +276,10 @@ public class AuctionManagerController implements Initializable {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Không thể chặn phiên đấu giá ở trạng thái này!");
     }
   }
+
+  @FXML
+  public void handleReload() {
+    log.info("Yêu cầu tải lại danh sách phiên đấu giá từ server...");
+    ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+  }
 }
