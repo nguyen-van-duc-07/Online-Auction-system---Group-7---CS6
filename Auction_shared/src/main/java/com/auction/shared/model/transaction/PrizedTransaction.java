@@ -8,6 +8,7 @@ import lombok.ToString;
 import java.math.BigDecimal;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @ToString(callSuper = true) // In ra cả các thuộc tính của lớp cha (fromId, toId)
 public class PrizedTransaction extends Transaction {

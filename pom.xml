@@ -13,6 +13,7 @@
         <module>Auction_shared</module>
         <module>Auction_client</module>
         <module>Auction_server</module>
+        <module>Auction_report</module>
     </modules>
 
     <properties>
@@ -63,10 +64,40 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>com/auction/client/screenhandler/**/*</exclude>
+                        <exclude>com/auction/client/network/ServerConnection.class</exclude>
+                        <exclude>com/auction/client/network/ResponseHandler.class</exclude>
+                        <exclude>com/auction/client/Main.class</exclude>
+                        <!-- Exclude DTOs from shared module -->
+                        <exclude>com/auction/shared/request/**/*</exclude>
+                        <exclude>com/auction/shared/response/**/*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
