@@ -13,8 +13,27 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * Cung cấp thông báo Toast dạng popup động trượt từ trên xuống trong ứng dụng.
+ * Thông báo sẽ tự động ẩn đi sau 8 giây hoặc khi người dùng nhấp chuột vào.
+ */
 public class ToastNotification {
 
+  /**
+   * Constructor private để ngăn khởi tạo đối tượng của lớp tiện ích thông báo.
+   */
+  private ToastNotification() {
+    // Ngăn khởi tạo lớp tiện ích
+  }
+
+  /**
+   * Hiển thị thông báo Toast trượt từ trên xuống ở góc trên bên phải màn hình.
+   *
+   * @param owner cửa sổ chính sở hữu thông báo này (Stage)
+   * @param title tiêu đề của thông báo Toast
+   * @param message nội dung chi tiết của thông báo
+   * @param onClick hành động sẽ thực thi khi người dùng click vào thông báo (có thể null)
+   */
   public static void show(Stage owner, String title, String message, Runnable onClick) {
     Popup popup = new Popup();
 

@@ -33,11 +33,6 @@ public class AuctionResponseDTO implements ResponseDTO {
   private String id;
 
   /**
-   * Mã id seller của người dùng tạo phiên đấu giá.
-   */
-  private String sellerId;
-
-  /**
    * Id của người dùng tạo phiên đấu giá này.
    */
   private String userId;

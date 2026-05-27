@@ -43,6 +43,10 @@ public class ItemViewController {
   @FXML
   private TextArea descriptionField;
 
+  /**
+   * Khởi tạo các danh mục phân loại sản phẩm trên ComboBox giao diện.
+   * Được tự động gọi sau khi tệp FXML được tải.
+   */
   @FXML
   public void initialize() {
     categoryField.getItems().addAll(

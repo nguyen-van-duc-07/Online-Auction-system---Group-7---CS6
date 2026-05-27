@@ -29,6 +29,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * Bộ điều khiển (Controller) cho giao diện thanh toán đơn hàng (PaymentScreen).
+ * Quản lý thông tin giao hàng, hiển thị số tiền thanh toán còn lại sau khi khấu trừ đặt cọc
+ * và thực hiện thanh toán qua ví của người dùng.
+ */
 public class PaymentScreenController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(PaymentScreenController.class);
 
@@ -64,8 +69,18 @@ public class PaymentScreenController implements Initializable {
   private String currentUserId;
   private String currentAuctionId;
   private String currentOrderId;
+
+  /**
+   * Cửa sổ thanh toán đang hoạt động.
+   */
   public static PaymentScreenController instance;
 
+  /**
+   * Khởi tạo bộ điều khiển thanh toán đơn hàng.
+   *
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
+   */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this;
@@ -75,7 +90,11 @@ public class PaymentScreenController implements Initializable {
     btnBack.setOnAction(event -> handleBack());
   }
 
-  // Nạp dữ liệu khi mở từ thông báo (chứa đối tượng Order và item name phong phú từ Server)
+  /**
+   * Thiết lập và nạp dữ liệu chi tiết của đơn hàng lên giao diện thanh toán.
+   *
+   * @param order đối tượng chứa dữ liệu đơn hàng
+   */
   public void setOrderData(Order order) {
     this.currentUserId = order.getBuyerId();
     this.currentAuctionId = order.getAuctionId();
@@ -179,6 +198,12 @@ public class PaymentScreenController implements Initializable {
   }
 
   // Callback khi Server xác nhận thanh toán/hủy đơn hàng thành công
+  /**
+   * Xử lý sự kiện khi máy chủ xác nhận thực hiện thành công giao dịch liên quan đến đơn hàng.
+   * Xuất hóa đơn PDF và đóng cửa sổ giao dịch.
+   *
+   * @param message thông điệp phản hồi từ máy chủ
+   */
   public void onOrderActionSuccess(String message) {
     Platform.runLater(() -> {
       log.info("[THANH_TOAN] Nhận thông báo xác nhận thanh toán từ Server. Khởi chạy tiến trình tạo hóa đơn...");
@@ -210,6 +235,11 @@ public class PaymentScreenController implements Initializable {
   }
 
   // Callback khi Server báo thất bại
+  /**
+   * Xử lý khi yêu cầu giao dịch liên quan đến đơn hàng thất bại.
+   *
+   * @param message thông điệp phản hồi từ máy chủ
+   */
   public void onOrderActionFailed(String message) {
     Platform.runLater(() -> {
       btnCompletePayment.setDisable(false);
@@ -321,6 +351,13 @@ public class PaymentScreenController implements Initializable {
     alert.showAndWait();
   }
 
+  /**
+   * Xử lý phản hồi thanh toán của Server gửi về.
+   *
+   * @param isSuccess trạng thái thanh toán thành công hay thất bại
+   * @param message thông điệp chi tiết
+   * @param transaction đối tượng chứa thông tin giao dịch trúng giải đấu giá
+   */
   public void processPaymentResponse(boolean isSuccess, String message, PrizedTransaction transaction) {
     Platform.runLater(() -> {
       if (isSuccess) {

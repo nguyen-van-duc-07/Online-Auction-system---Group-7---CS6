@@ -19,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controller xử lý logic cho màn hình kết quả đấu giá.
+ * Bộ điều khiển (Controller) cho thẻ hiển thị đơn hàng kết quả đấu giá (OrderCard).
+ * Quản lý trạng thái đếm ngược tự động hủy đơn, chuyển hướng đến thanh toán và xem chi tiết sản phẩm.
  */
 public class OrderCardController {
   private static final Logger log = LoggerFactory.getLogger(OrderCardController.class);
@@ -51,6 +52,9 @@ public class OrderCardController {
   private OrderDTO currentOrder;
   private Timeline countdownTimeline;
 
+  /**
+   * Chuyển hướng người dùng sang trang thanh toán chi tiết của đơn hàng.
+   */
   @FXML
   public void gotoPayment() {
     SessionManager.setCurrentOrderId(currentOrder.getOrderId());
@@ -59,6 +63,9 @@ public class OrderCardController {
     ServerConnection.sendData(new GetOrderRequestDTO(currentOrder.getOrderId()));
   }
 
+  /**
+   * Chuyển hướng người dùng sang màn hình xem thông tin chi tiết sản phẩm.
+   */
   @FXML
   public void gotoItemDetail() {
     String auctionId = currentOrder.getAuctionId();
@@ -68,7 +75,10 @@ public class OrderCardController {
   }
 
   /**
-   * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
+   * Bơm dữ liệu từ một Controller cha truyền sang để hiển thị thông tin thẻ đơn hàng.
+   *
+   * @param order đối tượng DTO chứa thông tin đơn hàng
+   * @param currentScreen đối tượng Controller cha của màn hình hiện tại
    */
   public void setData(OrderDTO order, Controller currentScreen) {
     this.currentScreen = currentScreen;

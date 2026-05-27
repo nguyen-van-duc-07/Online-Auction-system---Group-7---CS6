@@ -1,6 +1,7 @@
 package com.auction.shared.model.auction;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.model.item.Item;
+import com.auction.shared.model.item.GenericItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class AuctionTest {
 
     @BeforeEach
     void setUp() {
-        dummyItem = new Item();
+        dummyItem = new GenericItem();
     }
 
     @Test

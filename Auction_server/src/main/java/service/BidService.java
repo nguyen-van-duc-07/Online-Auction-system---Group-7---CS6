@@ -88,8 +88,7 @@ public class BidService {
           return new PlaceBidResponseDTO(false, "Phiên đấu giá đã hết thời gian");
         }
 
-        String bidderSellerProfileId = sellerProfileRepo.findProfileIdByUserId(req.getBidderId());
-        if (bidderSellerProfileId != null && bidderSellerProfileId.equals(auction.getSellerId())) {
+        if (req.getBidderId().equals(auction.getUserId())) {
           conn.rollback();
           return new PlaceBidResponseDTO(false, "Người bán không thể tự đấu giá sản phẩm của mình");
         }

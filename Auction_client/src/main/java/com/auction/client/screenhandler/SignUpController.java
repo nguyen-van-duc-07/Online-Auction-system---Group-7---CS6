@@ -34,6 +34,10 @@ public class SignUpController {
   private boolean isPasswordVisible = false;
   private boolean isConfirmVisible = false;
 
+  /**
+   * Khởi tạo bộ điều khiển đăng ký tài khoản.
+   * Ràng buộc sự kiện phím Enter cho tất cả các trường nhập liệu để kích hoạt đăng ký nhanh.
+   */
   @FXML
   public void initialize() {
     phoneNumberField.setOnAction(event -> handleRegister());
@@ -107,6 +111,9 @@ public class SignUpController {
     confirmPwdVisible.clear();
   }
 
+  /**
+   * Chuyển hướng người dùng quay lại màn hình đăng nhập.
+   */
   @FXML
   public void gotoLogin() {
     ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");

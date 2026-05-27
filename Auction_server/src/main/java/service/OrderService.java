@@ -44,8 +44,8 @@ public class OrderService {
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
       try {
-        String sellerId = auctionRepo.getSellerIdByAuctionId(auctionId);
-        ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(sellerId);
+        String userId = auctionRepo.getUserIdByAuctionId(auctionId);
+        ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(userId);
         String consigneeName = userRepo.getAccountNameByUserId(buyerId);
         String itemName = auctionRepo.findAuctionById(auctionId).getItem().getName();
         BigDecimal depositAmount = finalPrice.multiply(new BigDecimal("0.1"));
@@ -53,7 +53,7 @@ public class OrderService {
         Order order = new Order(
             auctionId,
             buyerId,
-            sellerId,
+            userId,
             finalPrice,
             depositAmount,
             remainingAmount,

@@ -38,6 +38,11 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Bộ điều khiển (Controller) cho phòng đấu giá chi tiết sản phẩm (ItemAuction).
+ * Hỗ trợ đặt giá thủ công, tự động đặt giá (auto-bid), hiển thị biểu đồ giá,
+ * và cập nhật lịch sử đặt giá theo thời gian thực từ Server.
+ */
 public class ItemAuctionController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(ItemAuctionController.class);
   public static ItemAuctionController instance;
@@ -101,6 +106,10 @@ public class ItemAuctionController implements Initializable {
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
 
+  /**
+   * Xử lý sự kiện quay trở lại màn hình trước đó.
+   * Dừng đồng hồ đếm ngược và gửi yêu cầu rời khỏi phòng đấu giá lên Server.
+   */
   @FXML
   public void handleBack() {
     stopCountdownTimer();
@@ -108,6 +117,13 @@ public class ItemAuctionController implements Initializable {
     ScreenController.goBack();
   }
 
+  /**
+   * Khởi tạo phòng đấu giá chi tiết.
+   * Cấu hình các sự kiện thay đổi ví tiền, sự kiện checkbox auto-bid và tải dữ liệu ban đầu.
+   *
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên bản địa hóa đối tượng gốc
+   */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this; // Gán màn hình hiện tại vào biến static
@@ -193,6 +209,12 @@ public class ItemAuctionController implements Initializable {
 
     // ÉP JAVAFX REFRESH UI NGAY LẬP TỨC
     Platform.runLater(() -> {
+      if (SessionManager.getCurrentUser() == null) {
+        if (countdownTimer != null) {
+          countdownTimer.stop();
+        }
+        return;
+      }
       String currentUserId = SessionManager.getCurrentUser().getId();
       String auctionUserId = currentAuction.getUserId();
       boolean isSeller = currentUserId.equals(auctionUserId);
@@ -240,6 +262,11 @@ public class ItemAuctionController implements Initializable {
     });
   }
 
+  /**
+   * Xử lý sự kiện khi hệ thống đấu giá tự động của người dùng bị vượt mặt bởi người dùng khác.
+   *
+   * @param fomoMessage thông điệp kích thích tâm lý hiển thị cảnh báo cho người dùng
+   */
   public void onAutoBidDefeated(String fomoMessage) {
     Platform.runLater(() -> {
       // 1. Tự động gỡ dấu tích khỏi ô Checkbox
@@ -317,11 +344,18 @@ public class ItemAuctionController implements Initializable {
   }
 
   // CỰC KỲ QUAN TRỌNG: Dừng đồng hồ khi rời khỏi phòng để tránh Memory Leak (Rò rỉ bộ nhớ)
+  /**
+   * Dừng bộ đếm thời gian của phiên đấu giá hiện tại.
+   * Gửi yêu cầu rời phòng đấu giá lên Server để giải phóng tài nguyên.
+   */
   public void stopCountdownTimer() {
     if (countdownTimer != null) {
       countdownTimer.stop();
     }
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
+    if (SessionManager.getCurrentUser() != null && SessionManager.getCurrentAuctionId() != null) {
+      ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
+    }
+    instance = null;
   }
 
   private void loadChartData() {
@@ -434,6 +468,9 @@ public class ItemAuctionController implements Initializable {
     bidAmountField.setStyle("-fx-border-color: #27ae60; -fx-border-width: 2px; -fx-border-radius: 8px; -fx-background-radius: 8px;");
   }
 
+  /**
+   * Thực hiện hành động đặt giá (đấu giá thủ công hoặc đăng ký tự động).
+   */
   @FXML
   public void placeBid() {
     if (currentAuction == null) {
@@ -574,6 +611,11 @@ public class ItemAuctionController implements Initializable {
    * - "Min Step": cộng minStepPrice
    * - "+125%", "+150%", "+175%", "+200%": cộng % của giá hiện tại
    */
+  /**
+   * Xử lý sự kiện khi nhấp chọn nhanh mức đặt giá thêm.
+   *
+   * @param event sự kiện ActionEvent được kích hoạt từ nút bấm JavaFX
+   */
   @FXML
   public void handleQuickAdd(ActionEvent event) {
     // Phòng thủ: Nếu thông tin đấu giá chưa được tải
@@ -643,6 +685,12 @@ public class ItemAuctionController implements Initializable {
     }
   }
 
+  /**
+   * Hiển thị hộp thoại báo đặt giá thành công cho sản phẩm.
+   *
+   * @param itemName tên của sản phẩm được đặt giá
+   * @param amount mức giá đã đặt thành công
+   */
   public void showBidSuccess(String itemName, BigDecimal amount) {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
     alert.setTitle("Đấu giá thành công");
@@ -679,9 +727,17 @@ public class ItemAuctionController implements Initializable {
     pause.play();
   }
 
+  /**
+   * Nhận và xử lý thông tin lượt đặt giá mới từ Server gửi về cho phòng đấu giá.
+   *
+   * @param newBid đối tượng DTO chứa dữ liệu về mức giá mới và người đặt giá mới
+   */
   public void onNewBidReceived(NewBidDTO newBid) {
     System.out.println("[CLIENT - LỊCH SỬ] Nhận được giá mới từ mạng: " + newBid.getBidAmount() + " của " + newBid.getBidderName());
     Platform.runLater(() -> {
+      if (SessionManager.getCurrentUser() == null) {
+        return;
+      }
       // Kiểm tra nếu mình vừa bị outbid (đang là top bidder cũ, và người mới bid không phải mình)
       String myUserId = SessionManager.getCurrentUser().getId();
       String prevHighestBidderId = currentAuction.getHighestBidderId();
@@ -745,6 +801,11 @@ public class ItemAuctionController implements Initializable {
     });
   }
 
+  /**
+   * Xử lý kết quả phản hồi từ Server sau khi gửi yêu cầu đặt giá.
+   *
+   * @param response đối tượng phản hồi chứa trạng thái thành công hay thất bại
+   */
   public void onPlaceBidResponse(PlaceBidResponseDTO response) {
     Platform.runLater(() -> {
       if (!response.isSuccess()) {
@@ -761,6 +822,12 @@ public class ItemAuctionController implements Initializable {
   }
 
   // Xử lý khi nhận được toàn bộ lịch sử đấu giá lúc vừa vào phòng
+  /**
+   * Khởi tạo phòng đấu giá sau khi người dùng tham gia phòng thành công.
+   *
+   * @param auctionData dữ liệu chi tiết của phiên đấu giá
+   * @param autoBidConfig cấu hình auto-bid hiện có của người chơi
+   */
   public void onAuctionRoomJoined(AuctionResponseDTO auctionData, AutoBidConfig autoBidConfig) {
     Platform.runLater(() -> {
       // 1. Cập nhật lại đối tượng đấu giá hiện tại với đầy đủ lịch sử từ Server
@@ -831,6 +898,11 @@ public class ItemAuctionController implements Initializable {
     });
   }
 
+  /**
+   * Gia hạn thêm thời gian cho phiên đấu giá hiện tại.
+   *
+   * @param newEndTime thời điểm kết thúc mới sau khi được gia hạn
+   */
   public void onAuctionExtended(LocalDateTime newEndTime) {
     Platform.runLater(() -> {
       currentAuction.setEndTime(newEndTime);
@@ -844,6 +916,9 @@ public class ItemAuctionController implements Initializable {
     });
   }
 
+  /**
+   * Mở cửa sổ phụ hiển thị các thuộc tính chi tiết của sản phẩm.
+   */
   public void handleViewItemProperties() {
     if (currentAuction == null || currentAuction.getItem() == null) {
       log.warn("currentAuction hoặc thông tin sản phẩm chưa được tải từ Server!");

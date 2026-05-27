@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
-import repository.ItemRepository;
 import repository.SellerProfileRepository;
 
 /**
@@ -34,7 +33,6 @@ import repository.SellerProfileRepository;
 public class AuctionService {
   private static final Logger log = LoggerFactory.getLogger(AuctionService.class);
 
-  private static final ItemRepository itemRepo = new ItemRepository();
   private static final AuctionRepository auctionRepo = new AuctionRepository();
   private static final BidTransactionRepository bidRepo = new BidTransactionRepository();
   private AuctionService() {
@@ -58,9 +56,14 @@ public class AuctionService {
    *
    * @return {@code true} nếu cả Item và Auction đều được lưu thành công, ngược lại là {@code false}
    */
-  public static boolean uploadNewItem(UploadItemRequestDTO request) {
+  public static boolean uploadNewAuction(UploadItemRequestDTO request) {
     // Không sử dụng ItemRepository nữa, gộp chung thông tin item vào Auction
-    Item item = new Item(request.getItemName(), request.getItemType(), request.getDescription(), request.getAdditionalAttributes());
+    Item item = com.auction.shared.model.item.ItemFactory.createItem(
+        request.getItemName(),
+        request.getItemType(),
+        request.getDescription(),
+        request.getAdditionalAttributes()
+    );
 
     // Lưu ảnh sản phẩm lên đĩa cứng (nếu có)
     String imagePath = null;
@@ -73,7 +76,7 @@ public class AuctionService {
     }
 
     return getInstance().createAuction(item,
-        request.getSellerId(),
+        request.getUserId(),
         request.getStartPrice(),
         request.getMinStepPrice(),
         request.getStartTime(),
@@ -91,14 +94,14 @@ public class AuctionService {
    * @return đối tượng Auction vừa được tạo
    */
   public boolean createAuction(Item item,
-                               String sellerId,
+                               String userId,
                                BigDecimal startPrice,
                                BigDecimal minStepPrice,
                                LocalDateTime startTime,
                                LocalDateTime endTime,
                                String imagePath) {
 
-    Auction auction = new Auction(item, sellerId, startPrice, minStepPrice, startTime, endTime);
+    Auction auction = new Auction(item, userId, startPrice, minStepPrice, startTime, endTime);
 
     boolean isAuctionSaved = auctionRepo.saveAuction(auction, imagePath);
 
@@ -229,19 +232,19 @@ public class AuctionService {
   }
 
   public static List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
-    return auctionRepo.findActiveAuctionsBySellerId(userId);
+    return auctionRepo.findActiveAuctionsByUserId(userId);
   }
 
   public static List<AuctionDTO> getAuctionsBySeller(String userId) {
-    return auctionRepo.findAuctionsBySellerId(userId);
+    return auctionRepo.findAuctionsByUserId(userId);
   }
 
   public static boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
-    return auctionRepo.cancelActiveAndWaitingAuctionsBySellerId(userId);
+    return auctionRepo.cancelActiveAndWaitingAuctionsByUserId(userId);
   }
 
   public static boolean restoreCanceledAuctionsBySellerUserId(String userId) {
-    return auctionRepo.restoreCanceledAuctionsBySellerId(userId, LocalDateTime.now());
+    return auctionRepo.restoreCanceledAuctionsByUserId(userId, LocalDateTime.now());
   }
 
   public static AuctionResponseDTO getAuctionHistory(String auctionId) {
@@ -295,27 +298,56 @@ public class AuctionService {
             response[0] = new UpdateAuctionStatusResponseDTO(false, "Phiên hiện đang mở sẵn!");
             return;
           }
-          if (auction.getStatus() != AuctionStatus.WAITING) {
-            response[0] = new UpdateAuctionStatusResponseDTO(false, "Chỉ có thể mở phiên ở trạng thái chờ (WAITING)!");
+          if (auction.getStatus() != AuctionStatus.WAITING && auction.getStatus() != AuctionStatus.CANCELED) {
+            response[0] = new UpdateAuctionStatusResponseDTO(false, "Chỉ có thể mở phiên ở trạng thái chờ (WAITING) hoặc đã hủy (CANCELED)!");
             return;
           }
 
-          boolean success = auctionRepo.updateAuctionStatusAndStartTime(auctionId, AuctionStatus.ACTIVE.name(), LocalDateTime.now());
-          if (success) {
-            Auction ramAuction = getInstance().getAuction(auctionId);
-            if (ramAuction != null) {
-              ramAuction.setStatus(AuctionStatus.ACTIVE);
-              ramAuction.setStartTime(LocalDateTime.now());
+          if (auction.getStatus() == AuctionStatus.CANCELED) {
+            boolean success = auctionRepo.restoreSingleCanceledAuction(auctionId, LocalDateTime.now());
+            if (success) {
+              AuctionResponseDTO updatedAuction = auctionRepo.findAuctionById(auctionId);
+              if (updatedAuction != null) {
+                Auction ramAuction = getInstance().getAuction(auctionId);
+                if (ramAuction != null) {
+                  ramAuction.setStatus(updatedAuction.getStatus());
+                  ramAuction.setStartTime(updatedAuction.getStartTime());
+                  ramAuction.setEndTime(updatedAuction.getEndTime());
+                  ramAuction.setCurrentHighestPrice(updatedAuction.getStartPrice());
+                  ramAuction.setHighestBidderId(null);
+                }
+                Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, updatedAuction.getStatus()));
+                if (updatedAuction.getStatus() == AuctionStatus.ACTIVE) {
+                  new NotificationService().sendNewAuctionNotification(
+                      auctionId,
+                      auction.getItem().getName(),
+                      auction.getStartPrice()
+                  );
+                }
+              }
+              response[0] = new UpdateAuctionStatusResponseDTO(true, "Khôi phục và mở phiên đấu giá thành công!");
+            } else {
+              response[0] = new UpdateAuctionStatusResponseDTO(false, "Khôi phục phiên đấu giá thất bại!");
             }
-            Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.ACTIVE));
-            new NotificationService().sendNewAuctionNotification(
-                auctionId,
-                auction.getItem().getName(),
-                auction.getStartPrice()
-            );
-            response[0] = new UpdateAuctionStatusResponseDTO(true, "Mở phiên đấu giá thành công!");
           } else {
-            response[0] = new UpdateAuctionStatusResponseDTO(false, "Mở phiên đấu giá thất bại!");
+            // WAITING
+            boolean success = auctionRepo.updateAuctionStatusAndStartTime(auctionId, AuctionStatus.ACTIVE.name(), LocalDateTime.now());
+            if (success) {
+              Auction ramAuction = getInstance().getAuction(auctionId);
+              if (ramAuction != null) {
+                ramAuction.setStatus(AuctionStatus.ACTIVE);
+                ramAuction.setStartTime(LocalDateTime.now());
+              }
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.ACTIVE));
+              new NotificationService().sendNewAuctionNotification(
+                  auctionId,
+                  auction.getItem().getName(),
+                  auction.getStartPrice()
+              );
+              response[0] = new UpdateAuctionStatusResponseDTO(true, "Mở phiên đấu giá thành công!");
+            } else {
+              response[0] = new UpdateAuctionStatusResponseDTO(false, "Mở phiên đấu giá thất bại!");
+            }
           }
         } 
         else if (targetStatus == AuctionStatus.CLOSED) {
@@ -383,4 +415,7 @@ public class AuctionService {
    *
    * @param auctionId ID của phiên đấu giá cần kiểm tra và phân định Auto-bid
    */
+  public static List<AuctionDTO> getCanceledAuctionsForClient() {
+    return auctionRepo.findCanceledAuctions();
+  }
 }

@@ -106,6 +106,10 @@ public class UploadItemController {
 
   private File selectedImageFile;
 
+  /**
+   * Khởi tạo bộ điều khiển đăng sản phẩm bán đấu giá.
+   * Thiết lập ComboBox giờ/phút, các danh mục và đăng ký bộ lắng nghe thay đổi danh mục để nạp thuộc tính động.
+   */
   @FXML
   public void initialize() {
     for (int i = 0; i < 24; i++) {
@@ -183,13 +187,13 @@ public class UploadItemController {
 
     try {
       // Lấy thông tin cơ bản
-      String sellerId = SessionManager.getCurrentUser().getId();
+      String userId = SessionManager.getCurrentUser().getId();
       String nameItem = nameItemField.getText().trim();
       String description = descriptionField.getText().trim();
       String startPriceStr = iniPriceField.getText().trim();
       String minStepPriceStr = minStepPriceField.getText().trim();
 
-      if (sellerId.isEmpty() || nameItem.isEmpty() || description.isEmpty()
+      if (userId.isEmpty() || nameItem.isEmpty() || description.isEmpty()
           || startPriceStr.isEmpty() || minStepPriceStr.isEmpty()) {
         ScreenController.showAlert(Alert.AlertType.WARNING,
             "Cảnh báo", "Vui lòng nhập đầy đủ thông tin!");
@@ -266,7 +270,7 @@ public class UploadItemController {
         additionalAttributes.put(entry.getKey(), attrValue);
       }
 
-      UploadItemRequestDTO uploadItemRequestDTO = new UploadItemRequestDTO(sellerId,
+      UploadItemRequestDTO uploadItemRequestDTO = new UploadItemRequestDTO(userId,
           nameItem,
           type,
           description,
@@ -295,9 +299,9 @@ public class UploadItemController {
 
   /**
    * Hàm phụ trợ chuyển đổi chuỗi danh mục từ ComboBox sang kiểu {@link ItemType}.
-   * * @param category Chuỗi danh mục lấy từ giao diện (ví dụ: "Thời trang")
    *
-   * @return Biến Enum {@link ItemType} tương ứng
+   * @param category chuỗi danh mục lấy từ giao diện (ví dụ: "Thời trang")
+   * @return biến Enum {@link ItemType} tương ứng
    */
   public ItemType mapCategoryToEnum(String category) {
     if (category == null) return ItemType.OTHER;
@@ -313,6 +317,9 @@ public class UploadItemController {
     };
   }
 
+  /**
+   * Xử lý sự kiện khi người dùng nhấn nút chọn hình ảnh cho sản phẩm đấu giá.
+   */
   @FXML
   public void handleChooseImage() {
     FileChooser fileChooser = new FileChooser();

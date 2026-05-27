@@ -13,6 +13,10 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Bộ điều khiển (Controller) cho màn hình đăng ký tài khoản người bán (SellerRegister).
+ * Cho phép người mua điền thông tin thương hiệu, căn cước công dân và tài khoản ngân hàng để nâng cấp tài khoản.
+ */
 public class SellerRegisterForBidderController implements Initializable {
   private String brandName;
   private String citizenIdentityCard;
@@ -30,11 +34,23 @@ public class SellerRegisterForBidderController implements Initializable {
   @FXML
   private TextField bankNameField;
 
+  /**
+   * Khởi tạo bộ điều khiển đăng ký người bán.
+   * Tự động thiết lập địa chỉ mặc định của người dùng từ Session.
+   *
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
+   */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     locationField.setText(SessionManager.getCurrentUser().getAddress());
   }
 
+  /**
+   * Kiểm tra xem các trường thông tin đăng ký nhập vào có đầy đủ và hợp lệ hay không.
+   *
+   * @return {@code true} nếu thông tin hợp lệ, ngược lại {@code false}
+   */
   public boolean isInformationValid() {
     brandName = brandNameField.getText();
     citizenIdentityCard = citizenIdentityCardField.getText();
@@ -57,6 +73,10 @@ public class SellerRegisterForBidderController implements Initializable {
     }
   }
 
+  /**
+   * Quay trở lại màn hình trang chủ của người mua.
+   * Cảnh báo người dùng nếu có dữ liệu chưa điền đầy đủ trước khi thoát.
+   */
   @FXML
   public void gotoHome() {
     if (isInformationValid()) {
@@ -71,6 +91,9 @@ public class SellerRegisterForBidderController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý hành động gửi đơn đăng ký nâng cấp tài khoản người bán lên Server.
+   */
   @FXML
   public void handleRegister() {
     if (!isInformationValid()) {

@@ -15,16 +15,29 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.function.Consumer;
 
+/**
+ * Bộ điều khiển (Controller) cho màn hình rút tiền từ ví của người dùng.
+ * Quản lý kiểm tra và gửi giao dịch rút tiền (withdraw) lên Server.
+ */
 public class WithdrawController {
   private static final Logger log = LoggerFactory.getLogger(WithdrawController.class);
 
   @FXML private TextField amountTextField;
   private Consumer<BigDecimal> onSuccessCallback;
 
+  /**
+   * Thiết lập hàm callback xử lý sự kiện sau khi rút tiền thành công.
+   *
+   * @param callback hàm callback nhận số tiền rút làm tham số
+   */
   public void setOnSuccessCallback(Consumer<BigDecimal> callback) {
     this.onSuccessCallback = callback;
   }
 
+  /**
+   * Khởi tạo bộ điều khiển rút tiền.
+   * Thiết lập ràng buộc nhập số cho ô số tiền rút.
+   */
   @FXML
   public void initialize() {
     amountTextField.textProperty().addListener((observable, oldValue, newValue) -> {

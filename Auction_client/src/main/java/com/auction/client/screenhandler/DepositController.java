@@ -18,6 +18,10 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.function.Consumer;
 
+/**
+ * Bộ điều khiển (Controller) cho màn hình nạp tiền vào ví của người dùng.
+ * Quản lý ràng buộc nhập liệu và gửi giao dịch nạp tiền (deposit) lên Server.
+ */
 public class DepositController {
   private static final Logger log = LoggerFactory.getLogger(DepositController.class);
 
@@ -26,11 +30,19 @@ public class DepositController {
   // Khai báo một callback để truyền dữ liệu về màn hình ví
   private Consumer<BigDecimal> onSuccessCallback;
 
-  // Setter để màn hình chính truyền hàm xử lý vào
+  /**
+   * Thiết lập hàm callback để xử lý sự kiện sau khi nạp tiền thành công.
+   *
+   * @param onSuccessCallback hàm callback nhận số tiền nạp làm tham số
+   */
   public void setOnSuccessCallback(Consumer<BigDecimal> onSuccessCallback) {
     this.onSuccessCallback = onSuccessCallback;
   }
 
+  /**
+   * Khởi tạo bộ điều khiển nạp tiền.
+   * Thiết lập ràng buộc nhập số cho trường số tiền nạp.
+   */
   @FXML
   public void initialize() {
     // Ràng buộc nhập liệu: Chỉ cho phép số và tối đa một dấu chấm thập phân

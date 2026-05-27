@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class UploadItemRequestDTO implements RequestDTO {
-  /** Mã định danh của người bán (Lấy từ Session). */
-  private String sellerId;
+  /** Mã định danh của người dùng tạo (Lấy từ Session). */
+  private String userId;
   /** Tên của sản phẩm. */
   private String itemName;
   /** Phân loại sản phẩm (Điện tử, Thời trang,...). */

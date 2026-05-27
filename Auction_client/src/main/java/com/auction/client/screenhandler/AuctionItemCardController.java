@@ -21,6 +21,10 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Bộ điều khiển (Controller) cho thẻ hiển thị sản phẩm đấu giá (AuctionItemCard).
+ * Chịu trách nhiệm hiển thị thông tin tóm tắt sản phẩm, trạng thái diễn ra và đếm ngược thời gian.
+ */
 public class AuctionItemCardController {
   private static final Logger log = LoggerFactory.getLogger(AuctionItemCardController.class);
 
@@ -40,8 +44,10 @@ public class AuctionItemCardController {
   private AuctionDTO auction;
 
   /**
-   * Hàm này dùng để bơm dữ liệu từ một Controller cha truyền sang.
+   * Bơm dữ liệu từ một Controller cha truyền sang để hiển thị thông tin sản phẩm đấu giá.
    *
+   * @param auction đối tượng DTO chứa dữ liệu về phiên đấu giá
+   * @param currentScreen đối tượng Controller cha của màn hình hiện tại
    */
   public void setData(AuctionDTO auction, Controller currentScreen) {
       this.currentScreen = currentScreen;
@@ -71,6 +77,9 @@ public class AuctionItemCardController {
       countdownTimer.play();
   }
 
+  /**
+   * Chuyển hướng sang màn hình xem chi tiết phiên đấu giá sản phẩm.
+   */
   @FXML
   public void gotoAuctionDetail() {
     // Lưu sản phẩm vừa chọn vào SessionManager
@@ -96,10 +105,20 @@ public class AuctionItemCardController {
     }
   }
 
+  /**
+   * Lấy mã định danh phiên đấu giá hiện tại.
+   *
+   * @return mã định danh phiên đấu giá dạng chuỗi
+   */
   public String getAuctionId() {
     return auction.getAuctionId();
   }
 
+  /**
+   * Cập nhật mức giá cao nhất hiện tại hiển thị trên thẻ card.
+   *
+   * @param newPrice mức giá cao nhất mới cần hiển thị
+   */
   public void updatePrice(BigDecimal newPrice) {
     Platform.runLater(() -> {
       priceLabel.setText(String.format("%,.0f VNĐ", newPrice));
@@ -128,6 +147,11 @@ public class AuctionItemCardController {
       if (countdownTimer != null) countdownTimer.stop();
     }
   }
+  /**
+   * Cập nhật thời điểm kết thúc mới của phiên đấu giá khi có gia hạn.
+   *
+   * @param newEndTime thời điểm kết thúc mới
+   */
   public void updateEndTime(LocalDateTime newEndTime) {
     this.auction.setEndTime(newEndTime);
   }
