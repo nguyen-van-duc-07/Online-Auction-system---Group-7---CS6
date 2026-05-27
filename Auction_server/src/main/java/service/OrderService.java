@@ -95,6 +95,9 @@ public class OrderService {
         if (order == null) {
           return false;
         }
+        if (order.getStatus() != OrderStatus.PENDING) {
+          throw new IllegalStateException("Đơn hàng đã được thanh toán hoặc bị hủy trước đó!");
+        }
         order.setConsigneeName(buyerInfo.getConsigneeName());
         order.setPhoneNumber(buyerInfo.getPhoneNumber());
         order.setAddress(buyerInfo.getAddress());
@@ -158,6 +161,9 @@ public class OrderService {
       try {
         Order order = orderRepo.findById(orderId);
         if (order == null) {
+          return false;
+        }
+        if (order.getStatus() != OrderStatus.PENDING) {
           return false;
         }
         cancelOrderInternal(conn, order);

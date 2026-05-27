@@ -229,33 +229,70 @@ public class AuctionRepository {
   }
 
   public boolean restoreCanceledAuctionsBySellerId(String sellerId, LocalDateTime now) {
-    String sql = "UPDATE auctions SET status = CASE "
+    String selectSql = "SELECT id FROM auctions WHERE seller_id = ? AND status = ?";
+
+    String updateSql = "UPDATE auctions SET "
+        + "current_price = start_price, "
+        + "highest_bidder_id = NULL, "
+        + "status = CASE "
         + "WHEN end_time <= ? THEN ? "
         + "WHEN start_time <= ? AND end_time > ? THEN ? "
         + "WHEN start_time > ? THEN ? "
         + "ELSE status END "
         + "WHERE seller_id = ? AND status = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        // 1. Lấy danh sách ID các phiên bị hủy
+        List<String> canceledIds = new ArrayList<>();
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setString(1, sellerId);
+          psSelect.setString(2, AuctionStatus.CANCELED.name());
+          try (ResultSet rs = psSelect.executeQuery()) {
+            while (rs.next()) {
+              canceledIds.add(rs.getString("id"));
+            }
+          }
+        }
 
-      Timestamp currentTimestamp = Timestamp.valueOf(now);
-      ps.setTimestamp(1, currentTimestamp);
-      ps.setString(2, AuctionStatus.CLOSED.name());
-      ps.setTimestamp(3, currentTimestamp);
-      ps.setTimestamp(4, currentTimestamp);
-      ps.setString(5, AuctionStatus.ACTIVE.name());
-      ps.setTimestamp(6, currentTimestamp);
-      ps.setString(7, AuctionStatus.WAITING.name());
-      ps.setString(8, sellerId);
-      ps.setString(9, AuctionStatus.CANCELED.name());
-      ps.executeUpdate();
-      return true;
+        // 2. Xóa toàn bộ lịch sử đặt giá cũ của các phiên bị hủy (nếu có)
+        if (!canceledIds.isEmpty()) {
+          BidTransactionRepository bidRepo = new BidTransactionRepository();
+          bidRepo.deleteByAuctionIds(conn, canceledIds);
+        }
+
+        // 3. Reset giá về khởi điểm, xóa người dẫn đầu và khôi phục trạng thái
+        try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+          Timestamp currentTimestamp = Timestamp.valueOf(now);
+          psUpdate.setTimestamp(1, currentTimestamp);
+          psUpdate.setString(2, AuctionStatus.CLOSED.name());
+          psUpdate.setTimestamp(3, currentTimestamp);
+          psUpdate.setTimestamp(4, currentTimestamp);
+          psUpdate.setString(5, AuctionStatus.ACTIVE.name());
+          psUpdate.setTimestamp(6, currentTimestamp);
+          psUpdate.setString(7, AuctionStatus.WAITING.name());
+          psUpdate.setString(8, sellerId);
+          psUpdate.setString(9, AuctionStatus.CANCELED.name());
+          psUpdate.executeUpdate();
+        }
+
+        conn.commit();
+        log.info("[RESTORE] Đã khôi phục và reset thành công {} phiên đấu giá của seller {}", canceledIds.size(), sellerId);
+        return true;
+      } catch (Exception e) {
+        conn.rollback();
+        log.error("Lỗi khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
+      }
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
+      log.error("Lỗi kết nối cơ sở dữ liệu khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
       return false;
     }
   }
+
 
   public void updatePrice(Connection conn, String auctionId, String bidderId, java.math.BigDecimal newPrice) throws SQLException {
     String sql = "UPDATE auctions SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
@@ -681,7 +718,7 @@ public class AuctionRepository {
       conn.setAutoCommit(false);
       try {
         AuctionResponseDTO auction = findAuctionForUpdate(conn, auctionId);
-        if (auction == null) {
+        if (auction == null || auction.getStatus() == AuctionStatus.CANCELED || auction.getStatus() == AuctionStatus.CLOSED) {
           conn.rollback();
           return false;
         }

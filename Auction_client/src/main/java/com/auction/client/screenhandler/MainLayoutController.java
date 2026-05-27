@@ -137,6 +137,7 @@ public class MainLayoutController implements Initializable, Controller {
     // Hiển thị số dư lần đầu tiên khi vừa load màn hình (Tránh việc nhãn bị trống)
     if (SessionManager.getCurrentBalance() != null) {
       java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+      format.setMaximumFractionDigits(0);
       remainingLabel.setText("Số dư: " + format.format(SessionManager.getCurrentBalance()) + " VNĐ");
     }
 
@@ -145,6 +146,7 @@ public class MainLayoutController implements Initializable, Controller {
       Platform.runLater(() -> {
         if (remainingLabel != null && newBalance != null) {
           java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+          format.setMaximumFractionDigits(0);
           remainingLabel.setText("Số dư: " + format.format(newBalance) + " VNĐ");
         }
       });

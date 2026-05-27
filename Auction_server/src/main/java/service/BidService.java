@@ -50,6 +50,15 @@ public class BidService {
     }
   }
 
+  /**
+   * Dọn dẹp lock tĩnh khi phiên đấu giá kết thúc hoặc hủy bỏ.
+   * Luôn phải được gọi bên trong một khối runWithAuctionLock của chính phiên đó để tránh Race Condition.
+   */
+  public static void removeAuctionLock(String auctionId) {
+    auctionLocks.remove(auctionId);
+    log.debug("[LOCK-CLEANUP] Đã giải phóng đối tượng Lock tĩnh cho phiên đấu giá ID: {}", auctionId);
+  }
+
   public PlaceBidResponseDTO placeBid(PlaceBidRequestDTO req) {
     String auctionId = req.getAuctionId();
     PostCommitEvents events = new PostCommitEvents();
@@ -108,7 +117,7 @@ public class BidService {
         applyAntiSniping(conn, req.getAuctionId(), auction, events);
 
         // --- Bot phản đòn (cùng transaction) ---
-        processBotCounterAttack(conn, req.getAuctionId(), auction, events);
+        resolveAutoBidFightWithinTransaction(conn, req.getAuctionId(), auction, events);
 
         conn.commit();
         events.dispatch();
@@ -300,57 +309,153 @@ public class BidService {
     });
   }
 
-  private void processBotCounterAttack(
+  private void resolveAutoBidFightWithinTransaction(
       Connection conn,
       String auctionId,
       AuctionResponseDTO auction,
       PostCommitEvents events) throws SQLException {
 
-    List<AutoBidConfig> activeBots = autoBidRepo.findActiveBotsOrderedByMaxPrice(conn, auctionId);
-    if (activeBots.isEmpty() || activeBots.get(0).getUserId().equals(auction.getHighestBidderId())) {
-      return;
+    List<AutoBidConfig> activeBots = new ArrayList<>(autoBidRepo.findActiveBotsOrderedByMaxPrice(conn, auctionId));
+    List<String> botsToDeactivate = new ArrayList<>();
+
+    AutoBidConfig finalWinner = null;
+    BigDecimal finalPrice = auction.getCurrentHighestPrice();
+    String finalBidderId = auction.getHighestBidderId();
+    boolean stateChanged = false;
+
+    // --- VÒNG LẶP STATE-MACHINE TRÊN RAM ---
+    while (!activeBots.isEmpty()) {
+      AutoBidConfig currentTop = activeBots.get(0);
+
+      // Bỏ qua nếu bot này chính là người giữ đỉnh đầu tiên và không có đối thủ nào khác
+      if (currentTop.getUserId().equals(finalBidderId) && activeBots.size() == 1) {
+        break;
+      }
+
+      BigDecimal actualStep = (currentTop.getStepAmount() != null && currentTop.getStepAmount().compareTo(auction.getMinStepPrice()) > 0)
+          ? currentTop.getStepAmount()
+          : auction.getMinStepPrice();
+
+      // THỨ 1: Bot đang xét ĐÃ LÀ người giữ đỉnh
+      if (currentTop.getUserId().equals(finalBidderId)) {
+        if (activeBots.size() >= 2) {
+          AutoBidConfig challenger = activeBots.get(1);
+
+          if (finalPrice.compareTo(challenger.getMaxPrice()) >= 0) {
+            botsToDeactivate.add(challenger.getUserId());
+            events.addAutoDefeated(challenger.getUserId(), new AutoBidDefeatedDTO(auctionId, "Bị Bot khác đè bẹp ngân sách!"));
+            activeBots.remove(1);
+            stateChanged = true;
+            continue;
+          }
+
+          BigDecimal priceToBeat = challenger.getMaxPrice().add(actualStep);
+          BigDecimal newPrice = priceToBeat.min(currentTop.getMaxPrice());
+
+          if (newPrice.compareTo(finalPrice) > 0) {
+            BigDecimal requiredFreeze = newPrice.multiply(FREEZE_RATE);
+            BigDecimal previousDeposit = finalPrice.multiply(FREEZE_RATE);
+            Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, currentTop.getUserId());
+
+            BigDecimal effectiveBalance = (wallet != null) ? wallet.getBalance().add(previousDeposit) : BigDecimal.ZERO;
+
+            if (effectiveBalance.compareTo(requiredFreeze) >= 0) {
+              finalPrice = newPrice;
+              finalWinner = currentTop;
+              stateChanged = true;
+
+              if (finalPrice.compareTo(challenger.getMaxPrice()) >= 0) {
+                botsToDeactivate.add(challenger.getUserId());
+                events.addAutoDefeated(challenger.getUserId(), new AutoBidDefeatedDTO(auctionId, "Bị Bot khác đè bẹp ngân sách hoặc trùng mức giá Max!"));
+                activeBots.remove(1);
+              }
+            } else {
+              botsToDeactivate.add(currentTop.getUserId());
+              events.addAutoDefeated(currentTop.getUserId(), new AutoBidDefeatedDTO(auctionId, "Bot tự tắt do thiếu số dư cọc 10%."));
+              activeBots.remove(0);
+              stateChanged = true;
+            }
+          } else {
+            botsToDeactivate.add(challenger.getUserId());
+            activeBots.remove(1);
+            stateChanged = true;
+          }
+        } else {
+          break;
+        }
+      }
+      // THỨ 2: Bot đang xét CHƯA PHẢI người giữ đỉnh
+      else {
+        BigDecimal minPriceToBeat = finalPrice.add(actualStep);
+
+        if (currentTop.getMaxPrice().compareTo(minPriceToBeat) < 0) {
+          botsToDeactivate.add(currentTop.getUserId());
+          events.addAutoDefeated(currentTop.getUserId(), new AutoBidDefeatedDTO(auctionId, "Ngân sách Bot không đủ để đè giá hiện tại!"));
+          activeBots.remove(0);
+          stateChanged = true;
+          continue;
+        }
+
+        BigDecimal targetPrice = minPriceToBeat;
+        if (activeBots.size() >= 2) {
+          AutoBidConfig challenger = activeBots.get(1);
+          if (challenger.getMaxPrice().compareTo(finalPrice) >= 0) {
+            BigDecimal priceToBeatChallenger = challenger.getMaxPrice().add(actualStep);
+            targetPrice = priceToBeatChallenger.min(currentTop.getMaxPrice());
+            if (targetPrice.compareTo(minPriceToBeat) < 0) {
+              targetPrice = minPriceToBeat;
+            }
+          }
+        }
+
+        BigDecimal requiredFreeze = targetPrice.multiply(FREEZE_RATE);
+        Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, currentTop.getUserId());
+
+        if (wallet != null && wallet.getBalance().compareTo(requiredFreeze) >= 0) {
+          finalPrice = targetPrice;
+          finalWinner = currentTop;
+          finalBidderId = currentTop.getUserId();
+          stateChanged = true;
+
+          if (activeBots.size() >= 2) {
+            AutoBidConfig challenger = activeBots.get(1);
+            if (challenger.getMaxPrice().compareTo(finalPrice) <= 0) {
+              botsToDeactivate.add(challenger.getUserId());
+              events.addAutoDefeated(challenger.getUserId(), new AutoBidDefeatedDTO(auctionId, "Bị Bot của tài phiệt khác đè bẹp ngân sách!"));
+              activeBots.remove(1);
+            }
+          }
+        } else {
+          botsToDeactivate.add(currentTop.getUserId());
+          events.addAutoDefeated(currentTop.getUserId(), new AutoBidDefeatedDTO(auctionId, "Bot tự tắt do thiếu số dư cọc 10%."));
+          activeBots.remove(0);
+          stateChanged = true;
+        }
+      }
     }
 
-    AutoBidConfig bot = activeBots.get(0);
-    BigDecimal currentPrice = auction.getCurrentHighestPrice();
-    // 1. Xác định bước giá thực tế của Bot (áp dụng luật sàn nếu Bot cài quá nhỏ hoặc null)
-    BigDecimal actualBotStep = (bot.getStepAmount() != null && bot.getStepAmount().compareTo(auction.getMinStepPrice()) > 0)
-        ? bot.getStepAmount()
-        : auction.getMinStepPrice();
+    // --- BƯỚC CHỐT HẠ ---
+    if (stateChanged) {
+      for (String botUserId : botsToDeactivate) {
+        autoBidRepo.deactivate(conn, botUserId, auctionId);
+      }
 
-    // 2. Giá Bot cần đặt sẽ bằng Giá hiện tại + Bước giá chiến thuật của Bot
-    BigDecimal priceToBeat = currentPrice.add(actualBotStep);
+      if (finalWinner != null && finalPrice.compareTo(auction.getCurrentHighestPrice()) > 0) {
+        transferHighestBidDeposit(conn, auctionId, auction.getHighestBidderId(), auction.getCurrentHighestPrice(), finalWinner.getUserId(), finalPrice);
+        bidRepo.saveBid(conn, new BidTransaction(auctionId, finalWinner.getUserId(), finalPrice));
+        auctionRepo.updatePrice(conn, auctionId, finalWinner.getUserId(), finalPrice);
 
-    if (bot.getMaxPrice().compareTo(priceToBeat) >= 0) {
-      BigDecimal newBotPrice = priceToBeat;
-      BigDecimal requiredFreeze = newBotPrice.multiply(FREEZE_RATE);
-      Wallet botWallet = walletRepo.getWalletByUserIdForUpdate(conn, bot.getUserId());
-
-      if (botWallet != null && botWallet.getBalance().compareTo(requiredFreeze) >= 0) {
-        transferHighestBidDeposit(conn, auctionId,
-            auction.getHighestBidderId(), currentPrice, bot.getUserId(), newBotPrice);
-        bidRepo.saveBid(conn, new BidTransaction(auctionId, bot.getUserId(), newBotPrice));
-        auctionRepo.updatePrice(conn, auctionId, bot.getUserId(), newBotPrice);
-        auction.setCurrentHighestPrice(newBotPrice);
-        auction.setHighestBidderId(bot.getUserId());
-
+        auction.setCurrentHighestPrice(finalPrice);
+        auction.setHighestBidderId(finalWinner.getUserId());
         applyAntiSniping(conn, auctionId, auction, events);
 
-        String botName = userRepo.getAccountNameByUserId(bot.getUserId());
-        events.addNewBid(new NewBidDTO(auctionId, bot.getUserId(), "[Auto] " + botName, newBotPrice));
-        events.addPriceUpdate(new AuctionPriceUpdateDTO(auctionId, newBotPrice));
-      } else {
-        autoBidRepo.deactivate(conn, bot.getUserId(), auctionId);
-        String fomoMessage = "Bot đã tự tắt do số dư ví không đủ 10% (" + requiredFreeze
-            + " VNĐ) để tiếp tục đấu giá!";
-        events.addAutoDefeated(bot.getUserId(), new AutoBidDefeatedDTO(auctionId, fomoMessage));
+        String winnerName = userRepo.getAccountNameByUserId(finalWinner.getUserId());
+        events.addNewBid(new NewBidDTO(auctionId, finalWinner.getUserId(), "[Auto] " + winnerName, finalPrice));
+        events.addPriceUpdate(new AuctionPriceUpdateDTO(auctionId, finalPrice));
       }
-    } else {
-      autoBidRepo.deactivate(conn, bot.getUserId(), auctionId);
-      String fomoMessage = "Một tài phiệt khác vừa trả giá đè bẹp ngân sách Bot của bạn!";
-      events.addAutoDefeated(bot.getUserId(), new AutoBidDefeatedDTO(auctionId, fomoMessage));
     }
   }
+
 
   /**
    * Chuyển cọc 10% từ người giữ top cũ sang người giữ top mới.

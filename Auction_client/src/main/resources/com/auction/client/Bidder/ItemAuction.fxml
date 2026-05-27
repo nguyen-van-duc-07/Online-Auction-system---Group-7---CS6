@@ -36,8 +36,22 @@
                             </font>
                         </Label>
                     </children>
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" spacing="5.0">
+                    <children>
+                        <Label text="Số dư ví: " textFill="#7F8C8D">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="walletBalanceLabel" text="0 VNĐ" textFill="#009900">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Label>
+                    </children>
                     <HBox.margin>
-                        <Insets right="150.0" />
+                        <Insets right="20.0" />
                     </HBox.margin>
                 </HBox>
             </children>

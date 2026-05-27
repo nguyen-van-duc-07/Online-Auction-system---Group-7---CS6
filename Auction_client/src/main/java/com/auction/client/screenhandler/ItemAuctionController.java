@@ -65,6 +65,8 @@ public class ItemAuctionController implements Initializable {
   private Label highestBidderLabel;
   @FXML
   private Label minStepPriceLabel;
+  @FXML
+  private Label walletBalanceLabel;
 
   // --- AUTO-BID UI COMPONENTS ---
   @FXML
@@ -162,6 +164,27 @@ public class ItemAuctionController implements Initializable {
 
       });
     }
+    // Hiển thị số dư ví ban đầu
+    if (walletBalanceLabel != null) {
+      BigDecimal val = SessionManager.getCurrentBalance();
+      if (val == null) val = BigDecimal.ZERO;
+      DecimalFormat formatter = new DecimalFormat("#,###");
+      walletBalanceLabel.setText(formatter.format(val) + " VNĐ");
+    }
+
+    // Đăng ký lắng nghe biến động số dư để tự động cập nhật UI tức thời
+    SessionManager.balanceProperty().addListener((observable, oldValue, newValue) -> {
+      Platform.runLater(() -> {
+        if (walletBalanceLabel != null) {
+          BigDecimal val = (newValue != null) ? newValue : BigDecimal.ZERO;
+          DecimalFormat formatter = new DecimalFormat("#,###");
+          walletBalanceLabel.setText(formatter.format(val) + " VNĐ");
+        }
+      });
+    });
+
+    // Lấy số dư mới nhất từ Server khi vừa mở màn hình đấu giá
+    ServerConnection.sendData(new GetBalanceRequestDTO());
     ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 

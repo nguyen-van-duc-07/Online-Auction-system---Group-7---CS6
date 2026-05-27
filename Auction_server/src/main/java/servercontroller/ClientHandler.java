@@ -1,5 +1,6 @@
 package servercontroller;
 
+import com.auction.shared.enums.UserRole;
 import com.auction.shared.request.*;
 import com.auction.shared.response.LoginResponseDTO;
 import org.slf4j.Logger;
@@ -26,6 +27,12 @@ public class ClientHandler implements Runnable {
   private ObjectInputStream in;
   private ObjectOutputStream out;
   private String userId;
+  private UserRole role;
+
+  public UserRole getRole() {
+    return role;
+  }
+
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
     try {
@@ -56,8 +63,10 @@ public class ClientHandler implements Runnable {
             // Tự dộng rẽ nhánh và ép kiểu
             switch (requestObj) {
               case SignUpRequestDTO signUpReq -> {
-                out.writeObject(RequestHandler.signup(signUpReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.signup(signUpReq));
+                  out.flush();
+                }
               }
 
               case LoginRequestDTO loginReq -> {
@@ -79,13 +88,16 @@ public class ClientHandler implements Runnable {
 
                   // Cho phép đăng nhập và lưu kết nối mới vào danh sách Server
                   this.userId = checkUserId;
+                  this.role = response.getUser().getRole();
                   MDC.put("clientId", "User:" + this.userId);
                   Server.registerClient(this.userId, this);
                 }
 
                 // Trả về đối tượng 'res' đã được xử lý thay vì gọi hàm login() thêm lần nữa
-                out.writeObject(response);
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(response);
+                  out.flush();
+                }
               }
 
               case LogoutRequestDTO logoutReq -> {
@@ -93,64 +105,88 @@ public class ClientHandler implements Runnable {
               }
 
               case UploadItemRequestDTO uploadItemReq -> {
-                out.writeObject(RequestHandler.uploadItem(uploadItemReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.uploadItem(uploadItemReq));
+                  out.flush();
+                }
               }
 
               case AuctionRequestDTO request -> {
-                out.writeObject(RequestHandler.handleFindAuctionById(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleFindAuctionById(request));
+                  out.flush();
+                }
               }
 
               case GetActiveAuctionsRequestDTO getActiveAuctionReq -> {
-                out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                  out.flush();
+                }
               }
 
               case GetWaitingAuctionsRequestDTO getWaitingAuctionsReq -> {
-                out.writeObject(RequestHandler.getWaitingAuctions(getWaitingAuctionsReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getWaitingAuctions(getWaitingAuctionsReq));
+                  out.flush();
+                }
               }
 
               case GetClosedAuctionsRequestDTO getClosedAuctionsReq -> {
-                out.writeObject(RequestHandler.getClosedAuctions(getClosedAuctionsReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getClosedAuctions(getClosedAuctionsReq));
+                  out.flush();
+                }
               }
 
               case GetActiveAndWaitingAuctionsRequestDTO getActiveAndWaitingAuctionsReq -> {
-                out.writeObject(RequestHandler.getActiveAndWaitingAuctions(getActiveAndWaitingAuctionsReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getActiveAndWaitingAuctions(getActiveAndWaitingAuctionsReq));
+                  out.flush();
+                }
               }
 
               case GetActiveAuctionsBySellerRequestDTO getActiveAuctionsBySellerReq -> {
-                out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));
+                  out.flush();
+                }
               }
 
               case GetAuctionsBySellerRequestDTO getAuctionsBySellerReq -> {
-                out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getAuctionsBySeller(getAuctionsBySellerReq));
+                  out.flush();
+                }
               }
 
               case UpdateProfileRequestDTO updateProfileReq -> {
-                out.writeObject(RequestHandler.updateProfile(updateProfileReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.updateProfile(updateProfileReq));
+                  out.flush();
+                }
               }
 
               case ChangePasswordRequestDTO changePasswordReq -> {
-                out.writeObject(RequestHandler.changePassword(changePasswordReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.changePassword(changePasswordReq));
+                  out.flush();
+                }
               }
 
               case PlaceBidRequestDTO bidReq -> {
-                out.writeObject(RequestHandler.placeBid(bidReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.placeBid(bidReq));
+                  out.flush();
+                }
               }
 
               case JoinRoomRequestDTO joinRoomReq -> {
                 Server.joinSelectedAuctionRoom(joinRoomReq.getSelectedAuctionId(), this);
-                out.writeObject(RequestHandler.joinRoom(joinRoomReq, this.userId));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.joinRoom(joinRoomReq, this.userId));
+                  out.flush();
+                }
               }
 
               case LeaveRoomRequestDTO leaveRoomReq -> {
@@ -158,57 +194,79 @@ public class ClientHandler implements Runnable {
               }
 
               case SellerRegisterRequestDTO sellerRegisterReq -> {
-                out.writeObject(RequestHandler.sellerRegister(sellerRegisterReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.sellerRegister(sellerRegisterReq));
+                  out.flush();
+                }
               }
 
               case CheckingSellerProfileRequestDTO checkingSellerProfileReq -> {
-                out.writeObject(RequestHandler.checkingSellerProfile(checkingSellerProfileReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.checkingSellerProfile(checkingSellerProfileReq));
+                  out.flush();
+                }
               }
 
               case GetSellerProfileRequestDTO getSellerProfileReq -> {
-                out.writeObject(RequestHandler.getSellerProfile(getSellerProfileReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getSellerProfile(getSellerProfileReq));
+                  out.flush();
+                }
               }
 
               case UpdateSellerProfileStatusRequestDTO updateSellerProfileStatusReq -> {
-                out.writeObject(RequestHandler.updateSellerProfileStatus(updateSellerProfileStatusReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.updateSellerProfileStatus(updateSellerProfileStatusReq));
+                  out.flush();
+                }
               }
 
               case CancelSellerAuctionsRequestDTO cancelSellerAuctionsReq -> {
-                out.writeObject(RequestHandler.cancelSellerAuctions(cancelSellerAuctionsReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.cancelSellerAuctions(cancelSellerAuctionsReq));
+                  out.flush();
+                }
               }
 
               case RestoreSellerAuctionsRequestDTO restoreSellerAuctionsReq -> {
-                out.writeObject(RequestHandler.restoreSellerAuctions(restoreSellerAuctionsReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.restoreSellerAuctions(restoreSellerAuctionsReq));
+                  out.flush();
+                }
               }
 
               case GetOrderRequestDTO getOrderReq -> {
-                out.writeObject(RequestHandler.getOrder(getOrderReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getOrder(getOrderReq));
+                  out.flush();
+                }
               }
               case SetAutoBidRequestDTO setAutoBidReq -> {
-                out.writeObject(RequestHandler.setAutoBid(setAutoBidReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.setAutoBid(setAutoBidReq));
+                  out.flush();
+                }
               }
 
               case CancelAutoBidRequestDTO cancelAutoBidReq -> {
-                out.writeObject(RequestHandler.cancelAutoBid(cancelAutoBidReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.cancelAutoBid(cancelAutoBidReq));
+                  out.flush();
+                }
               }
 
               case GetBalanceRequestDTO getBalanceReq -> {
-                out.writeObject(RequestHandler.getBalance(this.userId));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getBalance(this.userId));
+                  out.flush();
+                }
               }
 
               case GetNotificationsRequestDTO getNotifReq -> {
-                out.writeObject(RequestHandler.getNotifications(getNotifReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getNotifications(getNotifReq));
+                  out.flush();
+                }
               }
 
               case MarkNotificationReadRequestDTO markReadReq -> {
@@ -217,73 +275,101 @@ public class ClientHandler implements Runnable {
               }
 
               case GetPendingOrdersOfSellerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetPendingOrdersOfSeller(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetPendingOrdersOfSeller(request));
+                  out.flush();
+                }
               }
 
               case GetPendingOrdersOfBuyerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetPendingOrdersOfBuyer(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetPendingOrdersOfBuyer(request));
+                  out.flush();
+                }
               }
 
               case CancelOrderRequestDTO request -> {
-                out.writeObject(RequestHandler.cancelOrder(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.cancelOrder(request));
+                  out.flush();
+                }
               }
 
               case ConfirmOrderRequestDTO confirmOrderReq -> {
-                out.writeObject(RequestHandler.confirmOrder(confirmOrderReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.confirmOrder(confirmOrderReq));
+                  out.flush();
+                }
               }
 
               case GetCompletedOrdersOfSellerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetCompletedOrdersOfSeller(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetCompletedOrdersOfSeller(request));
+                  out.flush();
+                }
               }
 
               case GetCancelledOrdersOfSellerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetCancelledOrdersOfSeller(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetCancelledOrdersOfSeller(request));
+                  out.flush();
+                }
               }
 
               case GetCompletedOrdersOfBuyerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetCompletedOrdersOfBuyer(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetCompletedOrdersOfBuyer(request));
+                  out.flush();
+                }
               }
 
               case GetCancelledOrdersOfBuyerRequestDTO request -> {
-                out.writeObject(RequestHandler.handleGetCancelledOrdersOfBuyer(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.handleGetCancelledOrdersOfBuyer(request));
+                  out.flush();
+                }
               }
 
               case CreateTransactionRequestDTO req -> {
-                out.writeObject(RequestHandler.createTransactionRequest(req));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.createTransactionRequest(req));
+                  out.flush();
+                }
               }
 
               case GetPendingTransactionsRequestDTO req -> {
-                out.writeObject(RequestHandler.getPendingTransactions(req));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getPendingTransactions(req));
+                  out.flush();
+                }
               }
 
               case ProcessTransactionRequestDTO req -> {
-                out.writeObject(RequestHandler.processTransactionRequest(req));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.processTransactionRequest(req));
+                  out.flush();
+                }
               }
 
               case UpdateAuctionStatusRequestDTO req -> {
-                out.writeObject(RequestHandler.updateAuctionStatus(req));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.updateAuctionStatus(req));
+                  out.flush();
+                }
               }
 
               case CreateAdminRequestDTO request -> {
-                out.writeObject(RequestHandler.createAdmin(request));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.createAdmin(request));
+                  out.flush();
+                }
               }
 
               case GetAllUsersRequestDTO getAllUsersReq -> {
-                out.writeObject(RequestHandler.getAllUsers(getAllUsersReq));
-                out.flush();
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getAllUsers(getAllUsersReq));
+                  out.flush();
+                }
               }
 
               default -> {
@@ -316,7 +402,9 @@ public class ClientHandler implements Runnable {
         in.close();
       }
       if (out != null) {
-        out.close();
+        synchronized (out) {
+          out.close();
+        }
       }
       if (clientSocket != null) {
         clientSocket.close();
@@ -333,8 +421,10 @@ public class ClientHandler implements Runnable {
   public void sendData(Object response) {
     try {
       if (out != null) {
-        out.writeObject(response);
-        out.flush();
+        synchronized (out) {
+          out.writeObject(response);
+          out.flush();
+        }
       }
     } catch (Exception e) {
       log.warn("Lỗi gửi dữ liệu cho Client, Client có thể đã ngắt kết nối.");
