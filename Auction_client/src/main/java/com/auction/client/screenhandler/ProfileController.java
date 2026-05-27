@@ -58,14 +58,14 @@ public class ProfileController implements Initializable {
 
   @FXML
   public void gotoEditProfile() {
-    UserDTO currentUser = SessionManager.getCurrentUser();
-    if (currentUser != null && currentUser.getRole() == UserRole.ADMIN) {
-      AdminScreenController adminController = AdminScreenController.getInstance();
-      if (adminController != null) {
-        adminController.loadComponent("/com/auction/client/User/EditProfile.fxml");
-      }
+    AdminScreenController adminController = AdminScreenController.getInstance();
+    if (adminController != null) {
+      adminController.loadComponent("/com/auction/client/User/EditProfile.fxml");
     } else {
-      MainLayoutController.getInstance().loadComponent("/com/auction/client/User/EditProfile.fxml");
+      MainLayoutController mainLayoutController = MainLayoutController.getInstance();
+      if (mainLayoutController != null) {
+        mainLayoutController.loadComponent("/com/auction/client/User/EditProfile.fxml");
+      }
     }
   }
 }

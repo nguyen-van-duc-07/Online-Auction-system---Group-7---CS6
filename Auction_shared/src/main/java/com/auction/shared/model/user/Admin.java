@@ -14,18 +14,6 @@ public class Admin extends User {
   public Admin(UserDTO dto) {
     super(dto);
   }
-  public void cancelAuction(String auctionId, String reason) {
-    // Trong Model, chúng ta chủ yếu xác thực quyền hoặc ghi log nghiệp vụ đơn giản
-    log.info("Admin {} đã yêu cầu hủy phiên: {}. Lý do: {}", this.accountName, auctionId, reason);
-
-    // Sau này khi sang Spring Boot, AdminService sẽ gọi hàm này và thực hiện
-    // rollback tiền cọc của tất cả Bidder đang tham gia phiên này.
-  }
-
-  public void banBidder(String bidderId) {
-    // Logic khóa tài khoản
-    log.info("Admin đã khóa người dùng: {}", bidderId);
-  }
 
   @Override
   public String getDefaultAccountName() {

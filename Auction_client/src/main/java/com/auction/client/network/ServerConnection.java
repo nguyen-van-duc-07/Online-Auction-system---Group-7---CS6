@@ -210,6 +210,10 @@ public class ServerConnection {
               ResponseHandler.handleGetAllUsers(responseDTO);
             }
 
+            case CreateAdminResponseDTO responseDTO -> {
+              ResponseHandler.handleCreateAdmin(responseDTO);
+            }
+
             default -> log.warn("Phản hồi không hợp lệ");
           }
         }

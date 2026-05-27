@@ -9,6 +9,7 @@ import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.GetOrderRequestDTO;
 import com.auction.shared.request.GetPendingTransactionsRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
@@ -49,10 +50,9 @@ public class ResponseHandler {
       UserDTO user = loginRes.getUser();
       SessionManager.setCurrentUser(user);
 
-      // Bắn Request xin số dư ngay khi lưu user thành công
-      com.auction.client.network.ServerConnection.sendData(new com.auction.shared.request.GetBalanceRequestDTO());
-
       if (user.getRole() == UserRole.BIDDER) {
+        // Bắn Request xin số dư ngay khi lưu user thành công
+        ServerConnection.sendData(new GetBalanceRequestDTO());
         Platform.runLater(() -> {
           ScreenController.switchScreen("MainLayout.fxml", "Trang chủ");
         });
@@ -213,6 +213,7 @@ public class ResponseHandler {
             if (updatedUser.getRole() == UserRole.ADMIN) {
               AdminScreenController adminController = AdminScreenController.getInstance();
               if (adminController != null) {
+                adminController.updateAdminName(updatedUser.getAccountName());
                 adminController.gotoProfile();
               }
             } else {
@@ -286,6 +287,9 @@ public class ResponseHandler {
   public static void handlePlaceBidResponse(PlaceBidResponseDTO response) {
     if (com.auction.client.screenhandler.ItemAuctionController.instance != null) {
       com.auction.client.screenhandler.ItemAuctionController.instance.onPlaceBidResponse(response);
+    }
+    if (response.isSuccess()) {
+      ServerConnection.sendData(new GetBalanceRequestDTO());
     }
   }
 
@@ -509,6 +513,7 @@ public class ResponseHandler {
   public static void handleGetBalance(GetBalanceResponseDTO balanceRes) {
     if (balanceRes.isSuccess()) {
       log.info("Lấy số dư thành công: {}", balanceRes.getBalance());
+      SessionManager.updateBalance(balanceRes);
       // Gọi sang Controller giao diện để cập nhật Label
       if (WalletController.getInstance() != null) {
         WalletController.getInstance().updateBalanceUI(balanceRes.getBalance());
@@ -531,6 +536,9 @@ public class ResponseHandler {
           responseDTO.getMessage(),
           responseDTO.getTransaction()
       );
+    }
+    if (responseDTO.isSuccess()) {
+      ServerConnection.sendData(new GetBalanceRequestDTO());
     }
   }
 
@@ -561,6 +569,9 @@ public class ResponseHandler {
       }
       log.info("[CLIENT] Thông báo mới: {}", dto.getTitle());
     });
+    if (SessionManager.getCurrentUser() != null && SessionManager.getCurrentUser().getRole() == UserRole.BIDDER) {
+      ServerConnection.sendData(new GetBalanceRequestDTO());
+    }
   }
 
   public static void handleAutoBidDefeated(AutoBidDefeatedDTO dto) {
@@ -661,6 +672,9 @@ public class ResponseHandler {
           response.isSuccess() ? "Thành công" : "Lỗi",
           response.getMessage()
       );
+      if (response.isSuccess()) {
+        ServerConnection.sendData(new GetBalanceRequestDTO());
+      }
     });
   }
 
@@ -696,6 +710,21 @@ public class ResponseHandler {
       if (response.isSuccess()) {
         ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
         ServerConnection.sendData(new com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO());
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+      }
+    });
+  }
+
+  public static void handleCreateAdmin(CreateAdminResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
+        com.auction.client.screenhandler.admin.UserManagerController controller = com.auction.client.screenhandler.admin.UserManagerController.getInstance();
+        if (controller != null) {
+          controller.hideCreateAdminSection();
+        }
+        ServerConnection.sendData(new com.auction.shared.request.GetAllUsersRequestDTO());
       } else {
         ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
       }

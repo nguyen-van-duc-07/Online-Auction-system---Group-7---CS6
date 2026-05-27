@@ -131,33 +131,33 @@ public class EditProfileController implements Initializable {
 
   @FXML
   public void handleCancel() {
-    if (currentUser != null && currentUser.getRole() == UserRole.ADMIN) {
-      AdminScreenController adminController = AdminScreenController.getInstance();
-      if (adminController != null) {
-        if (isInformationChanged()) {
-          ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
-                  "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
-            if (Response == ButtonType.OK) {
-              adminController.gotoProfile();
-            }
-          });
-        } else {
-          adminController.gotoProfile();
-        }
+    AdminScreenController adminController = AdminScreenController.getInstance();
+    if (adminController != null) {
+      if (isInformationChanged()) {
+        ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
+                "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
+          if (Response == ButtonType.OK) {
+            adminController.gotoProfile();
+          }
+        });
+      } else {
+        adminController.gotoProfile();
       }
       return;
     }
 
     MainLayoutController mainLayoutController = MainLayoutController.getInstance();
-    if (isInformationChanged()) {
-      ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
-              "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
-        if (Response == ButtonType.OK) {
-          mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
-        }
-      });
-    } else {
-      mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
+    if (mainLayoutController != null) {
+      if (isInformationChanged()) {
+        ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
+                "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
+          if (Response == ButtonType.OK) {
+            mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
+          }
+        });
+      } else {
+        mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
+      }
     }
   }
 }

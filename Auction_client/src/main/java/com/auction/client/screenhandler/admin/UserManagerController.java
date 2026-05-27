@@ -4,6 +4,7 @@ import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.GetAllUsersRequestDTO;
+import com.auction.shared.request.CreateAdminRequestDTO;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,9 +12,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,15 @@ public class UserManagerController implements Initializable {
 
   @FXML
   private TableView<UserDTO> userTable;
+
+  @FXML
+  private VBox createAdminForm;
+
+  @FXML
+  private TextField adminPhoneField;
+
+  @FXML
+  private PasswordField adminPasswordField;
 
   @FXML
   private TableColumn<UserDTO, Integer> serialColumn;
@@ -184,5 +196,52 @@ public class UserManagerController implements Initializable {
     }
     // TODO: Gửi yêu cầu xóa người dùng lên Server
     ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa thành công.");
+  }
+
+  @FXML
+  public void handleShowCreateAdminForm() {
+    createAdminForm.setVisible(true);
+    createAdminForm.setManaged(true);
+    adminPhoneField.clear();
+    adminPasswordField.clear();
+  }
+
+  @FXML
+  public void handleCancelCreateAdmin() {
+    createAdminForm.setVisible(false);
+    createAdminForm.setManaged(false);
+    adminPhoneField.clear();
+    adminPasswordField.clear();
+  }
+
+  public void hideCreateAdminSection() {
+    createAdminForm.setVisible(false);
+    createAdminForm.setManaged(false);
+    adminPhoneField.clear();
+    adminPasswordField.clear();
+  }
+
+  @FXML
+  public void handleCreateAdminSubmit() {
+    String phoneNumber = adminPhoneField.getText().trim();
+    String password = adminPasswordField.getText().trim();
+
+    if (phoneNumber.isEmpty() || password.isEmpty()) {
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng nhập đầy đủ số điện thoại và mật khẩu!");
+      return;
+    }
+
+    CreateAdminRequestDTO request = new CreateAdminRequestDTO();
+    request.setPhoneNumber(phoneNumber);
+    request.setPassword(password);
+    request.setAccountName("");
+
+    ServerConnection.sendData(request);
+  }
+
+  @FXML
+  public void handleReload() {
+    log.info("Yêu cầu tải lại danh sách người dùng từ server...");
+    ServerConnection.sendData(new GetAllUsersRequestDTO());
   }
 }
