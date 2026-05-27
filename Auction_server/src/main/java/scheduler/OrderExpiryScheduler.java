@@ -27,7 +27,6 @@ public class OrderExpiryScheduler {
 
   private void checkExpiredOrders() {
     try {
-      log.info("[ORDER EXPIRY] Đang kiểm tra các order hết hạn...");
       orderService.cancelExpiredOrders();
     } catch (Exception e) {
       log.error("[ORDER EXPIRY] Lỗi nghiêm trọng khi kiểm tra order hết hạn", e);

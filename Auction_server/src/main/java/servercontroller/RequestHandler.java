@@ -243,9 +243,9 @@ public class RequestHandler {
       } catch (Exception e) {
         log.error("Lỗi khi truy vấn thông tin sản phẩm cho đơn hàng: {}", order.getId(), e);
       }
-      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order, itemName, itemId);
+      return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
     }
-    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null, null, null);
+    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
   }
 
   public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {
