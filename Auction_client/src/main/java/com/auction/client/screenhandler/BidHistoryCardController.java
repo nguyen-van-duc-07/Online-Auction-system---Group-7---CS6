@@ -14,6 +14,10 @@ import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+/**
+ * Bộ điều khiển (Controller) cho thẻ hiển thị lịch sử đặt giá (BidHistoryCard).
+ * Hiển thị thông tin lượt đặt giá của người chơi bao gồm số tiền, thời gian đặt và huy hiệu xếp hạng.
+ */
 public class BidHistoryCardController {
 
   @FXML
@@ -31,6 +35,13 @@ public class BidHistoryCardController {
   @FXML
   private Label lblBadge;
 
+  /**
+   * Bơm dữ liệu giao dịch đặt giá để hiển thị lên thẻ lịch sử đặt giá.
+   *
+   * @param tx thông tin giao dịch đặt giá (BidTransaction)
+   * @param isLeading đánh dấu xem giao dịch này có đang dẫn đầu (giá cao nhất) hay không
+   * @param sequence số thứ tự hiển thị của thẻ trong danh sách lịch sử đặt giá
+   */
   public void setData(BidTransaction tx, boolean isLeading, int sequence) {
     // 1. Định dạng tiền tệ
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));

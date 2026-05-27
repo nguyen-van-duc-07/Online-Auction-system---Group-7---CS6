@@ -111,13 +111,18 @@
                     </MenuButton>
                 </HBox>
 
-                <ScrollPane fx:id="mainContent" fitToWidth="true" focusTraversable="false" hbarPolicy="AS_NEEDED" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
-                    <content>
-                        <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
-                            <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>
-                        </FlowPane>
-                    </content>
-                </ScrollPane>
+                <StackPane VBox.vgrow="ALWAYS">
+                    <children>
+                        <ScrollPane fx:id="mainContent" fitToWidth="true" focusTraversable="false" hbarPolicy="AS_NEEDED" style="-fx-background-color: #f0f2f5; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" vbarPolicy="AS_NEEDED">
+                            <content>
+                                <FlowPane fx:id="feedContainer" alignment="TOP_CENTER" hgap="25.0" style="-fx-background-color: #f0f2f5;" vgap="25.0">
+                                    <padding><Insets bottom="30.0" left="25.0" right="25.0" top="30.0" /></padding>
+                                </FlowPane>
+                            </content>
+                        </ScrollPane>
+                        <Label fx:id="placeholderLabel" text="Không tìm thấy phiên đấu giá nào" visible="false" mouseTransparent="true" style="-fx-text-fill: #888888; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                    </children>
+                </StackPane>
             </VBox>
         </center>
     </BorderPane>

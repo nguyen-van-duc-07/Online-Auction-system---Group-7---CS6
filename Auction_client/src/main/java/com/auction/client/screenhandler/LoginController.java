@@ -27,6 +27,10 @@ public class LoginController {
 
   private boolean isPasswordVisible = false;
 
+  /**
+   * Khởi tạo bộ điều khiển đăng nhập.
+   * Ràng buộc sự kiện phím Enter trên các trường nhập liệu để tự động đăng nhập.
+   */
   @FXML
   public void initialize() {
     phoneNumberField.setOnAction(event -> handleLogin());

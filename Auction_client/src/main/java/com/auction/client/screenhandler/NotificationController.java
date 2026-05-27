@@ -24,6 +24,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Bộ điều khiển (Controller) cho màn hình danh sách thông báo của người dùng (Notifications).
+ * Quản lý việc hiển thị, đánh dấu đã đọc và điều hướng các tác vụ liên quan đến thông báo.
+ */
 public class NotificationController implements Initializable {
   public static NotificationController instance;
 
@@ -38,11 +42,24 @@ public class NotificationController implements Initializable {
 
   private Notification selectedNotification;
 
+  /**
+   * Khởi tạo bộ điều khiển thông báo.
+   * Gán instance hiện tại vào biến static.
+   *
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
+   */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     instance = this;
   }
 
+  /**
+   * Tải danh sách thông báo của người dùng lên giao diện.
+   *
+   * @param notifications danh sách thông báo
+   * @param unreadCount số thông báo chưa đọc
+   */
   public void loadNotifications(List<Notification> notifications, int unreadCount) {
     notificationList.getChildren().clear();
 
@@ -154,6 +171,9 @@ public class NotificationController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện nhấn nút hành động đi kèm thông báo (ví dụ: đi đến thanh toán).
+   */
   @FXML
   public void handleAction() {
     if (selectedNotification == null) return;
@@ -163,6 +183,9 @@ public class NotificationController implements Initializable {
     notificationList.getScene().getWindow().hide();
   }
 
+  /**
+   * Yêu cầu hệ thống đánh dấu tất cả các thông báo hiện có là đã đọc.
+   */
   @FXML
   public void markAllAsRead() {
     String userId = SessionManager.getCurrentUser().getId();

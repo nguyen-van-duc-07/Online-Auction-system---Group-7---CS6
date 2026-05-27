@@ -146,6 +146,13 @@ public class ClientHandler implements Runnable {
                 }
               }
 
+              case GetCanceledAuctionsRequestDTO getCanceledAuctionsReq -> {
+                synchronized (out) {
+                  out.writeObject(RequestHandler.getCanceledAuctions(getCanceledAuctionsReq));
+                  out.flush();
+                }
+              }
+
               case GetActiveAuctionsBySellerRequestDTO getActiveAuctionsBySellerReq -> {
                 synchronized (out) {
                   out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));

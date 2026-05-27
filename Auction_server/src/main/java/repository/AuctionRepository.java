@@ -113,11 +113,11 @@ public class AuctionRepository {
     return auctions;
   }
 
-  public List<AuctionDTO> findAuctionsBySellerId(String sellerId) {
+  public List<AuctionDTO> findAuctionsByUserId(String userId) {
     List<AuctionDTO> auctions = new ArrayList<>();
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
-        + "WHERE seller_id = ? "
+        + "WHERE user_id = ? "
         + "ORDER BY CASE status "
         + "  WHEN 'ACTIVE' THEN 1 "
         + "  WHEN 'WAITING' THEN 2 "
@@ -129,7 +129,7 @@ public class AuctionRepository {
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       // Gán giá trị userId vào dấu ? trong câu lệnh SQL
-      ps.setString(1, sellerId);
+      ps.setString(1, userId);
 
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
@@ -138,25 +138,25 @@ public class AuctionRepository {
         }
       }
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá của người bán ID: {}", sellerId, e);
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá của người bán ID: {}", userId, e);
     }
     return auctions;
   }
 
   // Lấy tất cả các phiên đấu giá đang mở thuộc về một seller
-  public List<AuctionDTO> findActiveAuctionsBySellerId(String sellerId) {
+  public List<AuctionDTO> findActiveAuctionsByUserId(String userId) {
     List<AuctionDTO> auctions = new ArrayList<>();
     // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột account_name
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
-        + "WHERE status = 'ACTIVE' AND seller_id = ?"
+        + "WHERE status = 'ACTIVE' AND user_id = ?"
         + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       // Gán giá trị userId vào dấu ? trong câu lệnh SQL
-      ps.setString(1, sellerId);
+      ps.setString(1, userId);
 
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
@@ -165,15 +165,15 @@ public class AuctionRepository {
         }
       }
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động của người bán ID: {}", sellerId, e);
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động của người bán ID: {}", userId, e);
     }
     return auctions;
   }
 
   // Cập nhật giá cao nhất khi có người bid
-  public boolean cancelActiveAndWaitingAuctionsBySellerId(String sellerId) {
-    String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE seller_id = ? AND status = 'ACTIVE'";
-    String updateSql = "UPDATE auctions SET status = ? WHERE seller_id = ? AND status IN (?, ?)";
+  public boolean cancelActiveAndWaitingAuctionsByUserId(String userId) {
+    String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE user_id = ? AND status = 'ACTIVE'";
+    String updateSql = "UPDATE auctions SET status = ? WHERE user_id = ? AND status IN (?, ?)";
     String deactivateBotsSql = "UPDATE auto_bid_configs SET is_active = FALSE WHERE auction_id = ?";
 
     try (Connection conn = DatabaseConnection.getConnection()) {
@@ -181,7 +181,7 @@ public class AuctionRepository {
       try {
         // 1. Lấy tất cả phiên ACTIVE của seller này và giải phóng cọc cho người chơi dẫn đầu
         try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-          psSelect.setString(1, sellerId);
+          psSelect.setString(1, userId);
           try (ResultSet rs = psSelect.executeQuery()) {
             service.WalletService walletService = new service.WalletService();
             while (rs.next()) {
@@ -207,7 +207,7 @@ public class AuctionRepository {
         // 3. Cập nhật trạng thái tất cả phiên sang CANCELED
         try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
           psUpdate.setString(1, AuctionStatus.CANCELED.name());
-          psUpdate.setString(2, sellerId);
+          psUpdate.setString(2, userId);
           psUpdate.setString(3, AuctionStatus.ACTIVE.name());
           psUpdate.setString(4, AuctionStatus.WAITING.name());
           psUpdate.executeUpdate();
@@ -217,19 +217,19 @@ public class AuctionRepository {
         return true;
       } catch (Exception e) {
         conn.rollback();
-        log.error("Lỗi khi hủy các đấu giá của người bán ID: {}", sellerId, e);
+        log.error("Lỗi khi hủy các đấu giá của người bán ID: {}", userId, e);
         return false;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      log.error("Lỗi kết nối cơ sở dữ liệu khi hủy các đấu giá của người bán ID: {}", sellerId, e);
+      log.error("Lỗi kết nối cơ sở dữ liệu khi hủy các đấu giá của người bán ID: {}", userId, e);
       return false;
     }
   }
 
-  public boolean restoreCanceledAuctionsBySellerId(String sellerId, LocalDateTime now) {
-    String selectSql = "SELECT id FROM auctions WHERE seller_id = ? AND status = ?";
+  public boolean restoreCanceledAuctionsByUserId(String userId, LocalDateTime now) {
+    String selectSql = "SELECT id FROM auctions WHERE user_id = ? AND status = ?";
 
     String updateSql = "UPDATE auctions SET "
         + "current_price = start_price, "
@@ -239,7 +239,7 @@ public class AuctionRepository {
         + "WHEN start_time <= ? AND end_time > ? THEN ? "
         + "WHEN start_time > ? THEN ? "
         + "ELSE status END "
-        + "WHERE seller_id = ? AND status = ?";
+        + "WHERE user_id = ? AND status = ?";
 
     try (Connection conn = DatabaseConnection.getConnection()) {
       conn.setAutoCommit(false);
@@ -247,7 +247,7 @@ public class AuctionRepository {
         // 1. Lấy danh sách ID các phiên bị hủy
         List<String> canceledIds = new ArrayList<>();
         try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-          psSelect.setString(1, sellerId);
+          psSelect.setString(1, userId);
           psSelect.setString(2, AuctionStatus.CANCELED.name());
           try (ResultSet rs = psSelect.executeQuery()) {
             while (rs.next()) {
@@ -272,26 +272,94 @@ public class AuctionRepository {
           psUpdate.setString(5, AuctionStatus.ACTIVE.name());
           psUpdate.setTimestamp(6, currentTimestamp);
           psUpdate.setString(7, AuctionStatus.WAITING.name());
-          psUpdate.setString(8, sellerId);
+          psUpdate.setString(8, userId);
           psUpdate.setString(9, AuctionStatus.CANCELED.name());
           psUpdate.executeUpdate();
         }
 
         conn.commit();
-        log.info("[RESTORE] Đã khôi phục và reset thành công {} phiên đấu giá của seller {}", canceledIds.size(), sellerId);
+        log.info("[RESTORE] Đã khôi phục và reset thành công {} phiên đấu giá của seller {}", canceledIds.size(), userId);
         return true;
       } catch (Exception e) {
         conn.rollback();
-        log.error("Lỗi khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
+        log.error("Lỗi khi khôi phục các đấu giá của người bán ID: {}", userId, e);
         return false;
       } finally {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
-      log.error("Lỗi kết nối cơ sở dữ liệu khi khôi phục các đấu giá của người bán ID: {}", sellerId, e);
+      log.error("Lỗi kết nối cơ sở dữ liệu khi khôi phục các đấu giá của người bán ID: {}", userId, e);
       return false;
     }
   }
+
+  public boolean restoreSingleCanceledAuction(String auctionId, LocalDateTime now) {
+    String selectSql = "SELECT id FROM auctions WHERE id = ? AND status = ?";
+
+    String updateSql = "UPDATE auctions SET "
+        + "current_price = start_price, "
+        + "highest_bidder_id = NULL, "
+        + "status = CASE "
+        + "WHEN end_time <= ? THEN ? "
+        + "WHEN start_time <= ? AND end_time > ? THEN ? "
+        + "WHEN start_time > ? THEN ? "
+        + "ELSE status END "
+        + "WHERE id = ? AND status = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        boolean exists = false;
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setString(1, auctionId);
+          psSelect.setString(2, AuctionStatus.CANCELED.name());
+          try (ResultSet rs = psSelect.executeQuery()) {
+            if (rs.next()) {
+              exists = true;
+            }
+          }
+        }
+
+        if (!exists) {
+          conn.rollback();
+          return false;
+        }
+
+        BidTransactionRepository bidRepo = new BidTransactionRepository();
+        List<String> auctionIds = new ArrayList<>();
+        auctionIds.add(auctionId);
+        bidRepo.deleteByAuctionIds(conn, auctionIds);
+
+        try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+          Timestamp currentTimestamp = Timestamp.valueOf(now);
+          psUpdate.setTimestamp(1, currentTimestamp);
+          psUpdate.setString(2, AuctionStatus.CLOSED.name());
+          psUpdate.setTimestamp(3, currentTimestamp);
+          psUpdate.setTimestamp(4, currentTimestamp);
+          psUpdate.setString(5, AuctionStatus.ACTIVE.name());
+          psUpdate.setTimestamp(6, currentTimestamp);
+          psUpdate.setString(7, AuctionStatus.WAITING.name());
+          psUpdate.setString(8, auctionId);
+          psUpdate.setString(9, AuctionStatus.CANCELED.name());
+          psUpdate.executeUpdate();
+        }
+
+        conn.commit();
+        log.info("[RESTORE-SINGLE] Đã khôi phục và reset thành công phiên đấu giá {}", auctionId);
+        return true;
+      } catch (Exception e) {
+        conn.rollback();
+        log.error("Lỗi khi khôi phục phiên đấu giá đơn lẻ ID: {}", auctionId, e);
+        return false;
+      } finally {
+        conn.setAutoCommit(true);
+      }
+    } catch (SQLException e) {
+      log.error("Lỗi kết nối cơ sở dữ liệu khi khôi phục phiên đấu giá đơn lẻ ID: {}", auctionId, e);
+      return false;
+    }
+  }
+
 
 
   public void updatePrice(Connection conn, String auctionId, String bidderId, java.math.BigDecimal newPrice) throws SQLException {
@@ -352,7 +420,6 @@ public class AuctionRepository {
 
     AuctionResponseDTO auction = new AuctionResponseDTO();
     auction.setId(rs.getString("id"));
-    auction.setSellerId(rs.getString("seller_id"));
     auction.setItem(item);
     auction.setStartPrice(rs.getBigDecimal("start_price"));
     auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
@@ -365,8 +432,8 @@ public class AuctionRepository {
     String highestBidderId = rs.getString("highest_bidder_id");
     String highestBidderName = userRepo.getAccountNameByUserId(rs.getString("highest_bidder_id"));
 
-    String sellerId = rs.getString("seller_id");
-    auction.setUserId(sellerId);
+    String userId = rs.getString("user_id");
+    auction.setUserId(userId);
 
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);
@@ -386,22 +453,25 @@ public class AuctionRepository {
       // Mặc định là OTHER nếu dưới Database lỡ nhập sai chữ
       itemType = ItemType.OTHER;
     }
-    Item item = new Item();
-    item.setId(rs.getString("id"));
-    item.setName(rs.getString("item_name"));
-    item.setType(itemType);
-    item.setDescription(rs.getString("item_description"));
-
     String attributesJson = rs.getString("attributes");
+    java.util.Map<String, String> attributes = null;
     if (attributesJson != null && !attributesJson.isEmpty()) {
       java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, String>>() {
       }.getType();
-      item.setAdditionalAttributes(new com.google.gson.Gson().fromJson(attributesJson, type));
+      attributes = new com.google.gson.Gson().fromJson(attributesJson, type);
     }
+
+    Item item = com.auction.shared.model.item.ItemFactory.createItem(
+        rs.getString("item_name"),
+        itemType,
+        rs.getString("item_description"),
+        attributes
+    );
+    item.setId(rs.getString("id"));
 
     Auction auction = new Auction();
     auction.setId(rs.getString("id"));
-    auction.setSellerId(rs.getString("seller_id"));
+    auction.setUserId(rs.getString("user_id"));
     auction.setItem(item);
     auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
     auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
@@ -413,7 +483,6 @@ public class AuctionRepository {
     String highestBidderId = rs.getString("highest_bidder_id");
     String highestBidderName = rs.getString("highest_bidder_name");
 
-    String sellerId = rs.getString("seller_id");
 
     auction.setHighestBidderId(highestBidderId);
     auction.setHighestBidderName(highestBidderName);
@@ -422,14 +491,14 @@ public class AuctionRepository {
   }
 
   public boolean saveAuction(Auction auction, String imagePath) {
-    String sql = "INSERT INTO auctions (id, seller_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path, item_name, item_type, item_description, attributes) "
+    String sql = "INSERT INTO auctions (id, user_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path, item_name, item_type, item_description, attributes) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, auction.getId());
-      ps.setString(2, auction.getSellerId());
+      ps.setString(2, auction.getUserId());
       ps.setBigDecimal(3, auction.getStartPrice());
       ps.setBigDecimal(4, auction.getMinStepPrice());
       ps.setBigDecimal(5, auction.getCurrentHighestPrice());
@@ -628,34 +697,18 @@ public class AuctionRepository {
     return result;
   }
 
-  public String getSellerIdByAuctionId(String auctionId) {
-    String sql = "SELECT seller_id FROM auctions WHERE id = ?";
+  public String getUserIdByAuctionId(String auctionId) {
+    String sql = "SELECT user_id FROM auctions WHERE id = ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, auctionId);
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
-        return rs.getString("seller_id");
+        return rs.getString("user_id");
       }
       return null;
     } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy sellerId cho đấu giá ID: {}", auctionId, e);
-      return null;
-    }
-  }
-
-  public String getItemIdByAuctionId(String auctionId) {
-    String sql = "SELECT item_id FROM auctions WHERE id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setString(1, auctionId);
-      ResultSet rs = ps.executeQuery();
-      if (rs.next()) {
-        return rs.getString("item_id");
-      }
-      return null;
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy itemId cho đấu giá ID: {}", auctionId, e);
+      log.error("Lỗi cơ sở dữ liệu khi lấy userId cho đấu giá ID: {}", auctionId, e);
       return null;
     }
   }
@@ -755,6 +808,26 @@ public class AuctionRepository {
       log.error("Lỗi kết nối cơ sở dữ liệu khi hủy đấu giá ID: {}", auctionId, e);
       return false;
     }
+  }
+  public List<AuctionDTO> findCanceledAuctions() {
+    List<AuctionDTO> auctions = new ArrayList<>();
+    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
+        + "FROM auctions "
+        + "WHERE status = 'CANCELED' "
+        + "ORDER BY start_time DESC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
+        auctions.add(auction);
+      }
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá bị hủy", e);
+    }
+    return auctions;
   }
 }
 

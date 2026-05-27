@@ -51,40 +51,82 @@ public class SessionManager {
    */
   public static final ObjectProperty<BigDecimal> balanceProperty = new SimpleObjectProperty<>(BigDecimal.ZERO);
 
+  /**
+   * Thiết lập thông tin người dùng đang đăng nhập hiện tại.
+   *
+   * @param currentUser thông tin người dùng hiện tại dưới dạng DTO
+   */
   public static void setCurrentUser(UserDTO currentUser) {
     SessionManager.currentUser = currentUser;
   }
 
+  /**
+   * Thiết lập Id của phiên đấu giá đang được chọn hiện tại.
+   *
+   * @param currentAuctionId Id của phiên đấu giá hiện tại
+   */
   public static void setCurrentAuctionId(String currentAuctionId) {
     SessionManager.currentAuctionId = currentAuctionId;
   }
 
+  /**
+   * Thiết lập Id của đơn hàng đang được chọn hiện tại.
+   *
+   * @param currentOrderId Id của đơn hàng hiện tại
+   */
   public static void setCurrentOrderId(String currentOrderId) {
     SessionManager.currentOrderId = currentOrderId;
   }
 
+  /**
+   * Thiết lập tham chiếu tới controller của màn hình trước đó để quay lại khi cần.
+   *
+   * @param previousScreen controller của màn hình trước đó
+   */
   public static void setPreviousScreen(Controller previousScreen) {
     SessionManager.previousScreen = previousScreen;
   }
 
+  /**
+   * Lấy thông tin người dùng đang đăng nhập hiện tại.
+   *
+   * @return đối tượng chứa thông tin người dùng hiện tại dưới dạng DTO
+   */
   public static UserDTO getCurrentUser() {
     return SessionManager.currentUser;
   }
 
+  /**
+   * Lấy Id của phiên đấu giá đang được chọn hiện tại.
+   *
+   * @return Id của phiên đấu giá hiện tại dưới dạng chuỗi
+   */
   public static String getCurrentAuctionId() {
     return SessionManager.currentAuctionId;
   }
 
+  /**
+   * Lấy Id của đơn hàng đang được chọn hiện tại.
+   *
+   * @return Id của đơn hàng hiện tại dưới dạng chuỗi
+   */
   public static String getCurrentOrderId() {
     return SessionManager.currentOrderId;
   }
 
+  /**
+   * Lấy tham chiếu tới controller của màn hình trước đó.
+   *
+   * @return controller của màn hình trước đó
+   */
   public static Controller getPreviousScreen() {
     return SessionManager.previousScreen;
   }
 
   /**
-   * Hàm tập trung để cập nhật số dư từ bất kỳ đâu (Màn hình ví, luồng nhận sự kiện Socket...).
+   * Cập nhật số dư từ bất kỳ đâu (Màn hình ví, luồng nhận sự kiện Socket...).
+   *
+   * @param response đối tượng chứa kết quả phản hồi lấy số dư từ Server
    */
   public static void updateBalance(GetBalanceResponseDTO response) {
     if (response != null && response.isSuccess()) {
@@ -96,12 +138,19 @@ public class SessionManager {
   }
 
   /**
-   * Hàm tiện ích để lấy nhanh số dư hiện tại dưới dạng số khi cần tính toán ở các controller khác.
+   * Lấy nhanh số dư hiện tại dưới dạng số khi cần tính toán ở các controller khác.
+   *
+   * @return số dư hiện tại dưới dạng BigDecimal
    */
   public static BigDecimal getCurrentBalance() {
     return balanceProperty.get();
   }
 
+  /**
+   * Lấy thuộc tính JavaFX ObjectProperty đại diện cho số dư để lắng nghe thay đổi.
+   *
+   * @return thuộc tính số dư của người dùng hiện tại
+   */
   public static ObjectProperty<BigDecimal> balanceProperty() {
     return balanceProperty;
   }

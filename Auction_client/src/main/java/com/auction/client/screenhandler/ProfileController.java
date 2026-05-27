@@ -12,6 +12,10 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
+/**
+ * Bộ điều khiển (Controller) cho màn hình thông tin tài khoản người dùng (Profile).
+ * Hiển thị các thông tin chi tiết cá nhân như họ tên, địa chỉ, ngày sinh, email và số điện thoại.
+ */
 public class ProfileController implements Initializable {
 
   @FXML
@@ -26,9 +30,11 @@ public class ProfileController implements Initializable {
   private Label phoneNumberLabel;
 
   /**
-   * Hàm được tự động gọi khi màn hình Profile.fxml được load lên.
+   * Hàm được tự động gọi khi màn hình Profile.fxml được nạp lên giao diện.
+   * Truy xuất dữ liệu từ {@link SessionManager} và điền tự động vào các nhãn hiển thị.
    *
-   * <p>Truy xuất dữ liệu từ {@link SessionManager} và điền tự động vào các Label.</p>
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
    */
   public void initialize(URL location, ResourceBundle resources) {
     UserDTO currentUser = SessionManager.getCurrentUser();
@@ -56,6 +62,9 @@ public class ProfileController implements Initializable {
     }
   }
 
+  /**
+   * Chuyển hướng người dùng sang giao diện chỉnh sửa thông tin cá nhân.
+   */
   @FXML
   public void gotoEditProfile() {
     AdminScreenController adminController = AdminScreenController.getInstance();

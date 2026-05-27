@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Item extends Entity {
+public abstract class Item extends Entity {
 
     private String name;
     private ItemType type;
@@ -39,4 +39,8 @@ public class Item extends Entity {
         this.description = dto.getDescription();
         this.additionalAttributes = dto.getAdditionalAttributes();
     }
+
+    public abstract String getDisplayCategory();
+
+    public abstract String printInfo();
 }

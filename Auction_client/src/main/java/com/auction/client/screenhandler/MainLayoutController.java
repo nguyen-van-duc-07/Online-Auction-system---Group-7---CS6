@@ -75,6 +75,7 @@ public class MainLayoutController implements Initializable, Controller {
   @FXML private HBox filterBar;
   @FXML private MenuButton categoryFilter;
   @FXML private Label filterLabel;
+  @FXML private Label placeholderLabel;
 
   // ========================== STYLE CONSTANTS ==========================
 
@@ -113,8 +114,11 @@ public class MainLayoutController implements Initializable, Controller {
   // ========================== KHỞI TẠO ==========================
 
   /**
-   * Khởi tạo khi MainLayout được load (ngay sau khi login thành công).
-   * Hiển thị tên user, load sidebar "home", và request danh sách đấu giá.
+   * Khởi tạo giao diện chính sau khi đăng nhập thành công.
+   * Hiển thị tên tài khoản, số dư hiện tại, cài đặt sub-controller và nạp danh sách ban đầu.
+   *
+   * @param location vị trí đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
    */
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -197,6 +201,11 @@ public class MainLayoutController implements Initializable, Controller {
    */
   /**
    * Bật/tắt hiển thị thanh filter lọc sản phẩm (HBox filterBar).
+   */
+  /**
+   * Bật hoặc tắt hiển thị thanh lọc sản phẩm trên giao diện.
+   *
+   * @param visible {@code true} nếu hiển thị thanh lọc, ngược lại {@code false}
    */
   public void setFilterBarVisible(boolean visible) {
     if (filterBar != null) {
@@ -284,6 +293,11 @@ public class MainLayoutController implements Initializable, Controller {
     }
   }
 
+  /**
+   * Đặt lại kiểu dáng các nút chức năng động trong sidebar.
+   *
+   * @param activeIndex chỉ số nút chức năng đang kích hoạt (1, 2 hoặc 3)
+   */
   public void resetFunctionButtonStyles(int activeIndex) {
     functionButton1.setStyle(STYLE_FUNC_BTN_INACTIVE);
     functionButton2.setStyle(STYLE_FUNC_BTN_INACTIVE);
@@ -298,6 +312,11 @@ public class MainLayoutController implements Initializable, Controller {
     }
   }
 
+  /**
+   * Cấu hình các nút chức năng trong sidebar theo ngữ cảnh tương ứng.
+   *
+   * @param context ngữ cảnh hiển thị hiện tại ("home", "seller", hoặc "result")
+   */
   public void configureFunctionButtons(String context) {
     this.currentContext = context;
     resetFixedButtonStyles(context);
@@ -393,11 +412,35 @@ public class MainLayoutController implements Initializable, Controller {
   // ====================================================================
 
   /**
-   * Nạp file FXML bất kì và thay thế toàn bộ nội dung ScrollPane.
+   * Hiển thị dòng thông báo tạm thời khi danh sách trống.
+   *
+   * @param text nội dung thông báo hiển thị
+   */
+  public void showPlaceholder(String text) {
+    if (placeholderLabel != null) {
+      placeholderLabel.setText(text);
+      placeholderLabel.setVisible(true);
+    }
+  }
+
+  /**
+   * Ẩn dòng thông báo tạm thời khi có dữ liệu hiển thị.
+   */
+  public void hidePlaceholder() {
+    if (placeholderLabel != null) {
+      placeholderLabel.setVisible(false);
+    }
+  }
+
+  /**
+   * Nạp tệp FXML bất kỳ và thay thế toàn bộ nội dung hiển thị trong ScrollPane chính.
+   *
+   * @param fxmlPath đường dẫn tệp FXML cần nạp
    */
   public void loadComponent(String fxmlPath) {
     try {
       setFilterBarVisible(false); // Tự động ẩn thanh lọc khi chuyển sang trang khác
+      hidePlaceholder(); // Ẩn placeholder khi nạp màn hình FXML khác
       FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
       javafx.scene.Parent newNode = loader.load();
 
@@ -415,7 +458,9 @@ public class MainLayoutController implements Initializable, Controller {
   }
 
   /**
-   * Cập nhật badge thông báo (chấm đỏ) trên nút chuông.
+   * Cập nhật badge hiển thị số lượng thông báo chưa đọc trên biểu tượng chuông.
+   *
+   * @param unreadCount số lượng thông báo chưa đọc
    */
   public void updateNotificationBadge(int unreadCount) {
     Platform.runLater(() -> {
@@ -429,7 +474,7 @@ public class MainLayoutController implements Initializable, Controller {
   }
 
   /**
-   * Bật badge thông báo khi có thông báo mới.
+   * Bật hiển thị badge chấm đỏ khi có thông báo mới được gửi tới.
    */
   public void incrementNotificationBadge() {
     Platform.runLater(() -> notificationBadge.setVisible(true));
@@ -440,8 +485,7 @@ public class MainLayoutController implements Initializable, Controller {
   // ====================================================================
 
   /**
-   * Quay về trang chủ (Home Feed): load sidebar "home" + request auctions.
-   * Được gọi khi ấn logo "ĐẤU GIÁ 88".
+   * Quay về trang chủ xem danh sách phiên đấu giá (Home Feed).
    */
   @FXML
   public void gotoHomeFeed() {
@@ -461,8 +505,7 @@ public class MainLayoutController implements Initializable, Controller {
   }
 
   /**
-   * Chuyển sang quản lý hàng giao bán (Seller Home).
-   * Gửi request kiểm tra hồ sơ người bán trước khi hiển thị.
+   * Gửi yêu cầu kiểm tra hồ sơ người bán trước khi chuyển sang Seller Home.
    */
   @FXML
   public void gotoSellerHome() {
@@ -472,8 +515,7 @@ public class MainLayoutController implements Initializable, Controller {
   }
 
   /**
-   * Hiển thị trang Seller Home sau khi hồ sơ người bán đã được xác nhận.
-   * Được gọi bởi ResponseHandler sau khi server trả về kết quả check profile.
+   * Hiển thị trang quản lý bán hàng (Seller Home) của người bán.
    */
   public void showSellerHome() {
     Platform.runLater(() -> {
@@ -486,14 +528,13 @@ public class MainLayoutController implements Initializable, Controller {
       mainContent.setFitToHeight(false);
 
       // Request danh sách phiên đấu giá của seller
-      String sellerId = SessionManager.getCurrentUser().getId();
-      ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(sellerId));
+      String userId = SessionManager.getCurrentUser().getId();
+      ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(userId));
     });
   }
 
   /**
-   * Chuyển sang trang Kết quả đấu giá.
-   * Load sidebar "result" + request danh sách đơn hàng chờ.
+   * Chuyển hướng người dùng sang trang xem kết quả đấu giá các đơn hàng.
    */
   @FXML
   public void gotoResult() {
@@ -505,19 +546,25 @@ public class MainLayoutController implements Initializable, Controller {
     ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(userId));
   }
 
-  /** Mở trang thông tin cá nhân trong ScrollPane. */
+  /**
+   * Hiển thị màn hình xem và cập nhật thông tin cá nhân.
+   */
   @FXML
   public void gotoProfile() {
     loadComponent("/com/auction/client/User/Profile.fxml");
   }
 
-  /** Mở trang ví người dùng trong ScrollPane. */
+  /**
+   * Hiển thị giao diện ví điện tử cá nhân.
+   */
   @FXML
   public void gotoWallet() {
     loadComponent("/com/auction/client/User/Wallet/Wallet.fxml");
   }
 
-  /** Đăng xuất: hiện hộp thoại xác nhận, gửi request logout, quay về Login. */
+  /**
+   * Thực hiện các thủ tục đăng xuất tài khoản và chuyển hướng quay lại màn hình Login.
+   */
   @FXML
   public void gotoLogin() {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION, "Xác nhận đăng xuất",
@@ -527,12 +574,15 @@ public class MainLayoutController implements Initializable, Controller {
         logoutRequestDTO.setUserId(SessionManager.currentUser.getId());
         ServerConnection.sendData(logoutRequestDTO);
         SessionManager.setCurrentUser(null);
+        ScreenController.clearHistory(); // Xóa lịch sử màn hình để tránh giữ tham chiếu các controller cũ
         ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
       }
     });
   }
 
-  /** Mở cửa sổ thông báo (sub window). */
+  /**
+   * Hiển thị cửa sổ con danh sách các thông báo của người dùng.
+   */
   @FXML
   public void gotoNotifications() {
     ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
@@ -540,13 +590,17 @@ public class MainLayoutController implements Initializable, Controller {
     ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
   }
 
-  /** Mở cửa sổ đổi mật khẩu (sub window). */
+  /**
+   * Hiển thị cửa sổ con hỗ trợ đổi mật khẩu.
+   */
   @FXML
   public void gotoChangePassword() {
     ScreenController.createSubWindow("User/ChangePasswordForm.fxml", "Đổi mật khẩu");
   }
 
-  /** Mở trang đăng bán sản phẩm trong ScrollPane. */
+  /**
+   * Chuyển hướng giao diện chính sang form đăng bán sản phẩm mới.
+   */
   public void gotoUploadItem() {
     loadComponent("/com/auction/client/Seller/UploadItem.fxml");
   }
@@ -555,39 +609,83 @@ public class MainLayoutController implements Initializable, Controller {
   //                          GETTERS
   // ====================================================================
 
+  /**
+   * Lấy bộ điều khiển trang chủ.
+   *
+   * @return bộ điều khiển HomeController
+   */
   public HomeController getHomeController() {
     return homeController;
   }
 
+  /**
+   * Lấy bộ điều khiển trang chủ của người bán.
+   *
+   * @return bộ điều khiển SellerHomeController
+   */
   public SellerHomeController getSellerHomeController() {
     return sellerHomeController;
   }
 
+  /**
+   * Lấy bộ điều khiển trang kết quả đơn hàng.
+   *
+   * @return bộ điều khiển ResultController
+   */
   public ResultController getResultController() {
     return resultController;
   }
 
+  /**
+   * Lấy FlowPane chứa danh sách card hiển thị sản phẩm đấu giá.
+   *
+   * @return đối tượng FlowPane
+   */
   public FlowPane getFeedContainer() {
     return feedContainer;
   }
 
+  /**
+   * Lấy ScrollPane hiển thị nội dung chính.
+   *
+   * @return đối tượng ScrollPane mainContent
+   */
   public ScrollPane getMainContent() {
     return mainContent;
   }
 
+  /**
+   * Lấy nhãn hiển thị tên chào người dùng.
+   *
+   * @return nhãn Label accountNameLabel
+   */
   public Label getAccountNameLabel() {
     return accountNameLabel;
   }
 
+  /**
+   * Thiết lập ngữ cảnh hiển thị hiện tại của sidebar.
+   *
+   * @param context tên ngữ cảnh ("home", "seller", hoặc "result")
+   */
   public void setCurrentContext(String context) {
     this.currentContext = context;
   }
 
-  /** Lấy ngữ cảnh hiện tại ("home", "seller", "result"). */
+  /**
+   * Lấy tên ngữ cảnh hiển thị hiện tại.
+   *
+   * @return tên ngữ cảnh dưới dạng chuỗi
+   */
   public String getCurrentContext() {
     return currentContext;
   }
 
+  /**
+   * Lấy ô nhập liệu tìm kiếm sản phẩm.
+   *
+   * @return đối tượng TextField searchField
+   */
   public TextField getSearchField() {
     return searchField;
   }

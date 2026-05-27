@@ -26,7 +26,7 @@ public class Auction extends Entity implements Serializable {
   @JoinColumn(name = "item_id")
   private Item item;
 
-  private String sellerId;
+  private String userId;
   private BigDecimal startPrice;
   private BigDecimal minStepPrice;
   private BigDecimal currentHighestPrice;
@@ -46,9 +46,9 @@ public class Auction extends Entity implements Serializable {
   @JoinColumn(name = "auction_id")
   private List<BidTransaction> bidHistory = new ArrayList<>();
 
-  public Auction(Item item, String sellerId, BigDecimal startPrice, BigDecimal minStepPrice, LocalDateTime startTime, LocalDateTime endTime) {
+  public Auction(Item item, String userId, BigDecimal startPrice, BigDecimal minStepPrice, LocalDateTime startTime, LocalDateTime endTime) {
     this.item = item;
-    this.sellerId = sellerId;
+    this.userId = userId;
     this.startPrice = startPrice;
     this.minStepPrice = minStepPrice;
     this.currentHighestPrice = startPrice;

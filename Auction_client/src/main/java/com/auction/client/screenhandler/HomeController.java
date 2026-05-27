@@ -33,16 +33,31 @@ public class HomeController {
   private List<AuctionDTO> currentAuctions = new ArrayList<>();
   private ItemType currentCategoryFilter = null;
 
+  /**
+   * Khởi tạo bộ điều khiển trang chủ.
+   *
+   * @param mainLayout bộ điều khiển bố cục chính
+   */
   public HomeController(MainLayoutController mainLayout) {
     this.mainLayout = mainLayout;
     instance = this;
   }
 
+  /**
+   * Lấy instance duy nhất đang hoạt động của HomeController.
+   *
+   * @return đối tượng HomeController hiện tại
+   */
   public static HomeController getInstance() {
     return instance;
   }
 
 
+  /**
+   * Tải danh sách phiên đấu giá lên giao diện của trang chủ.
+   *
+   * @param auctions danh sách các phiên đấu giá (AuctionDTO)
+   */
   public void loadFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
     Platform.runLater(() -> {
@@ -53,6 +68,12 @@ public class HomeController {
       mainLayout.getMainContent().setFitToHeight(false);
 
       loadCards(auctions);
+
+      if (auctions == null || auctions.isEmpty()) {
+        mainLayout.showPlaceholder("Không tìm thấy phiên đấu giá nào");
+      } else {
+        mainLayout.hidePlaceholder();
+      }
     });
   }
 
@@ -73,6 +94,12 @@ public class HomeController {
     }
   }
 
+  /**
+   * Cập nhật mức giá cao nhất mới cho một phiên đấu giá trong danh sách.
+   *
+   * @param auctionId mã định danh phiên đấu giá cần cập nhật
+   * @param newPrice mức giá mới
+   */
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     for (AuctionDTO auction : currentAuctions) {
       if (auction.getAuctionId().equals(auctionId)) {
@@ -82,6 +109,12 @@ public class HomeController {
       }
     }
   }
+  /**
+   * Cập nhật thời điểm kết thúc mới của phiên đấu giá khi có gia hạn.
+   *
+   * @param auctionId mã định danh phiên đấu giá cần cập nhật
+   * @param newEndTime thời điểm kết thúc mới
+   */
   public void updateTimeExtend(String auctionId, LocalDateTime newEndTime) {
     for (AuctionDTO auction : currentAuctions) {
       if (auction.getAuctionId().equals(auctionId)) {
@@ -118,12 +151,22 @@ public class HomeController {
     });
   }
 
+  /**
+   * Lọc danh sách các phiên đấu giá theo từ khóa tìm kiếm.
+   *
+   * @param keyword từ khóa tìm kiếm
+   */
   public void filterAuctions(String keyword) {
     applyFilters();
   }
 
   /**
    * Lọc theo loại sản phẩm (null = tất cả).
+   */
+  /**
+   * Lọc danh sách các phiên đấu giá theo loại sản phẩm.
+   *
+   * @param type loại sản phẩm sản phẩm
    */
   public void filterByCategory(ItemType type) {
     this.currentCategoryFilter = type;
@@ -146,22 +189,31 @@ public class HomeController {
     Platform.runLater(() -> {
       loadCards(filtered);
       if (filtered.isEmpty()) {
-        Label noResult = new Label("Không tìm thấy sản phẩm nào!");
-        noResult.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-padding: 20;");
-        mainLayout.getFeedContainer().getChildren().add(noResult);
+        mainLayout.showPlaceholder("Không tìm thấy phiên đấu giá nào");
+      } else {
+        mainLayout.hidePlaceholder();
       }
     });
   }
 
+  /**
+   * Yêu cầu hệ thống tải các phiên đấu giá đang diễn ra từ Server.
+   */
   public void handleGetActiveAuctions() {
     log.info(">>> Đã bấm nút Đang diễn ra");
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
   }
 
+  /**
+   * Yêu cầu hệ thống tải các phiên đấu giá sắp diễn ra từ Server.
+   */
   public void handleGetWaitingAuctions() {
     ServerConnection.sendData(new GetWaitingAuctionsRequestDTO());
   }
 
+  /**
+   * Yêu cầu hệ thống tải các phiên đấu giá đã kết thúc từ Server.
+   */
   public void handleGetClosedAuctions() {
     ServerConnection.sendData(new GetClosedAuctionsRequestDTO());
   }

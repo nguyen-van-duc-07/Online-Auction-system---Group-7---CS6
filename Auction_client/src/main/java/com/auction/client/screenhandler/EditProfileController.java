@@ -40,9 +40,11 @@ public class EditProfileController implements Initializable {
   private TextField addressField;
 
   /**
-   * Hàm được tự động gọi khi màn hình Profile.fxml được load lên.
+   * Hàm được tự động gọi khi màn hình Profile.fxml được nạp lên giao diện.
+   * Truy xuất dữ liệu từ {@link SessionManager} và điền tự động vào các ô nhập liệu.
    *
-   * <p>Truy xuất dữ liệu từ {@link SessionManager} và điền tự động vào các TextField.</p>
+   * @param location vị trí sử dụng để xác định đường dẫn tương đối của đối tượng gốc
+   * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
    */
   public void initialize(URL location, ResourceBundle resources) {
     if (currentUser != null) {
@@ -67,6 +69,11 @@ public class EditProfileController implements Initializable {
     }
   }
 
+  /**
+   * Kiểm tra xem toàn bộ thông tin tài khoản người dùng nhập vào có hợp lệ hay không.
+   *
+   * @return {@code true} nếu tất cả thông tin hợp lệ, ngược lại {@code false}
+   */
   public boolean isInformationValid() {
     accountName = accountNameField.getText();
     email = emailField.getText();
@@ -88,6 +95,11 @@ public class EditProfileController implements Initializable {
     return false;
   }
 
+  /**
+   * Kiểm tra xem thông tin nhập vào có thay đổi gì so với thông tin cũ trong Session hay không.
+   *
+   * @return {@code true} nếu có ít nhất một trường thông tin thay đổi, ngược lại {@code false}
+   */
   public boolean isInformationChanged() {
     accountName = accountNameField.getText();
     email = emailField.getText();
@@ -107,6 +119,9 @@ public class EditProfileController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện khi người dùng nhấn nút lưu cập nhật hồ sơ cá nhân.
+   */
   @FXML
   public void handleUpdateProfile() {
     if (isInformationValid() && isInformationChanged()) {
@@ -129,6 +144,9 @@ public class EditProfileController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện hủy bỏ việc cập nhật thông tin cá nhân.
+   */
   @FXML
   public void handleCancel() {
     AdminScreenController adminController = AdminScreenController.getInstance();

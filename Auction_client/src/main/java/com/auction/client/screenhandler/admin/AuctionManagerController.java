@@ -40,6 +40,20 @@ public class AuctionManagerController implements Initializable {
   private TableView<AuctionDTO> auctionTable;
 
   @FXML
+  private MenuButton typeMenuButton;
+
+  private boolean showingCanceled = false;
+
+  @FXML
+  private Button openAuctionBtn;
+
+  @FXML
+  private Button closeAuctionBtn;
+
+  @FXML
+  private Button blockAuctionBtn;
+
+  @FXML
   private TableColumn<AuctionDTO, Integer> serialColumn;
 
   @FXML
@@ -77,7 +91,24 @@ public class AuctionManagerController implements Initializable {
       }
     });
 
+    showingCanceled = false;
+    if (typeMenuButton != null) {
+      typeMenuButton.setText("Loại phiên: Đang và sắp diễn ra");
+    }
+    updateButtonVisibility();
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+  }
+
+  private void updateButtonVisibility() {
+    boolean showActionButtons = !showingCanceled;
+    if (closeAuctionBtn != null) {
+      closeAuctionBtn.setVisible(showActionButtons);
+      closeAuctionBtn.setManaged(showActionButtons);
+    }
+    if (blockAuctionBtn != null) {
+      blockAuctionBtn.setVisible(showActionButtons);
+      blockAuctionBtn.setManaged(showActionButtons);
+    }
   }
 
   /**
@@ -240,10 +271,10 @@ public class AuctionManagerController implements Initializable {
       return;
     }
 
-    if (selected.getStatus() == AuctionStatus.WAITING) {
+    if (selected.getStatus() == AuctionStatus.WAITING || selected.getStatus() == AuctionStatus.CANCELED) {
       ServerConnection.sendData(new UpdateAuctionStatusRequestDTO(selected.getAuctionId(), AuctionStatus.ACTIVE));
     } else {
-      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Chỉ có thể mở phiên ở trạng thái chờ (WAITING)!");
+      ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Chỉ có thể mở phiên ở trạng thái chờ (WAITING) hoặc đã hủy (CANCELED)!");
     }
   }
 
@@ -279,7 +310,31 @@ public class AuctionManagerController implements Initializable {
 
   @FXML
   public void handleReload() {
-    log.info("Yêu cầu tải lại danh sách phiên đấu giá từ server...");
-    ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+    log.info("Yêu cầu tải lại danh sách phiên đấu giá (Đã huỷ: {}) từ server...", showingCanceled);
+    if (showingCanceled) {
+      ServerConnection.sendData(new com.auction.shared.request.GetCanceledAuctionsRequestDTO());
+    } else {
+      ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+    }
+  }
+
+  @FXML
+  public void handleShowActiveAndWaiting() {
+    showingCanceled = false;
+    if (typeMenuButton != null) {
+      typeMenuButton.setText("Loại phiên: Đang và sắp diễn ra");
+    }
+    updateButtonVisibility();
+    handleReload();
+  }
+
+  @FXML
+  public void handleShowCanceled() {
+    showingCanceled = true;
+    if (typeMenuButton != null) {
+      typeMenuButton.setText("Loại phiên: Đã huỷ");
+    }
+    updateButtonVisibility();
+    handleReload();
   }
 }

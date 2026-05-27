@@ -152,7 +152,7 @@
                                 </Button>
                             </children>
                         </HBox>
-                        <Label fx:id="itemIdLabel" text="Mã sản phẩm: SP-00918" textFill="#95A5A6" />
+                        <Label fx:id="itemIdLabel" text="Mã phiên đấu giá: " textFill="#95A5A6" />
                         <Separator prefWidth="200.0"><VBox.margin><Insets bottom="15.0" top="15.0" /></VBox.margin></Separator>
                         <VBox alignment="CENTER" style="-fx-background-color: #FFF5F5; -fx-background-radius: 8; -fx-padding: 10;">
                             <children>

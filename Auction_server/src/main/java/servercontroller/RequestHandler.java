@@ -67,11 +67,11 @@ public class RequestHandler {
   public static UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
     // Kiểm tra xem User đã có hồ sơ người bán chưa
     SellerProfileRepository profileRepo = new SellerProfileRepository();
-    if (!profileRepo.haveSellerProfile(uploadItemReq.getSellerId()))
+    if (!profileRepo.haveSellerProfile(uploadItemReq.getUserId()))
       return new UploadItemResponseDTO(false,
           "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
     // Nếu đã có, truyền chính xác ID của Hồ sơ người bán (sellerProfileId) xuống Service
-    boolean isSuccess = AuctionService.uploadNewItem(uploadItemReq);
+    boolean isSuccess = AuctionService.uploadNewAuction(uploadItemReq);
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
             "Lỗi hệ thống, không thể lưu sản phẩm!";
     return new UploadItemResponseDTO(isSuccess, msg);
@@ -115,6 +115,12 @@ public class RequestHandler {
           GetActiveAndWaitingAuctionsRequestDTO request) {
     List<AuctionDTO> list = AuctionService.getActiveAndWaitingAuctions();
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
+  }
+
+  public static GetCanceledAuctionsResponseDTO getCanceledAuctions(
+          GetCanceledAuctionsRequestDTO request) {
+    List<AuctionDTO> list = AuctionService.getCanceledAuctionsForClient();
+    return new GetCanceledAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
   public static GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
@@ -227,22 +233,6 @@ public class RequestHandler {
     OrderService orderService = new OrderService();
     Order order = orderService.getOrderById(req.getOrderId());
     if (order != null) {
-      String itemName = "Sản phẩm";
-      String itemId = "";
-      try {
-        repository.AuctionRepository auctionRepo = new repository.AuctionRepository();
-        String fetchedItemId = auctionRepo.getItemIdByAuctionId(order.getAuctionId());
-        if (fetchedItemId != null) {
-          repository.ItemRepository itemRepo = new repository.ItemRepository();
-          com.auction.shared.model.item.ItemDTO itemDTO = itemRepo.findById(fetchedItemId);
-          if (itemDTO != null) {
-            itemName = itemDTO.getName();
-            itemId = itemDTO.getId();
-          }
-        }
-      } catch (Exception e) {
-        log.error("Lỗi khi truy vấn thông tin sản phẩm cho đơn hàng: {}", order.getId(), e);
-      }
       return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
     }
     return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);

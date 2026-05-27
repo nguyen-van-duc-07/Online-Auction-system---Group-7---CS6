@@ -14,16 +14,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class có nhiệm vụ quản lý màn hình.
+ * Quản lý các màn hình và trạng thái điều hướng trong ứng dụng JavaFX.
+ * Lớp này chịu trách nhiệm chuyển đổi màn hình, lưu lịch sử để hỗ trợ chức năng quay lại (back),
+ * hiển thị các cửa sổ con (sub-window) và các hộp thoại cảnh báo (alert).
  */
 public class ScreenController {
   private static final Logger log = LoggerFactory.getLogger(ScreenController.class);
+
+  /**
+   * Cửa sổ chính (Stage) của ứng dụng JavaFX.
+   */
   public static Stage primaryStage;
+
+  /**
+   * Constructor private để ngăn khởi tạo đối tượng của lớp quản lý màn hình tĩnh.
+   */
+  private ScreenController() {
+    // Ngăn khởi tạo lớp tiện ích/quản lý tĩnh
+  }
 
   private static final Stack<ScreenState> history = new Stack<ScreenState>();
   private static ScreenState currentScreen = null;
 
-  // Dùng để chuyển sang trang bất kì hiệu quả hơn
+  /**
+   * Chuyển sang màn hình bất kỳ một cách hiệu quả dựa trên tệp FXML và tiêu đề.
+   *
+   * @param fxmlFile đường dẫn tệp FXML của màn hình cần chuyển đổi
+   * @param title tiêu đề hiển thị trên thanh tiêu đề của cửa sổ
+   */
   public static void switchScreen(String fxmlFile, String title) {
     try {
       // Nếu có màn hình hiện tại, lưu lại chính Node hiện tại vào lịch sử.
@@ -65,7 +83,10 @@ public class ScreenController {
     }
   }
 
-  // Phương thức Quay lại tối ưu
+  /**
+   * Quay lại màn hình trước đó trong lịch sử duyệt màn hình (tối ưu không tải lại FXML).
+   * Nếu lịch sử rỗng, màn hình sẽ tự động chuyển về trang chủ (Bidder Home).
+   */
   public static void goBack() {
     if (!history.isEmpty()) {
       // Lấy trạng thái màn hình cũ ra
@@ -98,13 +119,23 @@ public class ScreenController {
     }
   }
 
-  // Sử dụng khi đăng xuất
+  /**
+   * Xóa sạch lịch sử các màn hình đã lưu.
+   * Thường được sử dụng khi người dùng đăng xuất khỏi hệ thống.
+   */
   public static void clearHistory() {
     history.clear();
     currentScreen = null;
   }
 
-  // Dùng để tạo ra cảnh báo
+  /**
+   * Hiển thị một hộp thoại cảnh báo hoặc thông báo cho người dùng.
+   *
+   * @param type loại cảnh báo (ví dụ: ERROR, WARNING, INFORMATION)
+   * @param title tiêu đề của hộp thoại
+   * @param content nội dung chi tiết hiển thị trong thông báo
+   * @return một Optional chứa ButtonType mà người dùng đã nhấn chọn
+   */
   public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String content) {
     Alert alert = new Alert(type);
     alert.setTitle(title);
@@ -115,7 +146,13 @@ public class ScreenController {
     return alert.showAndWait();
   }
 
-  // Dùng để tạo ra cửa sổ con mới, thiết lập quan hệ cha con, khi cửa sổ cha đóng thì cửa sổ con cũng đóng theo
+  /**
+   * Tạo ra cửa sổ con mới, thiết lập quan hệ cha con và căn giữa màn hình.
+   * Cửa sổ con sẽ tự động đóng khi cửa sổ cha đóng và ngăn tương tác với cửa sổ cha khi đang mở (modal).
+   *
+   * @param fxmlFile đường dẫn tệp FXML của màn hình con cần tạo
+   * @param title tiêu đề hiển thị của cửa sổ con
+   */
   public static void createSubWindow(String fxmlFile, String title) {
     try {
       Parent root = FXMLLoader.load(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));
@@ -180,7 +217,14 @@ public class ScreenController {
     }
   }
 
-  // Dùng để tạo ra cửa sổ con mới VÀ trả về Controller của màn hình đó để xử lý logic (như truyền Callback)
+  /**
+   * Tạo ra cửa sổ con mới và trả về bộ điều khiển (Controller) của màn hình đó để xử lý logic.
+   *
+   * @param <T> kiểu Controller tương ứng của màn hình con
+   * @param fxmlFile đường dẫn tệp FXML của màn hình con cần tạo
+   * @param title tiêu đề hiển thị của cửa sổ con
+   * @return Controller của màn hình con đã được tải, hoặc null nếu xảy ra lỗi
+   */
   public static <T> T createSubWindowAndGetController(String fxmlFile, String title) {
     try {
       FXMLLoader loader = new FXMLLoader(ScreenController.class.getResource("/com/auction/client/" + fxmlFile));

@@ -28,6 +28,11 @@ public class ServerConnection {
   private static ObjectOutputStream out;
   private static ObjectInputStream in;
 
+  /**
+   * Thiết lập kết nối Socket tới Server và khởi chạy luồng lắng nghe dữ liệu.
+   *
+   * @throws IOException nếu xảy ra lỗi I/O khi kết nối hoặc khởi tạo luồng dữ liệu
+   */
   public static synchronized void connect() throws IOException {
     log.info("Đang kết nối tới máy chủ tại {}:{}", NetworkConfig.DEFAULT_HOST, NetworkConfig.SERVER_PORT);
     socket = new Socket(NetworkConfig.DEFAULT_HOST, NetworkConfig.SERVER_PORT);
@@ -43,6 +48,11 @@ public class ServerConnection {
     log.info("Kết nối tới máy chủ thành công.");
   }
 
+  /**
+   * Đảm bảo rằng kết nối tới Server vẫn hoạt động, nếu không sẽ tự động kết nối lại.
+   *
+   * @throws IOException nếu xảy ra lỗi khi thử kết nối lại
+   */
   public static synchronized void ensureConnected() throws IOException {
     if (socket == null || socket.isClosed() || !socket.isConnected() || out == null || in == null) {
       log.warn("Mất kết nối hoặc chưa kết nối tới máy chủ. Đang kết nối lại...");
@@ -77,6 +87,9 @@ public class ServerConnection {
             case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
               ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
 
+            case GetCanceledAuctionsResponseDTO getCanceledAuctionsRes ->
+              ResponseHandler.handleGetCanceledAuctions(getCanceledAuctionsRes);
+
             case GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySellerRes ->
               ResponseHandler.handleGetActiveAuctionsBySelelr(getActiveAuctionsBySellerRes);
 
@@ -99,11 +112,11 @@ public class ServerConnection {
 
             case PlaceBidResponseDTO dto -> {
               log.info("Ket qua: {}", dto.getMessage());
-              ResponseHandler.handlePlaceBidResponse(dto); // THÊM DÒNG NÀY
+              ResponseHandler.handlePlaceBidResponse(dto);
             }
 
             case JoinRoomResponseDTO joinRoomRes ->
-                ResponseHandler.handleAuctionRoomJoined(joinRoomRes); // THÊM CASE NÀY
+                ResponseHandler.handleAuctionRoomJoined(joinRoomRes);
 
             case PaymentNotificationDTO dto -> {
               log.info("[CLIENT] Nhận PaymentNotification: {}", dto.getItemName());
@@ -245,6 +258,11 @@ public class ServerConnection {
     }
   }
 
+  /**
+   * Gửi một đối tượng dữ liệu (Request DTO) lên Server qua kết nối Socket.
+   *
+   * @param obj đối tượng dữ liệu cần gửi
+   */
   public static void sendData(Object obj) {
     try {
       ensureConnected();
@@ -271,6 +289,9 @@ public class ServerConnection {
     }
   }
 
+  /**
+   * Đóng an toàn kết nối Socket và các luồng I/O liên quan, dọn dẹp tài nguyên.
+   */
   public static synchronized void closeConnection() {
     try {
       if (in != null) {

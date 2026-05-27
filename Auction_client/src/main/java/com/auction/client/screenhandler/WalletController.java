@@ -15,7 +15,8 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * Class có nhiệm vụ quản lý màn hình ví người dùng.
+ * Bộ điều khiển (Controller) cho giao diện quản lý ví điện tử cá nhân (Wallet).
+ * Quản lý việc hiển thị số dư khả dụng, gọi dịch vụ nạp/rút tiền thông qua các cửa sổ phụ.
  */
 public class WalletController {
   private static final Logger log = LoggerFactory.getLogger(WalletController.class);
@@ -24,10 +25,19 @@ public class WalletController {
 
   private static WalletController instance;
 
+  /**
+   * Lấy instance duy nhất đang hoạt động của WalletController.
+   *
+   * @return đối tượng WalletController hiện tại
+   */
   public static WalletController getInstance() {
     return instance;
   }
 
+  /**
+   * Khởi tạo bộ điều khiển ví điện tử.
+   * Gán instance hiện tại và thực hiện yêu cầu tải số dư từ Server.
+   */
   @FXML
   public void initialize() {
     instance = this;
@@ -51,6 +61,11 @@ public class WalletController {
   /**
    * Hàm này sẽ được gọi từ ResponseHandler sau khi có kết quả mạng trả về.
    */
+  /**
+   * Cập nhật số dư hiển thị lên giao diện người dùng ví.
+   *
+   * @param currentBalance số dư ví khả dụng hiện tại
+   */
   public void updateBalanceUI(BigDecimal currentBalance) {
     // Bắt buộc dùng Platform.runLater vì luồng mạng không được phép đổi giao diện trực tiếp
     Platform.runLater(() -> {
@@ -62,6 +77,9 @@ public class WalletController {
     });
   }
 
+  /**
+   * Hiển thị thông báo lỗi kết nối khi không thể lấy số dư ví từ Server.
+   */
   public void showErrorUI() {
     Platform.runLater(() -> {
       if (balanceLabel != null) {
@@ -70,16 +88,27 @@ public class WalletController {
     });
   }
 
+  /**
+   * Chuyển hướng người dùng quay lại màn hình đăng nhập.
+   */
   @FXML
   public void gotoLogin() {
     MainLayoutController.getInstance().gotoLogin();
   }
 
+  /**
+   * Chuyển hướng người dùng sang trang xem hồ sơ cá nhân.
+   */
   @FXML
   public void gotoProfile() {
     MainLayoutController.getInstance().gotoProfile();
   }
 
+  /**
+   * Mở cửa sổ phụ thực hiện yêu cầu rút tiền từ ví.
+   *
+   * @param event sự kiện ActionEvent được kích hoạt từ nút bấm JavaFX
+   */
   @FXML
   public void gotoWithdraw(ActionEvent event) {
     WithdrawController withdrawController = ScreenController.createSubWindowAndGetController("User/Wallet/Withdraw.fxml", "Rút tiền");
@@ -91,6 +120,11 @@ public class WalletController {
     }
   }
 
+  /**
+   * Mở cửa sổ phụ thực hiện yêu cầu nạp tiền vào ví.
+   *
+   * @param event sự kiện ActionEvent được kích hoạt từ nút bấm JavaFX
+   */
   @FXML
   public void gotoDeposit(ActionEvent event) {
     DepositController depositController = ScreenController.createSubWindowAndGetController("User/Wallet/Deposit.fxml", "Nạp tiền");
@@ -103,11 +137,17 @@ public class WalletController {
     }
   }
 
+  /**
+   * Chuyển hướng người dùng sang trang xem kết quả đấu giá các đơn hàng.
+   */
   @FXML
   public void gotoResult() {
     MainLayoutController.getInstance().gotoResult();
   }
 
+  /**
+   * Chuyển hướng người dùng quay trở lại màn hình trang chủ.
+   */
   @FXML
   public void gotoHomeWithHyperLink() {
     ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");

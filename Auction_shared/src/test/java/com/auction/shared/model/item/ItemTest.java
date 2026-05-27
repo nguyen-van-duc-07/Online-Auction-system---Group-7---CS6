@@ -10,6 +10,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ItemTest {
 
+    static class DummyItem extends Item {
+        public DummyItem(String id, java.time.LocalDateTime createdAt, String name, ItemType type, String description) {
+            super(id, createdAt, name, type, description);
+        }
+        public DummyItem(String name, ItemType type, String description, Map<String, String> attributes) {
+            super(name, type, description, attributes);
+        }
+        public DummyItem(ItemDTO dto) {
+            super(dto);
+        }
+        @Override
+        public String getDisplayCategory() { return "Dummy"; }
+        @Override
+        public String printInfo() { return "Dummy"; }
+    }
+
     @Test
     @DisplayName("Kiểm thử Constructor đầy đủ thông tin cơ bản - Phải gán đúng các trường và ID/createdAt tùy chỉnh")
     void testConstructorWithAllFields() {
@@ -19,7 +35,7 @@ class ItemTest {
         ItemType expectedType = ItemType.ELECTRONICS;
         String expectedDescription = "Laptop hiệu năng cao";
 
-        Item item = new Item(expectedId, expectedTime, expectedName, expectedType, expectedDescription);
+        Item item = new DummyItem(expectedId, expectedTime, expectedName, expectedType, expectedDescription);
 
         assertEquals(expectedId, item.getId(), "ID phải trùng khớp với ID truyền vào");
         assertEquals(expectedTime, item.getCreatedAt(), "Thời gian tạo phải trùng khớp với giá trị truyền vào");
@@ -38,7 +54,7 @@ class ItemTest {
         expectedAttributes.put("switch", "Red Switch");
         expectedAttributes.put("layout", "TKL");
 
-        Item item = new Item(expectedName, expectedType, expectedDescription, expectedAttributes);
+        Item item = new DummyItem(expectedName, expectedType, expectedDescription, expectedAttributes);
 
         assertNotNull(item.getId(), "ID phải được tự động sinh bởi lớp cha Entity");
         assertNotNull(item.getCreatedAt(), "Thời gian tạo phải được tự động sinh bởi lớp cha Entity");
@@ -63,7 +79,7 @@ class ItemTest {
         attributes.put("battery", "Rechargeable");
         dto.setAdditionalAttributes(attributes);
 
-        Item item = new Item(dto);
+        Item item = new DummyItem(dto);
 
         assertEquals(dto.getId(), item.getId(), "ID phải được sao chép chính xác từ DTO");
         assertEquals(dto.getCreatedAt(), item.getCreatedAt(), "Thời gian tạo phải được sao chép chính xác từ DTO");

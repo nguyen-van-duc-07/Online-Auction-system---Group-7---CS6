@@ -9,9 +9,22 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Lớp tiện ích hỗ trợ tạo bộ đếm ngược thời gian trong giao diện.
+ * Cung cấp phương thức để thiết lập Timeline đếm ngược cho JavaFX Label.
+ */
 public class CountdownHelper {
+
+    /**
+     * Constructor private để ngăn việc khởi tạo lớp tiện ích.
+     */
+    private CountdownHelper() {
+        // Ngăn khởi tạo lớp tiện ích
+    }
+
     /**
      * Tạo và trả về một Timeline đếm ngược.
+     *
      * @param timeLabel Label sẽ hiển thị thời gian nhảy.
      * @param endTime Thời điểm kết thúc.
      * @param onFinished Hành động sẽ thực thi khi đếm ngược về 0 (ví dụ: vô hiệu hóa nút bấm).

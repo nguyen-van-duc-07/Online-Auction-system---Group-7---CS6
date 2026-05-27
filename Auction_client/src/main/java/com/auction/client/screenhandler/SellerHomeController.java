@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class có nhiệm vụ quản lý màn hình seller.
- * Đóng vai trò là Sub-controller cho MainLayoutController.
+ * Bộ điều khiển phụ quản lý giao diện chính dành cho người bán (SellerHome).
+ * Quản lý danh sách sản phẩm đăng bán, thêm sản phẩm mới và gọi dịch vụ quản lý đơn hàng bán của mình.
  */
 public class SellerHomeController {
   private static final Logger log = LoggerFactory.getLogger(SellerHomeController.class);
@@ -34,16 +34,31 @@ public class SellerHomeController {
   private List<AuctionDTO> currentAuctions = new ArrayList<>();
   private AuctionStatus currentStatusFilter = null;
 
+  /**
+   * Khởi tạo bộ điều khiển trang chủ người bán.
+   *
+   * @param mainLayout bộ điều khiển bố cục chính
+   */
   public SellerHomeController(MainLayoutController mainLayout) {
     this.mainLayout = mainLayout;
     instance = this;
   }
 
+  /**
+   * Lấy instance duy nhất đang hoạt động của SellerHomeController.
+   *
+   * @return đối tượng SellerHomeController hiện tại
+   */
   public static SellerHomeController getInstance() {
     return instance;
   }
 
 
+  /**
+   * Tải danh sách phiên đấu giá sản phẩm của người bán lên giao diện.
+   *
+   * @param auctions danh sách các phiên đấu giá của người bán
+   */
   public void loadSellerFeedToUI(List<AuctionDTO> auctions) {
     this.currentAuctions = auctions;
     this.currentStatusFilter = null; // Reset filter khi load dữ liệu mới
@@ -113,13 +128,19 @@ public class SellerHomeController {
     }
   }
 
+  /**
+   * Lọc danh sách phiên đấu giá của người bán dựa trên từ khóa tìm kiếm.
+   *
+   * @param keyword từ khóa tìm kiếm (tên sản phẩm)
+   */
   public void filterAuctions(String keyword) {
     applyFilters();
   }
 
   /**
    * Lọc các phiên đấu giá của seller theo trạng thái.
-   * @param status null = tất cả
+   *
+   * @param status trạng thái của phiên đấu giá (hoặc null để lấy tất cả)
    */
   public void filterByStatus(AuctionStatus status) {
     this.currentStatusFilter = status;
@@ -140,6 +161,12 @@ public class SellerHomeController {
   }
 
 
+  /**
+   * Cập nhật mức giá cao nhất hiện tại của một phiên đấu giá trong danh sách.
+   *
+   * @param auctionId mã định danh phiên đấu giá cần cập nhật
+   * @param newPrice mức giá mới nhất
+   */
   public void updateAuctionPrice(String auctionId, BigDecimal newPrice) {
     for (AuctionDTO auction : currentAuctions) {
       if (auction.getAuctionId().equals(auctionId)) {
@@ -163,16 +190,25 @@ public class SellerHomeController {
     });
   }
 
+  /**
+   * Gửi yêu cầu lên Server lấy danh sách các đơn hàng chờ người mua thanh toán của người bán.
+   */
   public void handleGetPendingOrders() {
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetPendingOrdersOfSellerRequestDTO(userId));
   }
 
+  /**
+   * Gửi yêu cầu lên Server lấy danh sách các đơn hàng đã thanh toán thành công của người bán.
+   */
   public void handleGetCompletedOrders() {
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetCompletedOrdersOfSellerRequestDTO(userId));
   }
 
+  /**
+   * Gửi yêu cầu lên Server lấy danh sách các đơn hàng bị hủy của người bán.
+   */
   public void handleGetCanceledOrders() {
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetCancelledOrdersOfSellerRequestDTO(userId));
