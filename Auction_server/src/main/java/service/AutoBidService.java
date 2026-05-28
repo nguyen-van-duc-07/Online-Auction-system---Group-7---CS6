@@ -16,6 +16,10 @@ public class AutoBidService {
   private final AuctionRepository auctionRepo = new AuctionRepository();
 
   public boolean setAutoBid(SetAutoBidRequestDTO req) {
+    if (!req.isActive()) {
+      return configRepo.deactivate(req.getUserId(), req.getAuctionId());
+    }
+
     // Validate
     AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(req.getAuctionId());
     if (auction == null) return false;
@@ -40,7 +44,6 @@ public class AutoBidService {
   }
 
   public boolean cancelAutoBid(CancelAutoBidRequestDTO req) {
-    configRepo.deactivate(req.getUserId(), req.getAuctionId());
-    return true;
+    return configRepo.deactivate(req.getUserId(), req.getAuctionId());
   }
 }

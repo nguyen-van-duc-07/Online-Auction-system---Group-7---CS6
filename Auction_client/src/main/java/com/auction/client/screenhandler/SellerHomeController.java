@@ -69,6 +69,12 @@ public class SellerHomeController {
       mainLayout.getMainContent().setFitToHeight(false);
 
       loadSellerCards(auctions);
+
+      if (auctions == null || auctions.isEmpty()) {
+        mainLayout.showPlaceholder("Không tìm thấy phiên đấu giá nào");
+      } else {
+        mainLayout.hidePlaceholder();
+      }
     });
   }
 
@@ -120,12 +126,6 @@ public class SellerHomeController {
         log.error("Lỗi khi load Component thẻ sản phẩm", e);
       }
     }
-
-    if (auctions.isEmpty()) {
-      Label noResult = new Label("Không tìm thấy phiên đấu giá nào!");
-      noResult.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-padding: 20;");
-      mainLayout.getFeedContainer().getChildren().add(noResult);
-    }
   }
 
   /**
@@ -157,7 +157,14 @@ public class SellerHomeController {
             || a.getStatus() == currentStatusFilter)
         .toList();
 
-    Platform.runLater(() -> loadSellerCards(filtered));
+    Platform.runLater(() -> {
+      loadSellerCards(filtered);
+      if (filtered.isEmpty()) {
+        mainLayout.showPlaceholder("Không tìm thấy phiên đấu giá nào");
+      } else {
+        mainLayout.hidePlaceholder();
+      }
+    });
   }
 
 

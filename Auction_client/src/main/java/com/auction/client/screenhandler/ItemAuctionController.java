@@ -6,6 +6,7 @@ import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
+import com.auction.shared.request.CancelAutoBidRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.request.SetAutoBidRequestDTO;
 import com.auction.shared.model.auction.AutoBidConfig;
@@ -158,12 +159,9 @@ public class ItemAuctionController implements Initializable {
           clearError();
 
           // Gửi request hủy Bot lên Server
-          SetAutoBidRequestDTO req = new SetAutoBidRequestDTO(
+          CancelAutoBidRequestDTO req = new CancelAutoBidRequestDTO(
               SessionManager.getCurrentUser().getId(),
-              SessionManager.getCurrentAuctionId(),
-              BigDecimal.ZERO,
-              BigDecimal.ZERO,
-              false
+              SessionManager.getCurrentAuctionId()
           );
           ServerConnection.sendData(req);
 
@@ -588,7 +586,7 @@ public class ItemAuctionController implements Initializable {
   }
 
   /**
-   * Format lượng tiền để hiển thị trên nút (ví dụ: 100k, 1.5M, v.v.)
+   * Format lượng tiền để hiển thị trên nút (ví dụ: 100k, 1.5M, v.v.).
    */
   private String formatAmountForButton(BigDecimal amount) {
     if (amount.compareTo(new BigDecimal("1000000")) >= 0) {
@@ -738,16 +736,22 @@ public class ItemAuctionController implements Initializable {
       if (SessionManager.getCurrentUser() == null) {
         return;
       }
-      // Kiểm tra nếu mình vừa bị outbid (đang là top bidder cũ, và người mới bid không phải mình)
+      if (currentAuction == null || !currentAuction.getId().equals(newBid.getAuctionId())) {
+        return;
+      }
+      // Kiểm tra nếu bid mới làm thay đổi số dư ví của mình: bot tự đặt giá hoặc mình bị vượt giá.
       String myUserId = SessionManager.getCurrentUser().getId();
       String prevHighestBidderId = currentAuction.getHighestBidderId();
-      if (prevHighestBidderId != null && prevHighestBidderId.equals(myUserId) && !newBid.getBidderId().equals(myUserId)) {
-        log.info("[OUTBID] Phát hiện bị vượt mặt đặt giá. Đang lấy số dư mới...");
+      boolean myWalletChanged = newBid.getBidderId().equals(myUserId)
+          || (prevHighestBidderId != null && prevHighestBidderId.equals(myUserId));
+      if (myWalletChanged) {
+        log.info("[BID-WALLET] Phát hiện bid ảnh hưởng đến ví hiện tại. Đang lấy số dư mới...");
         ServerConnection.sendData(new GetBalanceRequestDTO());
       }
 
       // 1. Cập nhật giá mới nhất vào biến hiện tại
       currentAuction.setCurrentHighestPrice(newBid.getBidAmount());
+      currentAuction.setHighestBidderId(newBid.getBidderId());
       updateHighestBidderUI(newBid.getBidderName());
       // 2. Chạy hiệu ứng nháy màu và cập nhật Text
       refreshPriceUI();
