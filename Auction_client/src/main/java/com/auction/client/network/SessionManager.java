@@ -1,6 +1,5 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.Controller;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.order.Order;
@@ -42,11 +41,6 @@ public class SessionManager {
   public static String currentOrderId;
 
   /**
-   * Đối tượng lưu giữ thông tin controller của màn hình trước.
-   */
-  public static Controller previousScreen;
-
-  /**
    * Khai báo kênh lắng nghe biến động số dư.
    */
   public static final ObjectProperty<BigDecimal> balanceProperty = new SimpleObjectProperty<>(BigDecimal.ZERO);
@@ -79,15 +73,6 @@ public class SessionManager {
   }
 
   /**
-   * Thiết lập tham chiếu tới controller của màn hình trước đó để quay lại khi cần.
-   *
-   * @param previousScreen controller của màn hình trước đó
-   */
-  public static void setPreviousScreen(Controller previousScreen) {
-    SessionManager.previousScreen = previousScreen;
-  }
-
-  /**
    * Lấy thông tin người dùng đang đăng nhập hiện tại.
    *
    * @return đối tượng chứa thông tin người dùng hiện tại dưới dạng DTO
@@ -112,15 +97,6 @@ public class SessionManager {
    */
   public static String getCurrentOrderId() {
     return SessionManager.currentOrderId;
-  }
-
-  /**
-   * Lấy tham chiếu tới controller của màn hình trước đó.
-   *
-   * @return controller của màn hình trước đó
-   */
-  public static Controller getPreviousScreen() {
-    return SessionManager.previousScreen;
   }
 
   /**

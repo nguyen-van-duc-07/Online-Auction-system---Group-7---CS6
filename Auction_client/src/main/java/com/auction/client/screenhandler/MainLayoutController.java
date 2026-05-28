@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
  * (Quản lý hàng giao bán + Kết quả đấu giá) và vùng button động,
  * cùng ScrollPane trung tâm để load nội dung theo ngữ cảnh.</p>
  */
-public class MainLayoutController implements Initializable, Controller {
+public class MainLayoutController implements Initializable {
 
   private static final Logger log = LoggerFactory.getLogger(MainLayoutController.class);
 

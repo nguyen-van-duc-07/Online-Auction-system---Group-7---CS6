@@ -121,7 +121,7 @@ public class ScreenController {
       log.debug("Quay lại màn hình trước đó thành công");
     } else {
       // Fallback về trang chủ nếu không có lịch sử
-      switchScreen("Bidder/Home.fxml", "Trang chủ");
+      switchScreen("MainLayout.fxml", "Trang chủ");
     }
   }
 

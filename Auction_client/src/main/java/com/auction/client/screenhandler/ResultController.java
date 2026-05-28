@@ -69,7 +69,7 @@ public class ResultController {
 
           OrderCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          cardController.setData(order, mainLayout);
+          cardController.setData(order);
 
           mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {
@@ -109,7 +109,7 @@ public class ResultController {
 
           OrderCardController cardController = loader.getController();
           cardNode.setUserData(cardController);
-          cardController.setData(order, mainLayout);
+          cardController.setData(order);
 
           mainLayout.getFeedContainer().getChildren().add(cardNode);
         } catch (IOException e) {

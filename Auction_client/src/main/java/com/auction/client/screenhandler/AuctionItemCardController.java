@@ -39,22 +39,19 @@ public class AuctionItemCardController {
   @FXML
   private Label categoryLabel;
 
-  private Controller currentScreen;
   private Timeline countdownTimer;
   private AuctionDTO auction;
 
   /**
-   * Bơm dữ liệu từ một Controller cha truyền sang để hiển thị thông tin sản phẩm đấu giá.
+   * Bơm dữ liệu để hiển thị thông tin sản phẩm đấu giá.
    *
    * @param auction đối tượng DTO chứa dữ liệu về phiên đấu giá
-   * @param currentScreen đối tượng Controller cha của màn hình hiện tại
    */
-  public void setData(AuctionDTO auction, Controller currentScreen) {
-      this.currentScreen = currentScreen;
+  public void setData(AuctionDTO auction) {
       this.auction = auction;
       // 1. Đổ dữ liệu text
       nameLabel.setText(auction.getItemName());
-
+ 
       // Hiển thị loại sản phẩm
       ItemType type = auction.getItemType();
       if (type != null) {
@@ -62,21 +59,21 @@ public class AuctionItemCardController {
       } else {
         categoryLabel.setText("");
       }
-
+ 
       updateStatus(auction.getStartTime(), auction.getEndTime());
-
+ 
       String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
       priceLabel.setText(formattedPrice);
-
+ 
       // Tạo bộ đếm thời gian chạy mỗi 1 giây
       countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e ->
           updateStatus(auction.getStartTime(), auction.getEndTime())
       ));
-
+ 
       countdownTimer.setCycleCount(Animation.INDEFINITE);
       countdownTimer.play();
   }
-
+ 
   /**
    * Chuyển hướng sang màn hình xem chi tiết phiên đấu giá sản phẩm.
    */
@@ -84,7 +81,6 @@ public class AuctionItemCardController {
   public void gotoAuctionDetail() {
     // Lưu sản phẩm vừa chọn vào SessionManager
     SessionManager.setCurrentAuctionId(auction.getAuctionId());
-    SessionManager.setPreviousScreen(currentScreen);
     log.info("Đang mở chi tiết phiên đấu giá: {}", auction.getAuctionId());
     ScreenController.switchScreen("Bidder/ItemAuction.fxml", "Phiên đấu giá " + auction.getItemName());
   }

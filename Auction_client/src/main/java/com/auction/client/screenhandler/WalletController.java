@@ -89,22 +89,6 @@ public class WalletController {
   }
 
   /**
-   * Chuyển hướng người dùng quay lại màn hình đăng nhập.
-   */
-  @FXML
-  public void gotoLogin() {
-    MainLayoutController.getInstance().gotoLogin();
-  }
-
-  /**
-   * Chuyển hướng người dùng sang trang xem hồ sơ cá nhân.
-   */
-  @FXML
-  public void gotoProfile() {
-    MainLayoutController.getInstance().gotoProfile();
-  }
-
-  /**
    * Mở cửa sổ phụ thực hiện yêu cầu rút tiền từ ví.
    *
    * @param event sự kiện ActionEvent được kích hoạt từ nút bấm JavaFX
@@ -135,21 +119,5 @@ public class WalletController {
         refreshBalance();
       });
     }
-  }
-
-  /**
-   * Chuyển hướng người dùng sang trang xem kết quả đấu giá các đơn hàng.
-   */
-  @FXML
-  public void gotoResult() {
-    MainLayoutController.getInstance().gotoResult();
-  }
-
-  /**
-   * Chuyển hướng người dùng quay trở lại màn hình trang chủ.
-   */
-  @FXML
-  public void gotoHomeWithHyperLink() {
-    ScreenController.switchScreen("Bidder/Home.fxml", "Trang chủ");
   }
 }

@@ -311,19 +311,19 @@ public class ItemAuctionController implements Initializable {
       if (startTime != null && now.isBefore(startTime)) {
         // TRƯỜNG HỢP 1: CHƯA BẮT ĐẦU (WAITING)
         timeRemainingLabel.setText("Bắt đầu sau: " + formatTimeLeft(now, startTime));
-        timeRemainingLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;"); // Màu cam
+        timeRemainingLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu cam
         updateBidControlState(false); // Khóa form đặt giá
 
       } else if (startTime == null || now.isAfter(startTime) && now.isBefore(endTime)) {
         // TRƯỜNG HỢP 2: ĐANG DIỄN RA (ACTIVE)
         timeRemainingLabel.setText("Kết thúc sau: " + formatTimeLeft(now, endTime));
-        timeRemainingLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;"); // Màu xanh lá
+        timeRemainingLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu xanh lá
         updateBidControlState(true); // Mở form đặt giá
 
       } else {
         // TRƯỜNG HỢP 3: ĐÃ KẾT THÚC (CLOSED)
         timeRemainingLabel.setText("Đã kết thúc");
-        timeRemainingLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); // Màu đỏ
+        timeRemainingLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu đỏ
         updateBidControlState(false); // Khóa form đặt giá
 
         // Clear biểu đồ (Giữ lại logic gốc của bạn)

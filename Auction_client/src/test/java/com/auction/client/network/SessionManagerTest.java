@@ -1,6 +1,5 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.Controller;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.response.GetBalanceResponseDTO;
 import javafx.beans.property.ObjectProperty;
@@ -19,7 +18,6 @@ class SessionManagerTest {
         SessionManager.setCurrentUser(null);
         SessionManager.setCurrentAuctionId(null);
         SessionManager.setCurrentOrderId(null);
-        SessionManager.setPreviousScreen(null);
         SessionManager.balanceProperty().set(BigDecimal.ZERO);
     }
 
@@ -55,16 +53,6 @@ class SessionManagerTest {
     void testSetCurrentOrderId_ValidId_ShouldStoreId() {
         SessionManager.setCurrentOrderId("ORD_999");
         assertEquals("ORD_999", SessionManager.getCurrentOrderId());
-    }
-
-    @Test
-    @DisplayName("Cập nhật và lấy màn hình trước đó")
-    void testSetPreviousScreen_ValidController_ShouldStoreController() {
-        Controller mockController = new Controller() {};
-        SessionManager.setPreviousScreen(mockController);
-
-        assertNotNull(SessionManager.getPreviousScreen());
-        assertEquals(mockController, SessionManager.getPreviousScreen());
     }
 
     @Test
