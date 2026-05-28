@@ -13,17 +13,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CountdownHelperTest {
 
+    private static boolean isJavaFxInitialized = false;
+
     @BeforeAll
     static void initJavaFX() {
         try {
             Platform.startup(() -> {});
+            isJavaFxInitialized = true;
         } catch (IllegalStateException e) {
-            // Đã khởi tạo trước đó, có thể bỏ qua
+            // Có thể đã khởi tạo trước đó từ bài test khác
+            isJavaFxInitialized = true;
+        } catch (Throwable t) {
+            // Không thể khởi tạo (ví dụ: headless environment không có DISPLAY)
+            isJavaFxInitialized = false;
         }
     }
 
     @Test
     void setupCountdown_taoTimelineThanhCong() {
+        org.junit.jupiter.api.Assumptions.assumeTrue(isJavaFxInitialized,
+            "Bỏ qua test UI JavaFX khi chạy trong môi trường không có DISPLAY");
+
         Label label = new Label();
         LocalDateTime endTime = LocalDateTime.now().plusHours(2);
 
