@@ -1,7 +1,7 @@
 package servercontroller;
 
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
@@ -156,7 +156,7 @@ public class RequestHandler {
     return dispatcher.handleGetPendingOrdersOfBuyer(req);
   }
 
-  public static GetCompletedOrdersOfSellerResponseDTO handleGetCompletedOrdersOfSeller(
+  public static GetCompletedOrdersOfSellerResponseDTO handleGetConfirmedOrdersOfSeller(
       GetCompletedOrdersOfSellerRequestDTO req) {
     return dispatcher.handleGetCompletedOrdersOfSeller(req);
   }
@@ -166,7 +166,7 @@ public class RequestHandler {
     return dispatcher.handleGetCancelledOrdersOfSeller(req);
   }
 
-  public static GetCompletedOrdersOfBuyerResponseDTO handleGetCompletedOrdersOfBuyer(
+  public static GetCompletedOrdersOfBuyerResponseDTO handleGetConfirmedOrdersOfBuyer(
       GetCompletedOrdersOfBuyerRequestDTO req) {
     return dispatcher.handleGetCompletedOrdersOfBuyer(req);
   }
