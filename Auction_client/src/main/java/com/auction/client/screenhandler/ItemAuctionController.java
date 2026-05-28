@@ -306,13 +306,13 @@ public class ItemAuctionController implements Initializable {
 
       if (startTime != null && now.isBefore(startTime)) {
         // TRƯỜNG HỢP 1: CHƯA BẮT ĐẦU (WAITING)
-        timeRemainingLabel.setText("Bắt đầu sau: " + formatTimeLeft(now, startTime));
+        timeRemainingLabel.setText("Bắt đầu sau: " + CountdownHelper.formatTimeLeft(now, startTime));
         timeRemainingLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu cam
         updateBidControlState(false); // Khóa form đặt giá
 
       } else if (startTime == null || now.isAfter(startTime) && now.isBefore(endTime)) {
         // TRƯỜNG HỢP 2: ĐANG DIỄN RA (ACTIVE)
-        timeRemainingLabel.setText("Kết thúc sau: " + formatTimeLeft(now, endTime));
+        timeRemainingLabel.setText("Kết thúc sau: " + CountdownHelper.formatTimeLeft(now, endTime));
         timeRemainingLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu xanh lá
         updateBidControlState(true); // Mở form đặt giá
 
@@ -438,19 +438,7 @@ public class ItemAuctionController implements Initializable {
     }
   }
 
-  // Hàm hỗ trợ format text thời gian
-  private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
-    long days = java.time.temporal.ChronoUnit.DAYS.between(from, to);
-    long hours = java.time.temporal.ChronoUnit.HOURS.between(from, to) % 24;
-    long minutes = java.time.temporal.ChronoUnit.MINUTES.between(from, to) % 60;
-    long seconds = java.time.temporal.ChronoUnit.SECONDS.between(from, to) % 60;
 
-    if (days > 0) {
-      return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
-    } else {
-      return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-  }
 
   private void showError(String message) {
     errorLabel.setText(message);

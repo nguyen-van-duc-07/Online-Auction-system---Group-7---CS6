@@ -12,24 +12,39 @@ import com.auction.shared.model.auction.Auction;
 import java.math.BigDecimal;
 
 public class AutoBidService {
-  private final AutoBidConfigRepository configRepo = new AutoBidConfigRepository();
-  private final AuctionRepository auctionRepo = new AuctionRepository();
+  private final AutoBidConfigRepository configRepo;
+  private final AuctionRepository auctionRepo;
+
+  /**
+   * Constructor mặc định cho môi trường Production.
+   */
+  public AutoBidService() {
+    this(new AutoBidConfigRepository(), new AuctionRepository());
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public AutoBidService(AutoBidConfigRepository configRepo, AuctionRepository auctionRepo) {
+    this.configRepo = configRepo;
+    this.auctionRepo = auctionRepo;
+  }
 
   public boolean setAutoBid(SetAutoBidRequestDTO req) {
     if (!req.isActive()) {
       return configRepo.deactivate(req.getUserId(), req.getAuctionId());
     }
 
-    // Validate
+    // Xác thực thông tin phiên đấu giá
     AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(req.getAuctionId());
     if (auction == null) return false;
 
-    // stepAmount không được nhỏ hơn minStepPrice
+    // Bước giá tự động (stepAmount) không được nhỏ hơn bước giá tối thiểu (minStepPrice)
     if (req.getStepAmount().compareTo(auction.getMinStepPrice()) < 0) {
       return false;
     }
 
-    // maxPrice phải lớn hơn giá hiện tại
+    // Giá tối đa (maxPrice) phải lớn hơn giá hiện tại
     if (req.getMaxPrice().compareTo(auction.getCurrentHighestPrice()) <= 0) {
       return false;
     }

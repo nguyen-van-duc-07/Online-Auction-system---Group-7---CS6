@@ -13,7 +13,21 @@ import java.time.LocalDateTime;
 import com.auction.shared.util.FormatUtil;
 
 public class NotificationService {
-  private final NotificationRepository notifRepo = new NotificationRepository();
+  private final NotificationRepository notifRepo;
+
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public NotificationService() {
+    this(new NotificationRepository());
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public NotificationService(NotificationRepository notifRepo) {
+    this.notifRepo = notifRepo;
+  }
 
   /**
    * Tạo và lưu thông báo, sau đó gửi realtime cho user nếu đang online.

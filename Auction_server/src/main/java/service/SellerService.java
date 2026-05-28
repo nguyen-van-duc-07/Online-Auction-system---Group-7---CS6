@@ -16,9 +16,25 @@ import java.util.List;
 
 public class SellerService {
 
-  private static final SellerProfileRepository sellerRepo = new SellerProfileRepository();
+  private final SellerProfileRepository sellerRepo;
+  private final AuctionService auctionService;
 
-  public static boolean sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public SellerService() {
+    this(new SellerProfileRepository(), AuctionService.getInstance());
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public SellerService(SellerProfileRepository sellerRepo, AuctionService auctionService) {
+    this.sellerRepo = sellerRepo;
+    this.auctionService = auctionService;
+  }
+
+  public boolean sellerRegister(SellerRegisterRequestDTO sellerRegisterReq) {
     SellerProfile sellerProfile = new SellerProfile(sellerRegisterReq.getUserId(),
         sellerRegisterReq.getBrandName(),
         sellerRegisterReq.getCitizenIdentityCard(),
@@ -35,7 +51,7 @@ public class SellerService {
     return success;
   }
 
-  public static boolean isSellerProfileCreated(CheckingSellerProfileRequestDTO checkingSellerProfileReq) {
+  public boolean isSellerProfileCreated(CheckingSellerProfileRequestDTO checkingSellerProfileReq) {
     String result = sellerRepo.findProfileIdByUserId(checkingSellerProfileReq.getUserId());
     if (result == null) {
       return false;
@@ -44,12 +60,12 @@ public class SellerService {
     }
   }
 
-  public static String sellerProfileStatus(String userId) {
+  public String sellerProfileStatus(String userId) {
     String result = sellerRepo.getSellerProfileStatus(userId);
     return result;
   }
 
-  public static List<SellerRegisterRequestDTO> getSellerProfiles() {
+  public List<SellerRegisterRequestDTO> getSellerProfiles() {
     List<SellerRegisterRequestDTO> sellerProfileResponseDTOS = new ArrayList<>();
     List<SellerProfile> sellerProfiles = sellerRepo.getAllSellerProfiles();
     for (SellerProfile sellerProfile : sellerProfiles) {
@@ -69,7 +85,7 @@ public class SellerService {
     return sellerProfileResponseDTOS;
   }
 
-  public static UpdateSellerProfileStatusResponseDTO handleUpdateSellerProfileStatus(UpdateSellerProfileStatusRequestDTO request) {
+  public UpdateSellerProfileStatusResponseDTO handleUpdateSellerProfileStatus(UpdateSellerProfileStatusRequestDTO request) {
     String userId = request.getUserId();
     SellerRegisterStatus status = request.getNewStatus();
     SellerRegisterStatus expectedStatus = request.getExpectedOldStatus();
@@ -92,9 +108,9 @@ public class SellerService {
     if (success) {
       // 3. Tự động xử lý kích hoạt/hủy đấu giá đồng bộ trên Server
       if (status == SellerRegisterStatus.REGISTERED) {
-        AuctionService.restoreCanceledAuctionsBySellerUserId(userId);
+        auctionService.restoreCanceledAuctionsBySellerUserId(userId);
       } else if (status == SellerRegisterStatus.DENIED) {
-        AuctionService.cancelActiveAndWaitingAuctionsBySellerUserId(userId);
+        auctionService.cancelActiveAndWaitingAuctionsBySellerUserId(userId);
       }
 
       // 4. Gửi thông báo cho người dùng

@@ -163,6 +163,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <argLine>
+                        @{argLine}
                         --add-opens com.auction.server/service=ALL-UNNAMED
                         --add-opens com.auction.server/repository=ALL-UNNAMED
                         --add-opens com.auction.server/config=ALL-UNNAMED

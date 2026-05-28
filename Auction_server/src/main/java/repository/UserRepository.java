@@ -24,7 +24,7 @@ public class UserRepository {
    * @param phoneNumber so dien thoai nguoi dung
    * @return mật khẩu tương ứng nếu tìm thấy, ngược lại trả về null
    */
-  public static String getPasswordByPhoneNumber(String phoneNumber) {
+  public String getPasswordByPhoneNumber(String phoneNumber) {
     try (Connection conn = DatabaseConnection.getConnection()) {
 
       String sql = "SELECT password FROM users WHERE phone_number = ?";
@@ -44,7 +44,7 @@ public class UserRepository {
     return null;
   }
 
-  public static boolean isAccountExist(String phoneNumber) {
+  public boolean isAccountExist(String phoneNumber) {
     // Dùng SELECT 1 cho tốc độ truy vấn tối đa
     String sql = "SELECT 1 FROM users WHERE phone_number = ?";
     try (Connection conn = DatabaseConnection.getConnection();
@@ -170,7 +170,7 @@ public class UserRepository {
     }
   }
 
-  public static boolean deleteAccount(User user) {
+  public boolean deleteAccount(User user) {
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "DELETE FROM users "
           + "WHERE id = ?;";

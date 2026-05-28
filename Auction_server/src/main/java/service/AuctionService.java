@@ -33,9 +33,22 @@ import repository.SellerProfileRepository;
 public class AuctionService {
   private static final Logger log = LoggerFactory.getLogger(AuctionService.class);
 
-  private static final AuctionRepository auctionRepo = new AuctionRepository();
-  private static final BidTransactionRepository bidRepo = new BidTransactionRepository();
-  private AuctionService() {
+  private final AuctionRepository auctionRepo;
+  private final BidTransactionRepository bidRepo;
+
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public AuctionService() {
+    this(new AuctionRepository(), new BidTransactionRepository());
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public AuctionService(AuctionRepository auctionRepo, BidTransactionRepository bidRepo) {
+    this.auctionRepo = auctionRepo;
+    this.bidRepo = bidRepo;
   }
 
   private static class Holder {
@@ -52,12 +65,11 @@ public class AuctionService {
    * Thực hiện luồng đăng bán sản phẩm mới.
    *
    * <p>Tạo đối tượng Item, lưu vào DB. Nếu thành công, tiếp tục tạo Auction và lưu vào DB.</p>
-   * * @param req Gói tin DTO chứa thông tin cấu hình từ Client
    *
+   * @param request Gói tin DTO chứa thông tin cấu hình từ Client
    * @return {@code true} nếu cả Item và Auction đều được lưu thành công, ngược lại là {@code false}
    */
-  public static boolean uploadNewAuction(UploadItemRequestDTO request) {
-    // Không sử dụng ItemRepository nữa, gộp chung thông tin item vào Auction
+  public boolean uploadNewAuction(UploadItemRequestDTO request) {
     Item item = com.auction.shared.model.item.ItemFactory.createItem(
         request.getItemName(),
         request.getItemType(),
@@ -75,7 +87,7 @@ public class AuctionService {
       }
     }
 
-    return getInstance().createAuction(item,
+    return createAuction(item,
         request.getUserId(),
         request.getStartPrice(),
         request.getMinStepPrice(),
@@ -120,9 +132,8 @@ public class AuctionService {
     }
   }
 
-  public static AuctionResponseDTO findAuctionById(String id) {
-    AuctionResponseDTO auction = auctionRepo.findAuctionById(id);
-    return auction;
+  public AuctionResponseDTO findAuctionById(String id) {
+    return auctionRepo.findAuctionById(id);
   }
 
   /**
@@ -142,21 +153,6 @@ public class AuctionService {
 
     auction.start();
   }
-
-  /**
-   * Thực hiện đặt giá (bid) cho một phiên đấu giá.
-   * Đồng thời áp dụng Jump Calculation để xử lý phản đòn của Bot ngay lập tức trong O(1),
-   * triệt tiêu hoàn toàn tình trạng bão thông báo khi Người đấu với Bot.
-   *
-   * @param auctionId mã phiên đấu giá
-   * @param bidderId  mã người đặt giá
-   * @param amount    số tiền đặt giá
-   * @return true nếu đặt giá thành công, false nếu thất bại
-   */
-  /**
-   * Thực hiện đặt giá (bid) cho một phiên đấu giá.
-   * Lấy dữ liệu chuẩn từ DB, lưu lịch sử người thật, và kích hoạt Bot phản đòn O(1).
-   */
 
   /**
    * Hủy một phiên đấu giá theo mã định danh.
@@ -189,74 +185,53 @@ public class AuctionService {
    * Truy xuất danh sách các phiên đấu giá đang mở (ACTIVE) từ cơ sở dữ liệu
    * và chuyển đổi (mapping) chúng sang định dạng DTO cho Client.
    *
-   * <p>Mục đích của việc chuyển đổi từ thực thể {@link Auction} nguyên bản sang
-   * {@link AuctionResponseDTO} là để lược bỏ các thông tin nhạy cảm và dư thừa
-   * (như lịch sử đặt giá chi tiết, thông tin người bán). Việc này giúp giảm tải
-   * dung lượng gói tin gửi qua Socket, tối ưu hóa băng thông mạng và tăng tốc độ
-   * tải trang chủ cho người dùng.</p>
-   *
    * @return Danh sách các đối tượng {@link AuctionResponseDTO} chứa thông tin tóm tắt
    * của các sản phẩm đang được đấu giá trên sàn.
    */
-  public static List<AuctionDTO> getActiveAuctionsForClient() {
-    List<AuctionDTO> activeAuctions = auctionRepo.findActiveAuctions();
-    return activeAuctions;
+  public List<AuctionDTO> getActiveAuctionsForClient() {
+    return auctionRepo.findActiveAuctions();
   }
 
-  public static List<AuctionDTO> getWaitingAuctionsForClient() {
-    List<AuctionDTO> waitingAuctions = auctionRepo.findWaitingAuctions();
-    return waitingAuctions;
+  public List<AuctionDTO> getWaitingAuctionsForClient() {
+    return auctionRepo.findWaitingAuctions();
   }
 
-  public static List<AuctionDTO> getClosedAuctionsForClient() {
-    List<AuctionDTO> closedAuctions = auctionRepo.findClosedAuctions();
-    return closedAuctions;
+  public List<AuctionDTO> getClosedAuctionsForClient() {
+    return auctionRepo.findClosedAuctions();
   }
 
   /**
    * Truy xuất danh sách các phiên đấu giá đang mở (ACTIVE) và sắp diễn ra (WAITING)
    * từ cơ sở dữ liệu và chuyển đổi (mapping) chúng sang định dạng DTO cho Client.
    *
-   * <p>Mục đích của việc chuyển đổi từ thực thể {@link Auction} nguyên bản sang
-   * {@link AuctionDTO} là để lược bỏ các thông tin nhạy cảm và dư thừa
-   * (như lịch sử đặt giá chi tiết, thông tin người bán). Việc này giúp giảm tải
-   * dung lượng gói tin gửi qua Socket, tối ưu hóa băng thông mạng và tăng tốc độ
-   * tải trang chủ cho người dùng.</p>
-   *
    * @return Danh sách các đối tượng {@link AuctionDTO} chứa thông tin tóm tắt
    * của các sản phẩm đang được đấu giá trên sàn.
    */
-  public static List<AuctionDTO> getActiveAndWaitingAuctions() {
-    List<AuctionDTO> activeAndWaitingAuctions = auctionRepo.findActiveAndWaitingAuctions();
-    return activeAndWaitingAuctions;
+  public List<AuctionDTO> getActiveAndWaitingAuctions() {
+    return auctionRepo.findActiveAndWaitingAuctions();
   }
 
-  public static List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
+  public List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
     return auctionRepo.findActiveAuctionsByUserId(userId);
   }
 
-  public static List<AuctionDTO> getAuctionsBySeller(String userId) {
+  public List<AuctionDTO> getAuctionsBySeller(String userId) {
     return auctionRepo.findAuctionsByUserId(userId);
   }
 
-  public static boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
+  public boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
     return auctionRepo.cancelActiveAndWaitingAuctionsByUserId(userId);
   }
 
-  public static boolean restoreCanceledAuctionsBySellerUserId(String userId) {
+  public boolean restoreCanceledAuctionsBySellerUserId(String userId) {
     return auctionRepo.restoreCanceledAuctionsByUserId(userId, LocalDateTime.now());
   }
 
-  public static AuctionResponseDTO getAuctionHistory(String auctionId) {
-    // 1. Lấy thông tin cơ bản của phiên đấu giá từ AuctionRepository
+  public AuctionResponseDTO getAuctionHistory(String auctionId) {
     AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(auctionId);
 
     if (auction != null) {
-      // 2. Lấy 20 giao dịch gần nhất từ BidTransactionRepository
-      // Việc giới hạn (limit) được thực hiện ngay trong SQL để tối ưu
       List<BidTransaction> history = bidRepo.findRecentByAuctionId(auctionId, 20);
-
-      // 3. Gán vào attribute bidHistory của đối tượng Auction
       auction.setBidHistory(history);
     }
 
@@ -265,12 +240,6 @@ public class AuctionService {
 
   /**
    * Tự động đóng các phiên đấu giá đã hết hạn.
-   *
-   * <p>Hệ thống sẽ duyệt toàn bộ danh sách auction và:
-   * - Kiểm tra các auction đang ở trạng thái ACTIVE
-   * - Nếu thời gian hiện tại đã vượt quá endTime thì sẽ đóng auction</p>
-   *
-   * <p>Sau khi đóng, hệ thống sẽ in thông báo ra console.</p>
    */
   public void closeExpiredAuctions() {
     for (Auction auction : auctions.values()) {
@@ -280,7 +249,7 @@ public class AuctionService {
     }
   }
 
-  public static UpdateAuctionStatusResponseDTO updateAuctionStatusByAdmin(UpdateAuctionStatusRequestDTO request) {
+  public UpdateAuctionStatusResponseDTO updateAuctionStatusByAdmin(UpdateAuctionStatusRequestDTO request) {
     String auctionId = request.getAuctionId();
     AuctionStatus targetStatus = request.getStatus();
 
@@ -308,7 +277,7 @@ public class AuctionService {
             if (success) {
               AuctionResponseDTO updatedAuction = auctionRepo.findAuctionById(auctionId);
               if (updatedAuction != null) {
-                Auction ramAuction = getInstance().getAuction(auctionId);
+                Auction ramAuction = getAuction(auctionId);
                 if (ramAuction != null) {
                   ramAuction.setStatus(updatedAuction.getStatus());
                   ramAuction.setStartTime(updatedAuction.getStartTime());
@@ -333,7 +302,7 @@ public class AuctionService {
             // WAITING
             boolean success = auctionRepo.updateAuctionStatusAndStartTime(auctionId, AuctionStatus.ACTIVE.name(), LocalDateTime.now());
             if (success) {
-              Auction ramAuction = getInstance().getAuction(auctionId);
+              Auction ramAuction = getAuction(auctionId);
               if (ramAuction != null) {
                 ramAuction.setStatus(AuctionStatus.ACTIVE);
                 ramAuction.setStartTime(LocalDateTime.now());
@@ -354,7 +323,7 @@ public class AuctionService {
           if (auction.getStatus() == AuctionStatus.ACTIVE) {
             boolean success = auctionRepo.updateAuctionEndTime(auctionId, LocalDateTime.now());
             if (success) {
-              Auction ramAuction = getInstance().getAuction(auctionId);
+              Auction ramAuction = getAuction(auctionId);
               if (ramAuction != null) {
                 ramAuction.setEndTime(LocalDateTime.now());
               }
@@ -366,7 +335,7 @@ public class AuctionService {
           } else if (auction.getStatus() == AuctionStatus.WAITING) {
             boolean success = auctionRepo.cancelAuctionAndReleaseDeposit(auctionId);
             if (success) {
-              Auction ramAuction = getInstance().getAuction(auctionId);
+              Auction ramAuction = getAuction(auctionId);
               if (ramAuction != null) {
                 ramAuction.setStatus(AuctionStatus.CANCELED);
               }
@@ -383,7 +352,7 @@ public class AuctionService {
           if (auction.getStatus() == AuctionStatus.ACTIVE || auction.getStatus() == AuctionStatus.WAITING) {
             boolean success = auctionRepo.cancelAuctionAndReleaseDeposit(auctionId);
             if (success) {
-              Auction ramAuction = getInstance().getAuction(auctionId);
+              Auction ramAuction = getAuction(auctionId);
               if (ramAuction != null) {
                 ramAuction.setStatus(AuctionStatus.CANCELED);
               }
@@ -408,8 +377,7 @@ public class AuctionService {
     return response[0];
   }
 
-
-  public static List<AuctionDTO> getCanceledAuctionsForClient() {
+  public List<AuctionDTO> getCanceledAuctionsForClient() {
     return auctionRepo.findCanceledAuctions();
   }
 }

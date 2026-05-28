@@ -36,7 +36,7 @@ jobs:
         run: mvn clean package -DskipTests
 
       - name: Run all tests
-        run: mvn test
+        run: xvfb-run mvn test
 
 
       - name: Upload build artifacts
