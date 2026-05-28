@@ -497,6 +497,8 @@ public class MainLayoutController implements Initializable {
     // Reset filter
     categoryFilter.setText("Tất cả danh mục");
 
+    hidePlaceholder();
+
     // Request danh sách đấu giá mới nhất
     ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
   }
@@ -524,6 +526,8 @@ public class MainLayoutController implements Initializable {
       mainContent.setFitToWidth(true);
       mainContent.setFitToHeight(false);
 
+      hidePlaceholder();
+
       // Request danh sách phiên đấu giá của seller
       String userId = SessionManager.getCurrentUser().getId();
       ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(userId));
@@ -537,6 +541,8 @@ public class MainLayoutController implements Initializable {
   public void gotoResult() {
     searchField.clear();
     configureFunctionButtons("result");
+
+    hidePlaceholder();
 
     // Request danh sách đơn hàng pending của buyer
     String userId = SessionManager.getCurrentUser().getId();

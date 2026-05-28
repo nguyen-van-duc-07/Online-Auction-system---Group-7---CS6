@@ -74,15 +74,19 @@ public class ClientHandler implements Runnable {
 
                 if (response.isSuccess()) {
                   String checkUserId = response.getUser().getId();
+                  if (this.userId != null && !this.userId.equals(checkUserId)) {
+                    Server.unregisterClient(this.userId, this);
+                    Server.removeClientFromAllRooms(this);
+                  }
 
                   // Kiểm tra xem user này đã có trong danh sách online của Server chưa
                   if (Server.isUserOnline(checkUserId)) {
                     // Nếu đã online, ngắt kết nối cũ để giải phóng tài nguyên và ghi đè phiên đăng nhập mới
                     ClientHandler oldHandler = Server.getConnectedClient(checkUserId);
-                    if (oldHandler != null) {
+                    if (oldHandler != null && oldHandler != this) {
                       log.info("Tài khoản {} đã đăng nhập từ kết nối mới. Đang đóng kết nối cũ...", checkUserId);
                       oldHandler.closeConnection();
-                      Server.unregisterClient(checkUserId);
+                      Server.unregisterClient(checkUserId, oldHandler);
                     }
                   }
 
@@ -101,7 +105,13 @@ public class ClientHandler implements Runnable {
               }
 
               case LogoutRequestDTO logoutReq -> {
-                RequestHandler.logout(logoutReq);
+                String logoutUserId = logoutReq.getUserId();
+                Server.unregisterClient(logoutUserId, this);
+                if (logoutUserId != null && logoutUserId.equals(this.userId)) {
+                  this.userId = null;
+                  this.role = null;
+                  MDC.put("clientId", "IP:" + clientIp);
+                }
               }
 
               case UploadItemRequestDTO uploadItemReq -> {

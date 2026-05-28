@@ -1,7 +1,9 @@
 package com.auction.client.screenhandler.admin;
 
 import com.auction.client.network.SessionManager;
+import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
+import com.auction.shared.request.LogoutRequestDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -86,6 +88,11 @@ public class AdminScreenController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.CONFIRMATION,
         "Đăng xuất", "Bạn có chắc chắn muốn đăng xuất không?").ifPresent(Response -> {
           if  (Response == ButtonType.OK) {
+            if (SessionManager.getCurrentUser() != null) {
+              LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+              logoutRequestDTO.setUserId(SessionManager.getCurrentUser().getId());
+              ServerConnection.sendData(logoutRequestDTO);
+            }
             SessionManager.setCurrentUser(null);
             ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
             ScreenController.primaryStage.setMaximized(false);

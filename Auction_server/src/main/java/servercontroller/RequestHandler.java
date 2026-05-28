@@ -52,11 +52,6 @@ public class RequestHandler {
     }
   }
 
-  public static void logout(LogoutRequestDTO logoutReq) {
-    String userId = logoutReq.getUserId();
-    Server.unregisterClient(userId);
-  }
-
   public static SignUpResponseDTO signup(SignUpRequestDTO signUpReq) {
     boolean isSuccess = AuthService.signUp(signUpReq);
     String msg = isSuccess ? "Đăng ký tài khoản thành công!" :
