@@ -66,9 +66,12 @@ public class ScreenController {
       
       if (fxmlFile.contains("Login.fxml") || fxmlFile.contains("SignUp.fxml")) {
         primaryStage.setMaximized(false);
-        primaryStage.setResizable(false);
-        primaryStage.sizeToScene();
-        primaryStage.centerOnScreen();
+        primaryStage.setResizable(true);
+        javafx.application.Platform.runLater(() -> {
+          primaryStage.sizeToScene();
+          primaryStage.centerOnScreen();
+          primaryStage.setResizable(false);
+        });
       } else {
         primaryStage.setMaximized(true);
         primaryStage.setResizable(false);
@@ -102,9 +105,12 @@ public class ScreenController {
       
       if (previous.getFxmlFile().contains("Login.fxml") || previous.getFxmlFile().contains("SignUp.fxml")) {
         primaryStage.setMaximized(false);
-        primaryStage.setResizable(false);
-        primaryStage.sizeToScene();
-        primaryStage.centerOnScreen();
+        primaryStage.setResizable(true);
+        javafx.application.Platform.runLater(() -> {
+          primaryStage.sizeToScene();
+          primaryStage.centerOnScreen();
+          primaryStage.setResizable(false);
+        });
       } else {
         primaryStage.setMaximized(true);
         primaryStage.setResizable(false);
@@ -115,7 +121,7 @@ public class ScreenController {
       log.debug("Quay lại màn hình trước đó thành công");
     } else {
       // Fallback về trang chủ nếu không có lịch sử
-      switchScreen("Bidder/Home.fxml", "Trang chủ");
+      switchScreen("MainLayout.fxml", "Trang chủ");
     }
   }
 

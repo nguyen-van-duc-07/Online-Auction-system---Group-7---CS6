@@ -86,7 +86,7 @@ public class HomeController {
         Node cardNode = loader.load();
         AuctionItemCardController cardController = loader.getController();
         cardNode.setUserData(cardController);
-        cardController.setData(auction, mainLayout);
+        cardController.setData(auction);
         mainLayout.getFeedContainer().getChildren().add(cardNode);
       } catch (IOException e) {
         log.error("Lỗi khi tải thẻ card đấu giá cho phiên ID: {}", auction.getAuctionId(), e);

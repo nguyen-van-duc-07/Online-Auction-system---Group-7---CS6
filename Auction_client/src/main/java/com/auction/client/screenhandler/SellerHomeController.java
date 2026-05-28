@@ -113,7 +113,7 @@ public class SellerHomeController {
 
         AuctionItemCardController cardController = loader.getController();
         cardNode.setUserData(cardController);
-        cardController.setData(auction, mainLayout);
+        cardController.setData(auction);
 
         mainLayout.getFeedContainer().getChildren().add(cardNode);
       } catch (IOException e) {

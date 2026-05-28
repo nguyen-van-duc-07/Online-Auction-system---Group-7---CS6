@@ -48,17 +48,15 @@ public class OrderCardController {
   @FXML
   private javafx.scene.control.Button btnPayment;
 
-  private Controller currentScreen;
   private OrderDTO currentOrder;
   private Timeline countdownTimeline;
-
+ 
   /**
    * Chuyển hướng người dùng sang trang thanh toán chi tiết của đơn hàng.
    */
   @FXML
   public void gotoPayment() {
     SessionManager.setCurrentOrderId(currentOrder.getOrderId());
-    SessionManager.setPreviousScreen(currentScreen);
     log.info("Đang mở chi tiết phiên đơn hàng: {}", currentOrder.getAuctionId());
     ServerConnection.sendData(new GetOrderRequestDTO(currentOrder.getOrderId()));
   }
@@ -75,13 +73,11 @@ public class OrderCardController {
   }
 
   /**
-   * Bơm dữ liệu từ một Controller cha truyền sang để hiển thị thông tin thẻ đơn hàng.
+   * Bơm dữ liệu để hiển thị thông tin thẻ đơn hàng.
    *
    * @param order đối tượng DTO chứa thông tin đơn hàng
-   * @param currentScreen đối tượng Controller cha của màn hình hiện tại
    */
-  public void setData(OrderDTO order, Controller currentScreen) {
-    this.currentScreen = currentScreen;
+  public void setData(OrderDTO order) {
     this.currentOrder = order;
     
     // Đổ dữ liệu text

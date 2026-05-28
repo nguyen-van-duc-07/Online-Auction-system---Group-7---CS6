@@ -101,8 +101,10 @@ public class ServerConnection {
             case ChangePasswordResponseDTO changePasswordRes ->
                 ResponseHandler.handleChangePassword(changePasswordRes);
 
-            case AuctionStatusUpdateDTO dto -> log.info("CLIENT RECEIVED: {} status={}", 
-                dto.getId(), dto.getAuctionStatus());
+            case AuctionStatusUpdateDTO dto -> {
+              log.info("CLIENT RECEIVED: {} status={}", dto.getId(), dto.getAuctionStatus());
+              ResponseHandler.handleAuctionStatusUpdate(dto);
+            }
 
             case NewBidDTO dto -> {
               ResponseHandler.handleNewBid(dto);
@@ -247,11 +249,13 @@ public class ServerConnection {
           javafx.application.Platform.runLater(() -> {
             com.auction.client.screenhandler.ScreenController.clearHistory();
             com.auction.client.screenhandler.ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
-            com.auction.client.screenhandler.ScreenController.showAlert(
-                javafx.scene.control.Alert.AlertType.WARNING,
-                "Thông báo kết nối",
-                "Tài khoản của bạn đã được đăng nhập ở một thiết bị khác hoặc mất kết nối tới máy chủ!"
-            );
+            javafx.application.Platform.runLater(() -> {
+              com.auction.client.screenhandler.ScreenController.showAlert(
+                  javafx.scene.control.Alert.AlertType.WARNING,
+                  "Thông báo kết nối",
+                  "Tài khoản của bạn đã được đăng nhập ở một thiết bị khác hoặc mất kết nối tới máy chủ!"
+              );
+            });
           });
         }
       }
