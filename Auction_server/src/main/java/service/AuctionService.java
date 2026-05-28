@@ -408,13 +408,7 @@ public class AuctionService {
     return response[0];
   }
 
-  /**
-   * Giải quyết đụng độ khi có nhiều người dùng cùng bật Auto-bid trong một phòng.
-   * Sử dụng thuật toán Jump Calculation (Đấu giá giá lớn thứ hai) để chốt giá cuối cùng
-   * bằng công thức O(1), tránh việc tạo vòng lặp đè giá gây quá tải server.
-   *
-   * @param auctionId ID của phiên đấu giá cần kiểm tra và phân định Auto-bid
-   */
+
   public static List<AuctionDTO> getCanceledAuctionsForClient() {
     return auctionRepo.findCanceledAuctions();
   }

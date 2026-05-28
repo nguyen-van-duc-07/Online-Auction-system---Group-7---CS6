@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.request.*;
@@ -140,18 +141,14 @@ public class MainLayoutController implements Initializable {
 
     // Hiển thị số dư lần đầu tiên khi vừa load màn hình (Tránh việc nhãn bị trống)
     if (SessionManager.getCurrentBalance() != null) {
-      java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
-      format.setMaximumFractionDigits(0);
-      remainingLabel.setText("Số dư: " + format.format(SessionManager.getCurrentBalance()) + " VNĐ");
+      remainingLabel.setText("Số dư: " + CurrencyUtils.formatVnd(SessionManager.getCurrentBalance()));
     }
 
     //  Đăng ký Listener: Từ nay về sau, hễ SessionManager có số mới là UI tự update
     SessionManager.balanceProperty().addListener((observable, oldBalance, newBalance) -> {
       Platform.runLater(() -> {
         if (remainingLabel != null && newBalance != null) {
-          java.text.NumberFormat format = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
-          format.setMaximumFractionDigits(0);
-          remainingLabel.setText("Số dư: " + format.format(newBalance) + " VNĐ");
+          remainingLabel.setText("Số dư: " + CurrencyUtils.formatVnd(newBalance));
         }
       });
     });

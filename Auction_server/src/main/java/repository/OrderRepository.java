@@ -81,14 +81,15 @@ public class OrderRepository {
     }
   }
 
-  public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
+  public List<OrderDTO> getOrdersBySellerIdAndStatus(String sellerId, OrderStatus status) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'PENDING'";
+    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, sellerId);
+      ps.setString(2, status.name());
       ResultSet rs = ps.executeQuery();
 
       while (rs.next()) {
@@ -100,14 +101,15 @@ public class OrderRepository {
     return orders;
   }
 
-  public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
+  public List<OrderDTO> getOrdersByBuyerIdAndStatus(String buyerId, OrderStatus status) {
     List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'PENDING'";
+    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = ?";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setString(1, buyerId);
+      ps.setString(2, status.name());
       ResultSet rs = ps.executeQuery();
 
       while (rs.next()) {
@@ -119,81 +121,6 @@ public class OrderRepository {
     return orders;
   }
 
-  public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
-    List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CONFIRMED'";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, sellerId);
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        orders.add(mapResultSetToOrderDTO(rs));
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng thành công của người bán ID: {}", sellerId, e);
-    }
-    return orders;
-  }
-
-  public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
-    List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE seller_id = ? AND status = 'CANCELLED'";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, sellerId);
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        orders.add(mapResultSetToOrderDTO(rs));
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng bị hủy của người bán ID: {}", sellerId, e);
-    }
-    return orders;
-  }
-
-  public List<OrderDTO> getCompletedOrdersByBuyerId(String buyerId) {
-    List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'CONFIRMED'";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, buyerId);
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        orders.add(mapResultSetToOrderDTO(rs));
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng thành công của người mua ID: {}", buyerId, e);
-    }
-    return orders;
-  }
-
-  public List<OrderDTO> getCancelledOrdersByBuyerId(String buyerId) {
-    List<OrderDTO> orders = new ArrayList<>();
-    String sql = "SELECT * FROM orders WHERE buyer_id = ? AND status = 'CANCELLED'";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, buyerId);
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        orders.add(mapResultSetToOrderDTO(rs));
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi lấy đơn hàng bị hủy của người mua ID: {}", buyerId, e);
-    }
-    return orders;
-  }
 
   // Tìm các order PENDING quá 7 ngày để tự động hủy
   public List<Order> findExpiredPendingOrders(LocalDateTime now) {

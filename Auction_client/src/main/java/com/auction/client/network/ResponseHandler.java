@@ -5,6 +5,7 @@ import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.enums.*;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
@@ -298,11 +299,10 @@ public class ResponseHandler {
    */
   public static void handlePaymentNotification(PaymentNotificationDTO dto) {
     Platform.runLater(() -> {
-      DecimalFormat formatter = new DecimalFormat("#,###");
       ToastNotification.show(
           ScreenController.primaryStage,
           "Chúc mừng! Bạn đã thắng!",
-          dto.getItemName() + "\n" + formatter.format(dto.getFinalPrice()) + " VNĐ • Nhấn để thanh toán",
+          dto.getItemName() + "\n" + CurrencyUtils.formatVnd(dto.getFinalPrice()) + " • Nhấn để thanh toán",
           () -> ServerConnection.sendData(new GetOrderRequestDTO(dto.getOrderId()))
       );
     });

@@ -311,7 +311,7 @@ public class ClientHandler implements Runnable {
 
               case GetCompletedOrdersOfSellerRequestDTO request -> {
                 synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetCompletedOrdersOfSeller(request));
+                  out.writeObject(RequestHandler.handleGetConfirmedOrdersOfSeller(request));
                   out.flush();
                 }
               }
@@ -325,7 +325,7 @@ public class ClientHandler implements Runnable {
 
               case GetCompletedOrdersOfBuyerRequestDTO request -> {
                 synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetCompletedOrdersOfBuyer(request));
+                  out.writeObject(RequestHandler.handleGetConfirmedOrdersOfBuyer(request));
                   out.flush();
                 }
               }

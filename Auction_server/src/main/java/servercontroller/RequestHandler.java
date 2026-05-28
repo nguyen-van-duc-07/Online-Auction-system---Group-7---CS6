@@ -1,7 +1,7 @@
 package servercontroller;
 
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.model.notification.Notification;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
@@ -234,8 +234,10 @@ public class RequestHandler {
     Order order = orderService.getOrderById(req.getOrderId());
     if (order != null) {
       return new GetOrderResponseDTO(true, "Lấy thông tin đơn hàng thành công", order);
+    } else {
+      log.error("Lỗi khi truy vấn thông tin sản phẩm cho đơn hàng: {}", order.getId());
+      return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
     }
-    return new GetOrderResponseDTO(false, "Không tìm thấy đơn hàng", null);
   }
 
   public static GetSellerProfileResponseDTO getSellerProfile(GetSellerProfileRequestDTO request) {
@@ -323,42 +325,42 @@ public class RequestHandler {
   public static GetPendingOrdersOfSellerResponseDTO handleGetPendingOrdersOfSeller(
       GetPendingOrdersOfSellerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersBySellerId(req.getSellerId());
+    List<OrderDTO> pendingOrders =  orderService.getOrdersBySellerIdAndStatus(req.getSellerId(), OrderStatus.PENDING);
     return new GetPendingOrdersOfSellerResponseDTO("Tải danh sách thành công", true, pendingOrders);
   }
 
   public static GetPendingOrdersOfBuyerResponseDTO handleGetPendingOrdersOfBuyer(
       GetPendingOrdersOfBuyerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersByBuyerId(req.getBuyerId());
+    List<OrderDTO> pendingOrders =  orderService.getOrdersByBuyerIdAndStatus(req.getBuyerId(), OrderStatus.PENDING);
     return new GetPendingOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, pendingOrders);
   }
 
-  public static GetCompletedOrdersOfSellerResponseDTO handleGetCompletedOrdersOfSeller(
+  public static GetCompletedOrdersOfSellerResponseDTO handleGetConfirmedOrdersOfSeller(
       GetCompletedOrdersOfSellerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersBySellerId(req.getSellerId());
+    List<OrderDTO> completedOrders =  orderService.getOrdersBySellerIdAndStatus(req.getSellerId(), OrderStatus.CONFIRMED);
     return new GetCompletedOrdersOfSellerResponseDTO("Tải danh sách thành công", true, completedOrders);
   }
 
   public static GetCancelledOrdersOfSellerResponseDTO handleGetCancelledOrdersOfSeller(
       GetCancelledOrdersOfSellerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersBySellerId(req.getSellerId());
+    List<OrderDTO> cancelledOrders =  orderService.getOrdersBySellerIdAndStatus(req.getSellerId(), OrderStatus.CANCELLED);
     return new GetCancelledOrdersOfSellerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
   }
 
-  public static GetCompletedOrdersOfBuyerResponseDTO handleGetCompletedOrdersOfBuyer(
+  public static GetCompletedOrdersOfBuyerResponseDTO handleGetConfirmedOrdersOfBuyer(
       GetCompletedOrdersOfBuyerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersByBuyerId(req.getBuyerId());
+    List<OrderDTO> completedOrders =  orderService.getOrdersByBuyerIdAndStatus(req.getBuyerId(), OrderStatus.CONFIRMED);
     return new GetCompletedOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, completedOrders);
   }
 
   public static GetCancelledOrdersOfBuyerResponseDTO handleGetCancelledOrdersOfBuyer(
       GetCancelledOrdersOfBuyerRequestDTO req) {
     OrderService orderService = new OrderService();
-    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersByBuyerId(req.getBuyerId());
+    List<OrderDTO> cancelledOrders =  orderService.getOrdersByBuyerIdAndStatus(req.getBuyerId(), OrderStatus.CANCELLED);
     return new GetCancelledOrdersOfBuyerResponseDTO("Tải danh sách thành công", true, cancelledOrders);
   }
 
