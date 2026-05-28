@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @AllArgsConstructor
-public class AutoBidDefeatedDTO implements Serializable {
+public class AutoBidDefeatedDTO implements ResponseDTO {
     private String auctionId;
     private String message;
 }

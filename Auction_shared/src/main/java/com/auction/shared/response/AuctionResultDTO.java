@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Builder
 @Getter
 @AllArgsConstructor
-public class AuctionResultDTO implements ResponseDTO, Serializable{
+public class AuctionResultDTO implements ResponseDTO {
   private String auctionId;
   private String winnerId;
   private String itemId;

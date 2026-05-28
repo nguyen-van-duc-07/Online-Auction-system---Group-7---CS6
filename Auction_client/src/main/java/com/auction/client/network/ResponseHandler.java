@@ -5,16 +5,9 @@ import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
-import com.auction.shared.enums.OrderStatus;
-import com.auction.shared.enums.SellerRegisterStatus;
-import com.auction.shared.enums.UserRole;
-import com.auction.shared.enums.NotificationType;
+import com.auction.shared.enums.*;
 import com.auction.shared.model.user.UserDTO;
-import com.auction.shared.request.GetBalanceRequestDTO;
-import com.auction.shared.request.GetOrderRequestDTO;
-import com.auction.shared.request.GetPendingTransactionsRequestDTO;
-import com.auction.shared.request.GetSellerProfileRequestDTO;
-import com.auction.shared.request.JoinRoomRequestDTO;
+import com.auction.shared.request.*;
 import com.auction.shared.response.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -978,6 +971,53 @@ public class ResponseHandler {
         ServerConnection.sendData(new com.auction.shared.request.GetAllUsersRequestDTO());
       } else {
         ScreenController.showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+      }
+    });
+  }
+
+  /**
+   * Xử lý thông báo thay đổi trạng thái phiên đấu giá từ Server (ví dụ: bị đóng hoặc hủy bởi Admin).
+   *
+   * @param dto Gói tin chứa thông tin mã phiên và trạng thái mới
+   */
+  public static void handleAuctionStatusUpdate(AuctionStatusUpdateDTO dto) {
+    Platform.runLater(() -> {
+      if (SessionManager.getCurrentUser() == null) {
+        return;
+      }
+
+      String auctionId = dto.getId();
+      AuctionStatus newStatus = dto.getAuctionStatus();
+
+      // 1. Kiểm tra nếu người dùng hiện tại đang ở đúng phòng đấu giá bị đóng/hủy này
+      if (SessionManager.getCurrentAuctionId() != null && SessionManager.getCurrentAuctionId().equals(auctionId)) {
+        if (newStatus == AuctionStatus.CLOSED || newStatus == AuctionStatus.CANCELED) {
+          if (ItemAuctionController.instance != null) {
+            ItemAuctionController.instance.stopCountdownTimer();
+          }
+          SessionManager.setCurrentAuctionId(null);
+
+          String alertMsg = (newStatus == AuctionStatus.CLOSED)
+              ? "Phiên đấu giá này đã được đóng bởi quản trị viên!"
+              : "Phiên đấu giá này đã bị hủy/chặn bởi quản trị viên!";
+
+          ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo từ hệ thống", alertMsg);
+
+          // Trở lại màn hình trước đó (MainLayout) bằng cách pop lịch sử
+          ScreenController.goBack();
+        }
+      }
+
+      // 2. Cập nhật danh sách trang chủ/trang bán hàng nếu người dùng đang xem để ẩn hoặc cập nhật phiên đó
+      if (SessionManager.getCurrentUser().getRole() != UserRole.ADMIN) {
+        MainLayoutController mainLayout = MainLayoutController.getInstance();
+        if (mainLayout != null) {
+          if ("home".equals(mainLayout.getCurrentContext())) {
+            ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
+          } else if ("seller".equals(mainLayout.getCurrentContext())) {
+            ServerConnection.sendData(new GetAuctionsBySellerRequestDTO(SessionManager.getCurrentUser().getId()));
+          }
+        }
       }
     });
   }
