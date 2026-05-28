@@ -86,22 +86,6 @@ public class AuctionItemCardController {
   }
 
   /**
-   * Hàm tính toán và định dạng khoảng thời gian còn lại.
-   */
-  private String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
-    long days = ChronoUnit.DAYS.between(from, to);
-    long hours = ChronoUnit.HOURS.between(from, to) % 24;
-    long minutes = ChronoUnit.MINUTES.between(from, to) % 60;
-    long seconds = ChronoUnit.SECONDS.between(from, to) % 60;
-
-    if (days > 0) {
-      return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
-    } else {
-      return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-  }
-
-  /**
    * Lấy mã định danh phiên đấu giá hiện tại.
    *
    * @return mã định danh phiên đấu giá dạng chuỗi
@@ -124,13 +108,13 @@ public class AuctionItemCardController {
     LocalDateTime now = LocalDateTime.now();
 
     if (startTime != null && now.isBefore(startTime)) {
-      timeLabel.setText(formatTimeLeft(now, startTime));
+      timeLabel.setText(CountdownHelper.formatTimeLeft(now, startTime));
       timeLabel.setStyle("-fx-text-fill: #f39c12;");
       statusLabel.setText("SẮP DIỄN RA");
       statusLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
 
     } else if (endTime != null && now.isBefore(endTime)) {
-      timeLabel.setText(formatTimeLeft(now, endTime));
+      timeLabel.setText(CountdownHelper.formatTimeLeft(now, endTime));
       timeLabel.setStyle("-fx-text-fill: #2ecc71;");
       statusLabel.setText("ĐANG DIỄN RA");
       statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");

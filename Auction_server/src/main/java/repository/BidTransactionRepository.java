@@ -27,7 +27,7 @@ public class BidTransactionRepository {
     }
   }
   // BidTransactionRepository.java
-  public static List<BidTransaction> findRecentByAuctionId(String auctionId, int limit) {
+  public List<BidTransaction> findRecentByAuctionId(String auctionId, int limit) {
     List<BidTransaction> list = new ArrayList<>();
     // SQL: Sắp xếp theo thời gian giảm dần (mới nhất lên đầu) và giới hạn số lượng
     String sql = "SELECT * FROM bid_transactions WHERE auction_id = ? ORDER BY created_at DESC LIMIT ?";

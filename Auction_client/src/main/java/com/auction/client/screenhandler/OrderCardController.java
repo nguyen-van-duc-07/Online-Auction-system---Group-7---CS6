@@ -193,7 +193,7 @@ public class OrderCardController {
           countdownTimeline.stop();
         }
       } else {
-        timeRemainingLabel.setText("⏳ Tự động hủy sau: " + formatDuration(duration));
+        timeRemainingLabel.setText("⏳ Tự động hủy sau: " + CountdownHelper.formatDuration(duration));
         timeRemainingLabel.setStyle("-fx-text-fill: #D97706;"); // Màu cam hổ phách
       }
     };
@@ -203,20 +203,5 @@ public class OrderCardController {
     countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateTime.run()));
     countdownTimeline.setCycleCount(Animation.INDEFINITE);
     countdownTimeline.play();
-  }
-
-  private String formatDuration(java.time.Duration duration) {
-    long days = duration.toDays();
-    long hours = duration.toHours() % 24;
-    long minutes = duration.toMinutes() % 60;
-    long seconds = duration.getSeconds() % 60;
-
-    if (days > 0) {
-      return String.format("%d ngày %d giờ %d phút", days, hours, minutes);
-    } else if (hours > 0) {
-      return String.format("%d giờ %d phút %d giây", hours, minutes, seconds);
-    } else {
-      return String.format("%d phút %d giây", minutes, seconds);
-    }
   }
 }

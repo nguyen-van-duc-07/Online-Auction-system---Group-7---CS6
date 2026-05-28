@@ -11,10 +11,24 @@ import org.slf4j.LoggerFactory;
 public class OrderExpiryScheduler {
   private static final Logger log = LoggerFactory.getLogger(OrderExpiryScheduler.class);
 
-  private final OrderService orderService = new OrderService();
+  private final OrderService orderService;
 
   private final ScheduledExecutorService scheduler =
       Executors.newSingleThreadScheduledExecutor();
+
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public OrderExpiryScheduler() {
+    this(new OrderService());
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public OrderExpiryScheduler(OrderService orderService) {
+    this.orderService = orderService;
+  }
 
   public void start() {
     scheduler.scheduleAtFixedRate(
@@ -25,7 +39,10 @@ public class OrderExpiryScheduler {
     );
   }
 
-  private void checkExpiredOrders() {
+  /**
+   * Package-private để hỗ trợ Unit Test trực tiếp.
+   */
+  void checkExpiredOrders() {
     try {
       orderService.cancelExpiredOrders();
     } catch (Exception e) {

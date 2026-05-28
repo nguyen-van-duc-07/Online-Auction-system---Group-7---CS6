@@ -98,6 +98,18 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -118,6 +130,7 @@
                 <version>3.0.0-M9</version>
                 <configuration>
                     <argLine>
+                        @{argLine}
                         --add-opens com.auction.client/com.auction.client.network=ALL-UNNAMED
                         --add-opens com.auction.client/com.auction.client.service=ALL-UNNAMED
                         --add-opens com.auction.client/com.auction.client.screenhandler=ALL-UNNAMED

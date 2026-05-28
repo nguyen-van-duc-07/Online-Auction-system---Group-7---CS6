@@ -1,13 +1,10 @@
 package service;
 
 import com.auction.shared.enums.OrderStatus;
-import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
-import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
-import com.auction.shared.model.user.User;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
 import com.auction.shared.util.FormatUtil;
@@ -23,25 +20,61 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderService {
   private static final Logger log = LoggerFactory.getLogger(OrderService.class);
-  private final OrderRepository orderRepo = new OrderRepository();
-  private final AuctionRepository auctionRepo = new AuctionRepository();
-  private final UserRepository userRepo = new UserRepository();
-  private final WalletService walletService = new WalletService();
-  private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
-  private final NotificationService notifService = new NotificationService();
+  private final OrderRepository orderRepo;
+  private final AuctionRepository auctionRepo;
+  private final UserRepository userRepo;
+  private final WalletService walletService;
+  private final SellerProfileRepository sellerProfileRepo;
+  private final NotificationService notifService;
+  private final config.ConnectionProvider connectionProvider;
+
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public OrderService() {
+    this(
+        new OrderRepository(),
+        new AuctionRepository(),
+        new UserRepository(),
+        new WalletService(),
+        new SellerProfileRepository(),
+        new NotificationService(),
+        DatabaseConnection::getConnection
+    );
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test (phạm vi package-private).
+   */
+  OrderService(
+      OrderRepository orderRepo,
+      AuctionRepository auctionRepo,
+      UserRepository userRepo,
+      WalletService walletService,
+      SellerProfileRepository sellerProfileRepo,
+      NotificationService notifService,
+      config.ConnectionProvider connectionProvider
+  ) {
+    this.orderRepo = orderRepo;
+    this.auctionRepo = auctionRepo;
+    this.userRepo = userRepo;
+    this.walletService = walletService;
+    this.sellerProfileRepo = sellerProfileRepo;
+    this.notifService = notifService;
+    this.connectionProvider = connectionProvider;
+  }
 
   /**
    * Tạo order mới khi phiên đấu giá kết thúc.
    * Được gọi từ AuctionStatusScheduler khi kết thúc.
    */
   public Order createOrder(String auctionId, String buyerId, BigDecimal finalPrice) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       try {
         String userId = auctionRepo.getUserIdByAuctionId(auctionId);
@@ -78,7 +111,7 @@ public class OrderService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("[ORDER] Lỗi kết nối DB khi tạo order cho đấu giá: {}", auctionId, e);
       return null;
     }
@@ -88,7 +121,7 @@ public class OrderService {
    * Buyer xác nhận thanh toán.
    */
   public boolean confirmOrder(String orderId, InfoDTO buyerInfo) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       try {
         Order order = orderRepo.findById(orderId);
@@ -140,11 +173,12 @@ public class OrderService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("[ORDER] Lỗi kết nối DB khi xác nhận đơn hàng: {}", orderId, e);
       throw new RuntimeException("Lỗi cơ sở dữ liệu: " + e.getMessage(), e);
     }
   }
+
   private boolean cancelOrderInternal(Connection conn, Order order) throws Exception {
     order.cancel();
     orderRepo.updateOrder(conn, order);
@@ -156,7 +190,7 @@ public class OrderService {
    * Buyer hủy đơn hàng.
    */
   public boolean cancelOrder(String orderId) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       try {
         Order order = orderRepo.findById(orderId);
@@ -201,7 +235,7 @@ public class OrderService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("[ORDER] Lỗi kết nối DB khi hủy đơn hàng: {}", orderId, e);
       return false;
     }
@@ -215,7 +249,7 @@ public class OrderService {
     List<Order> expiredOrders = orderRepo.findExpiredPendingOrders(LocalDateTime.now());
     for (Order order : expiredOrders) {
       log.info("[ORDER] Tự động hủy order hết hạn: {}", order.getId());
-      try (Connection conn = DatabaseConnection.getConnection()) {
+      try (Connection conn = connectionProvider.getConnection()) {
         conn.setAutoCommit(false);
         try {
           cancelOrderInternal(conn, order);
@@ -246,14 +280,16 @@ public class OrderService {
         } finally {
           conn.setAutoCommit(true);
         }
-      } catch (SQLException e) {
+      } catch (Exception e) {
         log.error("[ORDER] Lỗi kết nối DB khi tự động hủy order hết hạn: {}", order.getId(), e);
       }
     }
   }
+
   public Order getOrderById(String orderId) {
     return orderRepo.findById(orderId);
   }
+
   public void notifyToSeller(Order order) {
     log.debug("Gửi thông báo cập nhật đơn hàng cho Seller: Status={}", order.getStatus());
     OrderUpdateNotificationDTO update = new OrderUpdateNotificationDTO(order.getId(), order.getStatus());

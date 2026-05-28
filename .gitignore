@@ -41,5 +41,3 @@ config.properties
 
 ### Logs ###
 logs/
-
-MOCKITO_TESTING_PLAN.md

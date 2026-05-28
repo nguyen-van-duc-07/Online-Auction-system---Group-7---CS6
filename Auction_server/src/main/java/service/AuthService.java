@@ -28,8 +28,37 @@ import repository.WalletRepository;
 public class AuthService {
   private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-  private static final UserRepository userRepo = new UserRepository();
-  private static final WalletRepository walletRepo = new WalletRepository();
+  private final UserRepository userRepo;
+  private final WalletRepository walletRepo;
+  private final NotificationService notifService;
+  private final config.ConnectionProvider connectionProvider;
+
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public AuthService() {
+    this(
+        new UserRepository(),
+        new WalletRepository(),
+        new NotificationService(),
+        DatabaseConnection::getConnection
+    );
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public AuthService(
+      UserRepository userRepo,
+      WalletRepository walletRepo,
+      NotificationService notifService,
+      config.ConnectionProvider connectionProvider
+  ) {
+    this.userRepo = userRepo;
+    this.walletRepo = walletRepo;
+    this.notifService = notifService;
+    this.connectionProvider = connectionProvider;
+  }
 
   /**
    * Xử lý đăng nhập của người dùng bằng tài khoản và mật khẩu.
@@ -39,7 +68,7 @@ public class AuthService {
    * @param loginUser đối tượng {@link LoginRequestDTO} chứa thông tin đăng nhập
    * @return Đối tượng {@link User} nếu đăng nhập thành công, {@code null} nếu sai thông tin
    */
-  public static User login(LoginRequestDTO loginUser) {
+  public User login(LoginRequestDTO loginUser) {
     String hashedPassword = userRepo.getPasswordByPhoneNumber(loginUser.getPhoneNumber());
 
     if (hashedPassword == null) {
@@ -54,7 +83,7 @@ public class AuthService {
         bidder.setWallet(walletRepo.getWalletByUserId(bidder.getId()));
         return bidder;
       } else {
-        return  (Admin) user;
+        return (Admin) user;
       }
     }
     return null; // Sai mật khẩu
@@ -74,7 +103,7 @@ public class AuthService {
    * @return {@code true} nếu quá trình tạo tài khoản và ví thành công,
    * {@code false} nếu tài khoản đã tồn tại hoặc xảy ra lỗi hệ thống
    */
-  public static boolean signUp(SignUpRequestDTO signUpUser) {
+  public boolean signUp(SignUpRequestDTO signUpUser) {
 
     if (userRepo.isAccountExist(signUpUser.getPhoneNumber())) {
       return false;
@@ -92,7 +121,7 @@ public class AuthService {
     Connection conn = null;
 
     try {
-      conn = DatabaseConnection.getConnection();
+      conn = connectionProvider.getConnection();
       conn.setAutoCommit(false);
 
       // 1. tạo user
@@ -118,7 +147,6 @@ public class AuthService {
       }
 
       conn.commit(); // OK
-      NotificationService notifService = new NotificationService();
       notifService.sendFromNotification(NotificationTemplate.welcome(newUser.getId()));
       return true;
 
@@ -142,7 +170,7 @@ public class AuthService {
     return false;
   }
 
-  public static User updateProfile(UpdateProfileRequestDTO updateProfileReq) {
+  public User updateProfile(UpdateProfileRequestDTO updateProfileReq) {
     User user = new Bidder();
     user.setId(updateProfileReq.getUserId());
     user.setAccountName(updateProfileReq.getAccountName());
@@ -156,7 +184,8 @@ public class AuthService {
     }
     return null;
   }
-  public static boolean createAdmin(CreateAdminRequestDTO createAdminReq) {
+
+  public boolean createAdmin(CreateAdminRequestDTO createAdminReq) {
     if (userRepo.isAccountExist(createAdminReq.getPhoneNumber())) {
       return false;
     }
@@ -183,7 +212,7 @@ public class AuthService {
     return userRepo.saveAdminAccount(admin);
   }
 
-  public static ChangePasswordResponseDTO changePassword(ChangePasswordRequestDTO request) {
+  public ChangePasswordResponseDTO changePassword(ChangePasswordRequestDTO request) {
     String userId = request.getUserId();
     String oldPassword = request.getOldPassword();
     String newPassword = request.getNewPassword();
@@ -208,7 +237,7 @@ public class AuthService {
     }
   }
 
-  public static java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
+  public java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
     return userRepo.getAllUsers();
   }
 }

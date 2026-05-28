@@ -27,16 +27,38 @@ import org.slf4j.LoggerFactory;
 public class AuctionStatusScheduler {
   private static final Logger log = LoggerFactory.getLogger(AuctionStatusScheduler.class);
 
-  private final AuctionRepository auctionRepo =
-      new AuctionRepository();
+  private final AuctionRepository auctionRepo;
+  private final OrderService orderService;
+  private final NotificationService notifService;
 
   private final ScheduledExecutorService scheduler =
       Executors.newSingleThreadScheduledExecutor();
-  private final OrderService orderService = new OrderService();
-  private final NotificationService notifService = new NotificationService();
-  private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
-  public void start() {
 
+  /**
+   * Constructor mặc định cho Production.
+   */
+  public AuctionStatusScheduler() {
+    this(
+        new AuctionRepository(),
+        new OrderService(),
+        new NotificationService()
+    );
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test.
+   */
+  public AuctionStatusScheduler(
+      AuctionRepository auctionRepo,
+      OrderService orderService,
+      NotificationService notifService
+  ) {
+    this.auctionRepo = auctionRepo;
+    this.orderService = orderService;
+    this.notifService = notifService;
+  }
+
+  public void start() {
     scheduler.scheduleAtFixedRate(
         this::updateAuctionStatus,
         0,
@@ -45,19 +67,23 @@ public class AuctionStatusScheduler {
     );
   }
 
-  private void updateAuctionStatus() {
-
+  /**
+   * Package-private để hỗ trợ Unit Test trực tiếp mà không cần chờ Scheduler.
+   */
+  void updateAuctionStatus() {
     try {
       LocalDateTime now = LocalDateTime.now();
       List<String> activateIds = auctionRepo.findAuctionsToActivate(now);
-      auctionRepo.activateAuctions(activateIds);
-      for (String id : activateIds) {
-        log.info("BROADCAST ACTIVE: {}", id);
-        Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
+      if (!activateIds.isEmpty()) {
+        auctionRepo.activateAuctions(activateIds);
+        for (String id : activateIds) {
+          log.info("BROADCAST ACTIVE: {}", id);
+          Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
 
-        AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
-        if (auction != null) {
-          notifService.sendNewAuctionNotification(id, auction.getItem().getName(), auction.getStartPrice());
+          AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+          if (auction != null) {
+            notifService.sendNewAuctionNotification(id, auction.getItem().getName(), auction.getStartPrice());
+          }
         }
       }
       Map<String, AuctionResponseDTO> auctionsToClose = auctionRepo.findAuctionsToCloseWithDetails(now);

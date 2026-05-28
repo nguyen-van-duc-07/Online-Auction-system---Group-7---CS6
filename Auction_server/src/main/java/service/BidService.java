@@ -11,7 +11,6 @@ import config.DatabaseConnection;
 import repository.AuctionRepository;
 import repository.AutoBidConfigRepository;
 import repository.BidTransactionRepository;
-import repository.SellerProfileRepository;
 import repository.UserRepository;
 import repository.WalletRepository;
 import servercontroller.Server;
@@ -29,16 +28,52 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BidService {
   private static final Logger log = LoggerFactory.getLogger(BidService.class);
-  private final AuctionRepository auctionRepo = new AuctionRepository();
-  private final BidTransactionRepository bidRepo = new BidTransactionRepository();
-  private final AutoBidConfigRepository autoBidRepo = new AutoBidConfigRepository();
-  private final WalletService walletService = new WalletService();
-  private final WalletRepository walletRepo = new WalletRepository();
-  private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
-  private final UserRepository userRepo = new UserRepository();
+  private final AuctionRepository auctionRepo;
+  private final BidTransactionRepository bidRepo;
+  private final AutoBidConfigRepository autoBidRepo;
+  private final WalletService walletService;
+  private final WalletRepository walletRepo;
+  private final UserRepository userRepo;
+  private final config.ConnectionProvider connectionProvider;
 
   private static final BigDecimal FREEZE_RATE = new BigDecimal("0.1");
   private static final ConcurrentHashMap<String, Object> auctionLocks = new ConcurrentHashMap<>();
+
+  /**
+   * Constructor mặc định cho Production (không làm thay đổi code cũ).
+   */
+  public BidService() {
+    this(
+        new AuctionRepository(),
+        new BidTransactionRepository(),
+        new AutoBidConfigRepository(),
+        new WalletService(),
+        new WalletRepository(),
+        new UserRepository(),
+        DatabaseConnection::getConnection
+    );
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test (phạm vi package-private).
+   */
+  BidService(
+      AuctionRepository auctionRepo,
+      BidTransactionRepository bidRepo,
+      AutoBidConfigRepository autoBidRepo,
+      WalletService walletService,
+      WalletRepository walletRepo,
+      UserRepository userRepo,
+      config.ConnectionProvider connectionProvider
+  ) {
+    this.auctionRepo = auctionRepo;
+    this.bidRepo = bidRepo;
+    this.autoBidRepo = autoBidRepo;
+    this.walletService = walletService;
+    this.walletRepo = walletRepo;
+    this.userRepo = userRepo;
+    this.connectionProvider = connectionProvider;
+  }
 
   /**
    * Khóa theo phiên — dùng cho mọi thao tác ghi auctions (bid, resolve auto-bid fight).
@@ -69,7 +104,7 @@ public class BidService {
   }
 
   private PlaceBidResponseDTO placeBidWithinLock(PlaceBidRequestDTO req, PostCommitEvents events) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       try {
         AuctionResponseDTO auction = auctionRepo.findAuctionForUpdate(conn, req.getAuctionId());
@@ -128,7 +163,7 @@ public class BidService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("Lỗi kết nối cơ sở dữ liệu khi đặt giá", e);
       return new PlaceBidResponseDTO(false, "Lỗi kết nối cơ sở dữ liệu");
     }
@@ -141,7 +176,7 @@ public class BidService {
     PostCommitEvents events = new PostCommitEvents();
 
     runWithAuctionLock(auctionId, () -> {
-      try (Connection conn = DatabaseConnection.getConnection()) {
+      try (Connection conn = connectionProvider.getConnection()) {
         conn.setAutoCommit(false);
         try {
           AuctionResponseDTO auction = auctionRepo.findAuctionForUpdate(conn, auctionId);
@@ -302,7 +337,7 @@ public class BidService {
         } finally {
           conn.setAutoCommit(true);
         }
-      } catch (SQLException e) {
+      } catch (Exception e) {
         log.error("Lỗi kết nối cơ sở dữ liệu trong resolveAutoBidFight", e);
       }
     });
@@ -497,20 +532,18 @@ public class BidService {
     long secondsLeft = ChronoUnit.SECONDS.between(now, endTime);
     long thresholdSeconds = AuctionConfig.ANTI_SNIPE_THRESHOLD_MINUTES * 60L;
 
-    // 1. Kiểm tra chính xác từng giây: Nếu chưa vào vùng "đèn đỏ" -> Thoát luôn
+    // Kiểm tra chính xác từng giây: Nếu chưa vào vùng "đèn đỏ" -> Thoát luôn
     if (secondsLeft >= thresholdSeconds) {
       return;
     }
 
-    // 2. SỬA TẠI ĐÂY: Lấy endTime cũ CỘNG THÊM thời gian (Bơm thêm thời gian đúng ý bạn)
+    // Lấy endTime cũ CỘNG THÊM thời gian (Bơm thêm thời gian)
     LocalDateTime newEndTime = endTime.plusMinutes(AuctionConfig.ANTI_SNIPE_EXTENSION_MINUTES);
 
-    // LƯU Ý: Đoạn check (!newEndTime.isAfter(endTime)) cũ được bỏ đi vì endTime + 3 phút chắc chắn luôn lớn hơn endTime cũ.
-
-    // 3. Chốt hạ dữ liệu đồng bộ
+    // Chốt hạ dữ liệu đồng bộ
     auctionRepo.updateEndTime(conn, auctionId, newEndTime);
 
-    // QUAN TRỌNG: Cập nhật RAM ngay lập tức để nếu Bot phản đòn gọi lại hàm này sau 1ms,
+    // Cập nhật RAM ngay lập tức để nếu Bot phản đòn gọi lại hàm này sau 1ms,
     // Bot sẽ thấy secondsLeft lúc này đã rất lớn và tự động return ở bước 1, tránh được lỗi cộng dồn!
     auction.setEndTime(newEndTime);
 

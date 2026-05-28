@@ -43,25 +43,54 @@ public class CountdownHelper {
                     onFinished.run();
                 }
             } else {
-                // Tính toán khoảng cách giữa hiện tại và lúc kết thúc
-                long days = ChronoUnit.DAYS.between(now, endTime);
-                long hours = ChronoUnit.HOURS.between(now, endTime) % 24;
-                long minutes = ChronoUnit.MINUTES.between(now, endTime) % 60;
-                long seconds = ChronoUnit.SECONDS.between(now, endTime) % 60;
-
-                // Định dạng hiển thị: ví dụ "02d 14:05:30" hoặc "14:05:30"
-                String timeLeft;
-                if (days > 0) {
-                    timeLeft = String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
-                } else {
-                    timeLeft = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-                }
-
+                String timeLeft = formatTimeLeft(now, endTime);
                 timeLabel.setText("Thời gian còn lại: " + timeLeft);
             }
         }));
 
         timelineArr[0].setCycleCount(Animation.INDEFINITE);
         return timelineArr[0];
+    }
+
+    /**
+     * Hàm tính toán và định dạng khoảng thời gian còn lại giữa hai mốc thời gian.
+     * Trả về định dạng: ví dụ "02d 14:05:30" hoặc "14:05:30".
+     */
+    public static String formatTimeLeft(LocalDateTime from, LocalDateTime to) {
+        if (from == null || to == null) {
+            return "00:00:00";
+        }
+        long days = ChronoUnit.DAYS.between(from, to);
+        long hours = ChronoUnit.HOURS.between(from, to) % 24;
+        long minutes = ChronoUnit.MINUTES.between(from, to) % 60;
+        long seconds = ChronoUnit.SECONDS.between(from, to) % 60;
+
+        if (days > 0) {
+            return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
+        } else {
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+    }
+
+    /**
+     * Định dạng Duration của đơn hàng sang ngôn ngữ tự nhiên tiếng Việt.
+     * Trả về định dạng: "d ngày h giờ m phút" hoặc "h giờ m phút s giây" hoặc "m phút s giây".
+     */
+    public static String formatDuration(java.time.Duration duration) {
+        if (duration == null) {
+            return "";
+        }
+        long days = duration.toDays();
+        long hours = duration.toHours() % 24;
+        long minutes = duration.toMinutes() % 60;
+        long seconds = duration.getSeconds() % 60;
+
+        if (days > 0) {
+            return String.format("%d ngày %d giờ %d phút", days, hours, minutes);
+        } else if (hours > 0) {
+            return String.format("%d giờ %d phút %d giây", hours, minutes, seconds);
+        } else {
+            return String.format("%d phút %d giây", minutes, seconds);
+        }
     }
 }
