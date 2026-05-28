@@ -16,7 +16,7 @@ public class AutoBidConfigRepository {
     // Nếu đã có config cho user+auction này thì UPDATE, không thì INSERT
     String sql = "INSERT INTO auto_bid_configs (id, user_id, auction_id, max_price, step_amount, is_active) "
         + "VALUES (?, ?, ?, ?, ?, ?) "
-        + "ON DUPLICATE KEY UPDATE max_price = ?, step_amount = ?, is_active = TRUE";
+        + "ON DUPLICATE KEY UPDATE max_price = ?, step_amount = ?, is_active = TRUE, create_at = NOW()";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -68,7 +68,8 @@ public class AutoBidConfigRepository {
 
   public List<AutoBidConfig> findActiveBotsOrderedByMaxPrice(Connection conn, String auctionId) throws SQLException {
     List<AutoBidConfig> activeBots = new ArrayList<>();
-    String sql = "SELECT * FROM auto_bid_configs WHERE auction_id = ? AND is_active = 1 ORDER BY max_price DESC";
+    String sql = "SELECT * FROM auto_bid_configs WHERE auction_id = ? AND is_active = 1 "
+        + "ORDER BY max_price DESC, create_at ASC";
 
     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setString(1, auctionId);

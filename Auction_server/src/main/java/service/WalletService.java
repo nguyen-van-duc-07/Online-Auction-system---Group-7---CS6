@@ -23,35 +23,57 @@ import org.slf4j.LoggerFactory;
 
 public class WalletService {
   private static final Logger log = LoggerFactory.getLogger(WalletService.class);
-  private final WalletRepository walletRepo = new WalletRepository();
-  private final WalletTransactionRepository txRepo = new WalletTransactionRepository();
-  private final SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
+  private final WalletRepository walletRepo;
+  private final WalletTransactionRepository txRepo;
+  private final SellerProfileRepository sellerProfileRepo;
+  private final config.ConnectionProvider connectionProvider;
+  private final NotificationService notifService;
+
+  /**
+   * Constructor mặc định cho Production (không làm thay đổi code cũ).
+   * Tự động khởi tạo và liên kết các Repository và Service liên quan.
+   */
+  public WalletService() {
+    this(
+        new WalletRepository(),
+        new WalletTransactionRepository(),
+        new SellerProfileRepository(),
+        DatabaseConnection::getConnection,
+        new NotificationService()
+    );
+  }
+
+  /**
+   * Constructor nhận tham số phục vụ cho Unit Test (phạm vi package-private).
+   * Cho phép Mockito tiêm (inject) các đối tượng giả lập.
+   */
+  WalletService(
+      WalletRepository walletRepo,
+      WalletTransactionRepository txRepo,
+      SellerProfileRepository sellerProfileRepo,
+      config.ConnectionProvider connectionProvider,
+      NotificationService notifService
+  ) {
+    this.walletRepo = walletRepo;
+    this.txRepo = txRepo;
+    this.sellerProfileRepo = sellerProfileRepo;
+    this.connectionProvider = connectionProvider;
+    this.notifService = notifService;
+  }
 
   /**
    * Lấy số dư hiện tại của người dùng.
-   * Trả về BigDecimal để đảm bảo độ chính xác của tiền tệ.
    *
    * @param userId Mã định danh của người dùng
-   * @return Số dư hiện tại, trả về null hoặc ném lỗi nếu không tìm thấy
+   * @return Số dư hiện tại dưới dạng BigDecimal
+   * @throws Exception nếu không tìm thấy ví
    */
   public BigDecimal getBalance(String userId) throws Exception {
-    // =========================================================
-    String query = "SELECT balance FROM wallets WHERE user_id = ?";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-      pstmt.setString(1, userId);
-      try (ResultSet rs = pstmt.executeQuery()) {
-        if (rs.next()) {
-          // Lấy ra dạng BigDecimal trực tiếp từ DB
-          return rs.getBigDecimal("balance");
-        } else {
-          throw new Exception("Không tìm thấy ví của người dùng: " + userId);
-        }
-      }
-    } catch (Exception e) {
-      log.error("Lỗi truy vấn số dư cho user: {}", userId, e);
-      throw e; // Ném lỗi lên trên cho Controller xử lý (hiển thị thông báo)
+    Wallet wallet = walletRepo.getWalletByUserId(userId);
+    if (wallet != null) {
+      return wallet.getBalance();
+    } else {
+      throw new Exception("Không tìm thấy ví của người dùng: " + userId);
     }
   }
 
@@ -92,7 +114,7 @@ public class WalletService {
   }
 
   public boolean createTransactionRequest(String userId, BigDecimal amount, WalletTransactionType type) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       try {
         Wallet wallet = walletRepo.getWalletByUserIdForUpdate(conn, userId);
@@ -119,7 +141,6 @@ public class WalletService {
         boolean success = txRepo.saveWalletTransaction(conn, tx);
         if (success) {
           conn.commit();
-          NotificationService notifService = new NotificationService();
           switch (type) {
             case WITHDRAW -> notifService.sendFromNotification(
                 NotificationTemplate.withdrawSubmitted(userId, amount)
@@ -141,23 +162,23 @@ public class WalletService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("Lỗi kết nối cơ sở dữ liệu khi tạo yêu cầu giao dịch cho user: {}", userId, e);
       return false;
     }
   }
 
   public List<WalletTransaction> getPendingTransactions() {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       return txRepo.findPendingTransactions(conn);
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("Lỗi cơ sở dữ liệu khi lấy danh sách giao dịch đang xử lý", e);
       return null;
     }
   }
 
   public boolean processTransactionRequest(String transactionId, WalletTransactionStatus actionStatus) {
-    try (Connection conn = DatabaseConnection.getConnection()) {
+    try (Connection conn = connectionProvider.getConnection()) {
       conn.setAutoCommit(false);
       com.auction.shared.model.notification.Notification notificationToSend = null;
       try {
@@ -200,7 +221,6 @@ public class WalletService {
 
         // Gửi thông báo sau khi transaction DB đã commit thành công
         if (notificationToSend != null) {
-          NotificationService notifService = new NotificationService();
           notifService.sendFromNotification(notificationToSend);
         }
 
@@ -212,7 +232,7 @@ public class WalletService {
       } finally {
         conn.setAutoCommit(true);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       log.error("Lỗi cơ sở dữ liệu khi xử lý duyệt giao dịch ID: {}", transactionId, e);
       return false;
     }
@@ -248,6 +268,7 @@ public class WalletService {
     txRepo.saveWalletTransaction(conn, sellerTx);
     log.info(">>> Đã cộng tiền vào ví người bán: {}", com.auction.shared.util.FormatUtil.fmt(sellerTx.getAmount()));
   }
+
   public void processCancelPenalty(Connection conn, Order order) {
     // 1. Xử lý ví buyer — mất cọc
     Wallet buyerWallet = walletRepo.getWalletByUserIdForUpdate(conn, order.getBuyerId());
