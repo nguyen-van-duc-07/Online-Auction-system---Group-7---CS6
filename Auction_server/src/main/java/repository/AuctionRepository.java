@@ -170,7 +170,7 @@ public class AuctionRepository {
     return auctions;
   }
 
-  // Cập nhật giá cao nhất khi có người bid
+
   public boolean cancelActiveAndWaitingAuctionsByUserId(String userId) {
     String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE user_id = ? AND status = 'ACTIVE'";
     String updateSql = "UPDATE auctions SET status = ? WHERE user_id = ? AND status IN (?, ?)";

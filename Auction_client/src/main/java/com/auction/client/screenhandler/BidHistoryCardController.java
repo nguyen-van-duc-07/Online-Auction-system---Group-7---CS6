@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.UserDTO;
 import javafx.fxml.FXML;
@@ -46,8 +47,7 @@ public class BidHistoryCardController {
     // 1. Định dạng tiền tệ
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
-    DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
-    lblBidAmount.setText(currencyFormat.format(tx.getBidAmount()) + "đ");
+    lblBidAmount.setText(CurrencyUtils.formatD(tx.getBidAmount()));
 
     // 2. Định dạng thời gian
     if (tx.getCreatedAt() != null) {

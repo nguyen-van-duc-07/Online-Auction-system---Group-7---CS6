@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.JoinRoomRequestDTO;
@@ -54,7 +55,7 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private Label itemNameLabel;
   @FXML
-  private Label itemIdLabel;
+  private Label auctionIdLabel;
   @FXML
   private Label startPriceLabel;
   @FXML
@@ -85,8 +86,6 @@ public class ItemAuctionController implements Initializable {
   /**
    * Khung hiển thị ảnh sản phẩm đấu giá (load bất đồng bộ qua HTTP).
    */
-  @FXML
-  private ImageView itemImageView;
 
   @FXML
   private VBox bidHistoryContainer;
@@ -94,15 +93,15 @@ public class ItemAuctionController implements Initializable {
 
   // Quick Add buttons
   @FXML
-  private Button btnQuickAdd100;
+  private Button btnQuickAdd1;
   @FXML
-  private Button btnQuickAdd200;
+  private Button btnQuickAdd2;
   @FXML
-  private Button btnQuickAdd500;
+  private Button btnQuickAdd3;
   @FXML
-  private Button btnQuickAdd1m;
+  private Button btnQuickAdd4;
   @FXML
-  private Button btnQuickAdd2m;
+  private Button btnQuickAdd5;
 
   private Timeline countdownTimer;
   private AuctionResponseDTO currentAuction;
@@ -114,7 +113,6 @@ public class ItemAuctionController implements Initializable {
   @FXML
   public void handleBack() {
     stopCountdownTimer();
-    ServerConnection.sendData(new LeaveRoomRequestDTO(SessionManager.getCurrentAuctionId()));
     ScreenController.goBack();
   }
 
@@ -475,53 +473,13 @@ public class ItemAuctionController implements Initializable {
       showError("Đang kết nối tới máy chủ, vui lòng đợi...");
       return;
     }
-    // ================= LUỒNG 1: XÁC NHẬN AUTO-BID =================
     if (autoBidCheckBox != null && autoBidCheckBox.isSelected()) {
-      String maxText = maxAutoPriceField.getText().trim();
-      String stepText = autoStepPriceField.getText().trim();
-
-      if (maxText.isEmpty() || stepText.isEmpty()) {
-        showError("Vui lòng nhập giá tối đa và bước giá!");
-        return;
-      }
-      try {
-        BigDecimal maxPrice = new BigDecimal(maxText);
-        BigDecimal stepAmount = new BigDecimal(stepText);
-
-        if (maxPrice.compareTo(currentAuction.getCurrentHighestPrice()) <= 0) {
-          showError("Giá tối đa phải lớn hơn giá hiện tại!");
-          return;
-        }
-
-        // Dữ liệu chuẩn -> Gửi Bot lên Server
-        SetAutoBidRequestDTO req = new SetAutoBidRequestDTO(
-            SessionManager.getCurrentUser().getId(),
-            SessionManager.getCurrentAuctionId(),
-            maxPrice,
-            stepAmount,
-            true
-        );
-        System.out.println("[CLIENT - AUTO BID] Đã chốt đơn Bot! Tối đa: " + maxPrice + " | Bước: " + stepAmount + ". Đang đẩy lên Server...");
-        ServerConnection.sendData(req);
-
-        // Khóa ô cấu hình để bot an tâm chạy
-        maxAutoPriceField.setDisable(true);
-        autoStepPriceField.setDisable(true);
-        clearError();
-
-        // Cập nhật lại Text của nút thành "Đang chạy..."
-        updateBidControlState(true);
-
-        Notifications.create()
-            .title("Đấu giá tự động")
-            .text("Hệ thống đang tự động canh giá giúp bạn!")
-            .showInformation();
-
-      } catch (NumberFormatException e) {
-        showError("Số tiền không hợp lệ. Vui lòng chỉ nhập số!");
-      }
-      return; // CHẶN LẠI TẠI ĐÂY, KHÔNG CHẠY XUỐNG DƯỚI
+      executeAutoBidFlow();
+    } else {
+      executeManualBidFlow();
     }
+  }
+  private void executeManualBidFlow() {
     // ================= LUỒNG 2: ĐẤU GIÁ THỦ CÔNG =================
     String bidText = bidAmountField.getText().trim();
     if (bidText.isEmpty()) {
@@ -539,8 +497,7 @@ public class ItemAuctionController implements Initializable {
         return;
       }
       if (bidAmount.compareTo(currentPrice.add(stepPrice)) < 0) {
-        DecimalFormat formatter = new DecimalFormat("#,###");
-        showError("Mức giá phải cao hơn ít nhất 1 bước giá (" + formatter.format(stepPrice) + " VNĐ)!");
+        showError("Mức giá phải cao hơn ít nhất 1 bước giá (" + CurrencyUtils.formatVnd(stepPrice) + " )!");
         return;
       }
       clearError();
@@ -558,6 +515,52 @@ public class ItemAuctionController implements Initializable {
     }
   }
 
+  private void executeAutoBidFlow() {
+    String maxText = maxAutoPriceField.getText().trim();
+    String stepText = autoStepPriceField.getText().trim();
+
+    if (maxText.isEmpty() || stepText.isEmpty()) {
+      showError("Vui lòng nhập giá tối đa và bước giá!");
+      return;
+    }
+    try {
+      BigDecimal maxPrice = new BigDecimal(maxText);
+      BigDecimal stepAmount = new BigDecimal(stepText);
+
+      if (maxPrice.compareTo(currentAuction.getCurrentHighestPrice()) <= 0) {
+        showError("Giá tối đa phải lớn hơn giá hiện tại!");
+        return;
+      }
+
+      // Dữ liệu chuẩn -> Gửi Bot lên Server
+      SetAutoBidRequestDTO req = new SetAutoBidRequestDTO(
+          SessionManager.getCurrentUser().getId(),
+          SessionManager.getCurrentAuctionId(),
+          maxPrice,
+          stepAmount,
+          true
+      );
+      System.out.println("[CLIENT - AUTO BID] Đã chốt đơn Bot! Tối đa: " + maxPrice + " | Bước: " + stepAmount + ". Đang đẩy lên Server...");
+      ServerConnection.sendData(req);
+
+      // Khóa ô cấu hình để bot an tâm chạy
+      maxAutoPriceField.setDisable(true);
+      autoStepPriceField.setDisable(true);
+      clearError();
+
+      // Cập nhật lại Text của nút thành "Đang chạy..."
+      updateBidControlState(true);
+
+      Notifications.create()
+          .title("Đấu giá tự động")
+          .text("Hệ thống đang tự động canh giá giúp bạn!")
+          .showInformation();
+
+    } catch (NumberFormatException e) {
+      showError("Số tiền không hợp lệ. Vui lòng chỉ nhập số!");
+    }
+  }
+
   /**
    * Cập nhật text các nút Quick Add dựa vào minStep.
    * - Nút 1: minStep × 1
@@ -572,37 +575,18 @@ public class ItemAuctionController implements Initializable {
     }
 
     BigDecimal minStep = currentAuction.getMinStepPrice();
-    DecimalFormat formatter = new DecimalFormat("#,###");
 
     // Định nghĩa các hệ số nhân
     double[] multipliers = {1.0, 1.25, 1.5, 1.75, 2.0};
-    Button[] buttons = {btnQuickAdd100, btnQuickAdd200, btnQuickAdd500, btnQuickAdd1m, btnQuickAdd2m};
+    Button[] buttons = {btnQuickAdd1, btnQuickAdd2, btnQuickAdd3, btnQuickAdd4, btnQuickAdd5};
 
     for (int i = 0; i < buttons.length && i < multipliers.length; i++) {
       BigDecimal amount = minStep.multiply(new BigDecimal(multipliers[i]));
-      String formattedAmount = formatAmountForButton(amount);
-      buttons[i].setText(formattedAmount);
+      buttons[i].setText(CurrencyUtils.formatShortAmount(amount));
+      buttons[i].setUserData(amount);
     }
   }
 
-  /**
-   * Format lượng tiền để hiển thị trên nút (ví dụ: 100k, 1.5M, v.v.).
-   */
-  private String formatAmountForButton(BigDecimal amount) {
-    if (amount.compareTo(new BigDecimal("1000000")) >= 0) {
-      // Triệu (M)
-      BigDecimal millions = amount.divide(new BigDecimal("1000000"), 2, java.math.RoundingMode.HALF_UP);
-      String result = millions.stripTrailingZeros().toPlainString();
-      return result + "M";
-    } else if (amount.compareTo(new BigDecimal("1000")) >= 0) {
-      // Nghìn (k)
-      BigDecimal thousands = amount.divide(new BigDecimal("1000"), 1, java.math.RoundingMode.HALF_UP);
-      String result = thousands.stripTrailingZeros().toPlainString();
-      return result + "k";
-    } else {
-      return amount.stripTrailingZeros().toPlainString();
-    }
-  }
 
   /**
    * Xử lý nút Quick Add: tính toán giá mới dựa trên Min Step hoặc phần trăm.
@@ -626,53 +610,21 @@ public class ItemAuctionController implements Initializable {
     }
     if (event.getSource() instanceof Button) {
       Button clickedButton = (Button) event.getSource();
-      String text = clickedButton.getText().trim().toLowerCase();
-
-      BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
-      if (currentPrice == null) {
-        showError("Không thể lấy giá hiện tại!");
+      Object userData = clickedButton.getUserData();
+      if (!(userData instanceof BigDecimal)) {
+        showError("Dữ liệu nút bấm không hợp lệ!");
         return;
       }
-
-      BigDecimal addAmount = BigDecimal.ZERO;
+      BigDecimal addAmount = (BigDecimal) userData;
+      BigDecimal currentPrice = currentAuction.getCurrentHighestPrice();
+      if (currentPrice == null) {
+        showError("Không thể lấy giá hiện tại từ máy chủ!");
+        return;
+      }
       try {
-        // Kiểm tra loại nút
-        if (text.equals("min step")) {
-          // Nút Min Step: cộng minStepPrice
-          BigDecimal minStep = currentAuction.getMinStepPrice();
-          if (minStep == null || minStep.compareTo(BigDecimal.ZERO) <= 0) {
-            showError("Bước giá tối thiểu không hợp lệ!");
-            return;
-          }
-          addAmount = minStep;
-        } else if (text.contains("%")) {
-          // Nút phần trăm (ví dụ: "+125%")
-          String numStr = text.replace("+", "").replace("%", "").trim();
-          BigDecimal percentage = new BigDecimal(numStr);
-          // Cộng giá hiện tại với (currentPrice * percentage%)
-          addAmount = currentPrice.multiply(percentage).divide(new BigDecimal("100"));
-        } else {
-          // Trường hợp cũ: xử lý hậu tố "k" hoặc "m"
-          if (text.startsWith("+")) {
-            text = text.substring(1);
-          }
-          if (text.endsWith("k")) {
-            String numStr = text.substring(0, text.length() - 1);
-            addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000"));
-          } else if (text.endsWith("m")) {
-            String numStr = text.substring(0, text.length() - 1);
-            addAmount = new BigDecimal(numStr).multiply(new BigDecimal("1000000"));
-          } else {
-            addAmount = new BigDecimal(text);
-          }
-        }
-
-        // Tính toán giá mới
         BigDecimal newBidAmount = currentPrice.add(addAmount);
-
         // Điền giá trị mới vào ô nhập liệu
         bidAmountField.setText(newBidAmount.toPlainString());
-
         // Xóa các thông báo lỗi cũ
         clearError();
       } catch (NumberFormatException e) {
@@ -694,23 +646,16 @@ public class ItemAuctionController implements Initializable {
     alert.setTitle("Đấu giá thành công");
     alert.setHeaderText("Hệ thống đã ghi nhận giá đặt của bạn!");
 
-    // Format lại số tiền cho đẹp (ví dụ: 42,000,000 VNĐ)
-    DecimalFormat formatter = new DecimalFormat("#,###");
-    String formattedAmount = formatter.format(amount) + " VNĐ";
-
-    alert.setContentText("Chúc mừng! Bạn đã đặt giá " + formattedAmount +
-        " cho sản phẩm: " + itemName + ".\n\n" +
-        "Hãy theo dõi phiên đấu giá để cập nhật tình hình nhé.");
+    alert.setContentText("Chúc mừng! Bạn đã đặt giá " + CurrencyUtils.formatVnd(amount)
+        + " cho sản phẩm: " + itemName + ".\n\n"
+        + "Hãy theo dõi phiên đấu giá để cập nhật tình hình nhé.");
 
     alert.showAndWait();
   }
 
   private void refreshPriceUI() {
-    DecimalFormat formatter = new DecimalFormat("#,###");
-    String formattedPrice = formatter.format(currentAuction.getCurrentHighestPrice()) + " VNĐ";
-
     // Cập nhật text cho Label
-    currentPriceField.setText("Giá hiện tại: " + formattedPrice);
+    currentPriceField.setText(CurrencyUtils.formatVnd(currentAuction.getCurrentHighestPrice()));
 
     // (Tùy chọn UX) Nháy màu để người dùng chú ý giá vừa thay đổi
     // 1. Lưu lại style gốc (màu cam) để tí nữa quay về
@@ -840,21 +785,13 @@ public class ItemAuctionController implements Initializable {
       updateQuickAddButtonTexts();
 
       itemNameLabel.setText(auctionData.getItem().getName());
-      itemIdLabel.setText("Mã sản phẩm: " + auctionData.getItem().getId());
-
-      DecimalFormat formatter = new DecimalFormat("#,###");
-      String formattedMinStepPrice = formatter.format(auctionData.getMinStepPrice());
-      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + formattedMinStepPrice + " VNĐ");
-
+      auctionIdLabel.setText("Mã phiên: " + auctionData.getId());
+      minStepPriceLabel.setText("Bước giá quy định tối thiểu: " + CurrencyUtils.formatVnd(auctionData.getMinStepPrice()));
       // 2. Cập nhật UI cơ bản: Tên người cao nhất, Giá ban đầu và Giá hiện tại
       updateHighestBidderUI(auctionData.getHighestBidderName());
-
-      String formattedStartPrice = formatter.format(auctionData.getStartPrice());
-      startPriceLabel.setText(formattedStartPrice + " VNĐ");
+      startPriceLabel.setText(CurrencyUtils.formatVnd(auctionData.getStartPrice()));
       startPriceLabel.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 15px;");
-
-      String formattedHighestPrice = formatter.format(auctionData.getCurrentHighestPrice()) + " VNĐ";
-      currentPriceField.setText("Giá hiện tại: " + formattedHighestPrice);
+      currentPriceField.setText(CurrencyUtils.formatVnd(auctionData.getCurrentHighestPrice()));
       currentPriceField.setStyle("-fx-text-fill: #009900; -fx-font-weight: bold; -fx-font-size: 22px;");
 
       // 3. Bắt đầu khởi động bộ đếm thời gian
@@ -865,15 +802,6 @@ public class ItemAuctionController implements Initializable {
 
       // 4.5. Nạp danh sách lịch sử bid
       loadBidHistory();
-
-      // 5. Load ảnh sản phẩm bất đồng bộ qua HTTP
-      if (auctionData.getImagePath() != null && !auctionData.getImagePath().isEmpty()
-          && itemImageView != null) {
-        String imageUrl = "http://" + NetworkConfig.DEFAULT_HOST + ":"
-            + NetworkConfig.IMAGE_SERVER_PORT + "/images/" + auctionData.getImagePath();
-        Image image = new Image(imageUrl, true); // true = background loading
-        itemImageView.setImage(image);
-      }
 
       // 6. KHÔI PHỤC TRẠNG THÁI AUTO-BID NẾU ĐANG CHẠY TRÊN SERVER
       if (autoBidConfig != null && autoBidConfig.isActive()) {
@@ -910,7 +838,6 @@ public class ItemAuctionController implements Initializable {
   public void onAuctionExtended(LocalDateTime newEndTime) {
     Platform.runLater(() -> {
       currentAuction.setEndTime(newEndTime);
-
       Notifications.create()
           .title("⏰ Phiên đấu giá được gia hạn!")
           .text("Có bid mới trong 3 phút cuối!\nPhiên được gia hạn thêm 3 phút.")

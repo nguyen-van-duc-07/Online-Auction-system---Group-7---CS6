@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.enums.AuctionStatusUI;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
@@ -51,7 +52,7 @@ public class AuctionItemCardController {
       this.auction = auction;
       // 1. Đổ dữ liệu text
       nameLabel.setText(auction.getItemName());
- 
+
       // Hiển thị loại sản phẩm
       ItemType type = auction.getItemType();
       if (type != null) {
@@ -59,21 +60,20 @@ public class AuctionItemCardController {
       } else {
         categoryLabel.setText("");
       }
- 
+
       updateStatus(auction.getStartTime(), auction.getEndTime());
- 
-      String formattedPrice = String.format("%,.0f VNĐ", auction.getCurrentPrice());
-      priceLabel.setText(formattedPrice);
- 
+
+      priceLabel.setText(CurrencyUtils.formatVnd(auction.getCurrentPrice()));
+
       // Tạo bộ đếm thời gian chạy mỗi 1 giây
       countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e ->
           updateStatus(auction.getStartTime(), auction.getEndTime())
       ));
- 
+
       countdownTimer.setCycleCount(Animation.INDEFINITE);
       countdownTimer.play();
   }
- 
+
   /**
    * Chuyển hướng sang màn hình xem chi tiết phiên đấu giá sản phẩm.
    */
@@ -117,7 +117,7 @@ public class AuctionItemCardController {
    */
   public void updatePrice(BigDecimal newPrice) {
     Platform.runLater(() -> {
-      priceLabel.setText(String.format("%,.0f VNĐ", newPrice));
+      priceLabel.setText(CurrencyUtils.formatVnd(newPrice));
     });
   }
   private void updateStatus(LocalDateTime startTime, LocalDateTime endTime) {

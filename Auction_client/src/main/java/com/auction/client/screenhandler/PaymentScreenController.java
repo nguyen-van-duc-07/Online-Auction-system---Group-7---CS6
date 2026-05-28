@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
@@ -104,12 +105,11 @@ public class PaymentScreenController implements Initializable {
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
     symbols.setGroupingSeparator('.');
-    DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
     lblItemName.setText(order.getItemName() != null ? order.getItemName() : "Sản phẩm");
     lblOrderId.setText("Mã đơn hàng: " + order.getId());
-    lblFinalPrice.setText(currencyFormat.format(order.getFinalPrice()) + "đ");
-    lblDepositAmount.setText(currencyFormat.format(order.getDepositAmount().negate()));
-    lblTotalAmount.setText(currencyFormat.format(order.getRemainingAmount()) + "đ");
+    lblFinalPrice.setText(CurrencyUtils.formatD(order.getFinalPrice()));
+    lblDepositAmount.setText(CurrencyUtils.formatD(order.getDepositAmount().negate()));
+    lblTotalAmount.setText(CurrencyUtils.formatD(order.getRemainingAmount()));
     UserDTO currentUser = SessionManager.getCurrentUser();
     boolean isBuyerAndPending = order.getStatus() == OrderStatus.PENDING
         && order.getBuyerId().equals(currentUser.getId());

@@ -1,6 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.client.util.CurrencyUtils;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -70,9 +71,7 @@ public class WalletController {
     // Bắt buộc dùng Platform.runLater vì luồng mạng không được phép đổi giao diện trực tiếp
     Platform.runLater(() -> {
       if (balanceLabel != null) {
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        String formattedBalance = currencyFormat.format(currentBalance);
-        balanceLabel.setText(formattedBalance);
+        balanceLabel.setText(CurrencyUtils.formatVnd(currentBalance));
       }
     });
   }

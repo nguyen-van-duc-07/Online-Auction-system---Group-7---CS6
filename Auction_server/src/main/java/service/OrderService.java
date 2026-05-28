@@ -1,13 +1,10 @@
 package service;
 
 import com.auction.shared.enums.OrderStatus;
-import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
-import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
-import com.auction.shared.model.user.User;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
 import com.auction.shared.util.FormatUtil;
@@ -260,29 +257,14 @@ public class OrderService {
     Server.sendToUser(order.getSellerId(), update);
   }
 
-  public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
-    List<OrderDTO> pendingOrders = orderRepo.getPendingOrdersBySellerId(sellerId);
+  public List<OrderDTO> getOrdersBySellerIdAndStatus(String sellerId, OrderStatus status) {
+    List<OrderDTO> pendingOrders = orderRepo.getOrdersBySellerIdAndStatus(sellerId, status);
     return pendingOrders;
   }
 
-  public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
-    List<OrderDTO> pendingOrders = orderRepo.getPendingOrdersByBuyerId(buyerId);
+  public List<OrderDTO> getOrdersByBuyerIdAndStatus(String buyerId, OrderStatus status) {
+    List<OrderDTO> pendingOrders = orderRepo.getOrdersByBuyerIdAndStatus(buyerId, status);
     return pendingOrders;
   }
 
-  public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
-    return orderRepo.getCompletedOrdersBySellerId(sellerId);
-  }
-
-  public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
-    return orderRepo.getCancelledOrdersBySellerId(sellerId);
-  }
-
-  public List<OrderDTO> getCompletedOrdersByBuyerId(String buyerId) {
-    return orderRepo.getCompletedOrdersByBuyerId(buyerId);
-  }
-
-  public List<OrderDTO> getCancelledOrdersByBuyerId(String buyerId) {
-    return orderRepo.getCancelledOrdersByBuyerId(buyerId);
-  }
 }
