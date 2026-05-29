@@ -326,7 +326,7 @@ public class AuctionService {
               if (ramAuction != null) {
                 ramAuction.setEndTime(LocalDateTime.now());
               }
-              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CLOSED));
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CLOSED, true));
               response[0] = new UpdateAuctionStatusResponseDTO(true, "Đóng phiên thành công! Phiên sẽ xử lý kết quả ngay lập tức.");
             } else {
               response[0] = new UpdateAuctionStatusResponseDTO(false, "Đóng phiên thất bại!");
@@ -338,7 +338,7 @@ public class AuctionService {
               if (ramAuction != null) {
                 ramAuction.setStatus(AuctionStatus.CANCELED);
               }
-              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED));
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED, true));
               response[0] = new UpdateAuctionStatusResponseDTO(true, "Đóng phiên thành công (Đã chuyển trạng thái sang Hủy do phiên chưa bắt đầu)!");
             } else {
               response[0] = new UpdateAuctionStatusResponseDTO(false, "Đóng phiên thất bại!");
@@ -354,7 +354,7 @@ public class AuctionService {
               if (ramAuction != null) {
                 ramAuction.setStatus(AuctionStatus.CANCELED);
               }
-              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED));
+              Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED, true));
               response[0] = new UpdateAuctionStatusResponseDTO(true, "Chặn và hủy phiên đấu giá thành công, đã hoàn trả cọc!");
             } else {
               response[0] = new UpdateAuctionStatusResponseDTO(false, "Chặn phiên đấu giá thất bại!");

@@ -92,8 +92,8 @@ public class OrderService {
             remainingAmount,
             OrderStatus.PENDING,
             consigneeName,
-            shopInfo.getBrandName(),
-            shopInfo.getLocation(),
+            shopInfo != null ? shopInfo.getBrandName() : null,
+            shopInfo != null ? shopInfo.getLocation() : null,
             itemName
         );
         orderRepo.saveOrder(conn, order);

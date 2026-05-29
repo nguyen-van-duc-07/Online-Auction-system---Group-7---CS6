@@ -4,6 +4,7 @@ import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.response.AuctionExtendedDTO;
 import com.auction.shared.response.AuctionResultDTO;
+import com.auction.shared.response.AuctionStatusUpdateDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
@@ -115,6 +116,13 @@ public class Server {
       if (room != null) {
         for (ClientHandler client : room) {
           client.sendData(auctionExtended);
+        }
+      }
+    } else if (responseDTO instanceof AuctionStatusUpdateDTO statusUpdate) {
+      Set<ClientHandler> room = auctionRooms.get(statusUpdate.getId());
+      if (room != null) {
+        for (ClientHandler client : room) {
+          client.sendData(statusUpdate);
         }
       }
     }

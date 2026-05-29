@@ -1,6 +1,7 @@
 package servercontroller;
 
 import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.enums.SellerRegisterStatus;
 import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.Bidder;
 import com.auction.shared.model.user.User;
@@ -151,5 +152,99 @@ public class RequestDispatcherTest {
         UpdateAuctionStatusResponseDTO actualRes = dispatcher.updateAuctionStatus(req);
         assertEquals(expectedRes, actualRes);
         verify(auctionService).updateAuctionStatusByAdmin(req);
+    }
+
+    // CÁC KỊCH BẢN KIỂM THỬ CHO ĐĂNG SẢN PHẨM (UPLOAD ITEM)
+
+    @Test
+    @DisplayName("Đăng sản phẩm thành công khi hồ sơ người bán đã được duyệt (REGISTERED)")
+    void testUploadItem_ApprovedSeller_ReturnsSuccess() {
+        UploadItemRequestDTO req = new UploadItemRequestDTO(
+            "seller123",
+            "Sản phẩm test",
+            null,
+            "Mô tả",
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+        
+        when(sellerProfileRepo.getSellerProfileStatus("seller123")).thenReturn(SellerRegisterStatus.REGISTERED.name());
+        when(auctionService.uploadNewAuction(req)).thenReturn(true);
+
+        UploadItemResponseDTO response = dispatcher.uploadItem(req);
+
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals("Sản phẩm đã được đăng lên sàn đấu giá thành công!", response.getMessage());
+        verify(sellerProfileRepo).getSellerProfileStatus("seller123");
+        verify(auctionService).uploadNewAuction(req);
+    }
+
+    @Test
+    @DisplayName("Đăng sản phẩm thất bại khi hồ sơ người bán chưa được duyệt hoặc bị chặn")
+    void testUploadItem_NotApprovedSeller_ReturnsFailure() {
+        UploadItemRequestDTO req = new UploadItemRequestDTO(
+            "seller123",
+            "Sản phẩm test",
+            null,
+            "Mô tả",
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
+        // Trường hợp UNREGISTERED
+        when(sellerProfileRepo.getSellerProfileStatus("seller123")).thenReturn(SellerRegisterStatus.UNREGISTERED.name());
+        UploadItemResponseDTO response1 = dispatcher.uploadItem(req);
+        assertNotNull(response1);
+        assertFalse(response1.isSuccess());
+        assertEquals("Hồ sơ người bán của bạn chưa được duyệt hoặc đã bị chặn!", response1.getMessage());
+
+        // Trường hợp DENIED
+        when(sellerProfileRepo.getSellerProfileStatus("seller123")).thenReturn(SellerRegisterStatus.DENIED.name());
+        UploadItemResponseDTO response2 = dispatcher.uploadItem(req);
+        assertNotNull(response2);
+        assertFalse(response2.isSuccess());
+        assertEquals("Hồ sơ người bán của bạn chưa được duyệt hoặc đã bị chặn!", response2.getMessage());
+
+        verify(sellerProfileRepo, times(2)).getSellerProfileStatus("seller123");
+        verify(auctionService, never()).uploadNewAuction(any());
+    }
+
+    @Test
+    @DisplayName("Đăng sản phẩm thất bại khi chưa đăng ký hồ sơ người bán")
+    void testUploadItem_NoSellerProfile_ReturnsFailure() {
+        UploadItemRequestDTO req = new UploadItemRequestDTO(
+            "seller123",
+            "Sản phẩm test",
+            null,
+            "Mô tả",
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
+        when(sellerProfileRepo.getSellerProfileStatus("seller123")).thenReturn(null);
+
+        UploadItemResponseDTO response = dispatcher.uploadItem(req);
+
+        assertNotNull(response);
+        assertFalse(response.isSuccess());
+        assertEquals("Bạn chưa có hồ sơ bán hàng! Vui lòng đăng ký trước khi đăng sản phẩm.", response.getMessage());
+        verify(sellerProfileRepo).getSellerProfileStatus("seller123");
+        verify(auctionService, never()).uploadNewAuction(any());
     }
 }

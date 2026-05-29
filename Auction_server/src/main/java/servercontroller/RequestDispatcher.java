@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
+import com.auction.shared.enums.SellerRegisterStatus;
 import repository.AutoBidConfigRepository;
 import repository.SellerProfileRepository;
 import service.*;
@@ -108,9 +109,15 @@ public class RequestDispatcher {
   }
 
   public UploadItemResponseDTO uploadItem(UploadItemRequestDTO uploadItemReq) {
-    if (!sellerProfileRepo.haveSellerProfile(uploadItemReq.getUserId()))
+    String status = sellerProfileRepo.getSellerProfileStatus(uploadItemReq.getUserId());
+    if (status == null) {
       return new UploadItemResponseDTO(false,
-          "Bạn cần cập nhật hồ sơ người bán trước khi đăng sản phẩm!");
+          "Bạn chưa có hồ sơ bán hàng! Vui lòng đăng ký trước khi đăng sản phẩm.");
+    }
+    if (!SellerRegisterStatus.REGISTERED.name().equals(status)) {
+      return new UploadItemResponseDTO(false,
+          "Hồ sơ người bán của bạn chưa được duyệt hoặc đã bị chặn!");
+    }
     boolean isSuccess = auctionService.uploadNewAuction(uploadItemReq);
     String msg = isSuccess ? "Sản phẩm đã được đăng lên sàn đấu giá thành công!" :
             "Lỗi hệ thống, không thể lưu sản phẩm!";

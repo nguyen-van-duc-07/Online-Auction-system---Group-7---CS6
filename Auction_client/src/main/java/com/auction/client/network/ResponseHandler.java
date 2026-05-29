@@ -744,6 +744,13 @@ public class ResponseHandler {
               });
             }
         );
+      } else if (dto.getType() == NotificationType.AUCTION_WON && dto.getReferenceId() != null) {
+        ToastNotification.show(
+            ScreenController.primaryStage,
+            dto.getTitle(),
+            dto.getContent() + "\n• Nhấn để thanh toán ngay!",
+            () -> ServerConnection.sendData(new GetOrderRequestDTO(dto.getReferenceId()))
+        );
       }
     });
     if (SessionManager.getCurrentUser() != null && SessionManager.getCurrentUser().getRole() == UserRole.BIDDER) {
@@ -990,19 +997,21 @@ public class ResponseHandler {
       // 1. Kiểm tra nếu người dùng hiện tại đang ở đúng phòng đấu giá bị đóng/hủy này
       if (SessionManager.getCurrentAuctionId() != null && SessionManager.getCurrentAuctionId().equals(auctionId)) {
         if (newStatus == AuctionStatus.CLOSED || newStatus == AuctionStatus.CANCELED) {
-          if (ItemAuctionController.instance != null) {
-            ItemAuctionController.instance.stopCountdownTimer();
+          if (dto.isClosedByAdmin() || newStatus == AuctionStatus.CANCELED) {
+            if (ItemAuctionController.instance != null) {
+              ItemAuctionController.instance.stopCountdownTimer();
+            }
+            SessionManager.setCurrentAuctionId(null);
+
+            String alertMsg = (newStatus == AuctionStatus.CLOSED)
+                ? "Phiên đấu giá này đã được đóng bởi quản trị viên!"
+                : "Phiên đấu giá này đã bị hủy/chặn bởi quản trị viên!";
+
+            ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo từ hệ thống", alertMsg);
+
+            // Trở lại màn hình trước đó (MainLayout) bằng cách pop lịch sử
+            ScreenController.goBack();
           }
-          SessionManager.setCurrentAuctionId(null);
-
-          String alertMsg = (newStatus == AuctionStatus.CLOSED)
-              ? "Phiên đấu giá này đã được đóng bởi quản trị viên!"
-              : "Phiên đấu giá này đã bị hủy/chặn bởi quản trị viên!";
-
-          ScreenController.showAlert(Alert.AlertType.WARNING, "Thông báo từ hệ thống", alertMsg);
-
-          // Trở lại màn hình trước đó (MainLayout) bằng cách pop lịch sử
-          ScreenController.goBack();
         }
       }
 
