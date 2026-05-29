@@ -318,8 +318,7 @@ public class AuctionService {
               response[0] = new UpdateAuctionStatusResponseDTO(false, "Mở phiên đấu giá thất bại!");
             }
           }
-        } 
-        else if (targetStatus == AuctionStatus.CLOSED) {
+        } else if (targetStatus == AuctionStatus.CLOSED) {
           if (auction.getStatus() == AuctionStatus.ACTIVE) {
             boolean success = auctionRepo.updateAuctionEndTime(auctionId, LocalDateTime.now());
             if (success) {
@@ -347,8 +346,7 @@ public class AuctionService {
           } else {
             response[0] = new UpdateAuctionStatusResponseDTO(false, "Không thể đóng phiên đấu giá ở trạng thái này!");
           }
-        } 
-        else if (targetStatus == AuctionStatus.CANCELED) {
+        } else if (targetStatus == AuctionStatus.CANCELED) {
           if (auction.getStatus() == AuctionStatus.ACTIVE || auction.getStatus() == AuctionStatus.WAITING) {
             boolean success = auctionRepo.cancelAuctionAndReleaseDeposit(auctionId);
             if (success) {

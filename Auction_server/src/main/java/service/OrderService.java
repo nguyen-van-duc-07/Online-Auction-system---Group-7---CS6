@@ -7,7 +7,7 @@ import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.OrderUpdateNotificationDTO;
-import com.auction.shared.util.FormatUtil;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 import repository.AuctionRepository;
@@ -100,8 +100,8 @@ public class OrderService {
         conn.commit();
 
         log.info("[ORDER] Tạo order thành công: {} | Buyer: {} | Giá: {} | Cọc: {} | Còn lại: {}",
-            order.getId(), buyerId, FormatUtil.fmt(finalPrice), 
-            FormatUtil.fmt(depositAmount), FormatUtil.fmt(remainingAmount));
+            order.getId(), buyerId, CurrencyUtils.formatVnd(finalPrice),
+            CurrencyUtils.formatVnd(depositAmount), CurrencyUtils.formatVnd(remainingAmount));
         return order;
 
       } catch (Exception e) {

@@ -16,7 +16,7 @@ public class NotificationTemplate {
         NotificationType.AUCTION_WON,
         "Chúc mừng! Bạn đã thắng phiên đấu giá",
         "Sản phẩm: " + itemName + "\n"
-            + "Giá cuối: " + FormatUtil.fmt(finalPrice) + "\n"
+            + "Giá cuối: " + CurrencyUtils.formatVnd(finalPrice) + "\n"
             + "Vui lòng xác nhận thanh toán trong vòng 7 ngày.",
         orderId
     );
@@ -29,7 +29,7 @@ public class NotificationTemplate {
         NotificationType.AUCTION_ENDED,
         "Phiên đấu giá của bạn đã kết thúc",
         "Sản phẩm: " + itemName + "\n"
-            + "Giá bán: " + FormatUtil.fmt(finalPrice) + "\n"
+            + "Giá bán: " + CurrencyUtils.formatVnd(finalPrice) + "\n"
             + "Người mua đang trong quá trình xác nhận thanh toán.",
         orderId
     );
@@ -55,7 +55,7 @@ public class NotificationTemplate {
         NotificationType.ORDER_CONFIRMED,
         "Đơn hàng đã được xác nhận thanh toán",
         "Sản phẩm: " + itemName + "\n"
-            + "Số tiền nhận được: " + FormatUtil.fmt(finalPrice) + "\n"
+            + "Số tiền nhận được: " + CurrencyUtils.formatVnd(finalPrice) + "\n"
             + "Vui lòng chuẩn bị hàng và liên hệ người mua để giao hàng.",
         orderId
     );
@@ -68,7 +68,7 @@ public class NotificationTemplate {
         NotificationType.ORDER_CONFIRMED,
         "Thanh toán thành công",
         "Sản phẩm: " + itemName + "\n"
-            + "Số tiền đã thanh toán: " + FormatUtil.fmt(finalPrice) + "\n"
+            + "Số tiền đã thanh toán: " + CurrencyUtils.formatVnd(finalPrice) + "\n"
             + "Người bán sẽ sớm liên hệ để giao hàng.",
         orderId
     );
@@ -81,7 +81,7 @@ public class NotificationTemplate {
         NotificationType.ORDER_CANCELLED_BY_BUYER,
         "Người mua đã hủy đơn hàng",
         "Sản phẩm: " + itemName + "\n"
-            + "Tiền cọc bồi thường: " + FormatUtil.fmt(depositAmount) + "\n"
+            + "Tiền cọc bồi thường: " + CurrencyUtils.formatVnd(depositAmount) + "\n"
             + "Số tiền đã được cộng vào ví của bạn.",
         orderId
     );
@@ -94,7 +94,7 @@ public class NotificationTemplate {
         NotificationType.ORDER_CANCELLED,
         "Bạn đã hủy đơn hàng",
         "Sản phẩm: " + itemName + "\n"
-            + "Tiền cọc bị mất: " + FormatUtil.fmt(depositAmount) + "\n"
+            + "Tiền cọc bị mất: " + CurrencyUtils.formatVnd(depositAmount) + "\n"
             + "Lưu ý: Hủy đơn sẽ mất toàn bộ tiền cọc.",
         orderId
     );
@@ -108,7 +108,7 @@ public class NotificationTemplate {
         "Đơn hàng đã bị hủy do quá hạn",
         "Sản phẩm: " + itemName + "\n"
             + "Đơn hàng của bạn đã bị hủy tự động do không xác nhận thanh toán trong 7 ngày.\n"
-            + "Tiền cọc bị mất: " + FormatUtil.fmt(depositAmount),
+            + "Tiền cọc bị mất: " + CurrencyUtils.formatVnd(depositAmount),
         orderId
     );
   }
@@ -121,7 +121,7 @@ public class NotificationTemplate {
         "Đơn hàng đã bị hủy do quá hạn",
         "Sản phẩm: " + itemName + "\n"
             + "Người mua không xác nhận thanh toán trong 7 ngày, đơn hàng đã bị hủy tự động.\n"
-            + "Tiền cọc bồi thường: " + FormatUtil.fmt(depositAmount),
+            + "Tiền cọc bồi thường: " + CurrencyUtils.formatVnd(depositAmount),
         orderId
     );
   }
@@ -180,7 +180,7 @@ public class NotificationTemplate {
         NotificationType.REQUEST_SUBMITTED,
         "Yêu cầu nạp tiền ",
         "Yêu cầu nạp tiền của bạn đã được gửi đi\n"
-            + "Số tiền cần nạp: " + FormatUtil.fmt(amount) + "\n"
+            + "Số tiền cần nạp: " + CurrencyUtils.formatVnd(amount) + "\n"
             + "Hiện tại yêu cầu của bạn đang được Admin xét duyệt."
             + "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
         null
@@ -193,7 +193,7 @@ public class NotificationTemplate {
         NotificationType.REQUEST_SUBMITTED,
         "Yêu cầu rút tiền ",
         "Yêu cầu rút tiền của bạn đã được gửi đi\n"
-            + "Số tiền cần rút: " + FormatUtil.fmt(amount) + "\n"
+            + "Số tiền cần rút: " + CurrencyUtils.formatVnd(amount) + "\n"
             + "Hiện tại yêu cầu của bạn đang được Admin xét duyệt."
             + "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
         null
@@ -206,8 +206,8 @@ public class NotificationTemplate {
         NotificationType.REQUEST_APPROVED,
         "Yêu cầu nạp tiền đã được phê duyệt ",
         "Chúc mừng! Yêu cầu nạp tiền của bạn đã được phê duyệt\n"
-            + "Số tiền nạp: " + FormatUtil.fmt(amount) + "\n"
-            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n",
+            + "Số tiền nạp: " + CurrencyUtils.formatVnd(amount) + "\n"
+            + "Số dư hiện tại: " + CurrencyUtils.formatVnd(currentBalance) + "\n",
         null
     );
   }
@@ -218,8 +218,8 @@ public class NotificationTemplate {
         NotificationType.REQUEST_APPROVED,
         "Yêu cầu rút tiền đã được phê duyệt ",
         "Chúc mừng! Yêu cầu rút tiền của bạn đã được phê duyệt\n"
-            + "Số tiền rút: " + FormatUtil.fmt(amount) + "\n"
-            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n",
+            + "Số tiền rút: " + CurrencyUtils.formatVnd(amount) + "\n"
+            + "Số dư hiện tại: " + CurrencyUtils.formatVnd(currentBalance) + "\n",
         null
     );
   }
@@ -235,8 +235,8 @@ public class NotificationTemplate {
         NotificationType.REQUEST_REJECTED,
         "Yêu cầu nạp tiền đã bị từ chối",
         "Yêu cầu nạp tiền của bạn chưa được chấp thuận.\n"
-            + "Số tiền yêu cầu: " + FormatUtil.fmt(amount) + "\n"
-            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n"
+            + "Số tiền yêu cầu: " + CurrencyUtils.formatVnd(amount) + "\n"
+            + "Số dư hiện tại: " + CurrencyUtils.formatVnd(currentBalance) + "\n"
             + "Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ để biết thêm chi tiết.",
         null
     );
@@ -253,8 +253,8 @@ public class NotificationTemplate {
         NotificationType.REQUEST_REJECTED,
         "Yêu cầu rút tiền đã bị từ chối",
         "Yêu cầu rút tiền của bạn chưa được chấp thuận.\n"
-            + "Số tiền yêu cầu: " + FormatUtil.fmt(amount) + "\n"
-            + "Số dư hiện tại: " + FormatUtil.fmt(currentBalance) + "\n"
+            + "Số tiền yêu cầu: " + CurrencyUtils.formatVnd(amount) + "\n"
+            + "Số dư hiện tại: " + CurrencyUtils.formatVnd(currentBalance) + "\n"
             + "Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ để biết thêm chi tiết.",
         null
     );

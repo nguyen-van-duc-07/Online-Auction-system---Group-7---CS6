@@ -3,7 +3,6 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.client.screenhandler.admin.AdminScreenController;
-import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.UpdateProfileRequestDTO;
 import javafx.fxml.FXML;
@@ -43,7 +42,7 @@ public class EditProfileController implements Initializable {
    * Hàm được tự động gọi khi màn hình Profile.fxml được nạp lên giao diện.
    * Truy xuất dữ liệu từ {@link SessionManager} và điền tự động vào các ô nhập liệu.
    *
-   * @param location vị trí sử dụng để xác định đường dẫn tương đối của đối tượng gốc
+   * @param location  vị trí sử dụng để xác định đường dẫn tương đối của đối tượng gốc
    * @param resources tài nguyên sử dụng để bản địa hóa đối tượng gốc
    */
   public void initialize(URL location, ResourceBundle resources) {
@@ -107,12 +106,12 @@ public class EditProfileController implements Initializable {
     address = addressField.getText();
 
     // Kiểm tra xem các Field có thay đổi nào không
-    boolean isRealNameChanged = !(accountName.equals(currentUser.getAccountName()));
-    boolean isEmailChanged = !(email.equals(currentUser.getEmail()));
-    boolean isAddressChanged = !(address.equals(currentUser.getAddress()));
-    boolean isDateChanged = !(birthDate.equals(currentUser.getDob()));
+    boolean isAccountNameChanged = accountName == null || !(accountName.equals(currentUser.getAccountName()));
+    boolean isEmailChanged = email == null || !(email.equals(currentUser.getEmail()));
+    boolean isAddressChanged = address == null || !(address.equals(currentUser.getAddress()));
+    boolean isDateChanged = birthDate == null || !(birthDate.equals(currentUser.getDob()));
 
-    if (isRealNameChanged || isEmailChanged || isAddressChanged || isDateChanged) {
+    if (isAccountNameChanged || isEmailChanged || isAddressChanged || isDateChanged) {
       return true;
     } else {
       return false;
@@ -139,7 +138,7 @@ public class EditProfileController implements Initializable {
       return;
     } else {
       ScreenController.showAlert(Alert.AlertType.INFORMATION,
-              "Thông báo", "Không có thay đổi nào được lưu!");
+          "Thông báo", "Không có thay đổi nào được lưu!");
       return;
     }
   }
@@ -153,7 +152,7 @@ public class EditProfileController implements Initializable {
     if (adminController != null) {
       if (isInformationChanged()) {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
-                "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
+            "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
           if (Response == ButtonType.OK) {
             adminController.gotoProfile();
           }
@@ -168,7 +167,7 @@ public class EditProfileController implements Initializable {
     if (mainLayoutController != null) {
       if (isInformationChanged()) {
         ScreenController.showAlert(Alert.AlertType.WARNING, "Có thay đổi chưa được lưu",
-                "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
+            "Bạn có chắc chắn muốn huỷ bỏ không?").ifPresent(Response -> {
           if (Response == ButtonType.OK) {
             mainLayoutController.loadComponent("/com/auction/client/User/Profile.fxml");
           }

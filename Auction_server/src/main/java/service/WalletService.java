@@ -1,12 +1,11 @@
 package service;
 
 import com.auction.shared.model.order.Order;
-import com.auction.shared.util.FormatUtil;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.util.NotificationTemplate;
 import config.DatabaseConnection;
 
 import java.math.BigDecimal;
-import java.sql.*;
 
 import com.auction.shared.enums.WalletTransactionStatus;
 import com.auction.shared.enums.WalletTransactionType;
@@ -266,7 +265,7 @@ public class WalletService {
         WalletTransactionStatus.SUCCESS
     );
     txRepo.saveWalletTransaction(conn, sellerTx);
-    log.info(">>> Đã cộng tiền vào ví người bán: {}", com.auction.shared.util.FormatUtil.fmt(sellerTx.getAmount()));
+    log.info(">>> Đã cộng tiền vào ví người bán: {}", CurrencyUtils.formatVnd(sellerTx.getAmount()));
   }
 
   public void processCancelPenalty(Connection conn, Order order) {
@@ -291,7 +290,7 @@ public class WalletService {
     txRepo.saveWalletTransaction(conn, sellerTx);
 
     log.info("[CANCEL] Người mua mất cọc: {} | Người bán nhận: {}", 
-        com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()), 
-        com.auction.shared.util.FormatUtil.fmt(order.getDepositAmount()));
+        CurrencyUtils.formatVnd(order.getDepositAmount()),
+        CurrencyUtils.formatVnd(order.getDepositAmount()));
   }
 }

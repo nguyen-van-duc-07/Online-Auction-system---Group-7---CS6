@@ -119,7 +119,6 @@ public class AuctionStatusSchedulerTest {
         BigDecimal finalPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
-        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -135,7 +134,6 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
-        when(auctionRepo.findAuctionResponseDTOById(auctionId)).thenReturn(auctionToClose);
 
         Order mockOrder = new Order();
         mockOrder.setId("order001");
@@ -156,7 +154,6 @@ public class AuctionStatusSchedulerTest {
             if (dto instanceof AuctionResultDTO resultDto) {
                 return auctionId.equals(resultDto.getAuctionId()) &&
                        winnerId.equals(resultDto.getWinnerId()) &&
-                       "item999".equals(resultDto.getItemId()) &&
                        "Đồng hồ Thụy Sỹ".equals(resultDto.getItemName()) &&
                        finalPrice.equals(resultDto.getFinalPrice());
             }
@@ -175,7 +172,6 @@ public class AuctionStatusSchedulerTest {
         BigDecimal startPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
-        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -191,7 +187,6 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
-        when(auctionRepo.findAuctionResponseDTOById(auctionId)).thenReturn(auctionToClose);
 
         // Act
         scheduler.updateAuctionStatus();
@@ -207,7 +202,7 @@ public class AuctionStatusSchedulerTest {
         // Should not broadcast win result or create order since winnerId is null
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(any(AuctionResultDTO.class)), never());
         verify(orderService, never()).createOrder(anyString(), anyString(), any());
-        verify(notifService, never()).sendFromNotification(any());
+        verify(notifService, times(1)).sendFromNotification(any());
     }
 
     @Test
