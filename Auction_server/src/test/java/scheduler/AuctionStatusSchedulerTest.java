@@ -9,6 +9,7 @@ import com.auction.shared.response.AuctionStatusUpdateDTO;
 import config.ConnectionProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -57,29 +58,22 @@ public class AuctionStatusSchedulerTest {
             mockedServer.close();
         }
     }
-
-    // ==========================================
     // TEST CASES FOR updateAuctionStatus (Activation)
-    // ==========================================
 
     @Test
-    void updateAuctionStatus_noAuctionsToActivateOrClose_doesNothing() {
-        // Arrange
+    @DisplayName("Cập nhật trạng thái: Không làm gì khi không có phiên đấu giá cần chuyển trạng thái")
+    void testUpdateAuctionStatus_NoAuctionsToActivateOrClose_DoesNothing() {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
-
-        // Act
         scheduler.updateAuctionStatus();
-
-        // Assert
         verify(auctionRepo, never()).activateAuctions(anyList());
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(any()), never());
         verify(notifService, never()).sendNewAuctionNotification(anyString(), anyString(), any());
     }
 
     @Test
-    void updateAuctionStatus_activatesAuctionsSuccessfully() {
-        // Arrange
+    @DisplayName("Cập nhật trạng thái: Kích hoạt phiên đấu giá thành công")
+    void testUpdateAuctionStatus_ActivatesAuctionsSuccessfully() {
         String auctionId = "auc123";
         List<String> activateIds = List.of(auctionId);
         ItemDTO item = new ItemDTO();
@@ -93,11 +87,7 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(activateIds);
         when(auctionRepo.findAuctionResponseDTOById(auctionId)).thenReturn(auctionResponse);
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
-
-        // Act
         scheduler.updateAuctionStatus();
-
-        // Assert
         verify(auctionRepo).activateAuctions(activateIds);
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
             AuctionStatusUpdateDTO updateDto = (AuctionStatusUpdateDTO) dto;
@@ -105,20 +95,18 @@ public class AuctionStatusSchedulerTest {
         })));
         verify(notifService).sendNewAuctionNotification(auctionId, "Bức tranh cổ", new BigDecimal("1000000.00"));
     }
-
-    // ==========================================
     // TEST CASES FOR updateAuctionStatus (Closing)
-    // ==========================================
 
     @Test
-    void updateAuctionStatus_closesAuctionWithWinnerSuccessfully() {
-        // Arrange
+    @DisplayName("Cập nhật trạng thái: Đóng phiên đấu giá có người chiến thắng thành công")
+    void testUpdateAuctionStatus_ClosesAuctionWithWinnerSuccessfully() {
         String auctionId = "auc777";
         String sellerId = "seller123";
         String winnerId = "winner456";
         BigDecimal finalPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
+        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -138,11 +126,7 @@ public class AuctionStatusSchedulerTest {
         Order mockOrder = new Order();
         mockOrder.setId("order001");
         when(orderService.createOrder(auctionId, winnerId, finalPrice)).thenReturn(mockOrder);
-
-        // Act
         scheduler.updateAuctionStatus();
-
-        // Assert
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
             if (dto instanceof AuctionStatusUpdateDTO statusDto) {
@@ -165,13 +149,14 @@ public class AuctionStatusSchedulerTest {
     }
 
     @Test
-    void updateAuctionStatus_closesAuctionWithNoWinnerSuccessfully() {
-        // Arrange
+    @DisplayName("Cập nhật trạng thái: Đóng phiên đấu giá không có người chiến thắng thành công")
+    void testUpdateAuctionStatus_ClosesAuctionWithNoWinnerSuccessfully() {
         String auctionId = "auc777";
         String sellerId = "seller123";
         BigDecimal startPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
+        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -187,11 +172,7 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
-
-        // Act
         scheduler.updateAuctionStatus();
-
-        // Assert
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
             if (dto instanceof AuctionStatusUpdateDTO statusDto) {
@@ -206,8 +187,8 @@ public class AuctionStatusSchedulerTest {
     }
 
     @Test
-    void updateAuctionStatus_tryCloseExpiredAuctionFails_skipsClosingLogic() {
-        // Arrange
+    @DisplayName("Cập nhật trạng thái: Bỏ qua xử lý khi không thể đóng phiên đấu giá hết hạn trong DB")
+    void testUpdateAuctionStatus_TryCloseExpiredAuctionFails_SkipsClosingLogic() {
         String auctionId = "auc777";
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
         auctionToClose.setId(auctionId);
@@ -218,11 +199,7 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(false);
-
-        // Act
         scheduler.updateAuctionStatus();
-
-        // Assert
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
         verify(auctionRepo, never()).findAuctionResponseDTOById(auctionId);
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(any()), never());

@@ -5,6 +5,7 @@ import com.auction.shared.model.notification.Notification;
 import com.auction.shared.response.NotificationDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,62 +45,44 @@ public class NotificationServiceTest {
             mockedServer.close();
         }
     }
-
-    // ==========================================
     // TEST CASES FOR sendFromNotification
-    // ==========================================
 
     @Test
-    void sendFromNotification_saveSucceeds_sendsRealtimeNotification() {
-        // Arrange
+    @DisplayName("Gửi thông báo thành công: Lưu DB và gửi realtime qua socket")
+    void testSendFromNotification_SaveSucceeds_SendsRealtimeNotification() {
         Notification notification = new Notification("user123", NotificationType.SYSTEM, "Title", "Content", "ref123");
         notification.setId("notif123");
         notification.setRead(false);
         notification.setCreatedAt(LocalDateTime.now());
 
         when(notifRepo.save(notification)).thenReturn(true);
-
-        // Act
         notifService.sendFromNotification(notification);
-
-        // Assert
         verify(notifRepo).save(notification);
         mockedServer.verify(() -> Server.sendToUser(eq("user123"), any(NotificationDTO.class)));
     }
 
     @Test
-    void sendFromNotification_saveFails_doesNotSendNotification() {
-        // Arrange
+    @DisplayName("Gửi thông báo thất bại: Không gửi realtime khi lỗi lưu DB")
+    void testSendFromNotification_SaveFails_DoesNotSendNotification() {
         Notification notification = new Notification();
         notification.setId("notif123");
         notification.setUserId("user123");
         notification.setType(NotificationType.SYSTEM);
 
         when(notifRepo.save(notification)).thenReturn(false);
-
-        // Act
         notifService.sendFromNotification(notification);
-
-        // Assert
         verify(notifRepo).save(notification);
         mockedServer.verify(() -> Server.sendToUser(anyString(), any()), never());
     }
-
-    // ==========================================
     // TEST CASES FOR sendNewAuctionNotification
-    // ==========================================
 
     @Test
-    void sendNewAuctionNotification_sendsBroadcast() {
-        // Arrange
+    @DisplayName("Gửi thông báo phiên đấu giá mới thành công (broadcast)")
+    void testSendNewAuctionNotification_SendsBroadcast() {
         String auctionId = "auction123";
         String itemName = "Bức tranh quý";
         BigDecimal startPrice = new BigDecimal("5000000.00");
-
-        // Act
         notifService.sendNewAuctionNotification(auctionId, itemName, startPrice);
-
-        // Assert
         mockedServer.verify(() -> Server.broadcastToBidders(argThat(dto -> {
             NotificationDTO notifDto = (NotificationDTO) dto;
             return NotificationType.SYSTEM == notifDto.getType() &&
@@ -108,77 +91,56 @@ public class NotificationServiceTest {
                    auctionId.equals(notifDto.getReferenceId());
         })));
     }
-
-    // ==========================================
     // TEST CASES FOR OTHER METHODS
-    // ==========================================
 
     @Test
-    void getNotifications_callsRepo() {
-        // Arrange
+    @DisplayName("Lấy danh sách thông báo: Gọi đúng hàm từ repository")
+    void testGetNotifications_CallsRepo() {
         String userId = "user123";
         List<Notification> expectedList = new ArrayList<>();
         expectedList.add(new Notification());
 
         when(notifRepo.findByUserId(userId)).thenReturn(expectedList);
-
-        // Act
         List<Notification> actualList = notifService.getNotifications(userId);
-
-        // Assert
         assertNotNull(actualList);
         assertEquals(expectedList, actualList);
         verify(notifRepo).findByUserId(userId);
     }
 
     @Test
-    void getUnreadCount_callsRepo() {
-        // Arrange
+    @DisplayName("Đếm số thông báo chưa đọc: Gọi đúng hàm từ repository")
+    void testGetUnreadCount_CallsRepo() {
         String userId = "user123";
         when(notifRepo.countUnread(userId)).thenReturn(5);
-
-        // Act
         int unreadCount = notifService.getUnreadCount(userId);
-
-        // Assert
         assertEquals(5, unreadCount);
         verify(notifRepo).countUnread(userId);
     }
 
     @Test
-    void markAsRead_callsRepo() {
-        // Arrange
+    @DisplayName("Đánh dấu đã đọc: Gọi đúng hàm từ repository")
+    void testMarkAsRead_CallsRepo() {
         String notifId = "notif123";
         when(notifRepo.markAsRead(notifId)).thenReturn(true);
-
-        // Act
         boolean result = notifService.markAsRead(notifId);
-
-        // Assert
         assertTrue(result);
         verify(notifRepo).markAsRead(notifId);
     }
 
     @Test
-    void markAllAsRead_callsRepo() {
-        // Arrange
+    @DisplayName("Đánh dấu tất cả đã đọc: Gọi đúng hàm từ repository")
+    void testMarkAllAsRead_CallsRepo() {
         String userId = "user123";
         when(notifRepo.markAllAsRead(userId)).thenReturn(true);
-
-        // Act
         boolean result = notifService.markAllAsRead(userId);
-
-        // Assert
         assertTrue(result);
         verify(notifRepo).markAllAsRead(userId);
     }
 
     @Test
-    void deleteExpired_callsRepo() {
-        // Act
+    @DisplayName("Xóa thông báo hết hạn: Gọi đúng hàm từ repository")
+    void testDeleteExpired_CallsRepo() {
         notifService.deleteExpired();
-
-        // Assert
         verify(notifRepo).deleteExpired();
     }
 }

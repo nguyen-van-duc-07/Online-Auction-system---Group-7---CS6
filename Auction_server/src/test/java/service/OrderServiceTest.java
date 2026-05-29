@@ -7,6 +7,7 @@ import com.auction.shared.model.user.InfoDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -67,14 +68,11 @@ public class OrderServiceTest {
             connectionProvider
         );
     }
-
-    // ==========================================
     // TEST CASES FOR createOrder
-    // ==========================================
 
     @Test
-    void createOrder_validRequest_savesOrderAndCommits() throws Exception {
-        // Arrange
+    @DisplayName("Tạo đơn hàng hợp lệ: Lưu DB và commit thành công")
+    void testCreateOrder_ValidRequest_SavesOrderAndCommits() throws Exception {
         String auctionId = "auc123";
         String buyerId = "buyer456";
         BigDecimal finalPrice = new BigDecimal("1000000.00");
@@ -92,11 +90,7 @@ public class OrderServiceTest {
         when(sellerProfileRepo.getShopInfo(sellerId)).thenReturn(shopInfo);
         when(userRepo.getAccountNameByUserId(buyerId)).thenReturn("John Doe");
         when(auctionRepo.findAuctionById(auctionId)).thenReturn(auction);
-
-        // Act
         Order createdOrder = orderService.createOrder(auctionId, buyerId, finalPrice);
-
-        // Assert
         assertNotNull(createdOrder);
         assertEquals(auctionId, createdOrder.getAuctionId());
         assertEquals(buyerId, createdOrder.getBuyerId());
@@ -113,32 +107,25 @@ public class OrderServiceTest {
     }
 
     @Test
-    void createOrder_databaseException_rollsBackAndReturnsNull() throws Exception {
-        // Arrange
+    @DisplayName("Tạo đơn hàng lỗi DB: Rollback và trả về null")
+    void testCreateOrder_DatabaseException_RollsBackAndReturnsNull() throws Exception {
         String auctionId = "auc123";
         String buyerId = "buyer456";
         BigDecimal finalPrice = new BigDecimal("1000000.00");
 
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(auctionRepo.getUserIdByAuctionId(auctionId)).thenThrow(new RuntimeException("DB Connection Timeout"));
-
-        // Act
         Order createdOrder = orderService.createOrder(auctionId, buyerId, finalPrice);
-
-        // Assert
         assertNull(createdOrder);
         verify(mockConnection).rollback();
         verify(mockConnection).setAutoCommit(true);
         verify(orderRepo, never()).saveOrder(any(), any());
     }
-
-    // ==========================================
     // TEST CASES FOR confirmOrder
-    // ==========================================
 
     @Test
-    void confirmOrder_validRequest_processesPaymentUpdatesOrderAndSendsNotifications() throws Exception {
-        // Arrange
+    @DisplayName("Xác nhận đơn hàng: Thanh toán thành công, cập nhật đơn hàng và gửi thông báo")
+    void testConfirmOrder_ValidRequest_ProcessesPaymentUpdatesOrderAndSendsNotifications() throws Exception {
         String orderId = "ord999";
         InfoDTO buyerInfo = new InfoDTO("John Doe", "0987654321", "123 Street");
 
@@ -155,11 +142,7 @@ public class OrderServiceTest {
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(orderRepo.findById(orderId)).thenReturn(order);
         when(auctionRepo.findAuctionById("auc123")).thenReturn(auction);
-
-        // Act
         boolean result = orderService.confirmOrder(orderId, buyerInfo);
-
-        // Assert
         assertTrue(result);
         assertEquals(OrderStatus.CONFIRMED, order.getStatus());
         assertEquals("0987654321", order.getPhoneNumber());
@@ -173,26 +156,22 @@ public class OrderServiceTest {
     }
 
     @Test
-    void confirmOrder_orderNotFound_returnsFalse() throws Exception {
-        // Arrange
+    @DisplayName("Xác nhận đơn hàng thất bại: Không tìm thấy đơn hàng")
+    void testConfirmOrder_OrderNotFound_ReturnsFalse() throws Exception {
         String orderId = "ord999";
         InfoDTO buyerInfo = new InfoDTO("John Doe", "0987654321", "123 Street");
 
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(orderRepo.findById(orderId)).thenReturn(null);
-
-        // Act
         boolean result = orderService.confirmOrder(orderId, buyerInfo);
-
-        // Assert
         assertFalse(result);
         verify(walletService, never()).processPayment(any(), any());
         verify(mockConnection, never()).commit();
     }
 
     @Test
-    void confirmOrder_orderNotPending_throwsRuntimeException() throws Exception {
-        // Arrange
+    @DisplayName("Xác nhận đơn hàng thất bại: Đơn hàng không ở trạng thái Pending")
+    void testConfirmOrder_OrderNotPending_ThrowsRuntimeException() throws Exception {
         String orderId = "ord999";
         InfoDTO buyerInfo = new InfoDTO("John Doe", "0987654321", "123 Street");
 
@@ -212,14 +191,11 @@ public class OrderServiceTest {
         assertTrue(exception.getMessage().contains("Đơn hàng đã được thanh toán hoặc bị hủy trước đó!"));
         verify(mockConnection).rollback();
     }
-
-    // ==========================================
     // TEST CASES FOR cancelOrder
-    // ==========================================
 
     @Test
-    void cancelOrder_validRequest_cancelsOrderAndProcessesPenalty() throws Exception {
-        // Arrange
+    @DisplayName("Hủy đơn hàng: Cập nhật trạng thái và xử lý trừ tiền phạt")
+    void testCancelOrder_ValidRequest_CancelsOrderAndProcessesPenalty() throws Exception {
         String orderId = "ord999";
         Order order = new Order("auc123", "buyer456", "seller789", 
             new BigDecimal("1000000.00"), new BigDecimal("100000.00"), new BigDecimal("900000.00"),
@@ -234,11 +210,7 @@ public class OrderServiceTest {
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(orderRepo.findById(orderId)).thenReturn(order);
         when(auctionRepo.findAuctionById("auc123")).thenReturn(auction);
-
-        // Act
         boolean result = orderService.cancelOrder(orderId);
-
-        // Assert
         assertTrue(result);
         assertEquals(OrderStatus.CANCELLED, order.getStatus());
         verify(orderRepo).updateOrder(mockConnection, order);
@@ -246,14 +218,11 @@ public class OrderServiceTest {
         verify(mockConnection).commit();
         verify(notifService, times(2)).sendFromNotification(any());
     }
-
-    // ==========================================
     // TEST CASES FOR cancelExpiredOrders
-    // ==========================================
 
     @Test
-    void cancelExpiredOrders_findsExpiredOrders_cancelsThemAndSendsNotifications() throws Exception {
-        // Arrange
+    @DisplayName("Hủy đơn hàng quá hạn: Tự động hủy và gửi thông báo")
+    void testCancelExpiredOrders_FindsExpiredOrders_CancelsThemAndSendsNotifications() throws Exception {
         Order order = new Order("auc123", "buyer456", "seller789", 
             new BigDecimal("1000000.00"), new BigDecimal("100000.00"), new BigDecimal("900000.00"),
             OrderStatus.PENDING, "John Doe", "SuperShop", "Hanoi", "Luxury Perfume");
@@ -270,11 +239,7 @@ public class OrderServiceTest {
         when(orderRepo.findExpiredPendingOrders(any(LocalDateTime.class))).thenReturn(expiredOrders);
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(auctionRepo.findAuctionById("auc123")).thenReturn(auction);
-
-        // Act
         orderService.cancelExpiredOrders();
-
-        // Assert
         assertEquals(OrderStatus.CANCELLED, order.getStatus());
         verify(orderRepo).updateOrder(mockConnection, order);
         verify(walletService).processCancelPenalty(mockConnection, order);

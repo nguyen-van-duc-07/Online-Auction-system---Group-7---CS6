@@ -12,6 +12,7 @@ import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.UpdateAuctionStatusResponseDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -53,13 +54,9 @@ public class AuctionServiceTest {
         }
     }
 
-    // ==========================================
-    // CÁC KỊCH BẢN KIỂM THỬ CHO uploadNewAuction
-    // ==========================================
-
     @Test
-    void uploadNewAuction_luuThanhCong_traVeTrue() {
-        // Sắp đặt
+    @DisplayName("Tải lên phiên đấu giá mới thành công và trả về true")
+    void testUploadNewAuction_ValidRequest_ReturnsTrue() {
         UploadItemRequestDTO req = new UploadItemRequestDTO(
             "user123",
             "Bàn đồ cổ",
@@ -76,17 +73,15 @@ public class AuctionServiceTest {
 
         when(auctionRepo.saveAuction(any(Auction.class), any())).thenReturn(true);
 
-        // Thực thi
         boolean result = auctionService.uploadNewAuction(req);
 
-        // Xác minh
         assertTrue(result);
         verify(auctionRepo).saveAuction(any(Auction.class), any());
     }
 
     @Test
-    void uploadNewAuction_luuThatBai_traVeFalse() {
-        // Sắp đặt
+    @DisplayName("Tải lên phiên đấu giá thất bại do lỗi lưu DB và trả về false")
+    void testUploadNewAuction_SaveFails_ReturnsFalse() {
         UploadItemRequestDTO req = new UploadItemRequestDTO(
             "user123",
             "Bàn đồ cổ",
@@ -103,51 +98,41 @@ public class AuctionServiceTest {
 
         when(auctionRepo.saveAuction(any(Auction.class), any())).thenReturn(false);
 
-        // Thực thi
         boolean result = auctionService.uploadNewAuction(req);
 
-        // Xác minh
         assertFalse(result);
         verify(auctionRepo).saveAuction(any(Auction.class), any());
     }
 
-    // ==========================================
-    // CÁC KỊCH BẢN KIỂM THỬ CHO CÁC PHƯƠNG THỨC TRUY VẤN
-    // ==========================================
-
     @Test
-    void findAuctionById_goiRepository() {
-        // Sắp đặt
+    @DisplayName("Tìm kiếm phiên đấu giá theo ID thành công")
+    void testFindAuctionById_ValidId_DelegatesToRepository() {
         String id = "auc123";
         AuctionResponseDTO expected = new AuctionResponseDTO();
         expected.setId(id);
         when(auctionRepo.findAuctionById(id)).thenReturn(expected);
 
-        // Thực thi
         AuctionResponseDTO actual = auctionService.findAuctionById(id);
 
-        // Xác minh
         assertEquals(expected, actual);
         verify(auctionRepo).findAuctionById(id);
     }
 
     @Test
-    void getActiveAuctionsForClient_traVeDanhSach() {
-        // Sắp đặt
+    @DisplayName("Lấy danh sách các phiên đấu giá đang active cho client")
+    void testGetActiveAuctionsForClient_ReturnsList() {
         List<AuctionDTO> expected = List.of(new AuctionDTO());
         when(auctionRepo.findActiveAuctions()).thenReturn(expected);
 
-        // Thực thi
         List<AuctionDTO> actual = auctionService.getActiveAuctionsForClient();
 
-        // Xác minh
         assertEquals(expected, actual);
         verify(auctionRepo).findActiveAuctions();
     }
 
     @Test
-    void getAuctionHistory_layLichSuGiaoDich() {
-        // Sắp đặt
+    @DisplayName("Lấy lịch sử giao dịch đấu giá thành công")
+    void testGetAuctionHistory_ValidId_ReturnsBidHistory() {
         String auctionId = "auc123";
         AuctionResponseDTO auction = new AuctionResponseDTO();
         auction.setId(auctionId);
@@ -156,38 +141,30 @@ public class AuctionServiceTest {
         when(auctionRepo.findAuctionResponseDTOById(auctionId)).thenReturn(auction);
         when(bidRepo.findRecentByAuctionId(auctionId, 20)).thenReturn(history);
 
-        // Thực thi
         AuctionResponseDTO result = auctionService.getAuctionHistory(auctionId);
 
-        // Xác minh
         assertNotNull(result);
         assertEquals(history, result.getBidHistory());
         verify(auctionRepo).findAuctionResponseDTOById(auctionId);
         verify(bidRepo).findRecentByAuctionId(auctionId, 20);
     }
 
-    // ==========================================
-    // KIỂM THỬ CẬP NHẬT TRẠNG THÁI CỦA ADMIN
-    // ==========================================
-
     @Test
-    void updateAuctionStatusByAdmin_phienKhongTonTai_traVeLoi() {
-        // Sắp đặt
+    @DisplayName("Cập nhật trạng thái bởi Admin thất bại khi phiên không tồn tại")
+    void testUpdateAuctionStatusByAdmin_NonExistentAuction_ReturnsError() {
         UpdateAuctionStatusRequestDTO req = new UpdateAuctionStatusRequestDTO("auc999", AuctionStatus.ACTIVE);
         when(auctionRepo.findAuctionById("auc999")).thenReturn(null);
 
-        // Thực thi
         UpdateAuctionStatusResponseDTO response = auctionService.updateAuctionStatusByAdmin(req);
 
-        // Xác minh
         assertNotNull(response);
         assertFalse(response.isSuccess());
         assertEquals("Phiên đấu giá không tồn tại!", response.getMessage());
     }
 
     @Test
-    void updateAuctionStatusByAdmin_dongPhienDangActive_thanhCong() {
-        // Sắp đặt
+    @DisplayName("Admin đóng phiên đấu giá đang active thành công")
+    void testUpdateAuctionStatusByAdmin_CloseActiveAuction_Success() {
         String auctionId = "auc123";
         UpdateAuctionStatusRequestDTO req = new UpdateAuctionStatusRequestDTO(auctionId, AuctionStatus.CLOSED);
 
@@ -198,10 +175,8 @@ public class AuctionServiceTest {
         when(auctionRepo.findAuctionById(auctionId)).thenReturn(auction);
         when(auctionRepo.updateAuctionEndTime(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
 
-        // Thực thi
         UpdateAuctionStatusResponseDTO response = auctionService.updateAuctionStatusByAdmin(req);
 
-        // Xác minh
         assertNotNull(response);
         assertTrue(response.isSuccess());
         assertEquals("Đóng phiên thành công! Phiên sẽ xử lý kết quả ngay lập tức.", response.getMessage());
