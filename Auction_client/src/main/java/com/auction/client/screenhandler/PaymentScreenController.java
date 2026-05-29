@@ -69,6 +69,7 @@ public class PaymentScreenController implements Initializable {
   private String currentUserId;
   private String currentAuctionId;
   private String currentOrderId;
+  private boolean isCanceling = false;
 
   /**
    * Cửa sổ thanh toán đang hoạt động.
@@ -140,6 +141,7 @@ public class PaymentScreenController implements Initializable {
   }
 
   private void handlePayment() {
+    isCanceling = false;
     String consigneeName = txtFullName.getText() != null && !txtFullName.getText().trim().isEmpty() ? txtFullName.getText().trim() : "";
     String phoneNumber = txtPhoneNumber.getText() != null && !txtPhoneNumber.getText().trim().isEmpty() ? txtPhoneNumber.getText().trim() : "";
     String address = txtAddress.getText() != null && !txtAddress.getText().trim().isEmpty() ? txtAddress.getText().trim() : "";
@@ -181,6 +183,7 @@ public class PaymentScreenController implements Initializable {
     Optional<ButtonType> result = confirmAlert.showAndWait();
 
     if (result.isPresent() && result.get() == btnYes) {
+      isCanceling = true;
       btnCancelOrder.setDisable(true);
       btnCancelOrder.setText("Đang hủy...");
       btnCompletePayment.setDisable(true);
@@ -205,29 +208,33 @@ public class PaymentScreenController implements Initializable {
    */
   public void onOrderActionSuccess(String message) {
     Platform.runLater(() -> {
-      log.info("[THANH_TOAN] Nhận thông báo xác nhận thanh toán từ Server. Khởi chạy tiến trình tạo hóa đơn...");
-      try {
-        String buyerId = currentUserId != null && !currentUserId.trim().isEmpty() ? currentUserId : (SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown");
-        String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "N/A";
-        String validOrderId = currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A";
-        
-        BigDecimal shippingFee = BigDecimal.ZERO;
-        BigDecimal finalPrice = itemFinalPrice != null ? itemFinalPrice : BigDecimal.ZERO;
-        if (finalPrice.compareTo(BigDecimal.ZERO) <= 0) {
-          finalPrice = new BigDecimal("1.00"); // fallback to avoid PrizedTransaction validation failure
-        }
+      if (isCanceling) {
+        log.info("[THANH_TOAN] Nhận thông báo xác nhận hủy đơn từ Server. Không xuất hóa đơn.");
+      } else {
+        log.info("[THANH_TOAN] Nhận thông báo xác nhận thanh toán từ Server. Khởi chạy tiến trình tạo hóa đơn...");
+        try {
+          String buyerId = currentUserId != null && !currentUserId.trim().isEmpty() ? currentUserId : (SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown");
+          String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "N/A";
+          String validOrderId = currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A";
+          
+          BigDecimal shippingFee = BigDecimal.ZERO;
+          BigDecimal finalPrice = itemFinalPrice != null ? itemFinalPrice : BigDecimal.ZERO;
+          if (finalPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            finalPrice = new BigDecimal("1.00"); // fallback to avoid PrizedTransaction validation failure
+          }
 
-        // Tự động khởi tạo PrizedTransaction từ thông tin đang hiển thị để in hóa đơn PDF
-        PrizedTransaction transaction = new PrizedTransaction(
-            buyerId,
-            "Hệ thống",
-            validAuctionId,
-            validOrderId,
-            finalPrice
-        );
-        exportAndOpenInvoice(transaction);
-      } catch (Exception e) {
-        log.error("[THANH_TOAN] Gặp lỗi nghiêm trọng khi chuẩn bị dữ liệu hóa đơn", e);
+          // Tự động khởi tạo PrizedTransaction từ thông tin đang hiển thị để in hóa đơn PDF
+          PrizedTransaction transaction = new PrizedTransaction(
+              buyerId,
+              "Hệ thống",
+              validAuctionId,
+              validOrderId,
+              finalPrice
+          );
+          exportAndOpenInvoice(transaction);
+        } catch (Exception e) {
+          log.error("[THANH_TOAN] Gặp lỗi nghiêm trọng khi chuẩn bị dữ liệu hóa đơn", e);
+        }
       }
       handleBack();
     });
@@ -245,6 +252,7 @@ public class PaymentScreenController implements Initializable {
       btnCompletePayment.setText("HOÀN TẤT THANH TOÁN");
       btnCancelOrder.setDisable(false);
       btnCancelOrder.setText("Hủy đơn hàng");
+      isCanceling = false;
     });
   }
 

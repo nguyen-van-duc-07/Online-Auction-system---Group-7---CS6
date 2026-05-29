@@ -35,6 +35,7 @@ public class ScreenController {
 
   private static final Stack<ScreenState> history = new Stack<ScreenState>();
   private static ScreenState currentScreen = null;
+  private static final java.util.Set<Stage> openSubWindows = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
   /**
    * Chuyển sang màn hình bất kỳ một cách hiệu quả dựa trên tệp FXML và tiêu đề.
@@ -44,6 +45,7 @@ public class ScreenController {
    */
   public static void switchScreen(String fxmlFile, String title) {
     try {
+      closeAllSubWindows();
       // Nếu có màn hình hiện tại, lưu lại chính Node hiện tại vào lịch sử.
       if (primaryStage.getScene() != null && currentScreen != null) {
         Parent currentRoot = primaryStage.getScene().getRoot();
@@ -91,6 +93,7 @@ public class ScreenController {
    * Nếu lịch sử rỗng, màn hình sẽ tự động chuyển về trang chủ (Bidder Home).
    */
   public static void goBack() {
+    closeAllSubWindows();
     if (!history.isEmpty()) {
       // Lấy trạng thái màn hình cũ ra
       ScreenState previous = history.pop();
@@ -130,6 +133,7 @@ public class ScreenController {
    * Thường được sử dụng khi người dùng đăng xuất khỏi hệ thống.
    */
   public static void clearHistory() {
+    closeAllSubWindows();
     history.clear();
     currentScreen = null;
   }
@@ -168,6 +172,8 @@ public class ScreenController {
       newStage.setTitle(title);
       newStage.setScene(scene);
 
+      openSubWindows.add(newStage);
+      newStage.setOnCloseRequest(event -> openSubWindows.remove(newStage));
 
       // Xác định mối quan hệ cha con giữa 2 cửa sổ
       newStage.initOwner(primaryStage);
@@ -241,6 +247,9 @@ public class ScreenController {
       newStage.setTitle(title);
       newStage.setScene(scene);
 
+      openSubWindows.add(newStage);
+      newStage.setOnCloseRequest(event -> openSubWindows.remove(newStage));
+
       newStage.initOwner(primaryStage);
       newStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
 
@@ -288,5 +297,14 @@ public class ScreenController {
       showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình: " + fxmlFile);
       return null;
     }
+  }
+
+  public static void closeAllSubWindows() {
+    for (Stage stage : openSubWindows) {
+      if (stage != null && stage.isShowing()) {
+        stage.close();
+      }
+    }
+    openSubWindows.clear();
   }
 }
