@@ -12,4 +12,6 @@ public final class AuctionConfig {
 
   /** Gia hạn tối thiểu tính từ thời điểm hoạt động (now), không cộng dồn từ end_time cũ. */
   public static final long ANTI_SNIPE_EXTENSION_MINUTES = 3;
+
+  public static final long PAYMENT_DURATION_DAYS = 7;
 }

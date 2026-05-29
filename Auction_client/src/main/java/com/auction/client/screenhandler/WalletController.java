@@ -1,19 +1,16 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
-import com.auction.client.util.CurrencyUtils;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 /**
  * Bộ điều khiển (Controller) cho giao diện quản lý ví điện tử cá nhân (Wallet).

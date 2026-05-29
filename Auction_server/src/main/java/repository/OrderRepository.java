@@ -4,6 +4,7 @@ import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.ShopInfoDTO;
+import config.AuctionConfig;
 import config.DatabaseConnection;
 
 import java.sql.*;
@@ -132,7 +133,7 @@ public class OrderRepository {
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
-      ps.setTimestamp(1, Timestamp.valueOf(now.minusDays(7)));
+      ps.setTimestamp(1, Timestamp.valueOf(now.minusDays(AuctionConfig.PAYMENT_DURATION_DAYS)));
       ResultSet rs = ps.executeQuery();
 
       while (rs.next()) {

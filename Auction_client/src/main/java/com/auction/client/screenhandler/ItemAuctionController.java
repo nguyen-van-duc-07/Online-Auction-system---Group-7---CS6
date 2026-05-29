@@ -2,7 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.client.util.CurrencyUtils;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.JoinRoomRequestDTO;
@@ -34,9 +34,6 @@ import java.util.ResourceBundle;
 import java.text.DecimalFormat;
 
 import org.controlsfx.control.Notifications;
-import com.auction.shared.network.NetworkConfig;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

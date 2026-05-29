@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 public class AuctionResultDTO implements ResponseDTO {
   private String auctionId;
   private String winnerId;
-  private String itemId;
   private String itemName;
   private BigDecimal finalPrice;
 }

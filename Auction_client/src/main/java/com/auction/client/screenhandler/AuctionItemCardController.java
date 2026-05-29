@@ -1,14 +1,12 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
-import com.auction.client.util.CurrencyUtils;
-import com.auction.shared.enums.AuctionStatusUI;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 import java.math.BigDecimal;

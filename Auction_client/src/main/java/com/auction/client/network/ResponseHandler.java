@@ -5,7 +5,7 @@ import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
 import com.auction.client.screenhandler.admin.SellerAccountManagerController;
-import com.auction.client.util.CurrencyUtils;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.*;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
@@ -14,8 +14,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-
-import java.text.DecimalFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
