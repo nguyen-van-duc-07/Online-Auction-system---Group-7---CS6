@@ -14,6 +14,7 @@ import com.auction.shared.request.UpdateProfileRequestDTO;
 import com.auction.shared.response.ChangePasswordResponseDTO;
 import config.ConnectionProvider;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -60,14 +61,11 @@ public class AuthServiceTest {
             connectionProvider
         );
     }
-
-    // ==========================================
     // TEST CASES FOR login
-    // ==========================================
 
     @Test
-    void login_correctBidderCredentials_returnsBidderWithWallet() {
-        // Arrange
+    @DisplayName("Đăng nhập thành công với tài khoản Bidder, trả về Bidder và Wallet")
+    void testLogin_CorrectBidderCredentials_ReturnsBidderWithWallet() {
         String phone = "0987654321";
         String password = "password123";
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -83,11 +81,7 @@ public class AuthServiceTest {
         when(userRepo.getPasswordByPhoneNumber(phone)).thenReturn(hashedPassword);
         when(userRepo.getUserByPhoneNumberNameOrId(phone, null)).thenReturn(bidder);
         when(walletRepo.getWalletByUserId("bidder123")).thenReturn(wallet);
-
-        // Act
         User result = authService.login(req);
-
-        // Assert
         assertNotNull(result);
         assertEquals(UserRole.BIDDER, result.getRole());
         assertEquals("bidder123", result.getId());
@@ -98,8 +92,8 @@ public class AuthServiceTest {
     }
 
     @Test
-    void login_correctAdminCredentials_returnsAdmin() {
-        // Arrange
+    @DisplayName("Đăng nhập thành công với tài khoản Admin, trả về Admin")
+    void testLogin_CorrectAdminCredentials_ReturnsAdmin() {
         String phone = "0999999999";
         String password = "adminPassword";
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -112,11 +106,7 @@ public class AuthServiceTest {
 
         when(userRepo.getPasswordByPhoneNumber(phone)).thenReturn(hashedPassword);
         when(userRepo.getUserByPhoneNumberNameOrId(phone, null)).thenReturn(admin);
-
-        // Act
         User result = authService.login(req);
-
-        // Assert
         assertNotNull(result);
         assertEquals(UserRole.ADMIN, result.getRole());
         assertEquals("admin123", result.getId());
@@ -126,8 +116,8 @@ public class AuthServiceTest {
     }
 
     @Test
-    void login_incorrectPassword_returnsNull() {
-        // Arrange
+    @DisplayName("Đăng nhập thất bại do sai mật khẩu, trả về null")
+    void testLogin_IncorrectPassword_ReturnsNull() {
         String phone = "0987654321";
         String correctPassword = "password123";
         String incorrectPassword = "wrongPassword";
@@ -135,26 +125,18 @@ public class AuthServiceTest {
         LoginRequestDTO req = new LoginRequestDTO(phone, incorrectPassword);
 
         when(userRepo.getPasswordByPhoneNumber(phone)).thenReturn(hashedPassword);
-
-        // Act
         User result = authService.login(req);
-
-        // Assert
         nullResultCheck(result);
     }
 
     @Test
-    void login_userNotFound_returnsNull() {
-        // Arrange
+    @DisplayName("Đăng nhập thất bại do không tìm thấy user, trả về null")
+    void testLogin_UserNotFound_ReturnsNull() {
         String phone = "0900000000";
         LoginRequestDTO req = new LoginRequestDTO(phone, "anyPassword");
 
         when(userRepo.getPasswordByPhoneNumber(phone)).thenReturn(null);
-
-        // Act
         User result = authService.login(req);
-
-        // Assert
         nullResultCheck(result);
     }
 
@@ -162,31 +144,24 @@ public class AuthServiceTest {
         assertNull(result);
         verify(userRepo, never()).getUserByPhoneNumberNameOrId(anyString(), anyString());
     }
-
-    // ==========================================
     // TEST CASES FOR signUp
-    // ==========================================
 
     @Test
-    void signUp_usernameExists_returnsFalse() {
-        // Arrange
+    @DisplayName("Đăng ký thất bại do tài khoản đã tồn tại, trả về false")
+    void testSignUp_UsernameExists_ReturnsFalse() {
         String phone = "0987654321";
         SignUpRequestDTO req = new SignUpRequestDTO(phone, "password123");
 
         when(userRepo.isAccountExist(phone)).thenReturn(true);
-
-        // Act
         boolean result = authService.signUp(req);
-
-        // Assert
         assertFalse(result);
         verify(userRepo).isAccountExist(phone);
         verifyNoInteractions(connectionProvider, walletRepo, notifService);
     }
 
     @Test
-    void signUp_validRequest_createsUserAndWalletAndSendsNotification() throws Exception {
-        // Arrange
+    @DisplayName("Đăng ký thành công, tạo User, Wallet và gửi thông báo")
+    void testSignUp_ValidRequest_CreatesUserAndWalletAndSendsNotification() throws Exception {
         String phone = "0987654321";
         SignUpRequestDTO req = new SignUpRequestDTO(phone, "password123");
 
@@ -194,11 +169,7 @@ public class AuthServiceTest {
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(userRepo.createUser(eq(mockConnection), any(User.class))).thenReturn(true);
         when(walletRepo.createWallet(eq(mockConnection), any(Wallet.class))).thenReturn(true);
-
-        // Act
         boolean result = authService.signUp(req);
-
-        // Assert
         assertTrue(result);
         verify(mockConnection).setAutoCommit(false);
         verify(mockConnection).commit();
@@ -207,19 +178,15 @@ public class AuthServiceTest {
     }
 
     @Test
-    void signUp_userCreationFails_rollsBackAndReturnsFalse() throws Exception {
-        // Arrange
+    @DisplayName("Đăng ký thất bại do lỗi tạo user, rollback và trả về false")
+    void testSignUp_UserCreationFails_RollsBackAndReturnsFalse() throws Exception {
         String phone = "0987654321";
         SignUpRequestDTO req = new SignUpRequestDTO(phone, "password123");
 
         when(userRepo.isAccountExist(phone)).thenReturn(false);
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(userRepo.createUser(eq(mockConnection), any(User.class))).thenReturn(false);
-
-        // Act
         boolean result = authService.signUp(req);
-
-        // Assert
         assertFalse(result);
         verify(mockConnection).setAutoCommit(false);
         verify(mockConnection).rollback();
@@ -229,8 +196,8 @@ public class AuthServiceTest {
     }
 
     @Test
-    void signUp_walletCreationFails_rollsBackAndReturnsFalse() throws Exception {
-        // Arrange
+    @DisplayName("Đăng ký thất bại do lỗi tạo ví, rollback và trả về false")
+    void testSignUp_WalletCreationFails_RollsBackAndReturnsFalse() throws Exception {
         String phone = "0987654321";
         SignUpRequestDTO req = new SignUpRequestDTO(phone, "password123");
 
@@ -238,11 +205,7 @@ public class AuthServiceTest {
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(userRepo.createUser(eq(mockConnection), any(User.class))).thenReturn(true);
         when(walletRepo.createWallet(eq(mockConnection), any(Wallet.class))).thenReturn(false);
-
-        // Act
         boolean result = authService.signUp(req);
-
-        // Assert
         assertFalse(result);
         verify(mockConnection).setAutoCommit(false);
         verify(mockConnection).rollback();
@@ -251,30 +214,23 @@ public class AuthServiceTest {
     }
 
     @Test
-    void signUp_exceptionThrown_rollsBackAndReturnsFalse() throws Exception {
-        // Arrange
+    @DisplayName("Đăng ký gặp ngoại lệ, rollback và trả về false")
+    void testSignUp_ExceptionThrown_RollsBackAndReturnsFalse() throws Exception {
         String phone = "0987654321";
         SignUpRequestDTO req = new SignUpRequestDTO(phone, "password123");
 
         when(userRepo.isAccountExist(phone)).thenReturn(false);
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         doThrow(new RuntimeException("DB Error")).when(mockConnection).setAutoCommit(false);
-
-        // Act
         boolean result = authService.signUp(req);
-
-        // Assert
         assertFalse(result);
         verify(mockConnection).close();
     }
-
-    // ==========================================
     // TEST CASES FOR updateProfile
-    // ==========================================
 
     @Test
-    void updateProfile_success_returnsUpdatedUser() {
-        // Arrange
+    @DisplayName("Cập nhật thông tin cá nhân thành công, trả về user đã cập nhật")
+    void testUpdateProfile_Success_ReturnsUpdatedUser() {
         String userId = "user123";
         UpdateProfileRequestDTO req = new UpdateProfileRequestDTO(
             userId,
@@ -290,11 +246,7 @@ public class AuthServiceTest {
 
         when(userRepo.updateProfile(any(User.class))).thenReturn(true);
         when(userRepo.getUserByPhoneNumberNameOrId(null, userId)).thenReturn(updatedUser);
-
-        // Act
         User result = authService.updateProfile(req);
-
-        // Assert
         assertNotNull(result);
         assertEquals("New Name", result.getAccountName());
         verify(userRepo).updateProfile(any(User.class));
@@ -302,8 +254,8 @@ public class AuthServiceTest {
     }
 
     @Test
-    void updateProfile_failure_returnsNull() {
-        // Arrange
+    @DisplayName("Cập nhật thông tin cá nhân thất bại, trả về null")
+    void testUpdateProfile_Failure_ReturnsNull() {
         String userId = "user123";
         UpdateProfileRequestDTO req = new UpdateProfileRequestDTO(
             userId,
@@ -314,40 +266,29 @@ public class AuthServiceTest {
         );
 
         when(userRepo.updateProfile(any(User.class))).thenReturn(false);
-
-        // Act
         User result = authService.updateProfile(req);
-
-        // Assert
         assertNull(result);
         verify(userRepo).updateProfile(any(User.class));
         verify(userRepo, never()).getUserByPhoneNumberNameOrId(anyString(), anyString());
     }
-
-    // ==========================================
     // TEST CASES FOR createAdmin
-    // ==========================================
 
     @Test
-    void createAdmin_usernameExists_returnsFalse() {
-        // Arrange
+    @DisplayName("Tạo tài khoản Admin thất bại do số điện thoại đã tồn tại")
+    void testCreateAdmin_UsernameExists_ReturnsFalse() {
         CreateAdminRequestDTO req = new CreateAdminRequestDTO();
         req.setPhoneNumber("0999999999");
 
         when(userRepo.isAccountExist("0999999999")).thenReturn(true);
-
-        // Act
         boolean result = authService.createAdmin(req);
-
-        // Assert
         assertFalse(result);
         verify(userRepo).isAccountExist("0999999999");
         verify(userRepo, never()).saveAdminAccount(any());
     }
 
     @Test
-    void createAdmin_success_returnsTrue() {
-        // Arrange
+    @DisplayName("Tạo tài khoản Admin thành công, trả về true")
+    void testCreateAdmin_Success_ReturnsTrue() {
         CreateAdminRequestDTO req = new CreateAdminRequestDTO();
         req.setPhoneNumber("0999999999");
         req.setPassword("adminPass");
@@ -358,19 +299,15 @@ public class AuthServiceTest {
 
         when(userRepo.isAccountExist("0999999999")).thenReturn(false);
         when(userRepo.saveAdminAccount(any(Admin.class))).thenReturn(true);
-
-        // Act
         boolean result = authService.createAdmin(req);
-
-        // Assert
         assertTrue(result);
         verify(userRepo).isAccountExist("0999999999");
         verify(userRepo).saveAdminAccount(any(Admin.class));
     }
 
     @Test
-    void createAdmin_emptyAccountName_setsDefaultNameAndSucceeds() {
-        // Arrange
+    @DisplayName("Tạo Admin với tên rỗng, tự động gán tên mặc định và thành công")
+    void testCreateAdmin_EmptyAccountName_SetsDefaultNameAndSucceeds() {
         CreateAdminRequestDTO req = new CreateAdminRequestDTO();
         req.setPhoneNumber("0999999999");
         req.setPassword("adminPass");
@@ -378,31 +315,20 @@ public class AuthServiceTest {
 
         when(userRepo.isAccountExist("0999999999")).thenReturn(false);
         when(userRepo.saveAdminAccount(any(Admin.class))).thenReturn(true);
-
-        // Act
         boolean result = authService.createAdmin(req);
-
-        // Assert
         assertTrue(result);
         verify(userRepo).saveAdminAccount(argThat(admin -> 
             admin.getAccountName() != null && !admin.getAccountName().isEmpty()
         ));
     }
-
-    // ==========================================
     // TEST CASES FOR changePassword
-    // ==========================================
 
     @Test
-    void changePassword_userNotFound_returnsFailure() {
-        // Arrange
+    @DisplayName("Đổi mật khẩu thất bại do không tìm thấy user")
+    void testChangePassword_UserNotFound_ReturnsFailure() {
         ChangePasswordRequestDTO req = new ChangePasswordRequestDTO("user123", "oldPass", "newPass");
         when(userRepo.getPasswordByUserId("user123")).thenReturn(null);
-
-        // Act
         ChangePasswordResponseDTO result = authService.changePassword(req);
-
-        // Assert
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("Không tìm thấy thông tin tài khoản người dùng!", result.getMessage());
@@ -410,16 +336,12 @@ public class AuthServiceTest {
     }
 
     @Test
-    void changePassword_incorrectOldPassword_returnsFailure() {
-        // Arrange
+    @DisplayName("Đổi mật khẩu thất bại do sai mật khẩu cũ")
+    void testChangePassword_IncorrectOldPassword_ReturnsFailure() {
         ChangePasswordRequestDTO req = new ChangePasswordRequestDTO("user123", "wrongOldPass", "newPass");
         String currentHashedPassword = BCrypt.hashpw("correctOldPass", BCrypt.gensalt());
         when(userRepo.getPasswordByUserId("user123")).thenReturn(currentHashedPassword);
-
-        // Act
         ChangePasswordResponseDTO result = authService.changePassword(req);
-
-        // Assert
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("Mật khẩu hiện tại không chính xác!", result.getMessage());
@@ -427,17 +349,13 @@ public class AuthServiceTest {
     }
 
     @Test
-    void changePassword_correctOldPasswordSuccess_returnsSuccess() {
-        // Arrange
+    @DisplayName("Đổi mật khẩu thành công")
+    void testChangePassword_CorrectOldPasswordSuccess_ReturnsSuccess() {
         ChangePasswordRequestDTO req = new ChangePasswordRequestDTO("user123", "correctOldPass", "newPass");
         String currentHashedPassword = BCrypt.hashpw("correctOldPass", BCrypt.gensalt());
         when(userRepo.getPasswordByUserId("user123")).thenReturn(currentHashedPassword);
         when(userRepo.updatePassword(eq("user123"), anyString())).thenReturn(true);
-
-        // Act
         ChangePasswordResponseDTO result = authService.changePassword(req);
-
-        // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
         assertEquals("Cập nhật mật khẩu mới thành công!", result.getMessage());
@@ -445,40 +363,29 @@ public class AuthServiceTest {
     }
 
     @Test
-    void changePassword_correctOldPasswordFailure_returnsSystemFailure() {
-        // Arrange
+    @DisplayName("Đổi mật khẩu thất bại do lỗi hệ thống cập nhật DB")
+    void testChangePassword_CorrectOldPasswordFailure_ReturnsSystemFailure() {
         ChangePasswordRequestDTO req = new ChangePasswordRequestDTO("user123", "correctOldPass", "newPass");
         String currentHashedPassword = BCrypt.hashpw("correctOldPass", BCrypt.gensalt());
         when(userRepo.getPasswordByUserId("user123")).thenReturn(currentHashedPassword);
         when(userRepo.updatePassword(eq("user123"), anyString())).thenReturn(false);
-
-        // Act
         ChangePasswordResponseDTO result = authService.changePassword(req);
-
-        // Assert
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("Lỗi hệ thống khi cập nhật mật khẩu mới!", result.getMessage());
         verify(userRepo).updatePassword(eq("user123"), anyString());
     }
-
-    // ==========================================
     // TEST CASES FOR getAllUsers
-    // ==========================================
 
     @Test
-    void getAllUsers_returnsList() {
-        // Arrange
+    @DisplayName("Lấy danh sách tất cả người dùng thành công")
+    void testGetAllUsers_ReturnsList() {
         List<UserDTO> expectedUsers = new ArrayList<>();
         expectedUsers.add(UserDTO.builder().id("1").accountName("User One").build());
         expectedUsers.add(UserDTO.builder().id("2").accountName("User Two").build());
 
         when(userRepo.getAllUsers()).thenReturn(expectedUsers);
-
-        // Act
         List<UserDTO> actualUsers = authService.getAllUsers();
-
-        // Assert
         assertNotNull(actualUsers);
         assertEquals(2, actualUsers.size());
         assertEquals(expectedUsers, actualUsers);

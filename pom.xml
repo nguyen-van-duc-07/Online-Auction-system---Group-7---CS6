@@ -98,6 +98,22 @@
                         <!-- Exclude DTOs from shared module -->
                         <exclude>com/auction/shared/request/**/*</exclude>
                         <exclude>com/auction/shared/response/**/*</exclude>
+                        <!-- Exclude Repository layer (JDBC/SQL thuần, cần integration test) -->
+                        <exclude>repository/AuctionRepository.class</exclude>
+                        <exclude>repository/AutoBidConfigRepository.class</exclude>
+                        <exclude>repository/BidTransactionRepository.class</exclude>
+                        <exclude>repository/NotificationRepository.class</exclude>
+                        <exclude>repository/OrderRepository.class</exclude>
+                        <exclude>repository/SellerProfileRepository.class</exclude>
+                        <exclude>repository/UserRepository.class</exclude>
+                        <exclude>repository/WalletRepository.class</exclude>
+                        <exclude>repository/WalletTransactionRepository.class</exclude>
+                        <exclude>repository/debug/**/*</exclude>
+                        <!-- Exclude Server infrastructure (Socket I/O, threading) -->
+                        <exclude>servercontroller/Server.class</exclude>
+                        <exclude>servercontroller/ClientHandler.class</exclude>
+                        <exclude>service/ImageHttpServer.class</exclude>
+                        <exclude>config/DatabaseConnection.class</exclude>
                     </excludes>
                 </configuration>
             </plugin>

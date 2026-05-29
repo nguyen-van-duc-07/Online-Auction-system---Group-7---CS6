@@ -6,6 +6,7 @@ import com.auction.shared.request.CheckingSellerProfileRequestDTO;
 import com.auction.shared.request.SellerRegisterRequestDTO;
 import com.auction.shared.request.UpdateSellerProfileStatusRequestDTO;
 import com.auction.shared.response.UpdateSellerProfileStatusResponseDTO;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,10 +32,7 @@ public class SellerServiceTest {
 
     @InjectMocks
     private SellerService sellerService;
-
-    // ==========================================
     // CÁC KIỂM THỬ CHO PHƯƠNG THỨC sellerRegister
-    // ==========================================
 
     private SellerRegisterRequestDTO createRegisterRequest(
         String userId, String brandName, String citizenIdentityCard, String location, String bankAccount, String bankName
@@ -50,8 +48,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void sellerRegister_dangKyThanhCong_traVeTrueVaGuiThongBao() {
-        // Sắp đặt
+    @DisplayName("Đăng ký người bán thành công: Trả về true và gửi thông báo")
+    void testSellerRegister_Success_ReturnsTrueAndSendsNotification() {
         SellerRegisterRequestDTO req = createRegisterRequest(
             "user123", "BrandX", "123456789", "Ha Noi", "000111222", "VietinBank"
         );
@@ -72,8 +70,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void sellerRegister_dangKyThatBai_traVeFalseVaKhongGuiThongBao() {
-        // Sắp đặt
+    @DisplayName("Đăng ký người bán thất bại: Trả về false và không gửi thông báo")
+    void testSellerRegister_Failure_ReturnsFalseAndNoNotification() {
         SellerRegisterRequestDTO req = createRegisterRequest(
             "user123", "BrandX", "123456789", "Ha Noi", "000111222", "VietinBank"
         );
@@ -90,13 +88,11 @@ public class SellerServiceTest {
             assertTrue(constructed.isEmpty());
         }
     }
-
-    // ==========================================
     // CÁC KIỂM THỬ CHO PHƯƠNG THỨC isSellerProfileCreated
-    // ==========================================
 
     @Test
-    void isSellerProfileCreated_profileTonTai_traVeTrue() {
+    @DisplayName("Kiểm tra hồ sơ người bán: Đã tồn tại trả về true")
+    void testIsSellerProfileCreated_ProfileExists_ReturnsTrue() {
         CheckingSellerProfileRequestDTO req = new CheckingSellerProfileRequestDTO("user123");
         when(sellerRepo.findProfileIdByUserId("user123")).thenReturn("profile123");
 
@@ -107,7 +103,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void isSellerProfileCreated_profileKhongTonTai_traVeFalse() {
+    @DisplayName("Kiểm tra hồ sơ người bán: Không tồn tại trả về false")
+    void testIsSellerProfileCreated_ProfileNotExists_ReturnsFalse() {
         CheckingSellerProfileRequestDTO req = new CheckingSellerProfileRequestDTO("user123");
         when(sellerRepo.findProfileIdByUserId("user123")).thenReturn(null);
 
@@ -116,13 +113,11 @@ public class SellerServiceTest {
         assertFalse(result);
         verify(sellerRepo).findProfileIdByUserId("user123");
     }
-
-    // ==========================================
     // CÁC KIỂM THỬ CHO PHƯƠNG THỨC sellerProfileStatus
-    // ==========================================
 
     @Test
-    void sellerProfileStatus_traVeTrangThaiChinhXac() {
+    @DisplayName("Lấy trạng thái hồ sơ người bán chính xác")
+    void testSellerProfileStatus_ReturnsCorrectStatus() {
         when(sellerRepo.getSellerProfileStatus("user123")).thenReturn("REGISTERED");
 
         String status = sellerService.sellerProfileStatus("user123");
@@ -130,13 +125,11 @@ public class SellerServiceTest {
         assertEquals("REGISTERED", status);
         verify(sellerRepo).getSellerProfileStatus("user123");
     }
-
-    // ==========================================
     // CÁC KIỂM THỬ CHO PHƯƠNG THỨC getSellerProfiles
-    // ==========================================
 
     @Test
-    void getSellerProfiles_traVeDanhSachHapLe() {
+    @DisplayName("Lấy danh sách hồ sơ người bán hợp lệ")
+    void testGetSellerProfiles_ReturnsValidList() {
         List<SellerProfile> dbProfiles = new ArrayList<>();
         SellerProfile p1 = new SellerProfile("user1", "Brand1", "CID1", "Loc1", "Acc1", "Bank1", "REGISTERED");
         SellerProfile p2 = new SellerProfile("user2", "Brand2", "CID2", "Loc2", "Acc2", "Bank2", "UNREGISTERED");
@@ -155,13 +148,11 @@ public class SellerServiceTest {
         assertEquals("Brand2", result.get(1).getBrandName());
         verify(sellerRepo).getAllSellerProfiles();
     }
-
-    // ==========================================
     // CÁC KIỂM THỬ CHO handleUpdateSellerProfileStatus
-    // ==========================================
 
     @Test
-    void handleUpdateSellerProfileStatus_xungDotTrangThai_traVeLoi() {
+    @DisplayName("Cập nhật trạng thái hồ sơ: Xung đột trạng thái trả về lỗi")
+    void testHandleUpdateSellerProfileStatus_StatusConflict_ReturnsError() {
         UpdateSellerProfileStatusRequestDTO req = new UpdateSellerProfileStatusRequestDTO(
             "user123", SellerRegisterStatus.REGISTERED, SellerRegisterStatus.UNREGISTERED
         );
@@ -176,7 +167,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void handleUpdateSellerProfileStatus_hoSoKhongTonTai_traVeLoi() {
+    @DisplayName("Cập nhật trạng thái hồ sơ: Không tìm thấy hồ sơ trả về lỗi")
+    void testHandleUpdateSellerProfileStatus_ProfileNotFound_ReturnsError() {
         UpdateSellerProfileStatusRequestDTO req = new UpdateSellerProfileStatusRequestDTO(
             "user123", SellerRegisterStatus.REGISTERED, SellerRegisterStatus.UNREGISTERED
         );
@@ -190,7 +182,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void handleUpdateSellerProfileStatus_duyetThanhCong_khoiPhucDauGiaVaGuiThongBao() {
+    @DisplayName("Duyệt hồ sơ thành công: Khôi phục phiên đấu giá và gửi thông báo")
+    void testHandleUpdateSellerProfileStatus_ApproveSuccess_RestoresAuctionsAndSendsNotification() {
         UpdateSellerProfileStatusRequestDTO req = new UpdateSellerProfileStatusRequestDTO(
             "user123", SellerRegisterStatus.REGISTERED, SellerRegisterStatus.UNREGISTERED
         );
@@ -215,7 +208,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void handleUpdateSellerProfileStatus_tuChoiThanhCong_huyDauGiaVaGuiThongBao() {
+    @DisplayName("Từ chối hồ sơ thành công: Hủy phiên đấu giá và gửi thông báo")
+    void testHandleUpdateSellerProfileStatus_RejectSuccess_CancelsAuctionsAndSendsNotification() {
         UpdateSellerProfileStatusRequestDTO req = new UpdateSellerProfileStatusRequestDTO(
             "user123", SellerRegisterStatus.DENIED, SellerRegisterStatus.UNREGISTERED
         );
@@ -240,7 +234,8 @@ public class SellerServiceTest {
     }
 
     @Test
-    void handleUpdateSellerProfileStatus_capNhatThatBai_traVeLoi() {
+    @DisplayName("Cập nhật trạng thái hồ sơ thất bại: Lỗi hệ thống trả về thông báo lỗi")
+    void testHandleUpdateSellerProfileStatus_UpdateFailure_ReturnsError() {
         UpdateSellerProfileStatusRequestDTO req = new UpdateSellerProfileStatusRequestDTO(
             "user123", SellerRegisterStatus.REGISTERED, SellerRegisterStatus.UNREGISTERED
         );

@@ -5,6 +5,7 @@ import com.auction.shared.enums.WalletTransactionType;
 import com.auction.shared.model.user.Wallet;
 import com.auction.shared.model.transaction.WalletTransaction;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -55,14 +56,11 @@ public class WalletServiceTest {
             notifService
         );
     }
-
-    // ==========================================
     // TEST CASES FOR getBalance
-    // ==========================================
 
     @Test
-    void getBalance_userExists_returnsCorrectBalance() throws Exception {
-        // Arrange
+    @DisplayName("Lấy số dư: Trả về số dư chính xác khi user tồn tại")
+    void testGetBalance_UserExists_ReturnsCorrectBalance() throws Exception {
         String userId = "user123";
         BigDecimal expectedBalance = new BigDecimal("1500000.00");
         Wallet wallet = new Wallet();
@@ -70,18 +68,14 @@ public class WalletServiceTest {
         wallet.setBalance(expectedBalance);
 
         when(walletRepo.getWalletByUserId(userId)).thenReturn(wallet);
-
-        // Act
         BigDecimal actualBalance = walletService.getBalance(userId);
-
-        // Assert
         assertEquals(expectedBalance, actualBalance);
         verify(walletRepo).getWalletByUserId(userId);
     }
 
     @Test
-    void getBalance_userDoesNotExist_throwsException() {
-        // Arrange
+    @DisplayName("Lấy số dư thất bại: Ném ngoại lệ khi user không tồn tại")
+    void testGetBalance_UserDoesNotExist_ThrowsException() {
         String userId = "unknownUser";
         when(walletRepo.getWalletByUserId(userId)).thenReturn(null);
 
@@ -93,14 +87,11 @@ public class WalletServiceTest {
         assertEquals("Không tìm thấy ví của người dùng: " + userId, exception.getMessage());
         verify(walletRepo).getWalletByUserId(userId);
     }
-
-    // ==========================================
     // TEST CASES FOR freezeMoney
-    // ==========================================
 
     @Test
-    void freezeMoney_sufficientBalance_updatesWalletAndSavesTransaction() {
-        // Arrange
+    @DisplayName("Đóng băng tiền thành công: Đủ số dư, cập nhật ví và lưu giao dịch")
+    void testFreezeMoney_SufficientBalance_UpdatesWalletAndSavesTransaction() {
         String userId = "user123";
         String auctionId = "auc999";
         BigDecimal amount = new BigDecimal("500000.00");
@@ -112,11 +103,7 @@ public class WalletServiceTest {
         wallet.setFrozenBalance(BigDecimal.ZERO);
 
         when(walletRepo.getWalletByUserIdForUpdate(mockConnection, userId)).thenReturn(wallet);
-
-        // Act
         walletService.freezeMoney(mockConnection, userId, amount, auctionId);
-
-        // Assert
         assertEquals(new BigDecimal("500000.00"), wallet.getBalance());
         assertEquals(new BigDecimal("500000.00"), wallet.getFrozenBalance());
         verify(walletRepo).updateWallet(mockConnection, wallet);
@@ -124,8 +111,8 @@ public class WalletServiceTest {
     }
 
     @Test
-    void freezeMoney_insufficientBalance_throwsRuntimeException() {
-        // Arrange
+    @DisplayName("Đóng băng tiền thất bại: Số dư không đủ ném ngoại lệ")
+    void testFreezeMoney_InsufficientBalance_ThrowsRuntimeException() {
         String userId = "user123";
         String auctionId = "auc999";
         BigDecimal amount = new BigDecimal("1500000.00"); // Greater than 1,000,000
@@ -147,14 +134,11 @@ public class WalletServiceTest {
         verify(walletRepo, never()).updateWallet(any(), any());
         verify(txRepo, never()).saveWalletTransaction(any(), any());
     }
-
-    // ==========================================
     // TEST CASES FOR releaseFrozen
-    // ==========================================
 
     @Test
-    void releaseFrozen_validRequest_updatesWalletAndSavesTransaction() {
-        // Arrange
+    @DisplayName("Hoàn trả tiền đóng băng thành công: Cập nhật ví và lưu giao dịch")
+    void testReleaseFrozen_ValidRequest_UpdatesWalletAndSavesTransaction() {
         String userId = "user123";
         String auctionId = "auc999";
         BigDecimal amount = new BigDecimal("300000.00");
@@ -166,24 +150,17 @@ public class WalletServiceTest {
         wallet.setFrozenBalance(new BigDecimal("300000.00"));
 
         when(walletRepo.getWalletByUserIdForUpdate(mockConnection, userId)).thenReturn(wallet);
-
-        // Act
         walletService.releaseFrozen(mockConnection, userId, amount, auctionId);
-
-        // Assert
         assertEquals(new BigDecimal("1000000.00"), wallet.getBalance());
         assertEquals(0, BigDecimal.ZERO.compareTo(wallet.getFrozenBalance()));
         verify(walletRepo).updateWallet(mockConnection, wallet);
         verify(txRepo).saveWalletTransaction(eq(mockConnection), any(WalletTransaction.class));
     }
-
-    // ==========================================
     // TEST CASES FOR createTransactionRequest
-    // ==========================================
 
     @Test
-    void createTransactionRequest_depositSuccess_commitsAndSendsNotification() throws Exception {
-        // Arrange
+    @DisplayName("Tạo yêu cầu nạp tiền thành công: Commit và gửi thông báo")
+    void testCreateTransactionRequest_DepositSuccess_CommitsAndSendsNotification() throws Exception {
         String userId = "user123";
         BigDecimal amount = new BigDecimal("500000.00");
         WalletTransactionType type = WalletTransactionType.DEPOSIT;
@@ -196,11 +173,7 @@ public class WalletServiceTest {
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(walletRepo.getWalletByUserIdForUpdate(mockConnection, userId)).thenReturn(wallet);
         when(txRepo.saveWalletTransaction(eq(mockConnection), any(WalletTransaction.class))).thenReturn(true);
-
-        // Act
         boolean result = walletService.createTransactionRequest(userId, amount, type);
-
-        // Assert
         assertTrue(result);
         verify(mockConnection).setAutoCommit(false);
         verify(mockConnection).commit();
@@ -209,8 +182,8 @@ public class WalletServiceTest {
     }
 
     @Test
-    void createTransactionRequest_withdrawInsufficientBalance_failsWithoutCommit() throws Exception {
-        // Arrange
+    @DisplayName("Tạo yêu cầu rút tiền thất bại: Số dư không đủ, không commit")
+    void testCreateTransactionRequest_WithdrawInsufficientBalance_FailsWithoutCommit() throws Exception {
         String userId = "user123";
         BigDecimal amount = new BigDecimal("1500000.00"); // Greater than balance
         WalletTransactionType type = WalletTransactionType.WITHDRAW;
@@ -222,24 +195,17 @@ public class WalletServiceTest {
 
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(walletRepo.getWalletByUserIdForUpdate(mockConnection, userId)).thenReturn(wallet);
-
-        // Act
         boolean result = walletService.createTransactionRequest(userId, amount, type);
-
-        // Assert
         assertFalse(result);
         verify(mockConnection).rollback();
         verify(txRepo, never()).saveWalletTransaction(any(), any());
         verify(notifService, never()).sendFromNotification(any());
     }
-
-    // ==========================================
     // TEST CASES FOR processTransactionRequest
-    // ==========================================
 
     @Test
-    void processTransactionRequest_approveDeposit_updatesWalletAndCommits() throws Exception {
-        // Arrange
+    @DisplayName("Xử lý yêu cầu nạp tiền (Duyệt): Cập nhật ví và commit")
+    void testProcessTransactionRequest_ApproveDeposit_UpdatesWalletAndCommits() throws Exception {
         String transactionId = "tx777";
         WalletTransaction tx = WalletTransaction.builder()
             .walletId("walletId123")
@@ -258,11 +224,7 @@ public class WalletServiceTest {
         when(txRepo.getTransactionById(mockConnection, transactionId)).thenReturn(tx);
         when(walletRepo.getWalletByWalletId(mockConnection, "walletId123")).thenReturn(wallet);
         when(walletRepo.updateWallet(mockConnection, wallet)).thenReturn(true);
-
-        // Act
         boolean result = walletService.processTransactionRequest(transactionId, WalletTransactionStatus.APPROVE);
-
-        // Assert
         assertTrue(result);
         assertEquals(new BigDecimal("1200000.00"), wallet.getBalance());
         assertEquals(WalletTransactionStatus.APPROVE, tx.getStatus());
@@ -272,8 +234,8 @@ public class WalletServiceTest {
     }
 
     @Test
-    void processTransactionRequest_rejectWithdraw_refundsBalanceAndCommits() throws Exception {
-        // Arrange
+    @DisplayName("Xử lý yêu cầu rút tiền (Từ chối): Hoàn tiền và commit")
+    void testProcessTransactionRequest_RejectWithdraw_RefundsBalanceAndCommits() throws Exception {
         String transactionId = "tx777";
         WalletTransaction tx = WalletTransaction.builder()
             .walletId("walletId123")
@@ -292,11 +254,7 @@ public class WalletServiceTest {
         when(txRepo.getTransactionById(mockConnection, transactionId)).thenReturn(tx);
         when(walletRepo.getWalletByWalletId(mockConnection, "walletId123")).thenReturn(wallet);
         when(txRepo.updateWalletTransaction(mockConnection, tx)).thenReturn(true);
-
-        // Act
         boolean result = walletService.processTransactionRequest(transactionId, WalletTransactionStatus.REJECT);
-
-        // Assert
         assertTrue(result);
         assertEquals(new BigDecimal("1000000.00"), wallet.getBalance()); // Refunded
         assertEquals(WalletTransactionStatus.REJECT, tx.getStatus());
