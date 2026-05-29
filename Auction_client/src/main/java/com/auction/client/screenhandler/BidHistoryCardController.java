@@ -1,7 +1,7 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
-import com.auction.client.util.CurrencyUtils;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.UserDTO;
 import javafx.fxml.FXML;
@@ -9,8 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;

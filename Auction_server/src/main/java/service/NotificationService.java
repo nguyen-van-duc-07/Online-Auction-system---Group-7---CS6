@@ -10,7 +10,7 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.time.LocalDateTime;
-import com.auction.shared.util.FormatUtil;
+import com.auction.shared.util.CurrencyUtils;
 
 public class NotificationService {
   private final NotificationRepository notifRepo;
@@ -55,10 +55,10 @@ public class NotificationService {
         UUID.randomUUID().toString(),
         NotificationType.SYSTEM,
         "🎉 Phiên đấu giá mới mở!",
-        "Sản phẩm '" + itemName + "' đã bắt đầu đấu giá với giá khởi điểm " + 
-            FormatUtil.fmt(startPrice) + " VNĐ. Tham gia ngay!",
+        "Sản phẩm '" + itemName + "' đã bắt đầu đấu giá với giá khởi điểm "
+            + CurrencyUtils.formatVnd(startPrice) + " VNĐ. Tham gia ngay!",
         auctionId,
-        false,
+        true,
         LocalDateTime.now()
     );
 

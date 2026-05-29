@@ -2,7 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.client.util.CurrencyUtils;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.client.service.InvoiceService;
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Optional;
@@ -141,9 +140,9 @@ public class PaymentScreenController implements Initializable {
   }
 
   private void handlePayment() {
-    String consigneeName = txtFullName.getText().trim();
-    String phoneNumber = txtPhoneNumber.getText().trim();
-    String address = txtAddress.getText().trim();
+    String consigneeName = txtFullName.getText() != null && !txtFullName.getText().trim().isEmpty() ? txtFullName.getText().trim() : "";
+    String phoneNumber = txtPhoneNumber.getText() != null && !txtPhoneNumber.getText().trim().isEmpty() ? txtPhoneNumber.getText().trim() : "";
+    String address = txtAddress.getText() != null && !txtAddress.getText().trim().isEmpty() ? txtAddress.getText().trim() : "";
     if (consigneeName.isEmpty() ||
         phoneNumber.isEmpty() ||
         address.isEmpty()) {

@@ -1,4 +1,4 @@
-package com.auction.client.util;
+package com.auction.shared.util;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

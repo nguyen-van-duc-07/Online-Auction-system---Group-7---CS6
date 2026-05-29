@@ -1,26 +1,24 @@
 package scheduler;
 
 import com.auction.shared.enums.AuctionStatus;
-import com.auction.shared.enums.NotificationType;
-import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.order.Order;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.AuctionResultDTO;
 import com.auction.shared.response.AuctionStatusUpdateDTO;
+import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.util.NotificationTemplate;
 import repository.AuctionRepository;
-import repository.SellerProfileRepository;
 import servercontroller.Server;
 import service.NotificationService;
 import service.OrderService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,65 +103,55 @@ public class AuctionStatusScheduler {
             continue;
           }
 
-          AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+          AuctionResponseDTO auction = entry.getValue();
           if (auction == null) {
             continue;
           }
 
           log.info("BROADCAST CLOSED: {}", id);
           Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
-          String itemId = auction.getItem().getId();
-          String itemName = auction.getItem().getName();
-          String winnerId = auction.getHighestBidderId();
-
-          String userId = auction.getUserId();
-          if (winnerId != null && !winnerId.isBlank()) {
-            log.info("SERVER GỬI THÔNG BÁO CHIẾN THẮNG [AuctionId: {} | Winner: {} | Giá cuối : {}]",
-                id, winnerId, com.auction.shared.util.FormatUtil.fmt(auction.getCurrentHighestPrice()));
-            Server.broadcastToAuctionRoom(new AuctionResultDTO(
-                id,
-                winnerId,
-                itemId,
-                itemName,
-                auction.getCurrentHighestPrice()
-            ));
-            Order order = orderService.createOrder(id, winnerId, auction.getCurrentHighestPrice());
-            log.info("[SCHEDULER] Kết quả tạo đơn hàng: {}", (order != null ? order.getId() : "NULL"));
-            if (order != null) {
-              // Thông báo cho winner
-              notifService.sendFromNotification(
-                  NotificationTemplate.auctionWon(
-                      winnerId,
-                      itemName,
-                      auction.getCurrentHighestPrice(),
-                      order.getId()
-                  )
-              );
-
-              // Thông báo cho seller
-              notifService.sendFromNotification(
-                  NotificationTemplate.auctionEndedWithWinner(
-                      userId,
-                      itemName,
-                      auction.getCurrentHighestPrice(),
-                      order.getId()
-                  )
-              );
-            } else {
-              log.info("Phiên {} không có người thắng.", id);
-              notifService.sendFromNotification(
-                  NotificationTemplate.auctionEndedNoWinner(
-                      userId,
-                      itemName,
-                      id
-                  )
-              );
-            }
-          }
+          processAuctionResult(id, auction);
         }
       }
     } catch (Exception e) {
-      log.error("[SCHEDULER] Lỗi nghiêm trọng khi cập nhật trạng thái đấu giá", e);
+      log.error("[SCHEDULER] Lỗi nghiêm trọng trong chu kỳ quét trạng thái đấu giá", e);
+    }
+  }
+
+
+  private void processAuctionResult(String auctionId, AuctionResponseDTO auction) {
+    try {
+      String itemName = auction.getItem().getName();
+      String winnerId = auction.getHighestBidderId();
+      String sellerId = auction.getUserId();
+
+      // Trường hợp 1: Có người thắng cuộc
+      if (winnerId != null && !winnerId.isBlank()) {
+        log.info("SERVER GỬI THÔNG BÁO CHIẾN THẮNG [AuctionId: {} | Winner: {} | Giá cuối: {}]",
+            auctionId, winnerId, CurrencyUtils.formatVnd(auction.getCurrentHighestPrice()));
+
+        Server.broadcastToAuctionRoom(new AuctionResultDTO(
+            auctionId, winnerId, itemName, auction.getCurrentHighestPrice()
+        ));
+
+        Order order = orderService.createOrder(auctionId, winnerId, auction.getCurrentHighestPrice());
+        if (order != null) {
+          log.info("[SCHEDULER] Kết quả tạo đơn hàng thành công: {}", order.getId());
+          // Gửi thông báo cho Winner
+          notifService.sendFromNotification(NotificationTemplate.auctionWon(winnerId, itemName, auction.getCurrentHighestPrice(), order.getId()));
+          // Gửi thông báo cho Seller
+          notifService.sendFromNotification(NotificationTemplate.auctionEndedWithWinner(sellerId, itemName, auction.getCurrentHighestPrice(), order.getId()));
+        } else {
+          log.error("[SYSTEM ERROR] Phiên {} có người thắng nhưng hệ thống không thể tạo Đơn hàng!", auctionId);
+        }
+      }
+      // Trường hợp 2: Hết giờ nhưng không có ai đặt giá thầu
+      else {
+        log.info("Phiên {} kết thúc nhưng không có người thắng (Ế hàng).", auctionId);
+        notifService.sendFromNotification(NotificationTemplate.auctionEndedNoWinner(sellerId, itemName, auctionId));
+      }
+    } catch (Exception e) {
+      log.error("Lỗi khi xử lý kết quả hậu kỳ cho phiên đấu giá: " + auctionId, e);
     }
   }
 }
