@@ -1,6 +1,7 @@
 package com.auction.client.service;
 
 import com.auction.shared.model.transaction.PrizedTransaction;
+import com.auction.shared.util.CurrencyUtils;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import java.io.File;
@@ -20,14 +21,6 @@ import org.slf4j.LoggerFactory;
 public class InvoiceService {
   private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
-  // Định dạng tiền tệ VND chuyên nghiệp
-  private String formatCurrency(BigDecimal amount) {
-    if (amount == null) return "0 đ";
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
-    symbols.setGroupingSeparator('.');
-    DecimalFormat currencyFormat = new DecimalFormat("#,###", symbols);
-    return currencyFormat.format(amount) + " đ";
-  }
 
   /**
    * Phương thức cũ (Giữ nguyên để tương thích ngược nếu cần)
@@ -83,10 +76,10 @@ public class InvoiceService {
             .replace("{{address}}", address != null && !address.isEmpty() ? address : "N/A")
             .replace("{{itemId}}", transaction.getItemId() != null ? transaction.getItemId() : "N/A")
             .replace("{{itemName}}", itemName != null && !itemName.isEmpty() ? itemName : "Sản phẩm đấu giá")
-            .replace("{{itemPrice}}", formatCurrency(finalPrice))
-            .replace("{{subTotal}}", formatCurrency(finalPrice))
-            .replace("{{shippingFee}}", formatCurrency(shippingFee))
-            .replace("{{totalAmount}}", formatCurrency(totalAmount));
+            .replace("{{itemPrice}}", CurrencyUtils.formatD(finalPrice))
+            .replace("{{subTotal}}", CurrencyUtils.formatD(finalPrice))
+            .replace("{{shippingFee}}", CurrencyUtils.formatD(shippingFee))
+            .replace("{{totalAmount}}", CurrencyUtils.formatD(totalAmount));
 
         // 3. Tiến hành render chuỗi HTML hoàn chỉnh thành file PDF
         try (OutputStream os = new FileOutputStream(outputPath)) {

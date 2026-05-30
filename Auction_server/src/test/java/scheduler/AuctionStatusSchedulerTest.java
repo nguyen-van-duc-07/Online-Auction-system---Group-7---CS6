@@ -67,7 +67,7 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
         scheduler.updateAuctionStatus();
         verify(auctionRepo, never()).activateAuctions(anyList());
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(any()), never());
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(anyString(), any()), never());
         verify(notifService, never()).sendNewAuctionNotification(anyString(), anyString(), any());
     }
 
@@ -89,10 +89,14 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
         scheduler.updateAuctionStatus();
         verify(auctionRepo).activateAuctions(activateIds);
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
-            AuctionStatusUpdateDTO updateDto = (AuctionStatusUpdateDTO) dto;
-            return auctionId.equals(updateDto.getId()) && AuctionStatus.ACTIVE == updateDto.getAuctionStatus();
-        })));
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(
+            eq(auctionId),
+            argThat(dto -> {
+                AuctionStatusUpdateDTO updateDto = (AuctionStatusUpdateDTO) dto;
+                return auctionId.equals(updateDto.getId()) &&
+                    AuctionStatus.ACTIVE == updateDto.getAuctionStatus();
+            })
+        ));
         verify(notifService).sendNewAuctionNotification(auctionId, "Bức tranh cổ", new BigDecimal("1000000.00"));
     }
     // TEST CASES FOR updateAuctionStatus (Closing)
@@ -106,7 +110,6 @@ public class AuctionStatusSchedulerTest {
         BigDecimal finalPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
-        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -127,22 +130,28 @@ public class AuctionStatusSchedulerTest {
         mockOrder.setId("order001");
         when(orderService.createOrder(auctionId, winnerId, finalPrice)).thenReturn(mockOrder);
         scheduler.updateAuctionStatus();
-        verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
-            if (dto instanceof AuctionStatusUpdateDTO statusDto) {
-                return auctionId.equals(statusDto.getId()) && AuctionStatus.CLOSED == statusDto.getAuctionStatus();
-            }
-            return false;
-        })));
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
-            if (dto instanceof AuctionResultDTO resultDto) {
-                return auctionId.equals(resultDto.getAuctionId()) &&
-                       winnerId.equals(resultDto.getWinnerId()) &&
-                       "Đồng hồ Thụy Sỹ".equals(resultDto.getItemName()) &&
-                       finalPrice.equals(resultDto.getFinalPrice());
-            }
-            return false;
-        })));
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(
+            eq(auctionId),
+            argThat(dto -> {
+                if (dto instanceof AuctionStatusUpdateDTO statusDto) {
+                    return auctionId.equals(statusDto.getId()) &&
+                        AuctionStatus.CLOSED == statusDto.getAuctionStatus();
+                }
+                return false;
+            })
+        ));
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(
+            eq(auctionId),
+            argThat(dto -> {
+                if (dto instanceof AuctionResultDTO resultDto) {
+                    return auctionId.equals(resultDto.getAuctionId()) &&
+                        winnerId.equals(resultDto.getWinnerId()) &&
+                        "Đồng hồ Thụy Sỹ".equals(resultDto.getItemName()) &&
+                        finalPrice.equals(resultDto.getFinalPrice());
+                }
+                return false;
+            })
+        ));
         verify(orderService).createOrder(auctionId, winnerId, finalPrice);
         // Verify win/end notification triggered
         verify(notifService, times(2)).sendFromNotification(any());
@@ -156,7 +165,6 @@ public class AuctionStatusSchedulerTest {
         BigDecimal startPrice = new BigDecimal("2500000.00");
 
         ItemDTO item = new ItemDTO();
-        item.setId("item999");
         item.setName("Đồng hồ Thụy Sỹ");
 
         AuctionResponseDTO auctionToClose = new AuctionResponseDTO();
@@ -174,15 +182,24 @@ public class AuctionStatusSchedulerTest {
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
         scheduler.updateAuctionStatus();
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(argThat(dto -> {
-            if (dto instanceof AuctionStatusUpdateDTO statusDto) {
-                return auctionId.equals(statusDto.getId()) && AuctionStatus.CLOSED == statusDto.getAuctionStatus();
-            }
-            return false;
-        })));
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(
+            eq(auctionId),
+            argThat(dto -> {
+                if (dto instanceof AuctionStatusUpdateDTO statusDto) {
+                    return auctionId.equals(statusDto.getId()) &&
+                        AuctionStatus.CLOSED == statusDto.getAuctionStatus();
+                }
+                return false;
+            })
+        ));
         // Should not broadcast win result or create order since winnerId is null
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(any(AuctionResultDTO.class)), never());
-        verify(orderService, never()).createOrder(anyString(), anyString(), any());
+        mockedServer.verify(() ->
+                Server.broadcastToAuctionRoom(
+                    anyString(),
+                    any(AuctionResultDTO.class)
+                ),
+            never()
+        );        verify(orderService, never()).createOrder(anyString(), anyString(), any());
         verify(notifService, times(1)).sendFromNotification(any());
     }
 
@@ -202,6 +219,6 @@ public class AuctionStatusSchedulerTest {
         scheduler.updateAuctionStatus();
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
         verify(auctionRepo, never()).findAuctionResponseDTOById(auctionId);
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(any()), never());
+        mockedServer.verify(() -> Server.broadcastToAuctionRoom(anyString(), any()), never());
     }
 }

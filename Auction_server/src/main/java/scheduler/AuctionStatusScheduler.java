@@ -64,6 +64,17 @@ public class AuctionStatusScheduler {
         TimeUnit.SECONDS
     );
   }
+  public void stop() {
+    scheduler.shutdown();
+    try {
+      if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
+        scheduler.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      scheduler.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
+  }
 
   /**
    * Package-private để hỗ trợ Unit Test trực tiếp mà không cần chờ Scheduler.
@@ -76,7 +87,7 @@ public class AuctionStatusScheduler {
         auctionRepo.activateAuctions(activateIds);
         for (String id : activateIds) {
           log.info("BROADCAST ACTIVE: {}", id);
-          Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
+          Server.broadcastToAuctionRoom(id, new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
 
           AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
           if (auction != null) {
@@ -109,7 +120,7 @@ public class AuctionStatusScheduler {
           }
 
           log.info("BROADCAST CLOSED: {}", id);
-          Server.broadcastToAuctionRoom(new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
+          Server.broadcastToAuctionRoom(id, new AuctionStatusUpdateDTO(id, AuctionStatus.CLOSED));
           processAuctionResult(id, auction);
         }
       }
@@ -130,7 +141,7 @@ public class AuctionStatusScheduler {
         log.info("SERVER GỬI THÔNG BÁO CHIẾN THẮNG [AuctionId: {} | Winner: {} | Giá cuối: {}]",
             auctionId, winnerId, CurrencyUtils.formatVnd(auction.getCurrentHighestPrice()));
 
-        Server.broadcastToAuctionRoom(new AuctionResultDTO(
+        Server.broadcastToAuctionRoom(auctionId, new AuctionResultDTO(
             auctionId, winnerId, itemName, auction.getCurrentHighestPrice()
         ));
 

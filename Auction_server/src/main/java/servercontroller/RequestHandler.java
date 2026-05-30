@@ -1,17 +1,7 @@
 package servercontroller;
 
-import com.auction.shared.enums.OrderStatus;
-import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.notification.Notification;
-import com.auction.shared.model.order.Order;
-import com.auction.shared.model.order.OrderDTO;
-import com.auction.shared.model.user.User;
-import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.*;
 import com.auction.shared.response.*;
-import com.auction.shared.model.transaction.WalletTransaction;
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Bộ điều hướng trung tâm (Controller) xử lý logic phân nhánh cho các yêu cầu từ Client.
@@ -42,15 +32,15 @@ public class RequestHandler {
     return dispatcher.handleFindAuctionById(request);
   }
 
-  public static GetActiveAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
+  public static GetAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
     return dispatcher.getActiveAuctions(getActiveAuctionReq);
   }
 
-  public static GetWaitingAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
+  public static GetAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
     return dispatcher.getWaitingAuctions(request);
   }
 
-  public static GetClosedAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
+  public static GetAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
     return dispatcher.getClosedAuctions(request);
   }
 
@@ -59,12 +49,12 @@ public class RequestHandler {
     return dispatcher.getActiveAndWaitingAuctions(request);
   }
 
-  public static GetCanceledAuctionsResponseDTO getCanceledAuctions(
+  public static GetAuctionsResponseDTO getCanceledAuctions(
           GetCanceledAuctionsRequestDTO request) {
     return dispatcher.getCanceledAuctions(request);
   }
 
-  public static GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
+  public static GetAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
       GetActiveAuctionsBySellerRequestDTO request) {
     return dispatcher.getActiveAuctionsBySeller(request);
   }
@@ -146,32 +136,32 @@ public class RequestHandler {
     dispatcher.markNotificationRead(req);
   }
 
-  public static GetPendingOrdersOfSellerResponseDTO handleGetPendingOrdersOfSeller(
+  public static GetOrdersResponseDTO handleGetPendingOrdersOfSeller(
       GetPendingOrdersOfSellerRequestDTO req) {
     return dispatcher.handleGetPendingOrdersOfSeller(req);
   }
 
-  public static GetPendingOrdersOfBuyerResponseDTO handleGetPendingOrdersOfBuyer(
+  public static GetOrdersResponseDTO handleGetPendingOrdersOfBuyer(
       GetPendingOrdersOfBuyerRequestDTO req) {
     return dispatcher.handleGetPendingOrdersOfBuyer(req);
   }
 
-  public static GetCompletedOrdersOfSellerResponseDTO handleGetConfirmedOrdersOfSeller(
+  public static GetOrdersResponseDTO handleGetConfirmedOrdersOfSeller(
       GetCompletedOrdersOfSellerRequestDTO req) {
     return dispatcher.handleGetCompletedOrdersOfSeller(req);
   }
 
-  public static GetCancelledOrdersOfSellerResponseDTO handleGetCancelledOrdersOfSeller(
+  public static GetOrdersResponseDTO handleGetCancelledOrdersOfSeller(
       GetCancelledOrdersOfSellerRequestDTO req) {
     return dispatcher.handleGetCancelledOrdersOfSeller(req);
   }
 
-  public static GetCompletedOrdersOfBuyerResponseDTO handleGetConfirmedOrdersOfBuyer(
+  public static GetOrdersResponseDTO handleGetConfirmedOrdersOfBuyer(
       GetCompletedOrdersOfBuyerRequestDTO req) {
     return dispatcher.handleGetCompletedOrdersOfBuyer(req);
   }
 
-  public static GetCancelledOrdersOfBuyerResponseDTO handleGetCancelledOrdersOfBuyer(
+  public static GetOrdersResponseDTO handleGetCancelledOrdersOfBuyer(
       GetCancelledOrdersOfBuyerRequestDTO req) {
     return dispatcher.handleGetCancelledOrdersOfBuyer(req);
   }

@@ -1,7 +1,10 @@
 package com.auction.shared.response;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class AuctionExtendedDTO implements ResponseDTO {
   private String auctionId;
   private LocalDateTime newEndTime;
@@ -10,7 +13,4 @@ public class AuctionExtendedDTO implements ResponseDTO {
     this.auctionId   = auctionId;
     this.newEndTime  = newEndTime;
   }
-
-  public String getAuctionId()          { return auctionId; }
-  public LocalDateTime getNewEndTime()  { return newEndTime; }
 }

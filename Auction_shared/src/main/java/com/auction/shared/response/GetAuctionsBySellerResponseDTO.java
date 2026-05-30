@@ -23,5 +23,5 @@ public class GetAuctionsBySellerResponseDTO implements ResponseDTO {
   private String message;
 
   /** Danh sách các phiên đấu giá đang mở đã được chắt lọc dữ liệu. */
-  private List<AuctionDTO> activeAuctions;
+  private List<AuctionDTO> auctions;
 }

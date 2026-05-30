@@ -75,23 +75,11 @@ public class ServerConnection {
 
             case AuctionResponseDTO auctionRes -> ResponseHandler.handleFindAuctionById(auctionRes);
 
-            case GetActiveAuctionsResponseDTO getActiveAuctionRes ->
-                ResponseHandler.handleGetActiveAuctions(getActiveAuctionRes);
-
-            case GetWaitingAuctionsResponseDTO getWaitingAuctionsRes ->
-                ResponseHandler.handleGetWaitingAuctions(getWaitingAuctionsRes);
-
-            case GetClosedAuctionsResponseDTO getClosedAuctionsRes ->
-                ResponseHandler.handleGetClosedAuctions(getClosedAuctionsRes);
+            case GetAuctionsResponseDTO getActiveAuctionRes ->
+                ResponseHandler.handleGetAuctions(getActiveAuctionRes);
 
             case GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctionsRes ->
               ResponseHandler.handleGetActiveAndWaitingAuctions(getActiveAndWaitingAuctionsRes);
-
-            case GetCanceledAuctionsResponseDTO getCanceledAuctionsRes ->
-              ResponseHandler.handleGetCanceledAuctions(getCanceledAuctionsRes);
-
-            case GetActiveAuctionsBySellerResponseDTO getActiveAuctionsBySellerRes ->
-              ResponseHandler.handleGetActiveAuctionsBySelelr(getActiveAuctionsBySellerRes);
 
             case GetAuctionsBySellerResponseDTO getAuctionsBySellerRes ->
               ResponseHandler.handleGetAuctionsBySeller(getAuctionsBySellerRes);
@@ -177,31 +165,11 @@ public class ServerConnection {
             case NotificationDTO dto ->
                 ResponseHandler.handleNewNotification(dto);
 
-            case GetPendingOrdersOfSellerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetPendingOrdersOfSeller(responseDTO);
-            }
-
-            case GetPendingOrdersOfBuyerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetPendingOrdersOfBuyer(responseDTO);
-            }
             case AuctionExtendedDTO dto ->
                 ResponseHandler.handleAuctionExtended(dto);
 
-
-            case GetCompletedOrdersOfBuyerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetCompletedOrdersOfBuyer(responseDTO);
-            }
-
-            case GetCancelledOrdersOfBuyerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetCancelledOrdersOfBuyer(responseDTO);
-            }
-
-            case GetCompletedOrdersOfSellerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetCompletedOrdersOfSeller(responseDTO);
-            }
-
-            case GetCancelledOrdersOfSellerResponseDTO responseDTO -> {
-              ResponseHandler.handleGetCancelledOrdersOfSeller(responseDTO);
+            case GetOrdersResponseDTO responseDTO -> {
+              ResponseHandler.handleGetOrders(responseDTO);
             }
 
             case CreateTransactionResponseDTO responseDTO -> {

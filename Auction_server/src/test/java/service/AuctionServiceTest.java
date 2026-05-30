@@ -122,12 +122,12 @@ public class AuctionServiceTest {
     @DisplayName("Lấy danh sách các phiên đấu giá đang active cho client")
     void testGetActiveAuctionsForClient_ReturnsList() {
         List<AuctionDTO> expected = List.of(new AuctionDTO());
-        when(auctionRepo.findActiveAuctions()).thenReturn(expected);
+        when(auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.ACTIVE)).thenReturn(expected);
 
         List<AuctionDTO> actual = auctionService.getActiveAuctionsForClient();
 
         assertEquals(expected, actual);
-        verify(auctionRepo).findActiveAuctions();
+        verify(auctionRepo).findAuctionsByStatusForBidder(AuctionStatus.ACTIVE);
     }
 
     @Test
