@@ -50,6 +50,13 @@ public class OrderCardController {
 
   private OrderDTO currentOrder;
   private Timeline countdownTimeline;
+
+  @FXML
+  public void initialize() {
+    if (statusIndicator != null && cardContainer != null) {
+      statusIndicator.heightProperty().bind(cardContainer.heightProperty());
+    }
+  }
  
   /**
    * Chuyển hướng người dùng sang trang thanh toán chi tiết của đơn hàng.
