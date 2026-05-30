@@ -6,15 +6,15 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class GetCompletedOrdersOfSellerResponseDTO implements ResponseDTO {
+public class GetOrdersResponseDTO implements ResponseDTO {
   private String message;
   private boolean success;
-  private List<OrderDTO> completedOrders;
+  private List<OrderDTO> orders;
 
-  public GetCompletedOrdersOfSellerResponseDTO(
+  public GetOrdersResponseDTO(
       String message, boolean success, List<OrderDTO> completedOrders) {
     this.message = message;
     this.success = success;
-    this.completedOrders = completedOrders;
+    this.orders = completedOrders;
   }
 }

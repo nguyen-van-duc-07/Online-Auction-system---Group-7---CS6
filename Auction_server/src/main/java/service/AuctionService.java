@@ -3,7 +3,6 @@ package service;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
-import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
@@ -17,14 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
-import repository.SellerProfileRepository;
 
 /**
  * Lớp AuctionService xử lý logic nghiệp vụ của hệ thống đấu giá.
@@ -189,15 +186,16 @@ public class AuctionService {
    * của các sản phẩm đang được đấu giá trên sàn.
    */
   public List<AuctionDTO> getActiveAuctionsForClient() {
-    return auctionRepo.findActiveAuctions();
+    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.ACTIVE);
   }
 
   public List<AuctionDTO> getWaitingAuctionsForClient() {
-    return auctionRepo.findWaitingAuctions();
+    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.WAITING);
   }
 
   public List<AuctionDTO> getClosedAuctionsForClient() {
-    return auctionRepo.findClosedAuctions();
+
+    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.CLOSED);
   }
 
   /**
@@ -212,7 +210,7 @@ public class AuctionService {
   }
 
   public List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
-    return auctionRepo.findActiveAuctionsByUserId(userId);
+    return auctionRepo.findAuctionsByUserIdAndStatus(userId, AuctionStatus.ACTIVE);
   }
 
   public List<AuctionDTO> getAuctionsBySeller(String userId) {
@@ -362,8 +360,7 @@ public class AuctionService {
           } else {
             response[0] = new UpdateAuctionStatusResponseDTO(false, "Không thể chặn phiên đấu giá ở trạng thái này!");
           }
-        } 
-        else {
+        } else {
           response[0] = new UpdateAuctionStatusResponseDTO(false, "Trạng thái yêu cầu không hợp lệ!");
         }
       } catch (Exception e) {
@@ -376,6 +373,6 @@ public class AuctionService {
   }
 
   public List<AuctionDTO> getCanceledAuctionsForClient() {
-    return auctionRepo.findCanceledAuctions();
+    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.CANCELED);
   }
 }

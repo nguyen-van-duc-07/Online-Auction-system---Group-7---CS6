@@ -145,9 +145,9 @@ public class PaymentScreenController implements Initializable {
     String consigneeName = txtFullName.getText() != null && !txtFullName.getText().trim().isEmpty() ? txtFullName.getText().trim() : "";
     String phoneNumber = txtPhoneNumber.getText() != null && !txtPhoneNumber.getText().trim().isEmpty() ? txtPhoneNumber.getText().trim() : "";
     String address = txtAddress.getText() != null && !txtAddress.getText().trim().isEmpty() ? txtAddress.getText().trim() : "";
-    if (consigneeName.isEmpty() ||
-        phoneNumber.isEmpty() ||
-        address.isEmpty()) {
+    if (consigneeName.isEmpty()
+        || phoneNumber.isEmpty()
+        || address.isEmpty()) {
       showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin giao hàng!");
       return;
     }

@@ -63,7 +63,6 @@ public class MainLayoutController implements Initializable {
   @FXML private Button homeButton;
   @FXML private Button sellerHomeButton;
   @FXML private Button resultButton;
-  @FXML private VBox floatingIcon;
   @FXML private Label remainingLabel;
 
   @FXML private Button functionButton1;
@@ -294,7 +293,7 @@ public class MainLayoutController implements Initializable {
    *
    * @param activeIndex chỉ số nút chức năng đang kích hoạt (1, 2 hoặc 3)
    */
-  public void resetFunctionButtonStyles(int activeIndex) {
+  private void resetFunctionButtonStyles(int activeIndex) {
     functionButton1.setStyle(STYLE_FUNC_BTN_INACTIVE);
     functionButton2.setStyle(STYLE_FUNC_BTN_INACTIVE);
     functionButton3.setStyle(STYLE_FUNC_BTN_INACTIVE);
@@ -313,7 +312,7 @@ public class MainLayoutController implements Initializable {
    *
    * @param context ngữ cảnh hiển thị hiện tại ("home", "seller", hoặc "result")
    */
-  public void configureFunctionButtons(String context) {
+  private void configureFunctionButtons(String context) {
     this.currentContext = context;
     resetFixedButtonStyles(context);
     configureFilterBar(context);

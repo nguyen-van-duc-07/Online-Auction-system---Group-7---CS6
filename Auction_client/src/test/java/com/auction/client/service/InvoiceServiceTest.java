@@ -1,6 +1,7 @@
 package com.auction.client.service;
 
 import com.auction.shared.model.transaction.PrizedTransaction;
+import com.auction.shared.util.CurrencyUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,58 +18,48 @@ import static org.junit.jupiter.api.Assertions.*;
 class InvoiceServiceTest {
 
     private InvoiceService invoiceService;
-    private Method formatCurrencyMethod;
-
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         invoiceService = new InvoiceService();
-        // Lấy private method formatCurrency bằng reflection
-        formatCurrencyMethod = InvoiceService.class.getDeclaredMethod("formatCurrency", BigDecimal.class);
-        formatCurrencyMethod.setAccessible(true);
     }
 
     @Test
     @DisplayName("Hàm formatCurrency định dạng thành công số tiền VND")
     void testFormatCurrency_PositiveAmount_ShouldFormatWithVietnameseDong() throws Exception {
         BigDecimal amount = new BigDecimal("1500000.00");
-        String formatted = (String) formatCurrencyMethod.invoke(invoiceService, amount);
-        
-        assertEquals("1.500.000 đ", formatted);
+        String formatted = CurrencyUtils.formatD(amount);
+        assertEquals("1,500,000 đ", formatted);
     }
 
     @Test
     @DisplayName("Hàm formatCurrency định dạng số 0 thành '0 đ'")
     void testFormatCurrency_ZeroAmount_ShouldReturnZeroDong() throws Exception {
         BigDecimal amount = BigDecimal.ZERO;
-        String formatted = (String) formatCurrencyMethod.invoke(invoiceService, amount);
-        
+        String formatted = CurrencyUtils.formatD(amount);
         assertEquals("0 đ", formatted);
     }
 
     @Test
     @DisplayName("Hàm formatCurrency xử lý an toàn khi truyền null")
     void testFormatCurrency_NullAmount_ShouldReturnZeroDong() throws Exception {
-        String formatted = (String) formatCurrencyMethod.invoke(invoiceService, (BigDecimal) null);
-        
+        String formatted = CurrencyUtils.formatD(null);
         assertEquals("0 đ", formatted);
     }
 
     @Test
     @DisplayName("Hàm formatCurrency định dạng đúng với số lượng chữ số nhỏ")
     void testFormatCurrency_SmallAmount_ShouldFormatCorrectly() throws Exception {
-        BigDecimal amount = new BigDecimal("500.00");
-        String formatted = (String) formatCurrencyMethod.invoke(invoiceService, amount);
-        
+        BigDecimal amount = new BigDecimal("500");
+        String formatted = CurrencyUtils.formatD(amount);
         assertEquals("500 đ", formatted);
     }
 
     @Test
     @DisplayName("Hàm formatCurrency định dạng đúng với số tiền hàng tỷ")
     void testFormatCurrency_LargeAmount_ShouldFormatWithGrouping() throws Exception {
-        BigDecimal amount = new BigDecimal("1000000000.00");
-        String formatted = (String) formatCurrencyMethod.invoke(invoiceService, amount);
-        
-        assertEquals("1.000.000.000 đ", formatted);
+        BigDecimal amount = new BigDecimal("1000000000");
+        String formatted = CurrencyUtils.formatD(amount);
+        assertEquals("1,000,000,000 đ", formatted);
     }
 
     @Test
@@ -77,7 +68,7 @@ class InvoiceServiceTest {
         PrizedTransaction transaction = new PrizedTransaction();
         transaction.setAuctionId("AUC_123");
         transaction.setItemId("ITEM_123");
-        transaction.setFinalPrice(new BigDecimal("100000.00"));
+        transaction.setFinalPrice(new BigDecimal("100000"));
 
         // Truyền đường dẫn thư mục ảo không có quyền ghi để ép lỗi
         String invalidPath = "/thumuc_khong_ton_tai/invoice.pdf";
@@ -98,7 +89,7 @@ class InvoiceServiceTest {
         PrizedTransaction transaction = new PrizedTransaction();
         transaction.setAuctionId("AUC_123");
         transaction.setItemId("ITEM_123");
-        transaction.setFinalPrice(new BigDecimal("100000.00"));
+        transaction.setFinalPrice(new BigDecimal("100000"));
 
         // Tạo file tạm
         Path tempFile = Files.createTempFile("test_invoice", ".pdf");
@@ -110,9 +101,9 @@ class InvoiceServiceTest {
                     "0123456789",
                     "Hà Nội",
                     "Sản phẩm test",
-                    new BigDecimal("100000.00"),
-                    new BigDecimal("30000.00"),
-                    new BigDecimal("130000.00"),
+                    new BigDecimal("100000"),
+                    new BigDecimal("30000"),
+                    new BigDecimal("130000"),
                     tempFile.toString()
             );
 

@@ -12,12 +12,10 @@ import java.net.Socket;
 
 /**
  * Lớp đại diện cho một luồng (Thread) độc lập xử lý giao tiếp mạng với một Client cụ thể.
- * <p>
  * Lớp này chạy liên tục trong vòng lặp để đọc dữ liệu đầu vào. Khi nhận được một gói tin
  * {@code RequestDTO} hợp lệ, nó sử dụng <i>Switch - case</i> để phân loại,
  * sau đó chuyển tiếp dữ liệu cho {@link RequestHandler} xử lý và trực tiếp gửi đối tượng
  * {@code ResponseDTO} nhận được trả ngược lại qua luồng mạng cho Client.
- * </p>
  *
  * @see com.auction.shared.request.RequestDTO
  */

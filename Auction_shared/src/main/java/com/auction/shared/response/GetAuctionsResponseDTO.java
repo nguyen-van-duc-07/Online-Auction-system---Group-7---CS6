@@ -15,7 +15,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class GetActiveAuctionsResponseDTO implements ResponseDTO {
+public class GetAuctionsResponseDTO implements ResponseDTO {
   /** Cờ đánh dấu trạng thái truy vấn thành công hay thất bại. */
   private boolean success;
 
@@ -23,5 +23,5 @@ public class GetActiveAuctionsResponseDTO implements ResponseDTO {
   private String message;
 
   /** Danh sách các phiên đấu giá đang mở đã được chắt lọc dữ liệu. */
-  private List<AuctionDTO> activeAuctions;
+  private List<AuctionDTO> auctions;
 }

@@ -4,7 +4,6 @@ import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.model.item.Item;
 import com.auction.shared.model.item.ItemDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import config.DatabaseConnection;
@@ -20,40 +19,18 @@ import org.slf4j.LoggerFactory;
 
 public class AuctionRepository {
   private static final Logger log = LoggerFactory.getLogger(AuctionRepository.class);
-  // Lấy tất cả các phiên đấu giá đang mở
-  public List<AuctionDTO> findActiveAuctions() {
-    List<AuctionDTO> auctions = new ArrayList<>();
-    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột account_name
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
-        + "FROM auctions "
-        + "WHERE status = 'ACTIVE'"
-        + "ORDER BY start_time ASC";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-
-      while (rs.next()) {
-        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
-        auctions.add(auction);
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động", e);
-    }
-    return auctions;
-  }
-
-  // Lấy tất cả các phiên đấu giá đang chờ bắt đầu
-  public List<AuctionDTO> findWaitingAuctions() {
+  public List<AuctionDTO> findAuctionsByStatusForBidder(AuctionStatus status) {
     List<AuctionDTO> auctions = new ArrayList<>();
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
-        + "WHERE status = 'WAITING' "
+        + "WHERE status = ? "
         + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+         PreparedStatement ps = conn.prepareStatement(sql);) {
+      ps.setString(1, status.name());
+      ResultSet rs = ps.executeQuery();
 
       while (rs.next()) {
         AuctionDTO auction = mapResultSetToAuctionDTO(rs);
@@ -61,28 +38,6 @@ public class AuctionRepository {
       }
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang chờ", e);
-    }
-    return auctions;
-  }
-
-  // Lấy tất cả các phiên đấu giá đã kết thúc
-  public List<AuctionDTO> findClosedAuctions() {
-    List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
-        + "FROM auctions "
-        + "WHERE status = 'CLOSED' "
-        + "ORDER BY end_time DESC";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-
-      while (rs.next()) {
-        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
-        auctions.add(auction);
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đã đóng", e);
     }
     return auctions;
   }
@@ -144,19 +99,18 @@ public class AuctionRepository {
   }
 
   // Lấy tất cả các phiên đấu giá đang mở thuộc về một seller
-  public List<AuctionDTO> findActiveAuctionsByUserId(String userId) {
+  public List<AuctionDTO> findAuctionsByUserIdAndStatus(String userId, AuctionStatus status) {
     List<AuctionDTO> auctions = new ArrayList<>();
-    // Cập nhật câu SQL: Thêm LEFT JOIN với bảng users và lấy cột account_name
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
         + "FROM auctions "
-        + "WHERE status = 'ACTIVE' AND user_id = ?"
+        + "WHERE status = ? AND user_id = ?"
         + "ORDER BY start_time ASC";
 
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
-      // Gán giá trị userId vào dấu ? trong câu lệnh SQL
-      ps.setString(1, userId);
+      ps.setString(1, status.name());
+      ps.setString(2, userId);
 
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
@@ -444,52 +398,6 @@ public class AuctionRepository {
     return auction;
   }
 
-  private Auction mapResultSetToAuction(ResultSet rs) throws SQLException {
-    String typeStr = rs.getString("item_type");
-    ItemType itemType;
-    try {
-      itemType = (typeStr != null) ? ItemType.valueOf(typeStr.toUpperCase()) : ItemType.OTHER;
-    } catch (IllegalArgumentException e) {
-      // Mặc định là OTHER nếu dưới Database lỡ nhập sai chữ
-      itemType = ItemType.OTHER;
-    }
-    String attributesJson = rs.getString("attributes");
-    java.util.Map<String, String> attributes = null;
-    if (attributesJson != null && !attributesJson.isEmpty()) {
-      java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, String>>() {
-      }.getType();
-      attributes = new com.google.gson.Gson().fromJson(attributesJson, type);
-    }
-
-    Item item = com.auction.shared.model.item.ItemFactory.createItem(
-        rs.getString("item_name"),
-        itemType,
-        rs.getString("item_description"),
-        attributes
-    );
-    item.setId(rs.getString("id"));
-
-    Auction auction = new Auction();
-    auction.setId(rs.getString("id"));
-    auction.setUserId(rs.getString("user_id"));
-    auction.setItem(item);
-    auction.setCurrentHighestPrice(rs.getBigDecimal("current_price"));
-    auction.setMinStepPrice(rs.getBigDecimal("min_step_price"));
-    auction.setStatus(AuctionStatus.valueOf(rs.getString("status")));
-    auction.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-    auction.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
-
-    UserRepository userRepo = new UserRepository();
-    String highestBidderId = rs.getString("highest_bidder_id");
-    String highestBidderName = rs.getString("highest_bidder_name");
-
-
-    auction.setHighestBidderId(highestBidderId);
-    auction.setHighestBidderName(highestBidderName);
-
-    return auction;
-  }
-
   public boolean saveAuction(Auction auction, String imagePath) {
     String sql = "INSERT INTO auctions (id, user_id, start_price, min_step_price, current_price, highest_bidder_id, start_time, end_time, status, image_path, item_name, item_type, item_description, attributes) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -522,25 +430,6 @@ public class AuctionRepository {
     } catch (SQLException e) {
       log.error("Lỗi cơ sở dữ liệu khi lưu thông tin đấu giá ID: {}", auction.getId(), e);
       return false;
-    }
-  }
-
-  public void closeExpiredAuctions(List<String> ids) {
-
-    String sql =
-        "UPDATE auctions SET status='CLOSED' WHERE id=?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      for (String id : ids) {
-        ps.setString(1, id);
-        ps.executeUpdate();
-
-      }
-
-    } catch (Exception e) {
-      log.error("Lỗi cơ sở dữ liệu khi đóng các đấu giá hết hạn: {}", ids, e);
     }
   }
 
@@ -586,32 +475,6 @@ public class AuctionRepository {
 
     } catch (Exception e) {
       log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá cần kích hoạt", e);
-    }
-
-    return ids;
-  }
-
-  public List<String> findAuctionsToClose(LocalDateTime now) {
-
-    List<String> ids = new ArrayList<>();
-
-    String sql =
-        "SELECT id FROM auctions "
-            + "WHERE status='ACTIVE' AND end_time <= ?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setTimestamp(1, Timestamp.valueOf(now));
-
-      ResultSet rs = ps.executeQuery();
-
-      while (rs.next()) {
-        ids.add(rs.getString("id"));
-      }
-
-    } catch (Exception e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá cần đóng", e);
     }
 
     return ids;
@@ -808,26 +671,6 @@ public class AuctionRepository {
       log.error("Lỗi kết nối cơ sở dữ liệu khi hủy đấu giá ID: {}", auctionId, e);
       return false;
     }
-  }
-  public List<AuctionDTO> findCanceledAuctions() {
-    List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
-        + "FROM auctions "
-        + "WHERE status = 'CANCELED' "
-        + "ORDER BY start_time DESC";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-
-      while (rs.next()) {
-        AuctionDTO auction = mapResultSetToAuctionDTO(rs);
-        auctions.add(auction);
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá bị hủy", e);
-    }
-    return auctions;
   }
 }
 

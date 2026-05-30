@@ -1,11 +1,6 @@
 package servercontroller;
 
 import com.auction.shared.enums.UserRole;
-import com.auction.shared.model.auction.Auction;
-import com.auction.shared.response.AuctionExtendedDTO;
-import com.auction.shared.response.AuctionResultDTO;
-import com.auction.shared.response.AuctionStatusUpdateDTO;
-import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.ResponseDTO;
 import scheduler.AuctionStatusScheduler;
 import scheduler.OrderExpiryScheduler;
@@ -20,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class khởi chạy Server.
@@ -72,11 +68,25 @@ public class Server {
       // Khởi chạy HTTP Static File Server cho ảnh sản phẩm
       service.ImageHttpServer.start();
 
-      AuctionStatusScheduler scheduler = new AuctionStatusScheduler();
-      scheduler.start();
+      AuctionStatusScheduler auctionScheduler = new AuctionStatusScheduler();
+      auctionScheduler.start();
 
       OrderExpiryScheduler orderExpiryScheduler = new OrderExpiryScheduler();
       orderExpiryScheduler.start();
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        auctionScheduler.stop();
+        orderExpiryScheduler.stop();
+        pool.shutdown();
+
+        try {
+          if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+            pool.shutdownNow();
+          }
+        } catch (InterruptedException e) {
+          pool.shutdownNow();
+          Thread.currentThread().interrupt();
+        }
+      }, "server-shutdown-hook"));
 
       ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
       log.info("Server đã chạy trên port: {}", SERVER_PORT);
@@ -96,34 +106,11 @@ public class Server {
   /**
    * Phương thức gửi thông báo cho toàn bộ Client bên trong room khi có bid hợp lệ mới.
    */
-  public static void broadcastToAuctionRoom(ResponseDTO responseDTO) {
-    if (responseDTO instanceof NewBidDTO newBidDTO) {
-      Set<ClientHandler> room = auctionRooms.get(newBidDTO.getAuctionId());
-      if (room != null) {
-        for (ClientHandler client : room) {
-          client.sendData(newBidDTO);
-        }
-      }
-    } else if (responseDTO instanceof AuctionResultDTO auctionResult) {
-      Set<ClientHandler> room = auctionRooms.get(auctionResult.getAuctionId());
-      if (room != null) {
-        for (ClientHandler client : room) {
-          client.sendData(auctionResult);
-        }
-      }
-    } else if (responseDTO instanceof AuctionExtendedDTO auctionExtended) {
-      Set<ClientHandler> room = auctionRooms.get(auctionExtended.getAuctionId());
-      if (room != null) {
-        for (ClientHandler client : room) {
-          client.sendData(auctionExtended);
-        }
-      }
-    } else if (responseDTO instanceof AuctionStatusUpdateDTO statusUpdate) {
-      Set<ClientHandler> room = auctionRooms.get(statusUpdate.getId());
-      if (room != null) {
-        for (ClientHandler client : room) {
-          client.sendData(statusUpdate);
-        }
+  public static void broadcastToAuctionRoom(String auctionId, ResponseDTO responseDTO) {
+    Set<ClientHandler> room = auctionRooms.get(auctionId);
+    if (room != null) {
+      for (ClientHandler client : room) {
+        client.sendData(responseDTO);
       }
     }
   }
@@ -144,13 +131,6 @@ public class Server {
   public static void registerClient(String userId, ClientHandler handler) {
     connectedClients.put(userId, handler);
     log.info("Client đã đăng ký: {}", userId);
-  }
-
-  public static void unregisterClient(String userId) {
-    if (userId != null) {
-      connectedClients.remove(userId);
-      log.info("Client đã hủy đăng ký vô điều kiện: {}", userId);
-    }
   }
 
   public static void unregisterClient(String userId, ClientHandler handler) {

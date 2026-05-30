@@ -582,13 +582,13 @@ public class BidService {
 
     void dispatch() {
       for (NewBidDTO dto : newBids) {
-        Server.broadcastToAuctionRoom(dto);
+        Server.broadcastToAuctionRoom(dto.getAuctionId(), dto);
       }
       for (AuctionPriceUpdateDTO dto : priceUpdates) {
         Server.broadcastToAll(dto);
       }
       for (AuctionExtendedDTO dto : extensions) {
-        Server.broadcastToAuctionRoom(dto);
+        Server.broadcastToAuctionRoom(dto.getAuctionId(), dto);
         Server.broadcastToAll(dto);
       }
       for (UserMessage msg : userMessages) {
