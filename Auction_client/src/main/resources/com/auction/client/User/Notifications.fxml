@@ -11,7 +11,7 @@
       style="-fx-background-color: #f0f2f5;">
 
     <!-- Panel trái: danh sách -->
-    <VBox prefWidth="280" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
+    <VBox prefWidth="280" minWidth="-Infinity" maxWidth="-Infinity" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
 
         <!-- Header trái -->
         <HBox alignment="CENTER_LEFT" spacing="10"

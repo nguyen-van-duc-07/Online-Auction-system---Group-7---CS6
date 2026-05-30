@@ -7,42 +7,42 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox alignment="CENTER_LEFT" prefHeight="110.0" prefWidth="760.0" spacing="20.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.AuctionItemCardController">
+<HBox alignment="CENTER_LEFT" minHeight="110.0" prefWidth="760.0" spacing="20.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.screenhandler.AuctionItemCardController">
    <padding>
       <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
    </padding>
    <children>
-      <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+      <VBox alignment="CENTER_LEFT" prefWidth="210.0" maxWidth="210.0" minWidth="100.0" HBox.hgrow="ALWAYS">
          <children>
-            <Label fx:id="nameLabel" textFill="#333333">
+            <Label fx:id="nameLabel" maxWidth="210.0" text="Tên sản phẩm" textFill="#333333" wrapText="true">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <Label fx:id="statusLabel" textFill="#27ae60" />
-            <Label fx:id="categoryLabel" textFill="#7f8c8d" style="-fx-font-size: 12px;" />
+            <Label fx:id="statusLabel" text="Trạng thái" textFill="#27ae60" />
+            <Label fx:id="categoryLabel" style="-fx-font-size: 12px;" text="Phân loại" textFill="#7f8c8d" />
          </children>
       </VBox>
-      <VBox alignment="CENTER" prefWidth="200.0">
+      <VBox alignment="CENTER" prefWidth="200.0" minWidth="-Infinity">
          <children>
             <Label text="Giá hiện tại:" textFill="#7f8c8d" />
-            <Label fx:id="priceLabel" style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" textFill="#2980b9">
+            <Label fx:id="priceLabel" style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" text="Chưa xác định" textFill="#2980b9">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
          </children>
       </VBox>
-      <VBox alignment="CENTER" prefWidth="150.0">
+      <VBox alignment="CENTER" prefWidth="150.0" minWidth="-Infinity">
          <children>
             <Label text="Thời gian còn lại:" textFill="#7f8c8d" />
-            <Label fx:id="timeLabel" alignment="CENTER" textFill="#e67e22">
+            <Label fx:id="timeLabel" alignment="CENTER" text="Chưa xác định" textFill="#e67e22">
                <font>
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
          </children>
       </VBox>
-      <Button fx:id="bidButton" mnemonicParsing="false" onAction="#gotoAuctionDetail" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
+      <Button fx:id="bidButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#gotoAuctionDetail" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-weight: bold;" text="Đấu giá" />
    </children>
 </HBox>
