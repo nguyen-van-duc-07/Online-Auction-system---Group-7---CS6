@@ -107,19 +107,19 @@ public class AuctionItemCardController {
 
     if (startTime != null && now.isBefore(startTime)) {
       timeLabel.setText(CountdownHelper.formatTimeLeft(now, startTime));
-      timeLabel.setStyle("-fx-text-fill: #f39c12;");
+      timeLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 16px; -fx-font-weight: bold;");
       statusLabel.setText("SẮP DIỄN RA");
       statusLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
 
     } else if (endTime != null && now.isBefore(endTime)) {
       timeLabel.setText(CountdownHelper.formatTimeLeft(now, endTime));
-      timeLabel.setStyle("-fx-text-fill: #2ecc71;");
+      timeLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 16px; -fx-font-weight: bold;");
       statusLabel.setText("ĐANG DIỄN RA");
       statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
 
     } else {
       timeLabel.setText("Đã kết thúc");
-      timeLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+      timeLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 16px; -fx-font-weight: bold;");
       statusLabel.setText("ĐÃ KẾT THÚC");
       statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
       if (countdownTimer != null) countdownTimer.stop();

@@ -20,17 +20,17 @@
             <children>
 
                 <!-- CỘT 1: THÔNG TIN SẢN PHẨM & NGƯỜI BÁN -->
-                <VBox alignment="CENTER_LEFT" prefHeight="88.0" prefWidth="415.0" spacing="8.0" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_LEFT" minHeight="88.0" prefWidth="415.0" maxWidth="415.0" spacing="8.0" HBox.hgrow="ALWAYS">
                     <children>
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <Label fx:id="itemNameLabel" prefHeight="27.0" prefWidth="306.0" text="Tên đơn hàng" textFill="#1E293B">
+                                <Label fx:id="itemNameLabel" maxWidth="185.0" text="Tên đơn hàng" textFill="#1E293B" wrapText="true" HBox.hgrow="ALWAYS">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
                                 <!-- Nút xem chi tiết nhỏ gọn bên cạnh tên -->
-                                <Button onAction="#gotoItemDetail" prefHeight="24.0" prefWidth="216.0" style="-fx-background-color: #EDF2F7; -fx-background-radius: 20; -fx-padding: 4 12 4 12; -fx-cursor: hand;" text="👁 Xem chi tiết" textFill="#4A5568">
+                                <Button minWidth="-Infinity" onAction="#gotoItemDetail" prefHeight="24.0" prefWidth="216.0" style="-fx-background-color: #EDF2F7; -fx-background-radius: 20; -fx-padding: 4 12 4 12; -fx-cursor: hand;" text="👁 Xem chi tiết" textFill="#4A5568">
                                     <font>
                                         <Font name="System Bold" size="11.0" />
                                     </font>
@@ -38,11 +38,7 @@
                             </children>
                         </HBox>
                         <!-- Nhãn hiển thị thời gian xác nhận còn lại -->
-                        <Label fx:id="timeRemainingLabel" text="⏳ Tự động hủy sau: 7 ngày" textFill="#EF4444">
-                            <font>
-                                <Font name="System Italic" size="12.0" />
-                            </font>
-                        </Label>
+                        <Label fx:id="timeRemainingLabel" text="⏳ Tự động hủy sau: 7 ngày" textFill="#EF4444" />
                         <HBox prefHeight="26.0" prefWidth="382.0" spacing="8.0">
                             <children>
                                 <Label fx:id="brandNameLabel" minWidth="-Infinity" style="-fx-background-color: #FFEAE6; -fx-background-radius: 6; -fx-padding: 4 10 4 10;" text="Thông tin người bán" textFill="#C53030">
@@ -65,9 +61,9 @@
                                         <Font size="13.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="finalPriceLabel" prefHeight="30.0" prefWidth="171.0" text="Giá đơn hàng" textFill="#009900">
+                                <Label fx:id="finalPriceLabel" style="-fx-background-color: #e8f4fd; -fx-background-radius: 15; -fx-padding: 5 15 5 15;" text="Chưa xác định" textFill="#2980b9">
                                     <font>
-                                        <Font name="System Bold" size="20.0" />
+                                        <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
                             </children>

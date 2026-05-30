@@ -586,7 +586,7 @@ public class MainLayoutController implements Initializable {
    */
   @FXML
   public void gotoNotifications() {
-    ScreenController.createSubWindow("Bidder/Notifications.fxml", "Thông báo");
+    ScreenController.createSubWindow("User/Notifications.fxml", "Thông báo");
     String userId = SessionManager.getCurrentUser().getId();
     ServerConnection.sendData(new GetNotificationsRequestDTO(userId));
   }
