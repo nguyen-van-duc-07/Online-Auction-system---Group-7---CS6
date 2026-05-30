@@ -236,17 +236,6 @@ public class AuctionService {
     return auction;
   }
 
-  /**
-   * Tự động đóng các phiên đấu giá đã hết hạn.
-   */
-  public void closeExpiredAuctions() {
-    for (Auction auction : auctions.values()) {
-      if (auction.isExpired()) {
-        auction.close();
-      }
-    }
-  }
-
   public UpdateAuctionStatusResponseDTO updateAuctionStatusByAdmin(UpdateAuctionStatusRequestDTO request) {
     String auctionId = request.getAuctionId();
     AuctionStatus targetStatus = request.getStatus();

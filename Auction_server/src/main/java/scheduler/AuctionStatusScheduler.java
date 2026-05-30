@@ -82,14 +82,14 @@ public class AuctionStatusScheduler {
   void updateAuctionStatus() {
     try {
       LocalDateTime now = LocalDateTime.now();
-      List<String> activateIds = auctionRepo.findAuctionsToActivate(now);
-      if (!activateIds.isEmpty()) {
-        auctionRepo.activateAuctions(activateIds);
-        for (String id : activateIds) {
+      Map<String, AuctionResponseDTO> auctionsToActive = auctionRepo.findAuctionsToActivate(now);
+      if (!auctionsToActive.isEmpty()) {
+        for (Map.Entry<String, AuctionResponseDTO> entry : auctionsToActive.entrySet()) {
+          String id = entry.getKey();
+          auctionRepo.tryActivateAuction(id, now);
           log.info("BROADCAST ACTIVE: {}", id);
           Server.broadcastToAuctionRoom(id, new AuctionStatusUpdateDTO(id, AuctionStatus.ACTIVE));
-
-          AuctionResponseDTO auction = auctionRepo.findAuctionResponseDTOById(id);
+          AuctionResponseDTO auction = entry.getValue();
           if (auction != null) {
             notifService.sendNewAuctionNotification(id, auction.getItem().getName(), auction.getStartPrice());
           }
