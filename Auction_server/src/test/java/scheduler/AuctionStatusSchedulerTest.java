@@ -63,41 +63,59 @@ public class AuctionStatusSchedulerTest {
     @Test
     @DisplayName("Cập nhật trạng thái: Không làm gì khi không có phiên đấu giá cần chuyển trạng thái")
     void testUpdateAuctionStatus_NoAuctionsToActivateOrClose_DoesNothing() {
-        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
-        when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
+        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class)))
+            .thenReturn(Collections.emptyMap());
+
+        when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class)))
+            .thenReturn(Collections.emptyMap());
+
         scheduler.updateAuctionStatus();
-        verify(auctionRepo, never()).activateAuctions(anyList());
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(anyString(), any()), never());
-        verify(notifService, never()).sendNewAuctionNotification(anyString(), anyString(), any());
+
+        verify(auctionRepo, never())
+            .tryActivateAuction(anyString(), any(LocalDateTime.class));
+
+        mockedServer.verify(
+            () -> Server.broadcastToAuctionRoom(anyString(), any()),
+            never()
+        );
+
+        verify(notifService, never())
+            .sendNewAuctionNotification(anyString(), anyString(), any());
     }
 
     @Test
     @DisplayName("Cập nhật trạng thái: Kích hoạt phiên đấu giá thành công")
     void testUpdateAuctionStatus_ActivatesAuctionsSuccessfully() {
         String auctionId = "auc123";
-        List<String> activateIds = List.of(auctionId);
+
         ItemDTO item = new ItemDTO();
         item.setName("Bức tranh cổ");
-        
+
         AuctionResponseDTO auctionResponse = new AuctionResponseDTO();
         auctionResponse.setId(auctionId);
         auctionResponse.setItem(item);
         auctionResponse.setStartPrice(new BigDecimal("1000000.00"));
-
-        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(activateIds);
-        when(auctionRepo.findAuctionResponseDTOById(auctionId)).thenReturn(auctionResponse);
+        Map<String, AuctionResponseDTO> activateMap = Map.of(auctionId, auctionResponse);
+        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(activateMap);
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
+        when(
+            auctionRepo.tryActivateAuction(
+                eq(auctionId),
+                any(LocalDateTime.class)
+            )
+        ).thenReturn(true);
         scheduler.updateAuctionStatus();
-        verify(auctionRepo).activateAuctions(activateIds);
-        mockedServer.verify(() -> Server.broadcastToAuctionRoom(
+        verify(auctionRepo).tryActivateAuction(
             eq(auctionId),
-            argThat(dto -> {
-                AuctionStatusUpdateDTO updateDto = (AuctionStatusUpdateDTO) dto;
-                return auctionId.equals(updateDto.getId()) &&
-                    AuctionStatus.ACTIVE == updateDto.getAuctionStatus();
-            })
+            any(LocalDateTime.class)
+        );        mockedServer.verify(() -> Server.broadcastToAuctionRoom(eq(auctionId), argThat(dto -> {AuctionStatusUpdateDTO updateDto = (AuctionStatusUpdateDTO) dto;
+            return auctionId.equals(updateDto.getId()) && AuctionStatus.ACTIVE == updateDto.getAuctionStatus();})
         ));
-        verify(notifService).sendNewAuctionNotification(auctionId, "Bức tranh cổ", new BigDecimal("1000000.00"));
+        verify(notifService).sendNewAuctionNotification(
+            auctionId,
+            "Bức tranh cổ",
+            new BigDecimal("1000000.00")
+        );
     }
     // TEST CASES FOR updateAuctionStatus (Closing)
 
@@ -122,7 +140,7 @@ public class AuctionStatusSchedulerTest {
         Map<String, AuctionResponseDTO> closeMap = new HashMap<>();
         closeMap.put(auctionId, auctionToClose);
 
-        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
+        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
 
@@ -177,7 +195,7 @@ public class AuctionStatusSchedulerTest {
         Map<String, AuctionResponseDTO> closeMap = new HashMap<>();
         closeMap.put(auctionId, auctionToClose);
 
-        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
+        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(true);
         scheduler.updateAuctionStatus();
@@ -213,12 +231,11 @@ public class AuctionStatusSchedulerTest {
         Map<String, AuctionResponseDTO> closeMap = new HashMap<>();
         closeMap.put(auctionId, auctionToClose);
 
-        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
+        when(auctionRepo.findAuctionsToActivate(any(LocalDateTime.class))).thenReturn(Collections.emptyMap());
         when(auctionRepo.findAuctionsToCloseWithDetails(any(LocalDateTime.class))).thenReturn(closeMap);
         when(auctionRepo.tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class))).thenReturn(false);
         scheduler.updateAuctionStatus();
         verify(auctionRepo).tryCloseExpiredAuction(eq(auctionId), any(LocalDateTime.class));
-        verify(auctionRepo, never()).findAuctionResponseDTOById(auctionId);
         mockedServer.verify(() -> Server.broadcastToAuctionRoom(anyString(), any()), never());
     }
 }

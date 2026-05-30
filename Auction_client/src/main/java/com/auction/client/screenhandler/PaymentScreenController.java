@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.transaction.PrizedTransaction;
@@ -142,9 +143,9 @@ public class PaymentScreenController implements Initializable {
 
   private void handlePayment() {
     isCanceling = false;
-    String consigneeName = txtFullName.getText() != null && !txtFullName.getText().trim().isEmpty() ? txtFullName.getText().trim() : "";
-    String phoneNumber = txtPhoneNumber.getText() != null && !txtPhoneNumber.getText().trim().isEmpty() ? txtPhoneNumber.getText().trim() : "";
-    String address = txtAddress.getText() != null && !txtAddress.getText().trim().isEmpty() ? txtAddress.getText().trim() : "";
+    String consigneeName = txtFullName.getText() != null ? txtFullName.getText().trim() : "";
+    String phoneNumber = txtPhoneNumber.getText() != null ? txtPhoneNumber.getText().trim() : "";
+    String address = txtAddress.getText() != null ? txtAddress.getText().trim() : "";
     if (consigneeName.isEmpty()
         || phoneNumber.isEmpty()
         || address.isEmpty()) {
@@ -216,22 +217,30 @@ public class PaymentScreenController implements Initializable {
           String buyerId = currentUserId != null && !currentUserId.trim().isEmpty() ? currentUserId : (SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getId() : "Unknown");
           String validAuctionId = currentAuctionId != null && !currentAuctionId.trim().isEmpty() ? currentAuctionId : "N/A";
           String validOrderId = currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A";
-          
-          BigDecimal shippingFee = BigDecimal.ZERO;
+
           BigDecimal finalPrice = itemFinalPrice != null ? itemFinalPrice : BigDecimal.ZERO;
           if (finalPrice.compareTo(BigDecimal.ZERO) <= 0) {
-            finalPrice = new BigDecimal("1.00"); // fallback to avoid PrizedTransaction validation failure
+            finalPrice = BigDecimal.ZERO; // fallback to avoid PrizedTransaction validation failure
           }
+          String consigneeName = txtFullName.getText() != null
+              && !txtFullName.getText().trim().isEmpty() ? txtFullName.getText().trim() : "N/A";
+          String phoneNumber = txtPhoneNumber.getText() != null
+              && !txtPhoneNumber.getText().trim().isEmpty() ? txtPhoneNumber.getText().trim() : "N/A";
+          String address = txtAddress.getText() != null
+              && !txtAddress.getText().trim().isEmpty() ? txtAddress.getText().trim() : "N/A";
+          String itemName = lblItemName.getText() != null
+              && !lblItemName.getText().trim().isEmpty() ? lblItemName.getText().trim() : "SP";;
 
-          // Tự động khởi tạo PrizedTransaction từ thông tin đang hiển thị để in hóa đơn PDF
-          PrizedTransaction transaction = new PrizedTransaction(
-              buyerId,
-              "Hệ thống",
-              validAuctionId,
-              validOrderId,
-              finalPrice
-          );
-          exportAndOpenInvoice(transaction);
+          Order order = new Order();
+          order.setId(validOrderId);
+          order.setAuctionId(validAuctionId);
+          order.setBuyerId(buyerId);
+          order.setItemName(itemName);
+          order.setConsigneeName(consigneeName);
+          order.setPhoneNumber(phoneNumber);
+          order.setAddress(address);
+          order.setFinalPrice(finalPrice);
+          exportAndOpenInvoice(order);
         } catch (Exception e) {
           log.error("[THANH_TOAN] Gặp lỗi nghiêm trọng khi chuẩn bị dữ liệu hóa đơn", e);
         }
@@ -265,34 +274,11 @@ public class PaymentScreenController implements Initializable {
 
   // --- HÀM TIỆN ÍCH ---
 
-  private void exportAndOpenInvoice(PrizedTransaction transaction) {
-    // Bảo vệ phòng ngừa nếu transaction bị null hoặc chứa giá trị rỗng gây lỗi
-    String auctionId = (transaction != null && transaction.getAuctionId() != null) ? transaction.getAuctionId() : (currentAuctionId != null ? currentAuctionId : "N/A");
-    String orderId = (transaction != null && transaction.getItemId() != null && !transaction.getItemId().trim().isEmpty()) ? transaction.getItemId() : (currentOrderId != null && !currentOrderId.trim().isEmpty() ? currentOrderId : "N/A");
-    BigDecimal price = (transaction != null && transaction.getFinalPrice() != null) ? transaction.getFinalPrice() : (totalAmountToPay != null ? totalAmountToPay : BigDecimal.ZERO);
-    if (price.compareTo(BigDecimal.ZERO) < 0) {
-      price = BigDecimal.ZERO;
-    }
-    
-    // Tạo transaction an toàn dự phòng để gửi vào service
-    PrizedTransaction safeTransaction = transaction;
-    if (safeTransaction == null) {
-      try {
-        safeTransaction = new PrizedTransaction(
-            currentUserId != null ? currentUserId : "Unknown",
-            "Hệ thống",
-            auctionId,
-            orderId,
-            price.compareTo(BigDecimal.ZERO) > 0 ? price : new BigDecimal("1.00")
-        );
-      } catch (Exception e) {
-        log.error("Lỗi khi tạo safeTransaction", e);
-      }
-    }
+  private void exportAndOpenInvoice(Order order) {
 
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Lưu Hóa Đơn PDF");
-    fileChooser.setInitialFileName("HoaDon_" + auctionId + ".pdf");
+    fileChooser.setInitialFileName("HoaDon_" + order.getAuctionId() + ".pdf");
     fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
     Stage stage = (Stage) btnCompletePayment.getScene().getWindow();
@@ -304,38 +290,18 @@ public class PaymentScreenController implements Initializable {
       
       // Tính toán giá tạm tính và phí vận chuyển
       BigDecimal shippingFee = BigDecimal.ZERO;
-      BigDecimal finalTotal = itemFinalPrice != null ? itemFinalPrice : price;
-      BigDecimal finalPrice = finalTotal;
-      if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
-        finalPrice = BigDecimal.ZERO;
-      }
-      
-      // Thu thập thông tin giao nhận thực tế từ UI
-      String consigneeName = txtFullName.getText().trim();
-      String phoneNumber = txtPhoneNumber.getText().trim();
-      String address = txtAddress.getText().trim();
-      String itemName = lblItemName.getText().trim();
-      
-      if (consigneeName.isEmpty()) consigneeName = "N/A";
-      if (phoneNumber.isEmpty()) phoneNumber = "N/A";
-      if (address.isEmpty()) address = "N/A";
-      if (itemName.isEmpty()) itemName = "Sản phẩm đấu giá";
+      BigDecimal finalTotal = itemFinalPrice != null ? itemFinalPrice : BigDecimal.ZERO;
       
       // Gọi service xuất PDF với đầy đủ dữ liệu
       boolean exportSuccess = invoiceService.exportInvoiceToPdf(
-          safeTransaction,
-          consigneeName,
-          phoneNumber,
-          address,
-          itemName,
-          finalPrice,
+          order,
           shippingFee,
           finalTotal,
           filePath
       );
 
       if (exportSuccess) {
-        log.info("[HOA_DON] Xuất hóa đơn PDF THÀNH CÔNG cho phiên: {} tại đường dẫn: {}", auctionId, filePath);
+        log.info("[HOA_DON] Xuất hóa đơn PDF THÀNH CÔNG cho phiên: {} tại đường dẫn: {}", order.getAuctionId(), filePath);
         try {
           if (java.awt.Desktop.isDesktopSupported()) {
             java.awt.Desktop.getDesktop().open(fileToSave);
@@ -344,7 +310,7 @@ public class PaymentScreenController implements Initializable {
           log.error("[HOA_DON] Không thể tự động mở file PDF sau khi xuất", e);
         }
       } else {
-        log.error("[HOA_DON] Xuất hóa đơn PDF THẤT BẠI cho phiên: {} tại đường dẫn: {}", auctionId, filePath);
+        log.error("[HOA_DON] Xuất hóa đơn PDF THẤT BẠI cho phiên: {} tại đường dẫn: {}", order.getAuctionId(), filePath);
         showAlert(Alert.AlertType.ERROR, "Lỗi xuất hóa đơn", "Có lỗi xảy ra trong quá trình khởi tạo hóa đơn PDF!");
       }
     }
@@ -356,27 +322,5 @@ public class PaymentScreenController implements Initializable {
     alert.setHeaderText(null);
     alert.setContentText(content);
     alert.showAndWait();
-  }
-
-  /**
-   * Xử lý phản hồi thanh toán của Server gửi về.
-   *
-   * @param isSuccess trạng thái thanh toán thành công hay thất bại
-   * @param message thông điệp chi tiết
-   * @param transaction đối tượng chứa thông tin giao dịch trúng giải đấu giá
-   */
-  public void processPaymentResponse(boolean isSuccess, String message, PrizedTransaction transaction) {
-    Platform.runLater(() -> {
-      if (isSuccess) {
-        showAlert(Alert.AlertType.INFORMATION, "Thành công",
-            "Thanh toán thành công!\nHệ thống sẽ xuất hóa đơn cho bạn.");
-        exportAndOpenInvoice(transaction);
-        handleBack();
-      } else {
-        showAlert(Alert.AlertType.ERROR, "Thanh toán thất bại", message);
-        btnCompletePayment.setDisable(false);
-        btnCompletePayment.setText("HOÀN TẤT THANH TOÁN");
-      }
-    });
   }
 }

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FormatUtilTest {
 
     @Test
-    @DisplayName("Hàm fmt() định dạng thành công số tiền dương lớn")
+    @DisplayName("Hàm fmtD() định dạng thành công số tiền dương lớn")
     void testFmt_PositiveAmount_ShouldFormatWithVndSuffix() {
         BigDecimal amount = new BigDecimal("1500000.00");
         String formatted = CurrencyUtils.formatD(amount);
@@ -25,7 +25,7 @@ class FormatUtilTest {
     }
 
     @Test
-    @DisplayName("Hàm fmt() định dạng thành công số 0")
+    @DisplayName("Hàm fmtD() định dạng thành công số 0")
     void testFmt_ZeroAmount_ShouldFormatCorrectly() {
         BigDecimal amount = BigDecimal.ZERO;
         String formatted = CurrencyUtils.formatD(amount);
@@ -34,7 +34,7 @@ class FormatUtilTest {
     }
 
     @Test
-    @DisplayName("Hàm fmt() định dạng thành công số tiền âm")
+    @DisplayName("Hàm fmtD() định dạng thành công số tiền âm")
     void testFmt_NegativeAmount_ShouldFormatCorrectly() {
         BigDecimal amount = new BigDecimal("-50000.00");
         String formatted = CurrencyUtils.formatD(amount);
@@ -46,7 +46,7 @@ class FormatUtilTest {
     }
 
     @Test
-    @DisplayName("Hàm fmt() định dạng giá trị null thành ' đ'")
+    @DisplayName("Hàm fmtD() định dạng giá trị null thành ' đ'")
     void testFmt_NullValue_ShouldReturnNullString() {
         String formatted = CurrencyUtils.formatD(null);
         assertEquals("0 đ", formatted);

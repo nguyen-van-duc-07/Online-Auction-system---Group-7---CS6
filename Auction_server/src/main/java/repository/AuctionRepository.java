@@ -452,32 +452,43 @@ public class AuctionRepository {
       return false;
     }
   }
+  public boolean tryActivateAuction(String auctionId, LocalDateTime now) {
+    String sql = "UPDATE auctions SET status = ? WHERE id = ? AND status = ? AND start_time <= ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, AuctionStatus.ACTIVE.name());
+      ps.setString(2, auctionId);
+      ps.setString(3, AuctionStatus.WAITING.name());
+      ps.setTimestamp(4, Timestamp.valueOf(now));
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi thử đóng đấu giá ID: {}", auctionId, e);
+      return false;
+    }
+  }
 
-  public List<String> findAuctionsToActivate(LocalDateTime now) {
+  public Map<String, AuctionResponseDTO> findAuctionsToActivate(LocalDateTime now) {
 
-    List<String> ids = new ArrayList<>();
+    Map<String, AuctionResponseDTO> result = new LinkedHashMap<>();
 
     String sql =
-        "SELECT id FROM auctions "
-            + "WHERE status='WAITING' "
-            + "AND start_time <= ?";
-
+        "SELECT * "
+            + "FROM auctions "
+            + "WHERE status = 'WAITING' AND start_time <= ?";
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
       ps.setTimestamp(1, Timestamp.valueOf(now));
-
       ResultSet rs = ps.executeQuery();
-
       while (rs.next()) {
-        ids.add(rs.getString("id"));
+        AuctionResponseDTO auction = mapResultSetToAuctionResponseDTO(rs);
+        result.put(auction.getId(), auction);
       }
-
     } catch (Exception e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá cần kích hoạt", e);
+      log.error("Lỗi cơ sở dữ liệu khi lấy chi tiết đấu giá cần đóng", e);
     }
 
-    return ids;
+    return result;
   }
 
   public void activateAuctions(List<String> ids) {

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,6 +183,34 @@ public class SellerHomeController {
         break;
       }
     }
+  }
+  /**
+   * Cập nhật thời điểm kết thúc mới của phiên đấu giá khi có gia hạn.
+   *
+   * @param auctionId mã định danh phiên đấu giá cần cập nhật
+   * @param newEndTime thời điểm kết thúc mới
+   */
+  public void updateTimeExtend(String auctionId, LocalDateTime newEndTime) {
+    for (AuctionDTO auction : currentAuctions) {
+      if (auction.getAuctionId().equals(auctionId)) {
+        auction.setEndTime(newEndTime);
+        refreshAuctionTimeCard(auctionId, newEndTime);
+        break;
+      }
+    }
+  }
+  private void refreshAuctionTimeCard(String auctionId, LocalDateTime newEndTime) {
+    Platform.runLater(() -> {
+      for (Node node : mainLayout.getFeedContainer().getChildren()) {
+        AuctionItemCardController controller =
+            (AuctionItemCardController) node.getUserData();
+
+        if (controller != null && controller.getAuctionId().equals(auctionId)) {
+          controller.updateEndTime(newEndTime); // 👈 quan trọng
+          break;
+        }
+      }
+    });
   }
 
   private void refreshAuctionCard(String auctionId, BigDecimal newPrice) {
