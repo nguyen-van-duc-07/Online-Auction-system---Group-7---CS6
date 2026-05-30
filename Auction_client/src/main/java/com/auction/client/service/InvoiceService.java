@@ -1,5 +1,6 @@
 package com.auction.client.service;
 
+import com.auction.shared.model.order.Order;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.shared.util.CurrencyUtils;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -21,34 +22,11 @@ import org.slf4j.LoggerFactory;
 public class InvoiceService {
   private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
-
-  /**
-   * Phương thức cũ (Giữ nguyên để tương thích ngược nếu cần)
-   */
-  public boolean exportInvoiceToPdf(PrizedTransaction transaction, String outputPath) {
-    return exportInvoiceToPdf(
-        transaction,
-        "N/A",
-        "N/A",
-        "N/A",
-        "Sản phẩm đấu giá",
-        transaction.getFinalPrice(),
-        new BigDecimal("30000.00"),
-        transaction.getFinalPrice().add(new BigDecimal("30000.00")),
-        outputPath
-    );
-  }
-
   /**
    * Phương thức xuất hóa đơn chi tiết ra file PDF với đầy đủ dữ liệu người mua và sản phẩm.
    */
   public boolean exportInvoiceToPdf(
-      PrizedTransaction transaction,
-      String consigneeName,
-      String phoneNumber,
-      String address,
-      String itemName,
-      BigDecimal finalPrice,
+      Order order,
       BigDecimal shippingFee,
       BigDecimal totalAmount,
       String outputPath
@@ -69,15 +47,15 @@ public class InvoiceService {
         // 2. Trộn dữ liệu vào HTML (Thay thế các placeholder)
         htmlContent = htmlContent
             .replace("{{date}}", currentDateStr)
-            .replace("{{auctionId}}", transaction.getAuctionId() != null ? transaction.getAuctionId() : "N/A")
+            .replace("{{auctionId}}", order.getAuctionId() != null ? order.getAuctionId() : "N/A")
             .replace("{{transactionId}}", "TXN" + System.currentTimeMillis())
-            .replace("{{consigneeName}}", consigneeName != null && !consigneeName.isEmpty() ? consigneeName : "N/A")
-            .replace("{{phoneNumber}}", phoneNumber != null && !phoneNumber.isEmpty() ? phoneNumber : "N/A")
-            .replace("{{address}}", address != null && !address.isEmpty() ? address : "N/A")
-            .replace("{{itemId}}", transaction.getItemId() != null ? transaction.getItemId() : "N/A")
-            .replace("{{itemName}}", itemName != null && !itemName.isEmpty() ? itemName : "Sản phẩm đấu giá")
-            .replace("{{itemPrice}}", CurrencyUtils.formatD(finalPrice))
-            .replace("{{subTotal}}", CurrencyUtils.formatD(finalPrice))
+            .replace("{{consigneeName}}", order.getConsigneeName() != null && !order.getConsigneeName().isEmpty() ? order.getConsigneeName() : "N/A")
+            .replace("{{phoneNumber}}", order.getPhoneNumber() != null && !order.getPhoneNumber().isEmpty() ? order.getPhoneNumber() : "N/A")
+            .replace("{{address}}", order.getAddress() != null && !order.getAddress().isEmpty() ? order.getAddress() : "N/A")
+            .replace("{{itemId}}", order.getId() != null ? order.getId() : "N/A")
+            .replace("{{itemName}}", order.getItemName() != null && !order.getItemName().isEmpty() ? order.getItemName() : "Sản phẩm đấu giá")
+            .replace("{{itemPrice}}", CurrencyUtils.formatD(order.getFinalPrice()))
+            .replace("{{subTotal}}", CurrencyUtils.formatD(order.getFinalPrice()))
             .replace("{{shippingFee}}", CurrencyUtils.formatD(shippingFee))
             .replace("{{totalAmount}}", CurrencyUtils.formatD(totalAmount));
 

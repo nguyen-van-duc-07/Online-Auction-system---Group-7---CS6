@@ -1,15 +1,6 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.ChangePasswordController;
-import com.auction.client.screenhandler.HomeController;
-import com.auction.client.screenhandler.ItemAuctionController;
-import com.auction.client.screenhandler.ItemViewController;
-import com.auction.client.screenhandler.MainLayoutController;
-import com.auction.client.screenhandler.NotificationController;
-import com.auction.client.screenhandler.PaymentScreenController;
-import com.auction.client.screenhandler.ScreenController;
-import com.auction.client.screenhandler.ToastNotification;
-import com.auction.client.screenhandler.WalletController;
+import com.auction.client.screenhandler.*;
 import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
@@ -489,14 +480,12 @@ public class ResponseHandler {
    */
   public static void handleOrderUpdateNotification(OrderUpdateNotificationDTO dto) {
     Platform.runLater(() -> {
-      String message = dto.getStatus() == OrderStatus.CONFIRMED
-          ? "Người mua đã xác nhận thanh toán đơn hàng!"
-          : "Người mua đã hủy đơn hàng!";
-
-      ScreenController.showAlert(
-          Alert.AlertType.INFORMATION,
-          "Cập nhật đơn hàng",
-          message
+      String handle = dto.getStatus() == OrderStatus.CONFIRMED ? "thanh toán " : "hủy";
+      ToastNotification.show(
+          ScreenController.primaryStage, "Cập nhật trạng thái đơn hàng",
+          "Người mua đã " + handle + " đơn hàng " + dto.getOrderId() + "\n"
+              + " • Nhấn để xem chi tiết",
+          () -> ServerConnection.sendData(new GetOrderRequestDTO(dto.getOrderId()))
       );
     });
   }
@@ -725,13 +714,6 @@ public class ResponseHandler {
               });
             }
         );
-      } else if (dto.getType() == NotificationType.AUCTION_WON && dto.getReferenceId() != null) {
-        ToastNotification.show(
-            ScreenController.primaryStage,
-            dto.getTitle(),
-            dto.getContent() + "\n• Nhấn để thanh toán ngay!",
-            () -> ServerConnection.sendData(new GetOrderRequestDTO(dto.getReferenceId()))
-        );
       }
     });
     if (SessionManager.getCurrentUser() != null
@@ -788,6 +770,9 @@ public class ResponseHandler {
       HomeController home = HomeController.getInstance();
       if (home != null) {
         home.updateTimeExtend(dto.getAuctionId(), dto.getNewEndTime());
+      }
+      if (SellerHomeController.getInstance() != null) {
+        SellerHomeController.getInstance().updateTimeExtend(dto.getAuctionId(), dto.getNewEndTime());
       }
     });
   }

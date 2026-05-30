@@ -1,5 +1,6 @@
 package com.auction.client.service;
 
+import com.auction.shared.model.order.Order;
 import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.shared.util.CurrencyUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,10 +66,10 @@ class InvoiceServiceTest {
     @Test
     @DisplayName("Xuất hóa đơn thất bại khi truyền đường dẫn không hợp lệ")
     void testExportInvoiceToPdf_InvalidOutputPath_ShouldReturnFalse() {
-        PrizedTransaction transaction = new PrizedTransaction();
-        transaction.setAuctionId("AUC_123");
-        transaction.setItemId("ITEM_123");
-        transaction.setFinalPrice(new BigDecimal("100000"));
+        Order order = new Order();
+        order.setAuctionId("AUC_123");
+        order.setId("ORDER_123");
+        order.setFinalPrice(new BigDecimal("100000"));
 
         // Truyền đường dẫn thư mục ảo không có quyền ghi để ép lỗi
         String invalidPath = "/thumuc_khong_ton_tai/invoice.pdf";
@@ -78,7 +79,7 @@ class InvoiceServiceTest {
             invalidPath = "Z:\\thu_muc_khong_ton_tai\\invoice.pdf"; 
         }
 
-        boolean result = invoiceService.exportInvoiceToPdf(transaction, invalidPath);
+        boolean result = invoiceService.exportInvoiceToPdf(order, null, null, invalidPath);
 
         assertFalse(result, "Hàm phải trả về false khi có lỗi IO/Document");
     }
@@ -86,22 +87,17 @@ class InvoiceServiceTest {
     @Test
     @DisplayName("Xuất hóa đơn thành công ra file tạm")
     void testExportInvoiceToPdf_ValidData_ShouldReturnTrue() throws IOException {
-        PrizedTransaction transaction = new PrizedTransaction();
-        transaction.setAuctionId("AUC_123");
-        transaction.setItemId("ITEM_123");
-        transaction.setFinalPrice(new BigDecimal("100000"));
+        Order order = new Order();
+        order.setAuctionId("AUC_123");
+        order.setId("ORDER_123");
+        order.setFinalPrice(new BigDecimal("100000"));
 
         // Tạo file tạm
         Path tempFile = Files.createTempFile("test_invoice", ".pdf");
         
         try {
             boolean result = invoiceService.exportInvoiceToPdf(
-                    transaction,
-                    "Nguyễn Văn A",
-                    "0123456789",
-                    "Hà Nội",
-                    "Sản phẩm test",
-                    new BigDecimal("100000"),
+                    order,
                     new BigDecimal("30000"),
                     new BigDecimal("130000"),
                     tempFile.toString()
