@@ -2,7 +2,6 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
-import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.order.OrderDTO;
 import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.AuctionRequestDTO;
@@ -74,7 +73,7 @@ public class OrderCardController {
   @FXML
   public void gotoItemDetail() {
     String auctionId = currentOrder.getAuctionId();
-    com.auction.shared.request.AuctionRequestDTO auctionRequestDTO = new com.auction.shared.request.AuctionRequestDTO();
+    AuctionRequestDTO auctionRequestDTO = new AuctionRequestDTO();
     auctionRequestDTO.setAuctionId(auctionId);
     ServerConnection.sendData(auctionRequestDTO);
   }

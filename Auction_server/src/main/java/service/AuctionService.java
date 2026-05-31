@@ -4,6 +4,7 @@ import com.auction.shared.model.auction.Auction;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.model.item.Item;
 import com.auction.shared.model.transaction.BidTransaction;
+import com.auction.shared.request.GetAuctionsBySellerRequestDTO;
 import com.auction.shared.request.UploadItemRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.enums.AuctionStatus;
@@ -185,17 +186,8 @@ public class AuctionService {
    * @return Danh sách các đối tượng {@link AuctionResponseDTO} chứa thông tin tóm tắt
    * của các sản phẩm đang được đấu giá trên sàn.
    */
-  public List<AuctionDTO> getActiveAuctionsForClient() {
-    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.ACTIVE);
-  }
-
-  public List<AuctionDTO> getWaitingAuctionsForClient() {
-    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.WAITING);
-  }
-
-  public List<AuctionDTO> getClosedAuctionsForClient() {
-
-    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.CLOSED);
+  public List<AuctionDTO> getAuctionsForClient(AuctionStatus status) {
+    return auctionRepo.findAuctionsByStatusForBidder(status);
   }
 
   /**
@@ -209,13 +201,10 @@ public class AuctionService {
     return auctionRepo.findActiveAndWaitingAuctions();
   }
 
-  public List<AuctionDTO> getActiveAuctionsBySeller(String userId) {
-    return auctionRepo.findAuctionsByUserIdAndStatus(userId, AuctionStatus.ACTIVE);
+  public List<AuctionDTO> getAuctionsForSeller(GetAuctionsBySellerRequestDTO req) {
+    return auctionRepo.findAuctionsByUserId(req.getUserId());
   }
 
-  public List<AuctionDTO> getAuctionsBySeller(String userId) {
-    return auctionRepo.findAuctionsByUserId(userId);
-  }
 
   public boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
     return auctionRepo.cancelActiveAndWaitingAuctionsByUserId(userId);

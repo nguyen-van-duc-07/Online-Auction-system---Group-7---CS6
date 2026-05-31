@@ -302,31 +302,16 @@ public class OrderService {
   }
 
   public List<OrderDTO> getOrdersByBuyerIdAndStatus(String buyerId, OrderStatus status) {
-    List<OrderDTO> pendingOrders = orderRepo.getOrdersByBuyerIdAndStatus(buyerId, status);
-    return pendingOrders;
+    List<OrderDTO> orders = orderRepo.getOrdersByBuyerIdAndStatus(buyerId, status);
+    return orders;
   }
 
   public List<OrderDTO> getPendingOrdersBySellerId(String sellerId) {
     return getOrdersBySellerIdAndStatus(sellerId, OrderStatus.PENDING);
   }
 
-  public List<OrderDTO> getPendingOrdersByBuyerId(String buyerId) {
-    return getOrdersByBuyerIdAndStatus(buyerId, OrderStatus.PENDING);
-  }
-
-  public List<OrderDTO> getCompletedOrdersBySellerId(String sellerId) {
-    return getOrdersBySellerIdAndStatus(sellerId, OrderStatus.CONFIRMED);
-  }
-
   public List<OrderDTO> getCancelledOrdersBySellerId(String sellerId) {
     return getOrdersBySellerIdAndStatus(sellerId, OrderStatus.CANCELLED);
   }
 
-  public List<OrderDTO> getCompletedOrdersByBuyerId(String buyerId) {
-    return getOrdersByBuyerIdAndStatus(buyerId, OrderStatus.CONFIRMED);
-  }
-
-  public List<OrderDTO> getCancelledOrdersByBuyerId(String buyerId) {
-    return getOrdersByBuyerIdAndStatus(buyerId, OrderStatus.CANCELLED);
-  }
 }

@@ -124,7 +124,7 @@ public class AuctionServiceTest {
         List<AuctionDTO> expected = List.of(new AuctionDTO());
         when(auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.ACTIVE)).thenReturn(expected);
 
-        List<AuctionDTO> actual = auctionService.getActiveAuctionsForClient();
+        List<AuctionDTO> actual = auctionService.getAuctionsForClient(AuctionStatus.ACTIVE);
 
         assertEquals(expected, actual);
         verify(auctionRepo).findAuctionsByStatusForBidder(AuctionStatus.ACTIVE);

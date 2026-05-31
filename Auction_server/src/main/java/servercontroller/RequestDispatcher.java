@@ -129,20 +129,13 @@ public class RequestDispatcher {
     return auctionService.findAuctionById(auctionId);
   }
 
-  public GetAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
-    List<AuctionDTO> list = auctionService.getActiveAuctionsForClient();
+  public GetAuctionsResponseDTO getAuctionsByStatus(GetAuctionsRequestDTO getAuctionReq) {
+    log.info("-Tim kiem phien co trang thai: " + getAuctionReq.getStatus().name() );
+    List<AuctionDTO> list = auctionService.getAuctionsForClient(getAuctionReq.getStatus());
     return new GetAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
-  public GetAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
-    List<AuctionDTO> list = auctionService.getWaitingAuctionsForClient();
-    return new GetAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
-  }
 
-  public GetAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
-    List<AuctionDTO> list = auctionService.getClosedAuctionsForClient();
-    return new GetAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
-  }
 
   public GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
           GetActiveAndWaitingAuctionsRequestDTO request) {
@@ -150,20 +143,8 @@ public class RequestDispatcher {
     return new GetActiveAndWaitingAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
-  public GetAuctionsResponseDTO getCanceledAuctions(
-          GetCanceledAuctionsRequestDTO request) {
-    List<AuctionDTO> list = auctionService.getCanceledAuctionsForClient();
-    return new GetAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
-  }
-
-  public GetAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
-      GetActiveAuctionsBySellerRequestDTO request) {
-    List<AuctionDTO> list = auctionService.getActiveAuctionsBySeller(request.getUserId());
-    return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
-  }
-
-  public GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
-    List<AuctionDTO> list = auctionService.getAuctionsBySeller(request.getUserId());
+  public GetAuctionsBySellerResponseDTO getAuctionsForSeller(GetAuctionsBySellerRequestDTO request) {
+    List<AuctionDTO> list = auctionService.getAuctionsForSeller(request);
     return new GetAuctionsBySellerResponseDTO(true, "Tải danh sách thành công!", list);
   }
 
@@ -337,40 +318,16 @@ public class RequestDispatcher {
     }
   }
 
-  public GetOrdersResponseDTO handleGetPendingOrdersOfSeller(
-      GetPendingOrdersOfSellerRequestDTO req) {
-    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersBySellerId(req.getSellerId());
-    return new GetOrdersResponseDTO("Tải danh sách thành công", true, pendingOrders);
-  }
-
-  public GetOrdersResponseDTO handleGetPendingOrdersOfBuyer(
-      GetPendingOrdersOfBuyerRequestDTO req) {
-    List<OrderDTO> pendingOrders =  orderService.getPendingOrdersByBuyerId(req.getBuyerId());
-    return new GetOrdersResponseDTO("Tải danh sách thành công", true, pendingOrders);
-  }
-
-  public GetOrdersResponseDTO handleGetCompletedOrdersOfSeller(
-      GetCompletedOrdersOfSellerRequestDTO req) {
-    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersBySellerId(req.getSellerId());
+  public GetOrdersResponseDTO handleGetOrdersOfSeller(
+      GetOrdersOfSellerRequestDTO req) {
+    List<OrderDTO> completedOrders =  orderService.getOrdersBySellerIdAndStatus(req.getSellerId(), req.getStatus());
     return new GetOrdersResponseDTO("Tải danh sách thành công", true, completedOrders);
   }
 
-  public GetOrdersResponseDTO handleGetCancelledOrdersOfSeller(
-      GetCancelledOrdersOfSellerRequestDTO req) {
-    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersBySellerId(req.getSellerId());
-    return new GetOrdersResponseDTO("Tải danh sách thành công", true, cancelledOrders);
-  }
-
-  public GetOrdersResponseDTO handleGetCompletedOrdersOfBuyer(
-      GetCompletedOrdersOfBuyerRequestDTO req) {
-    List<OrderDTO> completedOrders =  orderService.getCompletedOrdersByBuyerId(req.getBuyerId());
-    return new GetOrdersResponseDTO("Tải danh sách thành công", true, completedOrders);
-  }
-
-  public GetOrdersResponseDTO handleGetCancelledOrdersOfBuyer(
-      GetCancelledOrdersOfBuyerRequestDTO req) {
-    List<OrderDTO> cancelledOrders =  orderService.getCancelledOrdersByBuyerId(req.getBuyerId());
-    return new GetOrdersResponseDTO("Tải danh sách thành công", true, cancelledOrders);
+  public GetOrdersResponseDTO handleGetOrdersOfBuyer(
+      GetOrdersOfBuyerRequestDTO req) {
+    List<OrderDTO> orders =  orderService.getOrdersByBuyerIdAndStatus(req.getBuyerId(), req.getStatus());
+    return new GetOrdersResponseDTO("Tải danh sách thành công", true, orders);
   }
 
   public CreateAdminResponseDTO createAdmin(CreateAdminRequestDTO req) {

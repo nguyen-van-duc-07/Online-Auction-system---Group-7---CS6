@@ -32,16 +32,8 @@ public class RequestHandler {
     return dispatcher.handleFindAuctionById(request);
   }
 
-  public static GetAuctionsResponseDTO getActiveAuctions(GetActiveAuctionsRequestDTO getActiveAuctionReq) {
-    return dispatcher.getActiveAuctions(getActiveAuctionReq);
-  }
-
-  public static GetAuctionsResponseDTO getWaitingAuctions(GetWaitingAuctionsRequestDTO request) {
-    return dispatcher.getWaitingAuctions(request);
-  }
-
-  public static GetAuctionsResponseDTO getClosedAuctions(GetClosedAuctionsRequestDTO request) {
-    return dispatcher.getClosedAuctions(request);
+  public static GetAuctionsResponseDTO getAuctionsByStatus(GetAuctionsRequestDTO getActiveAuctionReq) {
+    return dispatcher.getAuctionsByStatus(getActiveAuctionReq);
   }
 
   public static GetActiveAndWaitingAuctionsResponseDTO getActiveAndWaitingAuctions(
@@ -49,18 +41,8 @@ public class RequestHandler {
     return dispatcher.getActiveAndWaitingAuctions(request);
   }
 
-  public static GetAuctionsResponseDTO getCanceledAuctions(
-          GetCanceledAuctionsRequestDTO request) {
-    return dispatcher.getCanceledAuctions(request);
-  }
-
-  public static GetAuctionsBySellerResponseDTO getActiveAuctionsBySeller(
-      GetActiveAuctionsBySellerRequestDTO request) {
-    return dispatcher.getActiveAuctionsBySeller(request);
-  }
-
   public static GetAuctionsBySellerResponseDTO getAuctionsBySeller(GetAuctionsBySellerRequestDTO request) {
-    return dispatcher.getAuctionsBySeller(request);
+    return dispatcher.getAuctionsForSeller(request);
   }
 
   public static UpdateProfileResponseDTO updateProfile(UpdateProfileRequestDTO updateProfileReq) {
@@ -136,34 +118,14 @@ public class RequestHandler {
     dispatcher.markNotificationRead(req);
   }
 
-  public static GetOrdersResponseDTO handleGetPendingOrdersOfSeller(
-      GetPendingOrdersOfSellerRequestDTO req) {
-    return dispatcher.handleGetPendingOrdersOfSeller(req);
+  public static GetOrdersResponseDTO handleGetOrdersOfSeller(
+      GetOrdersOfSellerRequestDTO req) {
+    return dispatcher.handleGetOrdersOfSeller(req);
   }
 
-  public static GetOrdersResponseDTO handleGetPendingOrdersOfBuyer(
-      GetPendingOrdersOfBuyerRequestDTO req) {
-    return dispatcher.handleGetPendingOrdersOfBuyer(req);
-  }
-
-  public static GetOrdersResponseDTO handleGetConfirmedOrdersOfSeller(
-      GetCompletedOrdersOfSellerRequestDTO req) {
-    return dispatcher.handleGetCompletedOrdersOfSeller(req);
-  }
-
-  public static GetOrdersResponseDTO handleGetCancelledOrdersOfSeller(
-      GetCancelledOrdersOfSellerRequestDTO req) {
-    return dispatcher.handleGetCancelledOrdersOfSeller(req);
-  }
-
-  public static GetOrdersResponseDTO handleGetConfirmedOrdersOfBuyer(
-      GetCompletedOrdersOfBuyerRequestDTO req) {
-    return dispatcher.handleGetCompletedOrdersOfBuyer(req);
-  }
-
-  public static GetOrdersResponseDTO handleGetCancelledOrdersOfBuyer(
-      GetCancelledOrdersOfBuyerRequestDTO req) {
-    return dispatcher.handleGetCancelledOrdersOfBuyer(req);
+  public static GetOrdersResponseDTO handleGetOrdersOfBuyer(
+      GetOrdersOfBuyerRequestDTO req) {
+    return dispatcher.handleGetOrdersOfBuyer(req);
   }
 
   public static CreateAdminResponseDTO createAdmin(CreateAdminRequestDTO req) {
