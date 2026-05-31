@@ -38,7 +38,7 @@ public class AuctionService {
    * Constructor mặc định cho Production.
    */
   public AuctionService() {
-    this(new AuctionRepository(), new BidTransactionRepository());
+    this(AuctionRepository.getInstance(), BidTransactionRepository.getInstance());
   }
 
   /**
@@ -118,7 +118,7 @@ public class AuctionService {
     if (isAuctionSaved) {
       auctions.put(auction.getId(), auction);
       if (auction.getStatus() == AuctionStatus.ACTIVE) {
-        new NotificationService().sendNewAuctionNotification(
+        NotificationService.getInstance().sendNewAuctionNotification(
             auction.getId(),
             auction.getItem().getName(),
             auction.getStartPrice()
@@ -263,7 +263,7 @@ public class AuctionService {
                 }
                 Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, updatedAuction.getStatus()));
                 if (updatedAuction.getStatus() == AuctionStatus.ACTIVE) {
-                  new NotificationService().sendNewAuctionNotification(
+                  NotificationService.getInstance().sendNewAuctionNotification(
                       auctionId,
                       auction.getItem().getName(),
                       auction.getStartPrice()
@@ -284,7 +284,7 @@ public class AuctionService {
                 ramAuction.setStartTime(LocalDateTime.now());
               }
               Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.ACTIVE));
-              new NotificationService().sendNewAuctionNotification(
+              NotificationService.getInstance().sendNewAuctionNotification(
                   auctionId,
                   auction.getItem().getName(),
                   auction.getStartPrice()

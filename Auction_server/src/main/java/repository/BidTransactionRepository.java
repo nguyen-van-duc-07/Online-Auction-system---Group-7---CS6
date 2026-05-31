@@ -14,6 +14,16 @@ import org.slf4j.LoggerFactory;
 
 public class BidTransactionRepository {
   private static final Logger log = LoggerFactory.getLogger(BidTransactionRepository.class);
+
+  private BidTransactionRepository() {}
+
+  private static class Holder {
+    private static final BidTransactionRepository INSTANCE = new BidTransactionRepository();
+  }
+
+  public static BidTransactionRepository getInstance() {
+    return Holder.INSTANCE;
+  }
   public boolean saveBid(Connection conn, BidTransaction bid) throws SQLException {
     String sql = "INSERT INTO bid_transactions "
         + "(id, auction_id, bidder_id, bid_amount) "

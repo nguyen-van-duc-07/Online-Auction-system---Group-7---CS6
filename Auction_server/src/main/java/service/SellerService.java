@@ -19,11 +19,19 @@ public class SellerService {
   private final SellerProfileRepository sellerRepo;
   private final AuctionService auctionService;
 
+  private static class Holder {
+    private static final SellerService INSTANCE = new SellerService();
+  }
+
+  public static SellerService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production.
    */
-  public SellerService() {
-    this(new SellerProfileRepository(), AuctionService.getInstance());
+  private SellerService() {
+    this(SellerProfileRepository.getInstance(), AuctionService.getInstance());
   }
 
   /**
@@ -45,7 +53,7 @@ public class SellerService {
 
     boolean success = sellerRepo.createSellerProfile(sellerProfile);
     if (success) {
-      NotificationService notifService = new NotificationService();
+      NotificationService notifService = NotificationService.getInstance();
       notifService.sendFromNotification(NotificationTemplate.sellerSubmitted(sellerRegisterReq.getUserId()));
     }
     return success;
@@ -114,7 +122,7 @@ public class SellerService {
       }
 
       // 4. Gửi thông báo cho người dùng
-      NotificationService notifService = new NotificationService();
+      NotificationService notifService = NotificationService.getInstance();
       switch (status) {
         case REGISTERED -> notifService.sendFromNotification(
             NotificationTemplate.sellerApproved(userId)

@@ -56,7 +56,7 @@ public class WalletServiceTest {
             notifService
         );
     }
-    // TEST CASES FOR getBalance
+    // TEST CASES cho getBalance
 
     @Test
     @DisplayName("Lấy số dư: Trả về số dư chính xác khi user tồn tại")
@@ -79,7 +79,6 @@ public class WalletServiceTest {
         String userId = "unknownUser";
         when(walletRepo.getWalletByUserId(userId)).thenReturn(null);
 
-        // Act & Assert
         Exception exception = assertThrows(Exception.class, () -> {
             walletService.getBalance(userId);
         });
@@ -87,7 +86,7 @@ public class WalletServiceTest {
         assertEquals("Không tìm thấy ví của người dùng: " + userId, exception.getMessage());
         verify(walletRepo).getWalletByUserId(userId);
     }
-    // TEST CASES FOR freezeMoney
+    // TEST CASES cho freezeMoney
 
     @Test
     @DisplayName("Đóng băng tiền thành công: Đủ số dư, cập nhật ví và lưu giao dịch")
@@ -125,7 +124,6 @@ public class WalletServiceTest {
 
         when(walletRepo.getWalletByUserIdForUpdate(mockConnection, userId)).thenReturn(wallet);
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             walletService.freezeMoney(mockConnection, userId, amount, auctionId);
         });
@@ -134,7 +132,7 @@ public class WalletServiceTest {
         verify(walletRepo, never()).updateWallet(any(), any());
         verify(txRepo, never()).saveWalletTransaction(any(), any());
     }
-    // TEST CASES FOR releaseFrozen
+    // TEST CASES cho releaseFrozen
 
     @Test
     @DisplayName("Hoàn trả tiền đóng băng thành công: Cập nhật ví và lưu giao dịch")
@@ -156,7 +154,7 @@ public class WalletServiceTest {
         verify(walletRepo).updateWallet(mockConnection, wallet);
         verify(txRepo).saveWalletTransaction(eq(mockConnection), any(WalletTransaction.class));
     }
-    // TEST CASES FOR createTransactionRequest
+    // TEST CASES cho createTransactionRequest
 
     @Test
     @DisplayName("Tạo yêu cầu nạp tiền thành công: Commit và gửi thông báo")
@@ -201,7 +199,7 @@ public class WalletServiceTest {
         verify(txRepo, never()).saveWalletTransaction(any(), any());
         verify(notifService, never()).sendFromNotification(any());
     }
-    // TEST CASES FOR processTransactionRequest
+    // TEST CASES cho processTransactionRequest
 
     @Test
     @DisplayName("Xử lý yêu cầu nạp tiền (Duyệt): Cập nhật ví và commit")
@@ -248,7 +246,7 @@ public class WalletServiceTest {
         Wallet wallet = new Wallet();
         wallet.setId("walletId123");
         wallet.setBidderId("user123");
-        wallet.setBalance(new BigDecimal("700000.00")); // Amount has been deducted when withdraw was requested
+        wallet.setBalance(new BigDecimal("700000.00"));
 
         when(connectionProvider.getConnection()).thenReturn(mockConnection);
         when(txRepo.getTransactionById(mockConnection, transactionId)).thenReturn(tx);

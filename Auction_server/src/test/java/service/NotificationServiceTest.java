@@ -83,7 +83,7 @@ public class NotificationServiceTest {
         String itemName = "Bức tranh quý";
         BigDecimal startPrice = new BigDecimal("5000000.00");
         notifService.sendNewAuctionNotification(auctionId, itemName, startPrice);
-        mockedServer.verify(() -> Server.broadcastToBidders(argThat(dto -> {
+        mockedServer.verify(() -> Server.broadcastToAll(argThat(dto -> {
             NotificationDTO notifDto = (NotificationDTO) dto;
             return NotificationType.SYSTEM == notifDto.getType() &&
                    notifDto.getTitle().contains("Phiên đấu giá mới") &&

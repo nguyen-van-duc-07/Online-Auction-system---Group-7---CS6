@@ -33,17 +33,25 @@ public class OrderService {
   private final NotificationService notifService;
   private final config.ConnectionProvider connectionProvider;
 
+  private static class Holder {
+    private static final OrderService INSTANCE = new OrderService();
+  }
+
+  public static OrderService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production.
    */
-  public OrderService() {
+  private OrderService() {
     this(
-        new OrderRepository(),
-        new AuctionRepository(),
-        new UserRepository(),
-        new WalletService(),
-        new SellerProfileRepository(),
-        new NotificationService(),
+        OrderRepository.getInstance(),
+        AuctionRepository.getInstance(),
+        UserRepository.getInstance(),
+        WalletService.getInstance(),
+        SellerProfileRepository.getInstance(),
+        NotificationService.getInstance(),
         DatabaseConnection::getConnection
     );
   }

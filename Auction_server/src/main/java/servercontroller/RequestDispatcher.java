@@ -41,16 +41,16 @@ public class RequestDispatcher {
    */
   public RequestDispatcher() {
     this(
-        new AuthService(),
+        AuthService.getInstance(),
         AuctionService.getInstance(),
-        new BidService(),
-        new SellerService(),
-        new OrderService(),
-        new AutoBidService(),
-        new WalletService(),
-        new NotificationService(),
-        new SellerProfileRepository(),
-        new AutoBidConfigRepository()
+        BidService.getInstance(),
+        SellerService.getInstance(),
+        OrderService.getInstance(),
+        AutoBidService.getInstance(),
+        WalletService.getInstance(),
+        NotificationService.getInstance(),
+        SellerProfileRepository.getInstance(),
+        AutoBidConfigRepository.getInstance()
     );
   }
 
@@ -279,7 +279,7 @@ public class RequestDispatcher {
 
     if (success) {
       if (req.isActive()) {
-        new BidService().resolveAutoBidFight(req.getAuctionId());
+        BidService.getInstance().resolveAutoBidFight(req.getAuctionId());
       }
       return new AutoBidResponseDTO(true, "Đã cập nhật tự động đấu giá!");
     } else {

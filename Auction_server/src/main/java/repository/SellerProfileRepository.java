@@ -16,6 +16,16 @@ import org.slf4j.LoggerFactory;
 
 public class SellerProfileRepository {
   private static final Logger log = LoggerFactory.getLogger(SellerProfileRepository.class);
+
+  private SellerProfileRepository() {}
+
+  private static class Holder {
+    private static final SellerProfileRepository INSTANCE = new SellerProfileRepository();
+  }
+
+  public static SellerProfileRepository getInstance() {
+    return Holder.INSTANCE;
+  }
   public boolean createSellerProfile(SellerProfile sellerProfile){
     try (Connection conn = DatabaseConnection.getConnection()) {
       String sql = "INSERT INTO seller_profiles (id, user_id, brand_name, cccd, location, bank_account, bank_name, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

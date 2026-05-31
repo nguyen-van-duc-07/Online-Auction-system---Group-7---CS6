@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import repository.SellerProfileRepository;
 
@@ -56,16 +57,15 @@ public class SellerServiceTest {
         when(sellerRepo.createSellerProfile(any(SellerProfile.class))).thenReturn(true);
 
         // Thực thi & Xác minh
-        try (MockedConstruction<NotificationService> mockNotif = mockConstruction(NotificationService.class)) {
+        NotificationService mockNotif = mock(NotificationService.class);
+        try (MockedStatic<NotificationService> staticMock = mockStatic(NotificationService.class)) {
+            staticMock.when(NotificationService::getInstance).thenReturn(mockNotif);
+
             boolean result = sellerService.sellerRegister(req);
 
             assertTrue(result);
             verify(sellerRepo).createSellerProfile(any(SellerProfile.class));
-
-            // Kiểm tra xem NotificationService đã được tạo và gọi hàm sendFromNotification chưa
-            List<NotificationService> constructed = mockNotif.constructed();
-            assertEquals(1, constructed.size());
-            verify(constructed.get(0)).sendFromNotification(any());
+            verify(mockNotif).sendFromNotification(any());
         }
     }
 
@@ -78,14 +78,15 @@ public class SellerServiceTest {
         when(sellerRepo.createSellerProfile(any(SellerProfile.class))).thenReturn(false);
 
         // Thực thi & Xác minh
-        try (MockedConstruction<NotificationService> mockNotif = mockConstruction(NotificationService.class)) {
+        NotificationService mockNotif = mock(NotificationService.class);
+        try (MockedStatic<NotificationService> staticMock = mockStatic(NotificationService.class)) {
+            staticMock.when(NotificationService::getInstance).thenReturn(mockNotif);
+
             boolean result = sellerService.sellerRegister(req);
 
             assertFalse(result);
             verify(sellerRepo).createSellerProfile(any(SellerProfile.class));
-
-            List<NotificationService> constructed = mockNotif.constructed();
-            assertTrue(constructed.isEmpty());
+            verify(mockNotif, never()).sendFromNotification(any());
         }
     }
     // CÁC KIỂM THỬ CHO PHƯƠNG THỨC isSellerProfileCreated
@@ -190,7 +191,10 @@ public class SellerServiceTest {
         when(sellerRepo.getSellerProfileStatus("user123")).thenReturn("UNREGISTERED");
         when(sellerRepo.updateStatus("user123", SellerRegisterStatus.REGISTERED)).thenReturn(true);
 
-        try (MockedConstruction<NotificationService> mockNotif = mockConstruction(NotificationService.class)) {
+        NotificationService mockNotif = mock(NotificationService.class);
+        try (MockedStatic<NotificationService> staticMock = mockStatic(NotificationService.class)) {
+            staticMock.when(NotificationService::getInstance).thenReturn(mockNotif);
+
             UpdateSellerProfileStatusResponseDTO response = sellerService.handleUpdateSellerProfileStatus(req);
 
             assertTrue(response.isSuccess());
@@ -201,9 +205,7 @@ public class SellerServiceTest {
             verify(auctionService, never()).cancelActiveAndWaitingAuctionsBySellerUserId(anyString());
 
             // Xác minh gửi thông báo
-            List<NotificationService> constructed = mockNotif.constructed();
-            assertEquals(1, constructed.size());
-            verify(constructed.get(0)).sendFromNotification(any());
+            verify(mockNotif).sendFromNotification(any());
         }
     }
 
@@ -216,7 +218,10 @@ public class SellerServiceTest {
         when(sellerRepo.getSellerProfileStatus("user123")).thenReturn("UNREGISTERED");
         when(sellerRepo.updateStatus("user123", SellerRegisterStatus.DENIED)).thenReturn(true);
 
-        try (MockedConstruction<NotificationService> mockNotif = mockConstruction(NotificationService.class)) {
+        NotificationService mockNotif = mock(NotificationService.class);
+        try (MockedStatic<NotificationService> staticMock = mockStatic(NotificationService.class)) {
+            staticMock.when(NotificationService::getInstance).thenReturn(mockNotif);
+
             UpdateSellerProfileStatusResponseDTO response = sellerService.handleUpdateSellerProfileStatus(req);
 
             assertTrue(response.isSuccess());
@@ -227,9 +232,7 @@ public class SellerServiceTest {
             verify(auctionService, never()).restoreCanceledAuctionsBySellerUserId(anyString());
 
             // Xác minh gửi thông báo
-            List<NotificationService> constructed = mockNotif.constructed();
-            assertEquals(1, constructed.size());
-            verify(constructed.get(0)).sendFromNotification(any());
+            verify(mockNotif).sendFromNotification(any());
         }
     }
 

@@ -37,9 +37,9 @@ public class AuctionStatusScheduler {
    */
   public AuctionStatusScheduler() {
     this(
-        new AuctionRepository(),
-        new OrderService(),
-        new NotificationService()
+        AuctionRepository.getInstance(),
+        OrderService.getInstance(),
+        NotificationService.getInstance()
     );
   }
 

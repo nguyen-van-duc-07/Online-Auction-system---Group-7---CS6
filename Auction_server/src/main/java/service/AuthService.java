@@ -1,13 +1,10 @@
 package service;
 
 import com.auction.shared.enums.UserRole;
-import com.auction.shared.model.user.Admin;
+import com.auction.shared.model.user.*;
 import com.auction.shared.request.CreateAdminRequestDTO;
 import com.auction.shared.request.LoginRequestDTO;
 import com.auction.shared.request.SignUpRequestDTO;
-import com.auction.shared.model.user.Bidder;
-import com.auction.shared.model.user.User;
-import com.auction.shared.model.user.Wallet;
 import com.auction.shared.request.UpdateProfileRequestDTO;
 import com.auction.shared.request.ChangePasswordRequestDTO;
 import com.auction.shared.response.ChangePasswordResponseDTO;
@@ -16,6 +13,7 @@ import config.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
+import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
 import repository.UserRepository;
@@ -33,14 +31,22 @@ public class AuthService {
   private final NotificationService notifService;
   private final config.ConnectionProvider connectionProvider;
 
+  private static class Holder {
+    private static final AuthService INSTANCE = new AuthService();
+  }
+
+  public static AuthService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production.
    */
-  public AuthService() {
+  private AuthService() {
     this(
-        new UserRepository(),
-        new WalletRepository(),
-        new NotificationService(),
+        UserRepository.getInstance(),
+        WalletRepository.getInstance(),
+        NotificationService.getInstance(),
         DatabaseConnection::getConnection
     );
   }
@@ -237,7 +243,7 @@ public class AuthService {
     }
   }
 
-  public java.util.List<com.auction.shared.model.user.UserDTO> getAllUsers() {
+  public List<UserDTO> getAllUsers() {
     return userRepo.getAllUsers();
   }
 }
