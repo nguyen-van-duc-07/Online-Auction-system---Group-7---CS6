@@ -1,16 +1,13 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
+import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -201,20 +198,20 @@ public class HomeController {
    */
   public void handleGetActiveAuctions() {
     log.info(">>> Đã bấm nút Đang diễn ra");
-    ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.ACTIVE));
   }
 
   /**
    * Yêu cầu hệ thống tải các phiên đấu giá sắp diễn ra từ Server.
    */
   public void handleGetWaitingAuctions() {
-    ServerConnection.sendData(new GetWaitingAuctionsRequestDTO());
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.WAITING));
   }
 
   /**
    * Yêu cầu hệ thống tải các phiên đấu giá đã kết thúc từ Server.
    */
   public void handleGetClosedAuctions() {
-    ServerConnection.sendData(new GetClosedAuctionsRequestDTO());
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.CLOSED));
   }
 }

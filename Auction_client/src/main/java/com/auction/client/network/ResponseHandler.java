@@ -188,9 +188,26 @@ public class ResponseHandler {
   public static void handleGetAuctions(GetAuctionsResponseDTO getAuctionRes) {
     if (getAuctionRes.isSuccess()) {
       Platform.runLater(() -> {
-        MainLayoutController controller = MainLayoutController.getInstance();
-        if (controller != null && controller.getHomeController() != null) {
-          controller.getHomeController().loadFeedToUI(getAuctionRes.getAuctions());
+        if (SessionManager.getCurrentUser() == null) {
+          return;
+        }
+        // Lấy role của user hiện tại từ SessionManager
+        UserRole currentRole = SessionManager.getCurrentUser().getRole();
+
+        if (currentRole == UserRole.ADMIN) {
+          // NẾU LÀ ADMIN -> Đẩy dữ liệu vào bảng quản lý của Admin
+          AuctionManagerController controller = AuctionManagerController.getInstance();
+          if (controller != null) {
+            controller.loadDataToTable(
+                getAuctionRes.getAuctions());
+          }
+        } else {
+          // NẾU LÀ USER (BIDDER/SELLER) -> Xử lý hiển thị cho User
+          MainLayoutController controller = MainLayoutController.getInstance();
+          if (controller != null && controller.getHomeController() != null) {
+            controller.getHomeController().loadFeedToUI(
+                getAuctionRes.getAuctions());
+          }
         }
       });
     } else {

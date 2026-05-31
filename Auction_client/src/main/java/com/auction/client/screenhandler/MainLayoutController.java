@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
@@ -160,7 +161,7 @@ public class MainLayoutController implements Initializable {
     configureFunctionButtons("home");
 
     // Request danh sách đấu giá đang diễn ra
-    ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.ACTIVE));
     // Thêm search listener
     searchField.textProperty().addListener((observable, oldValue, newValue) -> {
       String query = newValue.trim().toLowerCase();
@@ -360,7 +361,7 @@ public class MainLayoutController implements Initializable {
         filterBar.setVisible(false);
         filterBar.setManaged(false);
         searchField.clear();
-        if (sellerHomeController != null) sellerHomeController.handleGetCompletedOrders();
+        if (sellerHomeController != null) sellerHomeController.handleGetConfirmedOrders();
       });
       functionButton3.setText("❌ Phiên lỗi / Huỷ đơn");
       functionButton3.setOnAction(e -> {
@@ -386,7 +387,7 @@ public class MainLayoutController implements Initializable {
       functionButton2.setOnAction(e -> {
         resetFunctionButtonStyles(2);
         searchField.clear();
-        if (resultController != null) resultController.handleGetCompletedOrders();
+        if (resultController != null) resultController.handleGetConfirmedOrders();
       });
       functionButton3.setText("❌ Đã huỷ");
       functionButton3.setOnAction(e -> {
@@ -498,7 +499,7 @@ public class MainLayoutController implements Initializable {
     hidePlaceholder();
 
     // Request danh sách đấu giá mới nhất
-    ServerConnection.sendData(new GetActiveAuctionsRequestDTO());
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.ACTIVE));
   }
 
   /**
@@ -544,7 +545,7 @@ public class MainLayoutController implements Initializable {
 
     // Request danh sách đơn hàng pending của buyer
     String userId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfBuyerRequestDTO(userId, OrderStatus.PENDING));
   }
 
   /**

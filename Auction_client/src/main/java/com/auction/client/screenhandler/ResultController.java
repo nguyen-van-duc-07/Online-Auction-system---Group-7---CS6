@@ -1,13 +1,10 @@
 package com.auction.client.screenhandler;
 
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.order.OrderDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.geometry.Insets;
 import com.auction.shared.request.*;
 import com.auction.client.network.ServerConnection;
 import org.slf4j.Logger;
@@ -130,15 +127,15 @@ public class ResultController {
    */
   public void handleGetPendingOrders() {
     String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetPendingOrdersOfBuyerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfBuyerRequestDTO(userId, OrderStatus.PENDING));
   }
 
   /**
    * Gửi yêu cầu lên Server lấy danh sách các đơn hàng đã thanh toán thành công của người mua.
    */
-  public void handleGetCompletedOrders() {
+  public void handleGetConfirmedOrders() {
     String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetCompletedOrdersOfBuyerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfBuyerRequestDTO(userId, OrderStatus.CONFIRMED));
   }
 
   /**
@@ -146,6 +143,6 @@ public class ResultController {
    */
   public void handleGetCancelledOrders() {
     String userId = com.auction.client.network.SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetCancelledOrdersOfBuyerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfBuyerRequestDTO(userId, OrderStatus.CANCELLED));
   }
 }

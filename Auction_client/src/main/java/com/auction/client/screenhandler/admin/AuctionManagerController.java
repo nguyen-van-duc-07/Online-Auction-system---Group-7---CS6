@@ -3,10 +3,8 @@ package com.auction.client.screenhandler.admin;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO;
-import com.auction.shared.request.SellerRegisterRequestDTO;
+import com.auction.shared.request.*;
 import com.auction.shared.enums.AuctionStatus;
-import com.auction.shared.request.UpdateAuctionStatusRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -84,7 +82,7 @@ public class AuctionManagerController implements Initializable {
       if (event.getClickCount() == 2) {
         AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-          com.auction.shared.request.AuctionRequestDTO req = new com.auction.shared.request.AuctionRequestDTO();
+          AuctionRequestDTO req = new AuctionRequestDTO();
           req.setAuctionId(selected.getAuctionId());
           ServerConnection.sendData(req);
         }
@@ -276,6 +274,7 @@ public class AuctionManagerController implements Initializable {
     } else {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Chỉ có thể mở phiên ở trạng thái chờ (WAITING) hoặc đã hủy (CANCELED)!");
     }
+    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.CANCELED));
   }
 
   @FXML
@@ -312,7 +311,7 @@ public class AuctionManagerController implements Initializable {
   public void handleReload() {
     log.info("Yêu cầu tải lại danh sách phiên đấu giá (Đã huỷ: {}) từ server...", showingCanceled);
     if (showingCanceled) {
-      ServerConnection.sendData(new com.auction.shared.request.GetCanceledAuctionsRequestDTO());
+      ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.CANCELED));
     } else {
       ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
     }

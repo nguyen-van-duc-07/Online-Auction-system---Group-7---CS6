@@ -3,6 +3,7 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.AuctionDTO;
 import com.auction.shared.request.*;
 import javafx.application.Platform;
@@ -11,8 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,11 +128,6 @@ public class SellerHomeController {
     }
   }
 
-  /**
-   * Lọc danh sách phiên đấu giá của người bán dựa trên từ khóa tìm kiếm.
-   *
-   * @param keyword từ khóa tìm kiếm (tên sản phẩm)
-   */
   public void filterAuctions(String keyword) {
     applyFilters();
   }
@@ -231,15 +225,15 @@ public class SellerHomeController {
    */
   public void handleGetPendingOrders() {
     String userId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetPendingOrdersOfSellerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfSellerRequestDTO(userId, OrderStatus.PENDING));
   }
 
   /**
    * Gửi yêu cầu lên Server lấy danh sách các đơn hàng đã thanh toán thành công của người bán.
    */
-  public void handleGetCompletedOrders() {
+  public void handleGetConfirmedOrders() {
     String userId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetCompletedOrdersOfSellerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfSellerRequestDTO(userId, OrderStatus.CONFIRMED));
   }
 
   /**
@@ -247,6 +241,6 @@ public class SellerHomeController {
    */
   public void handleGetCanceledOrders() {
     String userId = SessionManager.getCurrentUser().getId();
-    ServerConnection.sendData(new GetCancelledOrdersOfSellerRequestDTO(userId));
+    ServerConnection.sendData(new GetOrdersOfSellerRequestDTO(userId, OrderStatus.CANCELLED));
   }
 }

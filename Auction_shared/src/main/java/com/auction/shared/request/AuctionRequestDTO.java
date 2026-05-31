@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuctionRequestDTO implements RequestDTO{
-    private String auctionId;
+public class AuctionRequestDTO implements RequestDTO {
+  private String auctionId;
 }

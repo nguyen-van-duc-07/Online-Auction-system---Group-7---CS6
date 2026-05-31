@@ -1,5 +1,8 @@
 package com.auction.shared.request;
 
+import lombok.Getter;
+
+@Getter
 public class GetAuctionsBySellerRequestDTO implements RequestDTO {
   private String userId;
 
@@ -7,7 +10,4 @@ public class GetAuctionsBySellerRequestDTO implements RequestDTO {
     this.userId = userId;
   }
 
-  public String getUserId() {
-    return userId;
-  }
 }

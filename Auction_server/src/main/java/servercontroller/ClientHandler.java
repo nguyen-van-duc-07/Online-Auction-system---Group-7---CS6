@@ -126,44 +126,17 @@ public class ClientHandler implements Runnable {
                 }
               }
 
-              case GetActiveAuctionsRequestDTO getActiveAuctionReq -> {
+              case GetAuctionsRequestDTO getAuctionReq -> {
                 synchronized (out) {
-                  out.writeObject(RequestHandler.getActiveAuctions(getActiveAuctionReq));
+                  out.writeObject(RequestHandler.getAuctionsByStatus(getAuctionReq));
                   out.flush();
                 }
               }
 
-              case GetWaitingAuctionsRequestDTO getWaitingAuctionsReq -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.getWaitingAuctions(getWaitingAuctionsReq));
-                  out.flush();
-                }
-              }
-
-              case GetClosedAuctionsRequestDTO getClosedAuctionsReq -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.getClosedAuctions(getClosedAuctionsReq));
-                  out.flush();
-                }
-              }
 
               case GetActiveAndWaitingAuctionsRequestDTO getActiveAndWaitingAuctionsReq -> {
                 synchronized (out) {
                   out.writeObject(RequestHandler.getActiveAndWaitingAuctions(getActiveAndWaitingAuctionsReq));
-                  out.flush();
-                }
-              }
-
-              case GetCanceledAuctionsRequestDTO getCanceledAuctionsReq -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.getCanceledAuctions(getCanceledAuctionsReq));
-                  out.flush();
-                }
-              }
-
-              case GetActiveAuctionsBySellerRequestDTO getActiveAuctionsBySellerReq -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.getActiveAuctionsBySeller(getActiveAuctionsBySellerReq));
                   out.flush();
                 }
               }
@@ -289,20 +262,6 @@ public class ClientHandler implements Runnable {
                 // Không cần trả về response
               }
 
-              case GetPendingOrdersOfSellerRequestDTO request -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetPendingOrdersOfSeller(request));
-                  out.flush();
-                }
-              }
-
-              case GetPendingOrdersOfBuyerRequestDTO request -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetPendingOrdersOfBuyer(request));
-                  out.flush();
-                }
-              }
-
               case CancelOrderRequestDTO request -> {
                 synchronized (out) {
                   out.writeObject(RequestHandler.cancelOrder(request));
@@ -317,30 +276,16 @@ public class ClientHandler implements Runnable {
                 }
               }
 
-              case GetCompletedOrdersOfSellerRequestDTO request -> {
+              case GetOrdersOfSellerRequestDTO request -> {
                 synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetConfirmedOrdersOfSeller(request));
+                  out.writeObject(RequestHandler.handleGetOrdersOfSeller(request));
                   out.flush();
                 }
               }
 
-              case GetCancelledOrdersOfSellerRequestDTO request -> {
+              case GetOrdersOfBuyerRequestDTO request -> {
                 synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetCancelledOrdersOfSeller(request));
-                  out.flush();
-                }
-              }
-
-              case GetCompletedOrdersOfBuyerRequestDTO request -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetConfirmedOrdersOfBuyer(request));
-                  out.flush();
-                }
-              }
-
-              case GetCancelledOrdersOfBuyerRequestDTO request -> {
-                synchronized (out) {
-                  out.writeObject(RequestHandler.handleGetCancelledOrdersOfBuyer(request));
+                  out.writeObject(RequestHandler.handleGetOrdersOfBuyer(request));
                   out.flush();
                 }
               }

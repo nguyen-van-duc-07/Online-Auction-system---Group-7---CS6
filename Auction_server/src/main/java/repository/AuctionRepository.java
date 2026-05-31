@@ -98,33 +98,6 @@ public class AuctionRepository {
     return auctions;
   }
 
-  // Lấy tất cả các phiên đấu giá đang mở thuộc về một seller
-  public List<AuctionDTO> findAuctionsByUserIdAndStatus(String userId, AuctionStatus status) {
-    List<AuctionDTO> auctions = new ArrayList<>();
-    String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
-        + "FROM auctions "
-        + "WHERE status = ? AND user_id = ?"
-        + "ORDER BY start_time ASC";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      ps.setString(1, status.name());
-      ps.setString(2, userId);
-
-      try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-          AuctionDTO auction = mapResultSetToAuctionDTO(rs);
-          auctions.add(auction);
-        }
-      }
-    } catch (SQLException e) {
-      log.error("Lỗi cơ sở dữ liệu khi tìm kiếm đấu giá đang hoạt động của người bán ID: {}", userId, e);
-    }
-    return auctions;
-  }
-
-
   public boolean cancelActiveAndWaitingAuctionsByUserId(String userId) {
     String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE user_id = ? AND status = 'ACTIVE'";
     String updateSql = "UPDATE auctions SET status = ? WHERE user_id = ? AND status IN (?, ?)";
@@ -489,24 +462,6 @@ public class AuctionRepository {
     }
 
     return result;
-  }
-
-  public void activateAuctions(List<String> ids) {
-
-    String sql =
-        "UPDATE auctions SET status='ACTIVE' WHERE id=?";
-
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-      for (String id : ids) {
-        ps.setString(1, id);
-        ps.executeUpdate();
-      }
-
-    } catch (Exception e) {
-      log.error("Lỗi cơ sở dữ liệu khi kích hoạt đấu giá: {}", ids, e);
-    }
   }
 
   public AuctionResponseDTO findAuctionById(String auctionId) {

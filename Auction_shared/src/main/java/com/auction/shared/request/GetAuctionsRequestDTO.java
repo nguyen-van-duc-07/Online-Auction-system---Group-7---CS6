@@ -1,5 +1,7 @@
 package com.auction.shared.request;
 
+import com.auction.shared.enums.AuctionStatus;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -9,7 +11,12 @@ import lombok.NoArgsConstructor;
  * Do yêu cầu chỉ đơn giản là "lấy tất cả danh sách đang mở", lớp này không cần
  * chứa thêm bất kỳ trường dữ liệu (parameter) nào bên trong.</p>
  */
+@Getter
 @NoArgsConstructor
-public class GetActiveAuctionsRequestDTO implements RequestDTO {
-  // Không cần trường dữ liệu nào vì đây chỉ là tín hiệu báo Server hãy lấy toàn bộ danh sách
+public class GetAuctionsRequestDTO implements RequestDTO {
+  private AuctionStatus status;
+
+  public GetAuctionsRequestDTO(AuctionStatus status) {
+    this.status = status;
+  }
 }
