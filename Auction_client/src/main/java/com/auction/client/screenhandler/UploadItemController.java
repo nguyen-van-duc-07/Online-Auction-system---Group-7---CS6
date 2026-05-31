@@ -5,7 +5,12 @@ import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.request.UploadItemRequestDTO;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -135,7 +140,14 @@ public class UploadItemController {
 
     categoryField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
       updateDynamicFields(newValue);
+      if (newValue != null && !newValue.trim().isEmpty()) {
+        descriptionField.setDisable(false);
+      } else {
+        descriptionField.setDisable(true);
+      }
     });
+
+    descriptionField.setDisable(true);
   }
 
   private void updateDynamicFields(String category) {
@@ -193,6 +205,13 @@ public class UploadItemController {
       String startPriceStr = iniPriceField.getText().trim();
       String minStepPriceStr = minStepPriceField.getText().trim();
 
+      String category = categoryField.getValue();
+      if (category == null || category.trim().isEmpty()) {
+        ScreenController.showAlert(Alert.AlertType.WARNING,
+            "Cảnh báo", "Vui lòng chọn danh mục sản phẩm!");
+        return;
+      }
+
       if (userId.isEmpty() || nameItem.isEmpty() || description.isEmpty()
           || startPriceStr.isEmpty() || minStepPriceStr.isEmpty()) {
         ScreenController.showAlert(Alert.AlertType.WARNING,
@@ -201,7 +220,18 @@ public class UploadItemController {
       }
 
       BigDecimal startPrice = new BigDecimal(startPriceStr);
+      if (startPrice.compareTo(BigDecimal.ZERO) <= 0) {
+        ScreenController.showAlert(Alert.AlertType.WARNING,
+            "Lỗi nhập liệu", "Giá khởi điểm phải lớn hơn 0!");
+        return;
+      }
+
       BigDecimal minStepPrice = new BigDecimal(minStepPriceStr);
+      if (minStepPrice.compareTo(BigDecimal.ZERO) <= 0) {
+        ScreenController.showAlert(Alert.AlertType.WARNING,
+            "Lỗi nhập liệu", "Bước giá tối thiểu phải lớn hơn 0!");
+        return;
+      }
 
       // Xử lý Thời gian bắt đầu
       LocalDate startDate = startDateField.getValue();
@@ -212,6 +242,13 @@ public class UploadItemController {
       LocalDateTime startTime = (startDate != null)
           ? LocalDateTime.of(startDate, LocalTime.of(startHour, startMinute))
           : LocalDateTime.now();
+
+      // Kiểm tra thời gian bắt đầu không được trước thời gian hiện tại (cho phép sai số 1 phút để tránh độ trễ thao tác)
+      if (startTime.isBefore(LocalDateTime.now().minusMinutes(1))) {
+        ScreenController.showAlert(Alert.AlertType.WARNING,
+            "Lỗi thời gian", "Thời gian bắt đầu không thể trước thời điểm hiện tại!");
+        return;
+      }
 
       // Xử lý Thời lượng và Thời gian kết thúc
       String durationStr = durationField != null ? durationField.getText().trim() : "";
@@ -239,9 +276,9 @@ public class UploadItemController {
       }
 
       // Kiểm tra logic thời gian cơ bản
-      if (endTime.isBefore(startTime)) {
+      if (!endTime.isAfter(startTime)) {
         ScreenController.showAlert(Alert.AlertType.WARNING,
-            "Lỗi thời gian", "Thời gian kết thúc không thể diễn ra trước thời gian bắt đầu!");
+            "Lỗi thời gian", "Thời gian kết thúc phải diễn ra sau thời gian bắt đầu!");
         return;
       }
 

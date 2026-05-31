@@ -29,6 +29,9 @@ import java.util.ResourceBundle;
  * Quản lý việc hiển thị, đánh dấu đã đọc và điều hướng các tác vụ liên quan đến thông báo.
  */
 public class NotificationController implements Initializable {
+  /**
+   * Biến static lưu trữ instance hiện tại của NotificationController để luồng mạng cập nhật UI.
+   */
   public static NotificationController instance;
 
   @FXML private VBox notificationList;
@@ -39,6 +42,7 @@ public class NotificationController implements Initializable {
   @FXML private Label detailTime;
   @FXML private Label detailContent_;
   @FXML private Button actionButton;
+  @FXML private Button deleteNotificationBtn;
 
   private Notification selectedNotification;
 
@@ -143,6 +147,10 @@ public class NotificationController implements Initializable {
     detailContent.setVisible(true);
     detailContent.setManaged(true);
 
+    if (deleteNotificationBtn != null) {
+      deleteNotificationBtn.setDisable(false);
+    }
+
     // Fill data
     detailIconContainer.getChildren().clear();
     FontIcon icon = getIcon(n.getType());
@@ -225,5 +233,28 @@ public class NotificationController implements Initializable {
     icon.setIconColor(color);
     icon.setIconSize(20);
     return icon;
+  }
+
+  /**
+   * Xóa thông báo đang được chọn hiện tại khỏi hệ thống.
+   */
+  @FXML
+  public void deleteSelectedNotification() {
+    if (selectedNotification == null) return;
+
+    ServerConnection.sendData(new com.auction.shared.request.DeleteNotificationRequestDTO(selectedNotification.getId()));
+
+    selectedNotification = null;
+    if (deleteNotificationBtn != null) {
+      deleteNotificationBtn.setDisable(true);
+    }
+    emptyDetail.setVisible(true);
+    emptyDetail.setManaged(true);
+    detailContent.setVisible(false);
+    detailContent.setManaged(false);
+
+    ServerConnection.sendData(
+        new GetNotificationsRequestDTO(SessionManager.getCurrentUser().getId())
+    );
   }
 }

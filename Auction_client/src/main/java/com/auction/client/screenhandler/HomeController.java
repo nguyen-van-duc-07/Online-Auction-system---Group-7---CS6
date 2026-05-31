@@ -4,18 +4,18 @@ import com.auction.client.network.ServerConnection;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.request.*;
+import com.auction.shared.request.GetAuctionsRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Controller xử lý logic cho màn hình trang chủ.

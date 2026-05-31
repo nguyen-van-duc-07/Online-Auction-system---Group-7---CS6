@@ -7,7 +7,10 @@ import com.auction.shared.model.user.UserDTO;
 import com.auction.shared.request.UpdateProfileRequestDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextField;
 
 import java.net.URL;
 import java.time.LocalDate;

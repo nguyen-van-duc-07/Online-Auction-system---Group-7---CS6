@@ -30,14 +30,23 @@
         </ScrollPane>
 
         <!-- Footer -->
-        <HBox style="-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
-            <Button text="Đánh dấu tất cả đã đọc"
+        <HBox spacing="10" style="-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+            <Button text="Đọc tất cả"
                     onAction="#markAllAsRead"
                     maxWidth="Infinity"
                     HBox.hgrow="ALWAYS"
                     style="-fx-background-color: transparent; -fx-text-fill: #1e7d32;
-                           -fx-font-size: 12px; -fx-cursor: hand;
+                           -fx-font-size: 11px; -fx-cursor: hand;
                            -fx-border-color: #1e7d32; -fx-border-radius: 8;
+                           -fx-background-radius: 8; -fx-padding: 8;"/>
+            <Button fx:id="deleteNotificationBtn" text="Xoá thông báo"
+                    onAction="#deleteSelectedNotification"
+                    disable="true"
+                    maxWidth="Infinity"
+                    HBox.hgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-text-fill: #dc3545;
+                           -fx-font-size: 11px; -fx-cursor: hand;
+                           -fx-border-color: #dc3545; -fx-border-radius: 8;
                            -fx-background-radius: 8; -fx-padding: 8;"/>
         </HBox>
     </VBox>

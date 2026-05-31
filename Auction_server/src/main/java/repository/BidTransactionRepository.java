@@ -57,11 +57,16 @@ public class BidTransactionRepository {
 
         try (ResultSet rs = ps.executeQuery()) {
           while (rs.next()) {
-            list.add(new BidTransaction(
+            BidTransaction tx = new BidTransaction(
                     rs.getString("auction_id"),
                     rs.getString("bidder_id"),
                     rs.getBigDecimal("bid_amount")
-            ));
+            );
+            tx.setId(rs.getString("id"));
+            if (rs.getTimestamp("created_at") != null) {
+              tx.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            }
+            list.add(tx);
           }
         }
       }

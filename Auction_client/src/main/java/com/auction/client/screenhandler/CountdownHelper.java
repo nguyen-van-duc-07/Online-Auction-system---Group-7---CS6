@@ -5,7 +5,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 

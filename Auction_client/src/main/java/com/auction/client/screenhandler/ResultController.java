@@ -1,12 +1,12 @@
 package com.auction.client.screenhandler;
 
+import com.auction.client.network.ServerConnection;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.order.OrderDTO;
+import com.auction.shared.request.GetOrdersOfBuyerRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import com.auction.shared.request.*;
-import com.auction.client.network.ServerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,7 @@
 package com.auction.client.screenhandler.admin;
 
-import com.auction.client.network.SessionManager;
 import com.auction.client.network.ServerConnection;
+import com.auction.client.network.SessionManager;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.request.LogoutRequestDTO;
 import javafx.fxml.FXML;

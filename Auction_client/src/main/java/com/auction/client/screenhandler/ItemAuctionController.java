@@ -3,18 +3,18 @@ package com.auction.client.screenhandler;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.AuctionStatus;
-import com.auction.shared.util.CurrencyUtils;
+import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.model.transaction.BidTransaction;
+import com.auction.shared.request.CancelAutoBidRequestDTO;
 import com.auction.shared.request.GetBalanceRequestDTO;
 import com.auction.shared.request.JoinRoomRequestDTO;
 import com.auction.shared.request.LeaveRoomRequestDTO;
-import com.auction.shared.request.CancelAutoBidRequestDTO;
 import com.auction.shared.request.PlaceBidRequestDTO;
 import com.auction.shared.request.SetAutoBidRequestDTO;
-import com.auction.shared.model.auction.AutoBidConfig;
 import com.auction.shared.response.AuctionResponseDTO;
 import com.auction.shared.response.NewBidDTO;
 import com.auction.shared.response.PlaceBidResponseDTO;
+import com.auction.shared.util.CurrencyUtils;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -23,20 +23,23 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.Notifications;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.text.DecimalFormat;
-
-import org.controlsfx.control.Notifications;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Bộ điều khiển (Controller) cho phòng đấu giá chi tiết sản phẩm (ItemAuction).
@@ -45,6 +48,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemAuctionController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(ItemAuctionController.class);
+
+  /**
+   * Biến static lưu trữ instance hiện tại của ItemAuctionController để truy cập từ luồng mạng.
+   */
   public static ItemAuctionController instance;
   private XYChart.Series<String, Number> priceSeries;
   private int bidSequence = 1;
@@ -316,15 +323,6 @@ public class ItemAuctionController implements Initializable {
         timeRemainingLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 24px;"); // Màu đỏ
         updateBidControlState(false); // Khóa form đặt giá
 
-        // Clear biểu đồ (Giữ lại logic gốc của bạn)
-        if (!priceChart.getData().isEmpty()) {
-          priceChart.getData().clear();
-        }
-
-        if (highestBidderLabel != null && !highestBidderLabel.getText().equals("Phiên đấu giá đã kết thúc")) {
-          highestBidderLabel.setText("Phiên đấu giá đã kết thúc");
-        }
-
         countdownTimer.stop(); // Dừng đồng hồ
       }
     }));
@@ -362,20 +360,26 @@ public class ItemAuctionController implements Initializable {
     bidSequence = 1;
     List<BidTransaction> history = currentAuction.getBidHistory();
 
+    // Nếu chưa có bid nào hoặc số lượng bid ít hơn 20 (chứa lượt bid đầu tiên),
+    // ta thêm điểm "Bắt đầu" với giá khởi điểm để luôn vẽ được đường biến động giá.
+    if (history == null || history.size() < 20) {
+      priceSeries.getData().add(new XYChart.Data<>("Bắt đầu", currentAuction.getStartPrice().doubleValue()));
+    }
+
     if (history != null && !history.isEmpty()) {
-      // 2. LOGIC GIỚI HẠN 20 LẦN: Tính toán điểm bắt đầu để lấy 20 bản ghi cuối
-      int limit = Math.min(20, history.size());
-      List<BidTransaction> recentHistory = new java.util.ArrayList<>(history.subList(0, limit));
-      java.util.Collections.reverse(recentHistory);
+      // Sắp xếp dữ liệu biểu đồ theo thứ tự thời gian tăng dần (cũ trước, mới sau)
+      List<BidTransaction> sortedHistory = new java.util.ArrayList<>(history);
+      sortedHistory.sort((t1, t2) -> t1.getCreatedAt().compareTo(t2.getCreatedAt()));
+
+      // Giới hạn tối đa 20 lượt bid mới nhất
+      int start = Math.max(0, sortedHistory.size() - 20);
+      List<BidTransaction> recentHistory = sortedHistory.subList(start, sortedHistory.size());
       for (BidTransaction tx : recentHistory) {
         String formattedTime = tx.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         String uniqueXLabel = formattedTime + " (#" + (bidSequence++) + ")";
         priceSeries.getData().add(new XYChart.Data<>(uniqueXLabel, tx.getBidAmount().doubleValue()));
       }
     } else {
-      // Kịch bản Sàn đấu giá mới tinh (giữ nguyên logic gốc của bạn)
-      priceSeries.getData().add(new XYChart.Data<>("Bắt đầu", currentAuction.getCurrentHighestPrice().doubleValue()));
-
       /* Chỉ hiển thị thông báo khi phiên đấu giá đang mở (ACTIVE)
       và người xem không phải là người tạo ra phiên đấu giá
        */
@@ -716,7 +720,10 @@ public class ItemAuctionController implements Initializable {
 
         // (Tùy chọn) Giới hạn số điểm hiển thị để biểu đồ đẹp, không bị quá dày
         if (priceSeries.getData().size() > 20) {
-          priceSeries.getData().remove(0);
+          XYChart.Data<String, Number> removed = priceSeries.getData().remove(0);
+          if (priceChart.getXAxis() instanceof javafx.scene.chart.CategoryAxis) {
+            ((javafx.scene.chart.CategoryAxis) priceChart.getXAxis()).getCategories().remove(removed.getXValue());
+          }
         }
       }
       // 4. Phân loại thông báo (UX/HMI)

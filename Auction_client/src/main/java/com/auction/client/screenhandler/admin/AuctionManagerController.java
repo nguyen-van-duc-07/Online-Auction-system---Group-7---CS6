@@ -2,9 +2,12 @@ package com.auction.client.screenhandler.admin;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
-import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.request.*;
 import com.auction.shared.enums.AuctionStatus;
+import com.auction.shared.model.auction.AuctionDTO;
+import com.auction.shared.request.AuctionRequestDTO;
+import com.auction.shared.request.GetActiveAndWaitingAuctionsRequestDTO;
+import com.auction.shared.request.GetAuctionsRequestDTO;
+import com.auction.shared.request.UpdateAuctionStatusRequestDTO;
 import com.auction.shared.response.AuctionResponseDTO;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,7 +15,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +32,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller quản lý màn hình quản lý các phiên đấu giá dành cho Admin.
+ * <p>
+ * Lớp này cho phép Admin theo dõi danh sách các phiên đấu giá (đang diễn ra, chờ duyệt,
+ * hoặc đã hủy), tìm kiếm, lọc theo trạng thái, mở, đóng hoặc chặn các phiên đấu giá.
+ * </p>
+ */
 public class AuctionManagerController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(AuctionManagerController.class);
 
@@ -89,11 +105,7 @@ public class AuctionManagerController implements Initializable {
       }
     });
 
-    showingCanceled = false;
-    if (typeMenuButton != null) {
-      typeMenuButton.setText("Loại phiên: Đang và sắp diễn ra");
-    }
-    updateButtonVisibility();
+    setShowingCanceled(false);
     ServerConnection.sendData(new GetActiveAndWaitingAuctionsRequestDTO());
   }
 
@@ -256,6 +268,9 @@ public class AuctionManagerController implements Initializable {
     return instance;
   }
 
+  /**
+   * Xử lý sự kiện khi Admin yêu cầu mở một phiên đấu giá.
+   */
   @FXML
   public void handleOpenAuction() {
     AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
@@ -274,9 +289,11 @@ public class AuctionManagerController implements Initializable {
     } else {
       ScreenController.showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Chỉ có thể mở phiên ở trạng thái chờ (WAITING) hoặc đã hủy (CANCELED)!");
     }
-    ServerConnection.sendData(new GetAuctionsRequestDTO(AuctionStatus.CANCELED));
   }
 
+  /**
+   * Xử lý sự kiện khi Admin yêu cầu đóng một phiên đấu giá.
+   */
   @FXML
   public void handleCloseAuction() {
     AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
@@ -292,6 +309,9 @@ public class AuctionManagerController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện khi Admin yêu cầu chặn một phiên đấu giá.
+   */
   @FXML
   public void handleBlockAuction() {
     AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
@@ -307,6 +327,9 @@ public class AuctionManagerController implements Initializable {
     }
   }
 
+  /**
+   * Tải lại danh sách các phiên đấu giá từ Server.
+   */
   @FXML
   public void handleReload() {
     log.info("Yêu cầu tải lại danh sách phiên đấu giá (Đã huỷ: {}) từ server...", showingCanceled);
@@ -317,23 +340,28 @@ public class AuctionManagerController implements Initializable {
     }
   }
 
-  @FXML
-  public void handleShowActiveAndWaiting() {
-    showingCanceled = false;
+  /**
+   * Cập nhật trạng thái hiển thị các phiên đấu giá đã hủy hoặc đang hoạt động.
+   *
+   * @param showingCanceled true nếu hiển thị các phiên đã hủy, false nếu hiển thị các phiên hoạt động
+   */
+  public void setShowingCanceled(boolean showingCanceled) {
+    this.showingCanceled = showingCanceled;
     if (typeMenuButton != null) {
-      typeMenuButton.setText("Loại phiên: Đang và sắp diễn ra");
+      typeMenuButton.setText(showingCanceled ? "Loại phiên: Đã huỷ" : "Loại phiên: Đang và sắp diễn ra");
     }
     updateButtonVisibility();
+  }
+
+  @FXML
+  public void handleShowActiveAndWaiting() {
+    setShowingCanceled(false);
     handleReload();
   }
 
   @FXML
   public void handleShowCanceled() {
-    showingCanceled = true;
-    if (typeMenuButton != null) {
-      typeMenuButton.setText("Loại phiên: Đã huỷ");
-    }
-    updateButtonVisibility();
+    setShowingCanceled(true);
     handleReload();
   }
 }

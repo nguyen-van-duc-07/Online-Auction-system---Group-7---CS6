@@ -36,8 +36,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Auction System Config ###
-config.properties
-
 ### Logs ###
 logs/

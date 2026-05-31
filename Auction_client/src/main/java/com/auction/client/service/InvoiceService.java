@@ -1,9 +1,10 @@
 package com.auction.client.service;
 
 import com.auction.shared.model.order.Order;
-import com.auction.shared.model.transaction.PrizedTransaction;
 import com.auction.shared.util.CurrencyUtils;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,9 +17,14 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * Dịch vụ xuất hóa đơn chi tiết cho đơn hàng thắng cuộc dưới dạng tệp PDF.
+ * <p>
+ * Lớp này sử dụng thư viện OpenHTMLtoPDF để kết xuất mẫu hóa đơn HTML cùng dữ liệu đơn hàng
+ * thành định dạng tài liệu PDF chất lượng cao, có hỗ trợ hiển thị phông chữ tiếng Việt.
+ * </p>
+ */
 public class InvoiceService {
   private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 

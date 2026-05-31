@@ -152,4 +152,16 @@ public class NotificationRepository {
   public static int countUnreadFromList(List<Notification> notifications) {
     return (int) notifications.stream().filter(n -> !n.isRead()).count();
   }
+
+  public boolean delete(String notificationId) {
+    String sql = "DELETE FROM notifications WHERE id = ?";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, notificationId);
+      return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error("Lỗi cơ sở dữ liệu khi xóa thông báo ID: {}", notificationId, e);
+      return false;
+    }
+  }
 }

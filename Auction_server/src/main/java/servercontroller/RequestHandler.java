@@ -118,6 +118,10 @@ public class RequestHandler {
     dispatcher.markNotificationRead(req);
   }
 
+  public static DeleteNotificationResponseDTO deleteNotification(DeleteNotificationRequestDTO req) {
+    return dispatcher.deleteNotification(req);
+  }
+
   public static GetOrdersResponseDTO handleGetOrdersOfSeller(
       GetOrdersOfSellerRequestDTO req) {
     return dispatcher.handleGetOrdersOfSeller(req);

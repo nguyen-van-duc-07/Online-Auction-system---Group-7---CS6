@@ -1,9 +1,5 @@
 package com.auction.client.screenhandler;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.Stack;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,6 +8,10 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Stack;
 
 /**
  * Quản lý các màn hình và trạng thái điều hướng trong ứng dụng JavaFX.
@@ -299,6 +299,9 @@ public class ScreenController {
     }
   }
 
+  /**
+   * Đóng tất cả các cửa sổ con phụ đang mở trong hệ thống và giải phóng tài nguyên.
+   */
   public static void closeAllSubWindows() {
     for (Stage stage : openSubWindows) {
       if (stage != null && stage.isShowing()) {

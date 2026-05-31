@@ -1,14 +1,53 @@
 package com.auction.client.network;
 
 import com.auction.shared.network.NetworkConfig;
-import com.auction.shared.response.*;
+import com.auction.shared.response.AuctionExtendedDTO;
+import com.auction.shared.response.AuctionPriceUpdateDTO;
+import com.auction.shared.response.AuctionResponseDTO;
+import com.auction.shared.response.AuctionResultDTO;
+import com.auction.shared.response.AuctionStatusUpdateDTO;
+import com.auction.shared.response.AutoBidDefeatedDTO;
+import com.auction.shared.response.AutoBidResponseDTO;
+import com.auction.shared.response.CancelSellerAuctionsResponseDTO;
+import com.auction.shared.response.ChangePasswordResponseDTO;
+import com.auction.shared.response.CheckingSellerProfileResponseDTO;
+import com.auction.shared.response.CreateAdminResponseDTO;
+import com.auction.shared.response.CreateTransactionResponseDTO;
+import com.auction.shared.response.DeleteNotificationResponseDTO;
+import com.auction.shared.response.GetActiveAndWaitingAuctionsResponseDTO;
+import com.auction.shared.response.GetAllUsersResponseDTO;
+import com.auction.shared.response.GetAuctionsBySellerResponseDTO;
+import com.auction.shared.response.GetAuctionsResponseDTO;
+import com.auction.shared.response.GetBalanceResponseDTO;
+import com.auction.shared.response.GetNotificationsResponseDTO;
+import com.auction.shared.response.GetOrderResponseDTO;
+import com.auction.shared.response.GetOrdersResponseDTO;
+import com.auction.shared.response.GetPendingTransactionsResponseDTO;
+import com.auction.shared.response.GetSellerProfileResponseDTO;
+import com.auction.shared.response.JoinRoomResponseDTO;
+import com.auction.shared.response.LoginResponseDTO;
+import com.auction.shared.response.NewBidDTO;
+import com.auction.shared.response.NotificationDTO;
+import com.auction.shared.response.OrderActionResponseDTO;
+import com.auction.shared.response.OrderUpdateNotificationDTO;
+import com.auction.shared.response.PaymentNotificationDTO;
+import com.auction.shared.response.PlaceBidResponseDTO;
+import com.auction.shared.response.ProcessTransactionResponseDTO;
+import com.auction.shared.response.ResponseDTO;
+import com.auction.shared.response.RestoreSellerAuctionsResponseDTO;
+import com.auction.shared.response.SellerRegisterResponseDTO;
+import com.auction.shared.response.SignUpResponseDTO;
+import com.auction.shared.response.UpdateAuctionStatusResponseDTO;
+import com.auction.shared.response.UpdateProfileResponseDTO;
+import com.auction.shared.response.UpdateSellerProfileStatusResponseDTO;
+import com.auction.shared.response.UploadItemResponseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Quản lý kết nối mạng (Socket) từ phía Client tới Server.
@@ -194,6 +233,10 @@ public class ServerConnection {
 
             case CreateAdminResponseDTO responseDTO -> {
               ResponseHandler.handleCreateAdmin(responseDTO);
+            }
+
+            case DeleteNotificationResponseDTO responseDTO -> {
+              ResponseHandler.handleDeleteNotification(responseDTO);
             }
 
             default -> log.warn("Phản hồi không hợp lệ");

@@ -1,24 +1,22 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
-import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.enums.ItemType;
 import com.auction.shared.model.auction.AuctionDTO;
+import com.auction.shared.util.CurrencyUtils;
 import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-
-import java.math.BigDecimal;
-import java.time.temporal.ChronoUnit;
-
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.util.Duration;
-
-import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Bộ điều khiển (Controller) cho thẻ hiển thị sản phẩm đấu giá (AuctionItemCard).
