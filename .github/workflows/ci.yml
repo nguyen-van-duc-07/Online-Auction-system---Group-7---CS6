@@ -2,9 +2,9 @@ name: Java Maven CI
 
 on:
   push:
-    branches: [ main, develop, VanDuc ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "**" ]
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
         run: mvn clean package -DskipTests
 
       - name: Run all tests
-        run: mvn test
+        run: xvfb-run mvn test
 
 
       - name: Upload build artifacts
@@ -53,6 +53,8 @@ jobs:
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          compare_to_earlier_commit: false
           files: '**/target/surefire-reports/*.xml'
           check_name: 'Test Results'
 

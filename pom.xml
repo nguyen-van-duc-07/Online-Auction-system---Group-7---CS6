@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example</groupId>
+    <groupId>com.auction</groupId>
     <artifactId>Auction_system</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -13,6 +13,7 @@
         <module>Auction_shared</module>
         <module>Auction_client</module>
         <module>Auction_server</module>
+        <module>Auction_report</module>
     </modules>
 
     <properties>
@@ -21,5 +22,113 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.6</javafx.version>
         <junit.version>5.12.1</junit.version>
+        <mockito.version>5.12.0</mockito.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.auction</groupId>
+                <artifactId>Auction_shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.controlsfx</groupId>
+                <artifactId>controlsfx</artifactId>
+                <version>11.1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+
+            <!-- SLF4J API -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.13</version>
+            </dependency>
+            <!-- Logback Classic (implementation) -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.5.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>com/auction/client/screenhandler/**/*</exclude>
+                        <exclude>com/auction/client/network/ServerConnection.class</exclude>
+                        <exclude>com/auction/client/network/ResponseHandler.class</exclude>
+                        <exclude>com/auction/client/Main.class</exclude>
+                        <!-- Exclude DTOs from shared module -->
+                        <exclude>com/auction/shared/request/**/*</exclude>
+                        <exclude>com/auction/shared/response/**/*</exclude>
+                        <!-- Exclude Repository layer (JDBC/SQL thuần, cần integration test) -->
+                        <exclude>repository/AuctionRepository.class</exclude>
+                        <exclude>repository/AutoBidConfigRepository.class</exclude>
+                        <exclude>repository/BidTransactionRepository.class</exclude>
+                        <exclude>repository/NotificationRepository.class</exclude>
+                        <exclude>repository/OrderRepository.class</exclude>
+                        <exclude>repository/SellerProfileRepository.class</exclude>
+                        <exclude>repository/UserRepository.class</exclude>
+                        <exclude>repository/WalletRepository.class</exclude>
+                        <exclude>repository/WalletTransactionRepository.class</exclude>
+                        <exclude>repository/debug/**/*</exclude>
+                        <!-- Exclude Server infrastructure (Socket I/O, threading) -->
+                        <exclude>servercontroller/Server.class</exclude>
+                        <exclude>servercontroller/ClientHandler.class</exclude>
+                        <exclude>service/ImageHttpServer.class</exclude>
+                        <exclude>config/DatabaseConnection.class</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <configLocation>google_checks_custom.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                    <excludes>**/module-info.java</excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

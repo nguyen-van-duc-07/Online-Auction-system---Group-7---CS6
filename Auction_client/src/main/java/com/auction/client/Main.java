@@ -1,34 +1,61 @@
 package com.auction.client;
 
-import com.auction.shared.model.Bidder;
-import com.auction.shared.model.User;
+import com.auction.client.network.ServerConnection;
+import com.auction.client.screenhandler.ScreenController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import java.util.HashMap;
-import java.util.Map;
 
-public class Main extends Application
-{
+/**
+ * Lớp khởi chạy chính của ứng dụng đấu giá trực tuyến phía Client.
+ * <p>
+ * Lớp này chịu trách nhiệm khởi tạo giao diện người dùng JavaFX, thiết lập múi giờ mặc định,
+ * quản lý vòng đời ứng dụng và kết nối ban đầu tới máy chủ đấu giá.
+ * </p>
+ */
+public class Main extends Application {
+  @Override
+  public void start(Stage stage) throws Exception {
+    // Đặt mặc định cho ScreenController biết rằng đây là stage chính của chương trình
+    ScreenController.primaryStage = stage;
 
-    // 1. LƯU TÀI KHOẢN VÀ MẬT KHẨU
-    public static Map<String, User> userDatabase = new HashMap<>();
+    ScreenController.switchScreen("User/Login.fxml", "Đăng nhập");
 
-    // 2. LƯU TÀI KHOẢN VÀ VAI TRÒ (Bidder/Seller)
-    public static Map<String, String> userRoles = new HashMap<>();
+    // Lắng nghe sự kiện đóng cửa sổ chính để tắt kết nối và thoát tiến trình sạch sẽ
+    stage.setOnCloseRequest(event -> {
+      try {
+        stop();
+      } catch (Exception e) {
+        // Bỏ qua lỗi khi đóng ứng dụng
+      }
+      System.exit(0);
+    });
 
-    @Override
-    public void start(Stage stage) throws Exception
-    {
-        ScreenController.switchScreen(null, "Login.fxml", "Đăng nhập");
-        userDatabase.put("123", new Bidder("123", "123"));
+    stage.show();
+
+    try {
+      ServerConnection.connect();
+    } catch (Exception e) {
+      // Bỏ qua hoặc log lỗi kết nối khi khởi động, cho phép tự kết nối lại khi thao tác đăng nhập
     }
+  }
 
-    public static void main(String[] args) {
-        launch();
-    }
+  @Override
+  public void stop() throws Exception {
+    ServerConnection.closeConnection();
+    super.stop();
+  }
+
+  /**
+   * Phương thức khởi chạy ứng dụng chính.
+   *
+   * @param args các tham số dòng lệnh truyền vào từ JVM
+   */
+  public static void main(String[] args) {
+    // Đảm bảo Client JVM chạy trên múi giờ Việt Nam (GMT+7)
+    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+    launch();
+  }
 }

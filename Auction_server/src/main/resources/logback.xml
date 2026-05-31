@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- Định nghĩa các thuộc tính chung -->
+    <property name="LOG_DIR" value="logs" />
+    <property name="SERVER_LOG_FILE" value="auction-server" />
+
+    <!-- 1. Console Appender với ANSI Color -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. Rolling File Appender - Lưu trữ log file -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${SERVER_LOG_FILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Xoay vòng file hàng ngày hoặc khi vượt quá 10MB -->
+            <fileNamePattern>${LOG_DIR}/archived/${SERVER_LOG_FILE}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- Giới hạn kích thước mỗi log file -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- Giữ lại log trong tối đa 30 ngày -->
+            <maxHistory>30</maxHistory>
+            <!-- Tổng dung lượng các log file lưu trữ tối đa là 3GB -->
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!-- Thêm định dạng MDC [%X{clientId}] ở đây để truy vết client -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{clientId}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3. Async Appenders để tối ưu hóa I/O không bị block luồng Socket chính -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- Cấu hình log level cho các packages -->
+    <logger name="repository" level="DEBUG" />
+    <logger name="service" level="INFO" />
+    <logger name="servercontroller" level="INFO" />
+    
+    <!-- Tắt bớt log rác của thư viện ngoài -->
+    <logger name="com.zaxxer.hikari" level="INFO" />
+    
+    <!-- Root Logger cấu hình sử dụng Async Appender -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE" />
+        <appender-ref ref="ASYNC_FILE" />
+    </root>
+
+</configuration>
