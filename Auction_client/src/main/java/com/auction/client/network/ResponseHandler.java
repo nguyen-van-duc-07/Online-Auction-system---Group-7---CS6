@@ -1,6 +1,16 @@
 package com.auction.client.network;
 
-import com.auction.client.screenhandler.*;
+import com.auction.client.screenhandler.ChangePasswordController;
+import com.auction.client.screenhandler.HomeController;
+import com.auction.client.screenhandler.ItemAuctionController;
+import com.auction.client.screenhandler.ItemViewController;
+import com.auction.client.screenhandler.MainLayoutController;
+import com.auction.client.screenhandler.NotificationController;
+import com.auction.client.screenhandler.PaymentScreenController;
+import com.auction.client.screenhandler.ScreenController;
+import com.auction.client.screenhandler.SellerHomeController;
+import com.auction.client.screenhandler.ToastNotification;
+import com.auction.client.screenhandler.WalletController;
 import com.auction.client.screenhandler.admin.AdminScreenController;
 import com.auction.client.screenhandler.admin.AuctionManagerController;
 import com.auction.client.screenhandler.admin.PendingTransactionManagerController;
@@ -31,6 +41,7 @@ import com.auction.shared.response.ChangePasswordResponseDTO;
 import com.auction.shared.response.CheckingSellerProfileResponseDTO;
 import com.auction.shared.response.CreateAdminResponseDTO;
 import com.auction.shared.response.CreateTransactionResponseDTO;
+import com.auction.shared.response.DeleteNotificationResponseDTO;
 import com.auction.shared.response.GetActiveAndWaitingAuctionsResponseDTO;
 import com.auction.shared.response.GetAllUsersResponseDTO;
 import com.auction.shared.response.GetAuctionsBySellerResponseDTO;
@@ -198,6 +209,7 @@ public class ResponseHandler {
           // NẾU LÀ ADMIN -> Đẩy dữ liệu vào bảng quản lý của Admin
           AuctionManagerController controller = AuctionManagerController.getInstance();
           if (controller != null) {
+            controller.setShowingCanceled(true);
             controller.loadDataToTable(
                 getAuctionRes.getAuctions());
           }
@@ -559,6 +571,7 @@ public class ResponseHandler {
           // NẾU LÀ ADMIN -> Đẩy dữ liệu vào bảng quản lý của Admin
           AuctionManagerController controller = AuctionManagerController.getInstance();
           if (controller != null) {
+            controller.setShowingCanceled(false);
             controller.loadDataToTable(
                 getActiveAndWaitingAuctionsRes.getActiveAndWaitingAuctions());
           }
@@ -932,6 +945,21 @@ public class ResponseHandler {
                 new GetAuctionsBySellerRequestDTO(SessionManager.getCurrentUser().getId()));
           }
         }
+      }
+    });
+  }
+
+  /**
+   * Xử lý gói tin phản hồi khi yêu cầu xóa thông báo.
+   *
+   * @param response Gói tin phản hồi kết quả xóa thông báo
+   */
+  public static void handleDeleteNotification(DeleteNotificationResponseDTO response) {
+    Platform.runLater(() -> {
+      if (response.isSuccess()) {
+        log.info("Xóa thông báo thành công: {}", response.getMessage());
+      } else {
+        ScreenController.showAlert(Alert.AlertType.ERROR, "Lỗi", response.getMessage());
       }
     });
   }

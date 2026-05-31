@@ -1,8 +1,8 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
-import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.request.GetBalanceRequestDTO;
+import com.auction.shared.util.CurrencyUtils;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

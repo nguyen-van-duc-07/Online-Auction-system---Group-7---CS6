@@ -23,6 +23,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller quản lý màn hình duyệt giao dịch nạp/rút tiền của người dùng dành cho Admin.
+ * <p>
+ * Lớp này cho phép Admin theo dõi danh sách các giao dịch đang chờ duyệt (PENDING),
+ * thực hiện phê duyệt (APPROVE) hoặc từ chối (REJECT) giao dịch.
+ * </p>
+ */
 public class PendingTransactionManagerController implements Initializable {
     private static PendingTransactionManagerController instance;
 
@@ -85,6 +92,11 @@ public class PendingTransactionManagerController implements Initializable {
         ServerConnection.sendData(new GetPendingTransactionsRequestDTO());
     }
 
+    /**
+     * Đẩy danh sách các giao dịch chờ duyệt lên bảng hiển thị.
+     *
+     * @param pendingTransactions danh sách các giao dịch nạp rút chờ xử lý
+     */
     public void loadDataToTable(List<WalletTransaction> pendingTransactions) {
         if (pendingTransactions != null) {
             ObservableList<WalletTransaction> list = FXCollections.observableArrayList(pendingTransactions);

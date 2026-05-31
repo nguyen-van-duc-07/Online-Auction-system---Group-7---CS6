@@ -108,6 +108,40 @@ public class AuctionRepository {
     return auctions;
   }
 
+  public List<String> findActiveAndWaitingAuctionIdsByUserId(String userId) {
+    List<String> ids = new ArrayList<>();
+    String sql = "SELECT id FROM auctions WHERE user_id = ? AND status IN ('ACTIVE', 'WAITING')";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          ids.add(rs.getString("id"));
+        }
+      }
+    } catch (SQLException e) {
+      log.error("Lỗi khi tìm ID đấu giá hoạt động/chờ của user ID: {}", userId, e);
+    }
+    return ids;
+  }
+
+  public List<String> findCanceledAuctionIdsByUserId(String userId) {
+    List<String> ids = new ArrayList<>();
+    String sql = "SELECT id FROM auctions WHERE user_id = ? AND status = 'CANCELED'";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          ids.add(rs.getString("id"));
+        }
+      }
+    } catch (SQLException e) {
+      log.error("Lỗi khi tìm ID đấu giá bị hủy của user ID: {}", userId, e);
+    }
+    return ids;
+  }
+
   public boolean cancelActiveAndWaitingAuctionsByUserId(String userId) {
     String selectSql = "SELECT id, highest_bidder_id, current_price FROM auctions WHERE user_id = ? AND status = 'ACTIVE'";
     String updateSql = "UPDATE auctions SET status = ? WHERE user_id = ? AND status IN (?, ?)";

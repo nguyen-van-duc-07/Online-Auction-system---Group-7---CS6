@@ -6,19 +6,19 @@ import com.auction.shared.enums.UserRole;
 import com.auction.shared.model.user.UserDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.Alert;
-import javafx.scene.shape.Circle;
-import javafx.scene.image.Image;
-import javafx.scene.paint.ImagePattern;
-import javafx.stage.FileChooser;
-import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import java.io.File;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -101,15 +101,35 @@ public class ProfileController implements Initializable {
     // Nếu không có ảnh cục bộ, thử nạp ảnh mặc định từ internet, nếu lỗi thì dùng gradient
     try {
       Image defaultImage = new Image("https://avatar.iran.liara.run/public/boy", true);
-      avatarCircle.setFill(new ImagePattern(defaultImage));
+      if (defaultImage.getProgress() == 1.0) {
+        if (!defaultImage.isError()) {
+          avatarCircle.setFill(new ImagePattern(defaultImage));
+        } else {
+          setGradientAvatar();
+        }
+      } else {
+        defaultImage.progressProperty().addListener((obs, oldVal, newVal) -> {
+          if (newVal.doubleValue() == 1.0) {
+            if (!defaultImage.isError()) {
+              avatarCircle.setFill(new ImagePattern(defaultImage));
+            } else {
+              setGradientAvatar();
+            }
+          }
+        });
+      }
     } catch (Exception e) {
       log.warn("Không thể tải ảnh avatar mặc định từ internet, chuyển sang dùng gradient: ", e);
-      avatarCircle.setFill(new javafx.scene.paint.LinearGradient(
-          0, 0, 1, 1, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
-          new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.web("#2BA659")),
-          new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.web("#54ca85"))
-      ));
+      setGradientAvatar();
     }
+  }
+
+  private void setGradientAvatar() {
+    avatarCircle.setFill(new javafx.scene.paint.LinearGradient(
+        0, 0, 1, 1, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+        new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.web("#2BA659")),
+        new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.web("#54ca85"))
+    ));
   }
 
   /**

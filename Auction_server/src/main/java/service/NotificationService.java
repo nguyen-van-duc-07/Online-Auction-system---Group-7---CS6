@@ -92,4 +92,8 @@ public class NotificationService {
   public void deleteExpired() {
     notifRepo.deleteExpired();
   }
+
+  public boolean deleteNotification(String notificationId) {
+    return notifRepo.delete(notificationId);
+  }
 }

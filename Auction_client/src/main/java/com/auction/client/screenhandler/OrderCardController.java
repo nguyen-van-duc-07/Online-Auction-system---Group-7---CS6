@@ -50,6 +50,9 @@ public class OrderCardController {
   private OrderDTO currentOrder;
   private Timeline countdownTimeline;
 
+  /**
+   * Phương thức khởi tạo tự động của JavaFX để thiết lập ràng buộc chiều cao của thanh trạng thái.
+   */
   @FXML
   public void initialize() {
     if (statusIndicator != null && cardContainer != null) {

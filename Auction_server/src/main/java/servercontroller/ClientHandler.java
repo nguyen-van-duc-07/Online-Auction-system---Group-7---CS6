@@ -262,6 +262,13 @@ public class ClientHandler implements Runnable {
                 // Không cần trả về response
               }
 
+              case DeleteNotificationRequestDTO deleteReq -> {
+                synchronized (out) {
+                  out.writeObject(RequestHandler.deleteNotification(deleteReq));
+                  out.flush();
+                }
+              }
+
               case CancelOrderRequestDTO request -> {
                 synchronized (out) {
                   out.writeObject(RequestHandler.cancelOrder(request));

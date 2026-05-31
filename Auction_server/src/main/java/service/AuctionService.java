@@ -207,11 +207,40 @@ public class AuctionService {
 
 
   public boolean cancelActiveAndWaitingAuctionsBySellerUserId(String userId) {
-    return auctionRepo.cancelActiveAndWaitingAuctionsByUserId(userId);
+    List<String> canceledAuctionIds = auctionRepo.findActiveAndWaitingAuctionIdsByUserId(userId);
+    boolean success = auctionRepo.cancelActiveAndWaitingAuctionsByUserId(userId);
+    if (success && canceledAuctionIds != null) {
+      for (String auctionId : canceledAuctionIds) {
+        Auction ramAuction = getAuction(auctionId);
+        if (ramAuction != null) {
+          ramAuction.setStatus(AuctionStatus.CANCELED);
+        }
+        Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, AuctionStatus.CANCELED, true));
+      }
+    }
+    return success;
   }
 
   public boolean restoreCanceledAuctionsBySellerUserId(String userId) {
-    return auctionRepo.restoreCanceledAuctionsByUserId(userId, LocalDateTime.now());
+    List<String> canceledAuctionIds = auctionRepo.findCanceledAuctionIdsByUserId(userId);
+    boolean success = auctionRepo.restoreCanceledAuctionsByUserId(userId, LocalDateTime.now());
+    if (success && canceledAuctionIds != null) {
+      for (String auctionId : canceledAuctionIds) {
+        AuctionResponseDTO updatedAuction = auctionRepo.findAuctionById(auctionId);
+        if (updatedAuction != null) {
+          Auction ramAuction = getAuction(auctionId);
+          if (ramAuction != null) {
+            ramAuction.setStatus(updatedAuction.getStatus());
+            ramAuction.setStartTime(updatedAuction.getStartTime());
+            ramAuction.setEndTime(updatedAuction.getEndTime());
+            ramAuction.setCurrentHighestPrice(updatedAuction.getStartPrice());
+            ramAuction.setHighestBidderId(null);
+          }
+          Server.broadcastToAll(new AuctionStatusUpdateDTO(auctionId, updatedAuction.getStatus()));
+        }
+      }
+    }
+    return success;
   }
 
   public AuctionResponseDTO getAuctionHistory(String auctionId) {
@@ -348,9 +377,5 @@ public class AuctionService {
     });
 
     return response[0];
-  }
-
-  public List<AuctionDTO> getCanceledAuctionsForClient() {
-    return auctionRepo.findAuctionsByStatusForBidder(AuctionStatus.CANCELED);
   }
 }

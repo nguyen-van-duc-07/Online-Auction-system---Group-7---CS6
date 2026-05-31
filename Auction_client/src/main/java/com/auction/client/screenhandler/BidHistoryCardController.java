@@ -1,9 +1,9 @@
 package com.auction.client.screenhandler;
 
 import com.auction.client.network.SessionManager;
-import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.model.user.UserDTO;
+import com.auction.shared.util.CurrencyUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;

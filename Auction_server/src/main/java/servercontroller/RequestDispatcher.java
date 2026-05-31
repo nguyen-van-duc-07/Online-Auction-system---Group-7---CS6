@@ -130,7 +130,7 @@ public class RequestDispatcher {
   }
 
   public GetAuctionsResponseDTO getAuctionsByStatus(GetAuctionsRequestDTO getAuctionReq) {
-    log.info("-Tim kiem phien co trang thai: " + getAuctionReq.getStatus().name() );
+    log.info("-Tìm kiếm phiên có trạng thái: " + getAuctionReq.getStatus().name() );
     List<AuctionDTO> list = auctionService.getAuctionsForClient(getAuctionReq.getStatus());
     return new GetAuctionsResponseDTO(true, "Tải danh sách thành công!", list);
   }
@@ -315,6 +315,20 @@ public class RequestDispatcher {
       notifService.markAllAsRead(req.getUserId());
     } else {
       notifService.markAsRead(req.getNotificationId());
+    }
+  }
+
+  public DeleteNotificationResponseDTO deleteNotification(DeleteNotificationRequestDTO req) {
+    try {
+      boolean success = notifService.deleteNotification(req.getNotificationId());
+      if (success) {
+        return new DeleteNotificationResponseDTO(true, "Xóa thông báo thành công!");
+      } else {
+        return new DeleteNotificationResponseDTO(false, "Không thể xóa thông báo hoặc thông báo không tồn tại.");
+      }
+    } catch (Exception e) {
+      log.error("Lỗi khi xóa thông báo ID: {}", req.getNotificationId(), e);
+      return new DeleteNotificationResponseDTO(false, "Lỗi hệ thống: " + e.getMessage());
     }
   }
 

@@ -1,10 +1,8 @@
 package com.auction.client.screenhandler.admin;
 
 import com.auction.client.network.ServerConnection;
-import com.auction.client.screenhandler.HomeController;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.enums.SellerRegisterStatus;
-import com.auction.shared.model.item.Item;
 import com.auction.shared.request.CancelSellerAuctionsRequestDTO;
 import com.auction.shared.request.GetSellerProfileRequestDTO;
 import com.auction.shared.request.RestoreSellerAuctionsRequestDTO;
@@ -17,7 +15,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

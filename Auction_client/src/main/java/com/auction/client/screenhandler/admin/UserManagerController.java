@@ -3,8 +3,8 @@ package com.auction.client.screenhandler.admin;
 import com.auction.client.network.ServerConnection;
 import com.auction.client.screenhandler.ScreenController;
 import com.auction.shared.model.user.UserDTO;
-import com.auction.shared.request.GetAllUsersRequestDTO;
 import com.auction.shared.request.CreateAdminRequestDTO;
+import com.auction.shared.request.GetAllUsersRequestDTO;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -27,6 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller quản lý màn hình danh sách người dùng dành cho Admin.
+ * <p>
+ * Lớp này cho phép Admin theo dõi danh sách toàn bộ người dùng, tìm kiếm tài khoản,
+ * và thực hiện tạo mới tài khoản Admin phụ.
+ * </p>
+ */
 public class UserManagerController implements Initializable {
   private static final Logger log = LoggerFactory.getLogger(UserManagerController.class);
 
@@ -172,11 +179,17 @@ public class UserManagerController implements Initializable {
     }
   }
 
+  /**
+   * Xử lý sự kiện khi ấn nút thêm mới người dùng.
+   */
   @FXML
   public void handleAdd() {
     // TODO: Hiển thị Dialog/Form thêm mới người dùng
   }
 
+  /**
+   * Xử lý sự kiện khi chọn chỉnh sửa thông tin người dùng.
+   */
   @FXML
   public void handleEdit() {
     UserDTO selected = userTable.getSelectionModel().getSelectedItem();
@@ -187,6 +200,9 @@ public class UserManagerController implements Initializable {
     // TODO: Form chỉnh sửa người dùng
   }
 
+  /**
+   * Xử lý sự kiện khi yêu cầu xóa người dùng được chọn.
+   */
   @FXML
   public void handleDelete() {
     UserDTO selected = userTable.getSelectionModel().getSelectedItem();
@@ -198,6 +214,9 @@ public class UserManagerController implements Initializable {
     ScreenController.showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa thành công.");
   }
 
+  /**
+   * Hiển thị bảng tạo mới tài khoản Admin phụ.
+   */
   @FXML
   public void handleShowCreateAdminForm() {
     createAdminForm.setVisible(true);
@@ -206,6 +225,9 @@ public class UserManagerController implements Initializable {
     adminPasswordField.clear();
   }
 
+  /**
+   * Hủy thao tác tạo mới tài khoản Admin phụ và ẩn bảng đi.
+   */
   @FXML
   public void handleCancelCreateAdmin() {
     createAdminForm.setVisible(false);
@@ -214,6 +236,9 @@ public class UserManagerController implements Initializable {
     adminPasswordField.clear();
   }
 
+  /**
+   * Ẩn phần giao diện tạo mới Admin phụ.
+   */
   public void hideCreateAdminSection() {
     createAdminForm.setVisible(false);
     createAdminForm.setManaged(false);
@@ -221,6 +246,9 @@ public class UserManagerController implements Initializable {
     adminPasswordField.clear();
   }
 
+  /**
+   * Gửi yêu cầu tạo mới tài khoản Admin lên Server.
+   */
   @FXML
   public void handleCreateAdminSubmit() {
     String phoneNumber = adminPhoneField.getText().trim();

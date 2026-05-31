@@ -5,13 +5,13 @@ import com.auction.client.network.SessionManager;
 import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.enums.OrderStatus;
 import com.auction.shared.model.auction.AuctionDTO;
-import com.auction.shared.request.*;
+import com.auction.shared.request.GetOrdersOfSellerRequestDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
