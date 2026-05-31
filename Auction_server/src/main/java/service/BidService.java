@@ -39,17 +39,25 @@ public class BidService {
   private static final BigDecimal FREEZE_RATE = new BigDecimal("0.1");
   private static final ConcurrentHashMap<String, Object> auctionLocks = new ConcurrentHashMap<>();
 
+  private static class Holder {
+    private static final BidService INSTANCE = new BidService();
+  }
+
+  public static BidService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production (không làm thay đổi code cũ).
    */
-  public BidService() {
+  private BidService() {
     this(
-        new AuctionRepository(),
-        new BidTransactionRepository(),
-        new AutoBidConfigRepository(),
-        new WalletService(),
-        new WalletRepository(),
-        new UserRepository(),
+        AuctionRepository.getInstance(),
+        BidTransactionRepository.getInstance(),
+        AutoBidConfigRepository.getInstance(),
+        WalletService.getInstance(),
+        WalletRepository.getInstance(),
+        UserRepository.getInstance(),
         DatabaseConnection::getConnection
     );
   }

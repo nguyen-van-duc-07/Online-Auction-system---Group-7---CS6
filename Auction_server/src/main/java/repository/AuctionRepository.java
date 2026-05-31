@@ -20,6 +20,16 @@ import org.slf4j.LoggerFactory;
 public class AuctionRepository {
   private static final Logger log = LoggerFactory.getLogger(AuctionRepository.class);
 
+  private AuctionRepository() {}
+
+  private static class Holder {
+    private static final AuctionRepository INSTANCE = new AuctionRepository();
+  }
+
+  public static AuctionRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   public List<AuctionDTO> findAuctionsByStatusForBidder(AuctionStatus status) {
     List<AuctionDTO> auctions = new ArrayList<>();
     String sql = "SELECT id, start_time, end_time, status, current_price, item_name, item_type "
@@ -110,7 +120,7 @@ public class AuctionRepository {
         try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
           psSelect.setString(1, userId);
           try (ResultSet rs = psSelect.executeQuery()) {
-            service.WalletService walletService = new service.WalletService();
+            service.WalletService walletService = service.WalletService.getInstance();
             while (rs.next()) {
               String auctionId = rs.getString("id");
               String highestBidderId = rs.getString("highest_bidder_id");
@@ -185,7 +195,7 @@ public class AuctionRepository {
 
         // 2. Xóa toàn bộ lịch sử đặt giá cũ của các phiên bị hủy (nếu có)
         if (!canceledIds.isEmpty()) {
-          BidTransactionRepository bidRepo = new BidTransactionRepository();
+          BidTransactionRepository bidRepo = BidTransactionRepository.getInstance();
           bidRepo.deleteByAuctionIds(conn, canceledIds);
         }
 
@@ -252,7 +262,7 @@ public class AuctionRepository {
           return false;
         }
 
-        BidTransactionRepository bidRepo = new BidTransactionRepository();
+        BidTransactionRepository bidRepo = BidTransactionRepository.getInstance();
         List<String> auctionIds = new ArrayList<>();
         auctionIds.add(auctionId);
         bidRepo.deleteByAuctionIds(conn, auctionIds);
@@ -355,7 +365,7 @@ public class AuctionRepository {
     auction.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
     auction.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
 
-    UserRepository userRepo = new UserRepository();
+    UserRepository userRepo = UserRepository.getInstance();
     String highestBidderId = rs.getString("highest_bidder_id");
     String highestBidderName = userRepo.getAccountNameByUserId(rs.getString("highest_bidder_id"));
 
@@ -614,7 +624,7 @@ public class AuctionRepository {
 
         if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty() && auction.getCurrentHighestPrice() != null) {
           java.math.BigDecimal releaseAmount = auction.getCurrentHighestPrice().multiply(new java.math.BigDecimal("0.1"));
-          new service.WalletService().releaseFrozen(conn, auction.getHighestBidderId(), releaseAmount, auctionId);
+          service.WalletService.getInstance().releaseFrozen(conn, auction.getHighestBidderId(), releaseAmount, auctionId);
           log.info("[CANCEL - RELEASE] Hoàn trả cọc {} cho user {} khi hủy đấu giá {}", releaseAmount, auction.getHighestBidderId(), auctionId);
         }
 

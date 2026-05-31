@@ -28,17 +28,25 @@ public class WalletService {
   private final config.ConnectionProvider connectionProvider;
   private final NotificationService notifService;
 
+  private static class Holder {
+    private static final WalletService INSTANCE = new WalletService();
+  }
+
+  public static WalletService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production (không làm thay đổi code cũ).
    * Tự động khởi tạo và liên kết các Repository và Service liên quan.
    */
-  public WalletService() {
+  private WalletService() {
     this(
-        new WalletRepository(),
-        new WalletTransactionRepository(),
-        new SellerProfileRepository(),
+        WalletRepository.getInstance(),
+        WalletTransactionRepository.getInstance(),
+        SellerProfileRepository.getInstance(),
         DatabaseConnection::getConnection,
-        new NotificationService()
+        NotificationService.getInstance()
     );
   }
 

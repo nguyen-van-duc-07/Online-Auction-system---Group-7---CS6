@@ -151,14 +151,8 @@ public class Server {
 
   public static void broadcastToAll(ResponseDTO responseDTO) {
     for (ClientHandler client : connectedClients.values()) {
-      client.sendData(responseDTO);
-    }
-  }
-
-  public static void broadcastToBidders(Object dto) {
-    for (ClientHandler client : connectedClients.values()) {
-      if (client.getRole() == UserRole.BIDDER) {
-        client.sendData(dto);
+      if (client.getRole() != UserRole.ADMIN) {
+        client.sendData(responseDTO);
       }
     }
   }

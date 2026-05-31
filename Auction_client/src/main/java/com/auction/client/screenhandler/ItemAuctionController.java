@@ -2,6 +2,7 @@ package com.auction.client.screenhandler;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.network.SessionManager;
+import com.auction.shared.enums.AuctionStatus;
 import com.auction.shared.util.CurrencyUtils;
 import com.auction.shared.model.transaction.BidTransaction;
 import com.auction.shared.request.GetBalanceRequestDTO;
@@ -72,7 +73,6 @@ public class ItemAuctionController implements Initializable {
   @FXML
   private Label walletBalanceLabel;
 
-  // --- AUTO-BID UI COMPONENTS ---
   @FXML
   private CheckBox autoBidCheckBox;
   @FXML
@@ -88,7 +88,6 @@ public class ItemAuctionController implements Initializable {
   private VBox bidHistoryContainer;
 
 
-  // Quick Add buttons
   @FXML
   private Button btnQuickAdd1;
   @FXML
@@ -143,7 +142,7 @@ public class ItemAuctionController implements Initializable {
           }
           bidAmountField.clear();
           clearError();
-          // --- CẢI TIẾN TRẢI NGHIỆM TẬP TRUNG (FOCUS UX) ---
+
           // Giật focus ra khỏi ô nhập tay chính (1 lần duy nhất lúc tích)
           bidAmountField.getParent().requestFocus();
           // Tự động đưa con trỏ chuột vào ô "Giá tối đa" để người dùng nhập luôn, đỡ phải click
@@ -192,8 +191,6 @@ public class ItemAuctionController implements Initializable {
       });
     });
 
-    // Lấy số dư mới nhất từ Server khi vừa mở màn hình đấu giá
-    ServerConnection.sendData(new GetBalanceRequestDTO());
     ServerConnection.sendData(new JoinRoomRequestDTO(SessionManager.getCurrentAuctionId()));
   }
 
@@ -379,12 +376,21 @@ public class ItemAuctionController implements Initializable {
       // Kịch bản Sàn đấu giá mới tinh (giữ nguyên logic gốc của bạn)
       priceSeries.getData().add(new XYChart.Data<>("Bắt đầu", currentAuction.getCurrentHighestPrice().doubleValue()));
 
-      Notifications.create()
-          .title("Sàn đấu giá đã mở!")
-          .text("Sản phẩm chưa có ai trả giá. Hãy là người dẫn đầu!")
-          .hideAfter(javafx.util.Duration.seconds(8))
-          .position(Pos.BOTTOM_RIGHT)
-          .showInformation();
+      /* Chỉ hiển thị thông báo khi phiên đấu giá đang mở (ACTIVE)
+      và người xem không phải là người tạo ra phiên đấu giá
+       */
+      boolean isCurrentUserNotCreator = SessionManager.getCurrentUser() != null
+          && !SessionManager.getCurrentUser().getId().equals(currentAuction.getUserId());
+      boolean isAuctionActive = currentAuction.getStatus() == AuctionStatus.ACTIVE;
+
+      if (isCurrentUserNotCreator && isAuctionActive) {
+        Notifications.create()
+            .title("Sàn đấu giá đã mở!")
+            .text("Sản phẩm chưa có ai trả giá. Hãy là người dẫn đầu!")
+            .hideAfter(javafx.util.Duration.seconds(8))
+            .position(Pos.BOTTOM_RIGHT)
+            .showInformation();
+      }
     }
 
     priceChart.getData().add(priceSeries);

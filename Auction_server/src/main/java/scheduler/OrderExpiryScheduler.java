@@ -20,7 +20,7 @@ public class OrderExpiryScheduler {
    * Constructor mặc định cho Production.
    */
   public OrderExpiryScheduler() {
-    this(new OrderService());
+    this(OrderService.getInstance());
   }
 
   /**

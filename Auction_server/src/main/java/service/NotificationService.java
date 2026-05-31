@@ -15,11 +15,19 @@ import com.auction.shared.util.CurrencyUtils;
 public class NotificationService {
   private final NotificationRepository notifRepo;
 
+  private static class Holder {
+    private static final NotificationService INSTANCE = new NotificationService();
+  }
+
+  public static NotificationService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho Production.
    */
-  public NotificationService() {
-    this(new NotificationRepository());
+  private NotificationService() {
+    this(NotificationRepository.getInstance());
   }
 
   /**
@@ -62,7 +70,7 @@ public class NotificationService {
         LocalDateTime.now()
     );
 
-    Server.broadcastToBidders(dto);
+    Server.broadcastToAll(dto);
   }
 
   public List<Notification> getNotifications(String userId) {

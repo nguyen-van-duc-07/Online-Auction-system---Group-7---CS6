@@ -17,6 +17,16 @@ import org.slf4j.LoggerFactory;
 public class OrderRepository {
   private static final Logger log = LoggerFactory.getLogger(OrderRepository.class);
 
+  private OrderRepository() {}
+
+  private static class Holder {
+    private static final OrderRepository INSTANCE = new OrderRepository();
+  }
+
+  public static OrderRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   public boolean saveOrder(Connection conn, Order order) {
     String sql = "INSERT INTO orders (id, auction_id, buyer_id, seller_id, final_price, deposit_amount, remaining_amount, consignee_name, phone_number, address, status, item_name, brand_name) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -183,7 +193,7 @@ public class OrderRepository {
 
     String brandName = rs.getString("brand_name");
     if (brandName == null || brandName.trim().isEmpty()) {
-      SellerProfileRepository sellerProfileRepo = new SellerProfileRepository();
+      SellerProfileRepository sellerProfileRepo = SellerProfileRepository.getInstance();
       ShopInfoDTO shopInfo = sellerProfileRepo.getShopInfo(orderDTO.getSellerId());
       if (shopInfo != null) {
         brandName = shopInfo.getBrandName();
@@ -193,7 +203,7 @@ public class OrderRepository {
 
     String consigneeName = rs.getString("consignee_name");
     if (consigneeName == null || consigneeName.trim().isEmpty()) {
-      UserRepository userRepo = new UserRepository();
+      UserRepository userRepo = UserRepository.getInstance();
       consigneeName = userRepo.getAccountNameByUserId(orderDTO.getBuyerId());
     }
     orderDTO.setWinnerName(consigneeName);

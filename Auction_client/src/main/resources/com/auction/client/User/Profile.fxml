@@ -24,7 +24,12 @@
                         <Insets bottom="30.0" top="30.0" />
                     </padding>
                     <children>
-                        <Circle fx:id="avatarCircle" fill="WHITE" radius="70.0" stroke="#FFFFFF" strokeWidth="5.0" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);" />
+                        <Circle fx:id="avatarCircle" fill="WHITE" onMouseClicked="#handleViewFullAvatar" radius="70.0" stroke="#FFFFFF" strokeWidth="5.0" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0); -fx-cursor: hand;" />
+                        <Button mnemonicParsing="false" onAction="#handleChooseAvatar" style="-fx-background-color: linear-gradient(to right, #2BA659, #48bb78); -fx-background-radius: 20; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 8 16 8 16; -fx-font-size: 12;" text="Chọn ảnh">
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                        </Button>
                         <Label fx:id="accountNameLabel" text="Chưa có thông tin" textFill="#2C3E50">
                             <font><Font name="System Bold" size="28.0" /></font>
                         </Label>

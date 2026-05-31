@@ -15,11 +15,19 @@ public class AutoBidService {
   private final AutoBidConfigRepository configRepo;
   private final AuctionRepository auctionRepo;
 
+  private static class Holder {
+    private static final AutoBidService INSTANCE = new AutoBidService();
+  }
+
+  public static AutoBidService getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Constructor mặc định cho môi trường Production.
    */
-  public AutoBidService() {
-    this(new AutoBidConfigRepository(), new AuctionRepository());
+  private AutoBidService() {
+    this(AutoBidConfigRepository.getInstance(), AuctionRepository.getInstance());
   }
 
   /**

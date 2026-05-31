@@ -18,6 +18,16 @@ import org.slf4j.LoggerFactory;
 public class UserRepository {
   private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
+  private UserRepository() {}
+
+  private static class Holder {
+    private static final UserRepository INSTANCE = new UserRepository();
+  }
+
+  public static UserRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Lấy mật khẩu của người dùng theo tên tài khoản.
    *

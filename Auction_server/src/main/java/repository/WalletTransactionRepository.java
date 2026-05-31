@@ -13,6 +13,15 @@ import com.auction.shared.enums.WalletTransactionType;
 import java.math.BigDecimal;
 
 public class WalletTransactionRepository {
+  private WalletTransactionRepository() {}
+
+  private static class Holder {
+    private static final WalletTransactionRepository INSTANCE = new WalletTransactionRepository();
+  }
+
+  public static WalletTransactionRepository getInstance() {
+    return Holder.INSTANCE;
+  }
   public boolean saveWalletTransaction(Connection conn, WalletTransaction walletTransaction) {
     String sql = "INSERT INTO wallet_transactions "
         + "(id, wallet_id, type, amount, reference_id, status) "

@@ -13,6 +13,16 @@ import org.slf4j.LoggerFactory;
 public class NotificationRepository {
   private static final Logger log = LoggerFactory.getLogger(NotificationRepository.class);
 
+  private NotificationRepository() {}
+
+  private static class Holder {
+    private static final NotificationRepository INSTANCE = new NotificationRepository();
+  }
+
+  public static NotificationRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   public boolean save(Notification notification) {
     String sql = "INSERT INTO notifications (id, user_id, type, title, content, reference_id, is_read, created_at) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";

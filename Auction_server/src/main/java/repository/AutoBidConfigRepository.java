@@ -12,6 +12,16 @@ import org.slf4j.LoggerFactory;
 public class AutoBidConfigRepository {
   private static final Logger log = LoggerFactory.getLogger(AutoBidConfigRepository.class);
 
+  private AutoBidConfigRepository() {}
+
+  private static class Holder {
+    private static final AutoBidConfigRepository INSTANCE = new AutoBidConfigRepository();
+  }
+
+  public static AutoBidConfigRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   public boolean save(AutoBidConfig config) {
     // Nếu đã có config cho user+auction này thì UPDATE, không thì INSERT
     String sql = "INSERT INTO auto_bid_configs (id, user_id, auction_id, max_price, step_amount, is_active) "

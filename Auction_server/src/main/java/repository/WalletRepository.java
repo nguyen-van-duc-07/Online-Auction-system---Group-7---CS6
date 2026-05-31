@@ -18,6 +18,16 @@ import org.slf4j.LoggerFactory;
 public class WalletRepository {
   private static final Logger log = LoggerFactory.getLogger(WalletRepository.class);
 
+  private WalletRepository() {}
+
+  private static class Holder {
+    private static final WalletRepository INSTANCE = new WalletRepository();
+  }
+
+  public static WalletRepository getInstance() {
+    return Holder.INSTANCE;
+  }
+
   /**
    * Tạo một ví điện tử mới và liên kết nó với tài khoản người dùng.
    * Phương thức này nhận một đối tượng {@link Connection} từ bên ngoài truyền vào.

@@ -711,11 +711,6 @@ public class ResponseHandler {
    */
   public static void handleNewNotification(NotificationDTO dto) {
     Platform.runLater(() -> {
-      // Cập nhật badge
-      MainLayoutController controller = MainLayoutController.getInstance();
-      if (controller != null) {
-        controller.incrementNotificationBadge();
-      }
       log.info("[CLIENT] Thông báo mới: {}", dto.getTitle());
 
       if (dto.getType() == NotificationType.SYSTEM && dto.getReferenceId() != null) {
