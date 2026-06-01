@@ -175,35 +175,56 @@ Sau khi build dự án thành công bằng lệnh Maven, các tệp đóng gói 
 > [!IMPORTANT]
 > Server của hệ thống hiện đang được **triển khai và vận hành 24/7 trên máy ảo Azure VM** (IP: `20.189.123.212`). Bạn **chỉ cần chạy Client** là ứng dụng sẽ tự động kết nối đến Server trên cloud — **không cần khởi chạy Server trên máy local**.
 
-### 🛠️ Bước 1: Biên dịch và đóng gói dự án
-Mở cửa sổ dòng lệnh (Terminal/Command Prompt) tại thư mục gốc của dự án và chạy:
-```bash
-# Sử dụng Maven Wrapper tích hợp sẵn:
-.\mvnw clean package -DskipTests
-```
-> [!NOTE]
-> Lệnh này sẽ tự động dọn dẹp thư mục build cũ, biên dịch mã nguồn Java 21, xử lý annotation Lombok, và sinh ra các tệp `.jar` tại thư mục `target` tương ứng.
+### 👥 5.1. Khởi chạy NHANH Client bằng file `.jar` có sẵn (Khuyên dùng)
+Nếu thư mục dự án của bạn đã có sẵn thư mục `target` chứa bản build (ví dụ khi tải về từ repository đã có sẵn file `Auction_client/target/Auction_client-1.0-SNAPSHOT-fat.jar`), bạn có thể khởi chạy ứng dụng Client ngay lập tức mà không cần biên dịch lại:
 
-### 👥 Bước 2: Khởi chạy ứng dụng Client
-Có thể mở **nhiều Client đồng thời** để mô phỏng nhiều người dùng đấu giá cùng lúc. Client sẽ tự động kết nối đến Server trên Azure VM.
-
-**Cách 1 — Chạy bằng Fat JAR (✅ Khuyên dùng):**
+Mở terminal/dòng lệnh tại thư mục gốc của dự án và chạy:
 ```bash
 java -jar Auction_client/target/Auction_client-1.0-SNAPSHOT-fat.jar
 ```
-> [!TIP]
-> Đây là cách đơn giản nhất — chỉ cần có Java là chạy được, không cần Maven hay IDE.
+*(Lệnh này đơn giản nhất, hoạt động giống nhau hoàn toàn trên cả **Windows, macOS và Linux** và chỉ cần máy tính của bạn đã được cài đặt Java 21+).*
 
-**Cách 2 — Chạy thông qua Maven:**
+---
+
+### 🛠️ 5.2. Tùy chọn biên dịch & khởi chạy từ mã nguồn (Khi có chỉnh sửa code)
+Nếu bạn thay đổi mã nguồn hoặc muốn tự build lại hệ thống từ đầu, hãy làm theo các bước sau:
+
+#### 🔹 Bước 1: Biên dịch và đóng gói dự án
+Mở cửa sổ dòng lệnh tại thư mục gốc của dự án và chạy:
 ```bash
-.\mvnw -pl Auction_client compile exec:java -Dexec.mainClass="com.auction.client.Main"
-```
+# Trên Windows (cmd/PowerShell):
+.\mvnw.cmd clean package -DskipTests
 
-**Cách 3 — Chạy trên IDE (IntelliJ IDEA / Eclipse):**
-1. Mở thư mục dự án gốc bằng **IntelliJ IDEA** (khuyên dùng) hoặc **Eclipse**.
-2. Chờ IDE đồng bộ và tải cấu hình Maven.
-3. Tìm tới lớp `com.auction.client.Main` tại module `Auction_client`.
-4. Nhấn nút **Run** (hoặc tổ hợp phím `Shift + F10`) để hiển thị giao diện đăng nhập.
+# Trên macOS/Linux:
+chmod +x mvnw
+./mvnw clean package -DskipTests
+```
+*(Lệnh này sẽ dọn dẹp thư mục build cũ, biên dịch mã nguồn Java 21 mới nhất và sinh ra các tệp `.jar` mới trong thư mục `target` của các module).*
+
+#### 🔹 Bước 2: Khởi chạy Client từ bản build mới
+Bạn có thể mở nhiều Client cùng lúc để đấu giá thử nghiệm theo một trong các cách sau:
+
+* **Cách A — Chạy qua file JAR vừa build (Đơn giản nhất):**
+  ```bash
+  java -jar Auction_client/target/Auction_client-1.0-SNAPSHOT-fat.jar
+  ```
+* **Cách B — Chạy thông qua Maven:**
+  ```bash
+  # Trên Windows (cmd/PowerShell):
+  .\mvnw.cmd -pl Auction_client compile exec:java -Dexec.mainClass="com.auction.client.Main"
+
+  # Trên macOS/Linux:
+  ./mvnw -pl Auction_client compile exec:java -Dexec.mainClass="com.auction.client.Main"
+  ```
+* **Cách C — Chạy trên các IDE (IntelliJ IDEA / Eclipse):**
+  1. Mở thư mục gốc của dự án bằng IDE.
+  2. Chờ IDE đồng bộ và nạp cấu hình Maven.
+  3. Mở lớp `com.auction.client.Main` tại module `Auction_client` và chọn **Run** (phím tắt `Shift + F10`).
+
+> [!TIP]
+> **Tài khoản Admin dùng thử hệ thống:**
+> * **Đăng nhập (Sđt):** `12345678`
+> * **Mật khẩu (Password):** `admin`
 
 ---
 
@@ -213,7 +234,7 @@ Nếu bạn muốn chạy Server riêng trên máy local thay vì sử dụng Se
 
 **Bước A — Chỉnh cấu hình Client trỏ về localhost:**
 
-Mở file `Auction_client/config.properties` và thay đổi giá trị `server.host` từ IP Azure VM sang `localhost`:
+Mở file `config.properties` (nằm tại thư mục gốc của hệ thống) và thay đổi giá trị `server.host` từ IP Azure VM sang `localhost` (bạn nên thay đổi đồng thời cả file `Auction_client/config.properties` để chạy ứng dụng ổn định khi chọn nút Run trực tiếp trong IDE):
 
 ```properties
 # Trước (kết nối Azure VM):
@@ -230,7 +251,11 @@ server.host=localhost
 java -jar Auction_server/target/Auction_server-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 # Cách 2 — Chạy thông qua Maven:
-.\mvnw -pl Auction_server compile exec:java -Dexec.mainClass="servercontroller.Server"
+# Trên Windows (cmd/PowerShell):
+.\mvnw.cmd -pl Auction_server compile exec:java -Dexec.mainClass="servercontroller.Server"
+
+# Trên macOS/Linux:
+./mvnw -pl Auction_server compile exec:java -Dexec.mainClass="servercontroller.Server"
 ```
 
 > [!TIP]
