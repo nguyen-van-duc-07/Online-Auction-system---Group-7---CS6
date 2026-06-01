@@ -1,7 +1,16 @@
-target/
+# Ignore target directories for root, shared, and report modules
+/target/
+/Auction_shared/target/
+/Auction_report/target/
+
+# Allow tracking target/ of Auction_client and Auction_server (only .jar files to keep repo clean)
+/Auction_client/target/*
+!/Auction_client/target/*.jar
+/Auction_server/target/*
+!/Auction_server/target/*.jar
+
+# Keep maven wrapper
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 .kotlin
 
 ### IntelliJ IDEA ###
